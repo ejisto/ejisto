@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ~ Copyright 2010 Celestino Bellone ~ ~ Licensed under the Apache License, 
+	Version 2.0 (the "License"); ~ you may not use this file except in compliance 
+	with the License. ~ You may obtain a copy of the License at ~ ~ http://www.apache.org/licenses/LICENSE-2.0 
+	~ ~ Unless required by applicable law or agreed to in writing, software ~ 
+	distributed under the License is distributed on an "AS IS" BASIS, ~ WITHOUT 
+	WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. ~ See the 
+	License for the specific language governing permissions ~ and limitations 
+	under the License. -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util.xsd
+           http://www.springframework.org/schema/jdbc
+           http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
+
+	<context:annotation-config />
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>messages</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="springBridge" class="com.ejisto.util.SpringBridge"
+		factory-method="getInstance" />
+		
+	<util:properties id="settings" location="classpath:settings.properties" />
+
+
+	<bean id="contexts"
+		class="org.eclipse.jetty.server.handler.ContextHandlerCollection"
+		lazy-init="true">
+
+		<property name="handlers">
+			<list>
+				<bean id="defaultHandler" class="com.ejisto.core.jetty.handlers.EmptyHandler" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- init-method="start" destroy-method="stop" -->
+	<bean id="jettyServer" class="org.eclipse.jetty.server.Server"
+		lazy-init="true">
+
+		<property name="threadPool">
+			<bean id="threadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+				<property name="minThreads" value="10" />
+				<property name="maxThreads" value="50" />
+			</bean>
+		</property>
+
+		<property name="connectors">
+			<list>
+				<bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+					<property name="port" value="9000" />
+				</bean>
+			</list>
+		</property>
+
+		<property name="handler">
+			<bean id="handlers" class="org.eclipse.jetty.server.handler.HandlerCollection">
+				<property name="handlers">
+					<list>
+						<ref bean="contexts" />
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="applicationController" class="com.ejisto.core.launcher.ApplicationController" />
+	<bean id="eventManager" class="com.ejisto.event.EventManager" />
+	<bean id="application" class="com.ejisto.modules.gui.Application"
+		depends-on="settingsManager" />
+	<bean id="settingsManager" class="com.ejisto.modules.conf.SettingsManager" />
+	<bean id="propertyManager" class="com.ejisto.core.classloading.javassist.PropertyManager" />
+
+	<bean id="serverController" class="com.ejisto.event.listener.ServerController" />
+	<bean id="logManager" class="com.ejisto.event.listener.LogManager" />
+	<bean id="applicationLoader" class="com.ejisto.event.listener.WebApplicationLoader" />
+	<bean id="errorListener" class="com.ejisto.event.listener.ErrorListener" />
+	<bean id="fieldChangesListener" class="com.ejisto.event.listener.FieldsUpdateListener" />
+
+
+	<util:list id="services" value-type="com.ejisto.services.Service">
+		<bean class="com.ejisto.services.shutdown.JettyShutdown" />
+		<bean class="com.ejisto.services.startup.ResourcesInitializer" />
+		<bean class="com.ejisto.services.startup.ApplicationStartup" />
+		<bean class="com.ejisto.services.shutdown.DatabaseDump" />
+	</util:list>
+
+
+	<bean abstract="true" id="baseDao" class="com.ejisto.modules.dao.BaseDao"
+		lazy-init="true" />
+	<bean id="settingsDao" class="com.ejisto.modules.dao.SettingsDao"
+		parent="baseDao" lazy-init="true" />
+	<bean id="mockedFieldsDao" class="com.ejisto.modules.dao.MockedFieldsDao"
+		parent="baseDao" lazy-init="true" />
+
+	<bean id="dataSource" class="com.ejisto.modules.dao.db.EmbeddedDatabaseManager"
+		lazy-init="true" />
+
+</beans>
+

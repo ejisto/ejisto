@@ -1,0 +1,4 @@
+INSERT INTO MOCKEDFIELDS(CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE) VALUES('/ejisto-test','com.ejisto.hello.beans.HelloWorldBean','title','java.lang.String','Welcome to Ejisto! :)');
+INSERT INTO MOCKEDFIELDS(CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE) VALUES('/ejisto-test','com.ejisto.hello.beans.HelloWorldBean','description','java.lang.String','This is a sample description for field');
+INSERT INTO MOCKEDFIELDS(CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE) VALUES('/ejisto-test','com.ejisto.hello.beans.HelloWorldBean','hits','java.lang.Integer','1');
+INSERT INTO MOCKEDFIELDS(CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE) VALUES('/ejisto-test','com.ejisto.hello.beans.HelloWorldBean','timestamp','java.lang.Long','10201202');
