@@ -16,7 +16,11 @@
 
 package com.ejisto.event.listener;
 
-import static ch.lambdaj.Lambda.*;
+import static ch.lambdaj.Lambda.forEach;
+import static ch.lambdaj.Lambda.having;
+import static ch.lambdaj.Lambda.on;
+import static ch.lambdaj.Lambda.select;
+import static ch.lambdaj.Lambda.var;
 import static com.ejisto.util.GuiUtils.centerOnScreen;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.showWarning;
@@ -51,9 +55,6 @@ import javassist.NotFoundException;
 
 import javax.annotation.Resource;
 import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
@@ -65,22 +66,23 @@ import org.jdesktop.swingx.JXDialog;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.Assert;
 
+import ch.lambdaj.function.closure.Closure0;
+import ch.lambdaj.function.closure.Closure1;
+
 import com.ejisto.constants.StringConstants;
 import com.ejisto.core.classloading.EjistoClassLoader;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
-import com.ejisto.event.def.LoadWebApplication;
 import com.ejisto.event.def.ApplicationError.Priority;
+import com.ejisto.event.def.LoadWebApplication;
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.ApplicationInstallerWizard;
+import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.gui.components.helper.Step;
 import com.ejisto.util.WebApplicationDescriptor;
-
-import ch.lambdaj.function.closure.Closure0;
-import ch.lambdaj.function.closure.Closure1;
 
 public class WebApplicationLoader implements ApplicationListener<LoadWebApplication>, ActionListener {
 
@@ -99,7 +101,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     private MockedFieldsDao mockedFieldsDao;
     private Step currentStep = Step.FILE_SELECTION;
     private ApplicationInstallerWizard wizard;
-    private JXDialog dialog;
+    private EjistoDialog dialog;
     private File selectedFile;
     private WebApplicationDescriptor webApplicationDescriptor;
     private Closure1<ActionEvent> callActionPerformed;
@@ -118,20 +120,15 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     @Override
     public void onApplicationEvent(LoadWebApplication event) {
         initClosures();
-        dialog = new JXDialog(application, createWizard()) {
-            private static final long serialVersionUID = 1L;
-            @Override
-            protected JComponent createButtonPanel() {
-                JComponent ret = super.createButtonPanel();
-                getRootPane().getActionMap().put(NEXT_STEP_COMMAND, new CallbackAction(getMessage("buttons.next.text"), NEXT_STEP_COMMAND, callActionPerformed));
-                getRootPane().getActionMap().put(PREVIOUS_STEP_COMMAND,new CallbackAction(getMessage("buttons.previous.text"), PREVIOUS_STEP_COMMAND, callActionPerformed));
-                JButton next = new JButton(getRootPane().getActionMap().get(NEXT_STEP_COMMAND));
-                JButton prev = new JButton(getRootPane().getActionMap().get(PREVIOUS_STEP_COMMAND));
-                ret.add(prev);
-                ret.add(next);
-                return ret;
-            }
-        };
+        dialog = new EjistoDialog(application, getMessage("wizard.title"), createWizard(), false);
+        dialog.registerAction(new CallbackAction(getMessage("buttons.previous.text"), PREVIOUS_STEP_COMMAND, callActionPerformed));
+        dialog.registerAction(new CallbackAction(getMessage("buttons.next.text"), NEXT_STEP_COMMAND, callActionPerformed));
+        Action act = new CallbackAction(getMessage("wizard.ok.text"), confirm);
+        act.setEnabled(isSummaryStep());
+        dialog.registerAction(act);
+        dialog.registerAction(new CallbackAction(getMessage("wizard.close.text"), EjistoDialog.CLOSE_ACTION_COMMAND, closeDialog));
+        dialog.putAction(ApplicationInstallerWizard.SELECT_FILE_COMMAND, new CallbackAction("...", ApplicationInstallerWizard.SELECT_FILE_COMMAND, selectFile)); 
+        wizard.initActions();
         dialog.setModalityType(ModalityType.APPLICATION_MODAL);
         dialog.setSize(600, 500);
         centerOnScreen(dialog);
@@ -142,18 +139,11 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
 
     private ApplicationInstallerWizard createWizard() {
         wizard = new ApplicationInstallerWizard();
-        ActionMap map = wizard.getActionMap();
-        map.put(ApplicationInstallerWizard.SELECT_FILE_COMMAND, new CallbackAction("...", selectFile)); 
-        map.put(JXDialog.CLOSE_ACTION_COMMAND, new CallbackAction(getMessage("wizard.close.text"), closeDialog)); 
-        Action act = new CallbackAction(getMessage("wizard.ok.text"), confirm);
-        act.setEnabled(isSummaryStep());
-        map.put(JXDialog.EXECUTE_ACTION_COMMAND, act);
-        wizard.initActions();
         return wizard;
     }
     
     void closeDialog() {
-        if(showExitWarning()) dialog.doClose();
+        if(showExitWarning()) dialog.close();
     }
     
     boolean isSummaryStep() {

@@ -1,8 +1,10 @@
 package com.ejisto.modules.gui.components.helper;
 
 import java.awt.event.ActionEvent;
+import java.util.UUID;
 
 import org.jdesktop.swingx.action.AbstractActionExt;
+import org.springframework.util.StringUtils;
 
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.closure.Closure1;
@@ -18,9 +20,9 @@ public class CallbackAction extends AbstractActionExt {
     public CallbackAction(String name, Closure1<ActionEvent> callback) {
         this(name, null, callback, null);
     }
-    
+
     public CallbackAction(String name, Closure0 callback1) {
-        this(name, (String)null, callback1);
+        this(name, (String) null, callback1);
     }
 
     public CallbackAction(String name, String command, Closure1<ActionEvent> callback) {
@@ -30,7 +32,7 @@ public class CallbackAction extends AbstractActionExt {
     public CallbackAction(String name, Closure1<ActionEvent> target, Closure0 checkEnabled) {
         this(name, null, target, checkEnabled);
     }
-    
+
     public CallbackAction(String name, String command, Closure0 callback1) {
         this(name, command, null, callback1, null);
     }
@@ -43,7 +45,7 @@ public class CallbackAction extends AbstractActionExt {
         this(name, command, callback2, null, checkEnabled);
     }
 
-    public CallbackAction(String name, String command,Closure1<ActionEvent> callback2, Closure0 callback1, Closure0 checkEnabled) {
+    public CallbackAction(String name, String command, Closure1<ActionEvent> callback2, Closure0 callback1, Closure0 checkEnabled) {
         super(name, command);
         this.callback1 = callback1;
         this.callback2 = callback2;
@@ -52,17 +54,23 @@ public class CallbackAction extends AbstractActionExt {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (callback2 != null)
-            callback2.apply(e);
-        if(callback1 != null)
-            callback1.apply();
+        if (callback2 != null) callback2.apply(e);
+        if (callback1 != null) callback1.apply();
     }
 
     @Override
     public boolean isEnabled() {
-        if (checkEnabled != null)
-            return (Boolean) checkEnabled.apply();
+        if (checkEnabled != null) return (Boolean) checkEnabled.apply();
         return super.isEnabled();
     }
 
+    @Override
+    public String getActionCommand() {
+        String actionCommand = String.valueOf(super.getValue(ACTION_COMMAND_KEY));
+        if (StringUtils.hasText(actionCommand) || actionCommand.equals("null")) {
+            actionCommand = UUID.randomUUID().toString();
+            super.putValue(ACTION_COMMAND_KEY, actionCommand);
+        }
+        return actionCommand;
+    }
 }

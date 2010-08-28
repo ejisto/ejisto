@@ -16,7 +16,6 @@ import javax.swing.JButton;
 
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.JXTitledPanel;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.helper.Step;
@@ -26,7 +25,7 @@ public class ApplicationInstallerWizard extends JXPanel {
 	private static final long serialVersionUID = 788313444893972067L;
 	public static final String SELECT_FILE_COMMAND = "openSelectionDialog";
 	private JXPanel content = null;
-	private JXTitledPanel fileSelectionPanel = null;
+	private JXPanel fileSelectionPanel;
 	private JXPanel cardContainer;
 	private JXPanel fileSelectionTab;
 	private ProgressPanel applicationScanningTab;
@@ -37,7 +36,6 @@ public class ApplicationInstallerWizard extends JXPanel {
 	private CardLayout cardManager;
 	private JXLabel selectedFilePath = null;
 	private JButton fileSelection = null;
-    private Header header;
 
 	public ApplicationInstallerWizard() {
 		super();
@@ -69,19 +67,12 @@ public class ApplicationInstallerWizard extends JXPanel {
 	}
 	
 	private void initialize() {
-        this.setLayout(new BorderLayout());
-        this.setSize(new Dimension(500, 400));
+        this.setLayout(new BorderLayout(0,0));
+        this.setSize(new Dimension(600, 500));
         this.setMinimumSize(new Dimension(500, 400));
-        this.add(getHeader(), BorderLayout.NORTH);
         this.add(getContent(), BorderLayout.CENTER);
 	}
 	
-	private Header getHeader() {
-        if(header != null) return header;
-        header = new Header();
-        return header;
-    }
-
 	/**
 	 * This method initializes content	
 	 * 	
@@ -94,7 +85,6 @@ public class ApplicationInstallerWizard extends JXPanel {
 			borderLayout.setVgap(20);
 			content = new JXPanel();
 			content.setLayout(borderLayout);
-			content.add(getFileSelectionPanel(), BorderLayout.NORTH);
 			content.add(getCardContainer(), BorderLayout.CENTER);
 		}
 		return content;
@@ -118,7 +108,7 @@ public class ApplicationInstallerWizard extends JXPanel {
 	private JXPanel getFileSelectionTab() {
 	    if(fileSelectionTab != null) return fileSelectionTab;
 	    fileSelectionTab = new JXPanel(new FlowLayout());
-	    fileSelectionTab.add(new JXLabel(getMessage("wizard.file.selection.tab.message")));
+	    fileSelectionTab.add(getFileSelectionPanel());
 	    return fileSelectionTab;
 	}
 	
@@ -157,21 +147,19 @@ public class ApplicationInstallerWizard extends JXPanel {
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */
-	private JXTitledPanel getFileSelectionPanel() {
+	private JXPanel getFileSelectionPanel() {
 		if (fileSelectionPanel == null) {
-			JXPanel container = new JXPanel();
+		    fileSelectionPanel = new JXPanel();
 			FlowLayout flowLayout = new FlowLayout();
 			flowLayout.setAlignment(java.awt.FlowLayout.CENTER);
 			flowLayout.setVgap(15);
 			flowLayout.setHgap(15);
-			container.setLayout(flowLayout);
-			container.setMinimumSize(new Dimension(500, 50));
-			container.setPreferredSize(new Dimension(500, 50));
-			container.setBorder(BorderFactory.createEmptyBorder());
-			container.add(getSelectedFilePath(), null);
-			container.add(getFileSelection(), null);
-			fileSelectionPanel.setContentContainer(container);
+			fileSelectionPanel.setLayout(flowLayout);
+			fileSelectionPanel.setMinimumSize(new Dimension(500, 50));
+			fileSelectionPanel.setPreferredSize(new Dimension(500, 50));
 			fileSelectionPanel.setBorder(BorderFactory.createEmptyBorder());
+			fileSelectionPanel.add(getSelectedFilePath(), null);
+			fileSelectionPanel.add(getFileSelection(), null);
 		}
 		return fileSelectionPanel;
 	}
@@ -184,7 +172,6 @@ public class ApplicationInstallerWizard extends JXPanel {
         selectedFilePath.setMinimumSize(new Dimension(300, 25));
         selectedFilePath.setBorder(BorderFactory.createLineBorder(Color.gray, 1));
         selectedFilePath.setPreferredSize(new Dimension(300, 25));
-        fileSelectionPanel = new JXTitledPanel(getMessage("wizard.file.selection.box.title"));
         return selectedFilePath;
 	}
 
