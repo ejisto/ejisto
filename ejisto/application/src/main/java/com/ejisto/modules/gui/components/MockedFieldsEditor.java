@@ -21,7 +21,6 @@ public class MockedFieldsEditor extends JXPanel {
     private static final long serialVersionUID = 4090818654347648102L;
 	private JXLabel description;
 	private JXTable flattenTable;
-//	private JXTreeTable treeTable;
 	private JTabbedPane editorContainer;
 	private JScrollPane flattenTableContainer;
 	private JScrollPane treeContainer;
@@ -80,7 +79,6 @@ public class MockedFieldsEditor extends JXPanel {
 	
 	public void setFields(List<MockedField> fields) {
 		getFlattenTable().setModel(new MockedFieldsTableModel(fields, false, true));
-//		getTreeTable().setTreeTableModel(new MockedFieldTreeTableModel(fields));
 		getTree().setFields(fields);
 	}
 	

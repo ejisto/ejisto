@@ -21,7 +21,15 @@ public enum StringConstants {
     JETTY_WEBAPPS_DIR("jetty.webapps.dir"),
     MAIN_TITLE("main.title"),
     DERBY_SCRIPT("derby.script"),
-    INITIALIZE_DATABASE("INITIALIZE_DATABASE");
+    INITIALIZE_DATABASE("INITIALIZE_DATABASE"),
+    SELECT_FILE_COMMAND("selectFile"),
+    PREVIOUS_STEP_COMMAND("previous"),
+    NEXT_STEP_COMMAND("next"),
+    SELECT_ALL("selectAll"),
+    SELECT_NONE("selectNone"),
+    CLOSE("close"),
+    CONFIRM("confirm"),
+    ;
 
 
     private String value;

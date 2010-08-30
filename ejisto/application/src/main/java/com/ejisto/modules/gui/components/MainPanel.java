@@ -55,7 +55,7 @@ public class MainPanel extends JXPanel {
     
     private Header getHeader() {
     	if(header != null) return header;
-    	header = new Header();
+    	header = new Header(getMessage("main.header.title"),getMessage("main.header.description"));
     	return header;
 	}
 

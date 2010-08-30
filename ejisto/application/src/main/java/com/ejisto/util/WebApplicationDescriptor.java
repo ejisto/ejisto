@@ -1,5 +1,6 @@
 package com.ejisto.util;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,9 +14,11 @@ public class WebApplicationDescriptor {
 	private String installationPath;
 	private String contextPath;
 	private Collection<MockedField> fields;
+	private List<MockedField> modifiedFields;
 	private URL[] classpathEntries;
 	private List<String> blacklist;
 	private List<String> includedJars = new ArrayList<String>();
+	private File warFile;
 	
 	public WebApplicationDescriptor() {
         this.fields = new TreeSet<MockedField>(new Comparator<MockedField>() {
@@ -72,5 +75,21 @@ public class WebApplicationDescriptor {
 	
 	public List<String> getIncludedJars() {
         return includedJars;
+    }
+	
+	public File getWarFile() {
+        return warFile;
+    }
+	
+	public void setWarFile(File warFile) {
+        this.warFile = warFile;
+    }
+	
+	public void setModifiedFields(List<MockedField> modifiedFields) {
+        this.modifiedFields = modifiedFields;
+    }
+	
+	public List<MockedField> getModifiedFields() {
+        return modifiedFields;
     }
 }
