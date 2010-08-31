@@ -9,7 +9,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTable;
 
@@ -19,7 +18,6 @@ import com.ejisto.modules.gui.components.helper.MockedFieldTree;
 
 public class MockedFieldsEditor extends JXPanel {
     private static final long serialVersionUID = 4090818654347648102L;
-	private JXLabel description;
 	private JXTable flattenTable;
 	private JTabbedPane editorContainer;
 	private JScrollPane flattenTableContainer;
@@ -32,7 +30,6 @@ public class MockedFieldsEditor extends JXPanel {
 	
 	private void init() {
 		setLayout(new BorderLayout());
-		add(getDescription(), BorderLayout.NORTH);
 		add(getEditorContainer(), BorderLayout.CENTER);
 	}
 	
@@ -42,12 +39,6 @@ public class MockedFieldsEditor extends JXPanel {
 	    editorContainer.addTab(getMessage("wizard.properties.editor.tab.flat.text"), getFlattenTableContainer());
 	    editorContainer.addTab(getMessage("wizard.properties.editor.tab.hierarchical.text"), getTreeContainer());
 	    return editorContainer;
-	}
-	
-	private JXLabel getDescription() {
-		if(description != null) return description;
-		description = new JXLabel(getMessage("wizard.properties.editor.tab.description"), JXLabel.CENTER);
-		return description;
 	}
 	
 	private JScrollPane getTreeContainer() {

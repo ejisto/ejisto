@@ -77,8 +77,8 @@ public class ResourcesInitializer extends BaseStartupService {
         try {
             baseFont = Font.createFont(Font.TRUETYPE_FONT, Header.class.getResourceAsStream("/fonts/DejaVuSans.ttf"));
             bold     = Font.createFont(Font.TRUETYPE_FONT, Header.class.getResourceAsStream("/fonts/DejaVuSans-Bold.ttf"));
-            defaultFont = baseFont.deriveFont(12f);
-            bold = bold.deriveFont(Font.BOLD, 15f);
+            defaultFont = baseFont.deriveFont(10f);
+            bold = bold.deriveFont(Font.BOLD, 13f);
             
         } catch (Exception e) {
             e.printStackTrace();
