@@ -22,7 +22,7 @@ public class SummaryController extends AbstractApplicationInstallerController {
 
     @Override
     public boolean canProceed() {
-        return false;
+        return true;
     }
 
     @Override
@@ -44,4 +44,14 @@ public class SummaryController extends AbstractApplicationInstallerController {
     public boolean executionCompleted() {
         return true;
     }
+
+	@Override
+	public String getTitleKey() {
+		return "wizard.summary.title";
+	}
+
+	@Override
+	public String getDescriptionKey() {
+		return "wizard.summary.description";
+	}
 }

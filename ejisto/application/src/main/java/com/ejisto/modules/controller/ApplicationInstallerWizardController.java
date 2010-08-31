@@ -1,6 +1,6 @@
 package com.ejisto.modules.controller;
 
-import static ch.lambdaj.Lambda.var;
+import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.CONFIRM;
 import static com.ejisto.constants.StringConstants.NEXT_STEP_COMMAND;
 import static com.ejisto.constants.StringConstants.PREVIOUS_STEP_COMMAND;
@@ -19,6 +19,8 @@ import java.util.ListIterator;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
+
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.closure.Closure1;
 
@@ -30,13 +32,13 @@ import com.ejisto.modules.controller.wizard.installer.FileExtractionController;
 import com.ejisto.modules.controller.wizard.installer.FileSelectionController;
 import com.ejisto.modules.controller.wizard.installer.PropertiesEditingController;
 import com.ejisto.modules.controller.wizard.installer.SummaryController;
-import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.ApplicationInstallerWizard;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.util.WebApplicationDescriptor;
 
 public class ApplicationInstallerWizardController {
+	private static final Logger logger = Logger.getLogger(ApplicationInstallerWizard.class);
     private List<StepController<WebApplicationDescriptor>> controllers;
     private ApplicationInstallerWizard wizard;
     private Closure1<ActionEvent> callActionPerformed;
@@ -46,6 +48,7 @@ public class ApplicationInstallerWizardController {
     private EjistoDialog dialog;
     private ListIterator<StepController<WebApplicationDescriptor>> stepsIterator;
     private StepController<WebApplicationDescriptor> currentController;
+	private boolean success;
     
     public ApplicationInstallerWizardController(Frame application) {
         this.application=application;
@@ -61,30 +64,38 @@ public class ApplicationInstallerWizardController {
         controllers.add(new SummaryController(dialog));
         sort(controllers, new StepControllerComparator());
         stepsIterator=controllers.listIterator();
+        //init session object
+        WebApplicationDescriptor session = new WebApplicationDescriptor();
+        forEach(controllers).setSession(session);
     }
     
     private void initContainer() {
-        
+        for (StepController<WebApplicationDescriptor> controller : controllers) {
+			wizard.addTab(controller.getView(), controller.getStep());
+		}
     }
     
-    public WebApplicationDescriptor showWizard() {
+    public boolean showWizard() {
         initClosures();
-        initContainer();
         dialog = new EjistoDialog(application, getMessage("wizard.title"), createWizard(), false);
         initAndSortControllers(dialog);
+        initContainer();
         dialog.registerAction(new CallbackAction(getMessage("buttons.previous.text"), PREVIOUS_STEP_COMMAND.getValue(), callActionPerformed));
         dialog.registerAction(new CallbackAction(getMessage("buttons.next.text"), NEXT_STEP_COMMAND.getValue(), callActionPerformed));
         Action act = new CallbackAction(getMessage("wizard.ok.text"), CONFIRM.getValue(), confirm);
         act.setEnabled(isSummaryStep());
         dialog.registerAction(act);
         dialog.registerAction(new CallbackAction(getMessage("wizard.close.text"), EjistoDialog.CLOSE_ACTION_COMMAND, closeDialog));
-        wizard.initActions();
         dialog.setModalityType(ModalityType.APPLICATION_MODAL);
         dialog.setSize(600, 500);
         centerOnScreen(dialog);
         navigate(true);
         dialog.setVisible(true);
-        return currentController.getSession();
+        return success;
+    }
+    
+    public WebApplicationDescriptor getWebApplicationDescriptor() {
+    	return currentController.getSession();
     }
     
     private void initClosures() {
@@ -95,7 +106,10 @@ public class ApplicationInstallerWizardController {
     }
     
     void closeDialog() {
-        if(showExitWarning()) dialog.close();
+        if(showExitWarning()) {
+        	success=false;
+        	dialog.close();
+        }
     }
     
     synchronized void actionPerformed(ActionEvent e) {
@@ -109,10 +123,13 @@ public class ApplicationInstallerWizardController {
         } 
         StepController<WebApplicationDescriptor> controller = fwd ? stepsIterator.next() : stepsIterator.previous();
         if(currentController != null && currentController.equals(controller)) return;
+        if(currentController != null) currentController.beforeNext();
         currentController = controller;
         if(!currentController.canProceed()) return;
         currentController.activate();
         wizard.goToStep(currentController.getStep());
+        dialog.setHeaderTitle(getMessage(currentController.getTitleKey()));
+        dialog.setHeaderDescription(getMessage(currentController.getDescriptionKey()));
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -126,9 +143,13 @@ public class ApplicationInstallerWizardController {
     
     
     private void executeStep(boolean fwd) {
-        if(currentController.executionCompleted() && fwd && currentController.automaticallyProceedToNextStep()) {
-            navigate(true);
-        }
+        try {
+			if(currentController.executionCompleted() && currentController.isExecutionSucceeded() && fwd && currentController.automaticallyProceedToNextStep()) {
+			    navigate(true);
+			}
+		} catch (WizardException e) {
+			logger.error(e.getMessage(),e);
+		}
     }
     
     private boolean showExitWarning() {
@@ -140,6 +161,7 @@ public class ApplicationInstallerWizardController {
     }
     
     void confirm() {
+    	success=true;
         dialog.setVisible(false);
     }
     

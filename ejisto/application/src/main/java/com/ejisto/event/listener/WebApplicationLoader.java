@@ -52,7 +52,8 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     @Override
     public void onApplicationEvent(LoadWebApplication event) {
         ApplicationInstallerWizardController controller = new ApplicationInstallerWizardController(application);
-        WebApplicationDescriptor webApplicationDescriptor = controller.showWizard();
+        if(!controller.showWizard()) return;
+        WebApplicationDescriptor webApplicationDescriptor = controller.getWebApplicationDescriptor();
         List<MockedField> fields = webApplicationDescriptor.getModifiedFields();
         forEach(fields).setContextPath(webApplicationDescriptor.getContextPath());
         mockedFieldsDao.insert(fields);

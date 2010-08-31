@@ -1,14 +1,15 @@
 package com.ejisto.modules.controller.wizard.installer;
 
+import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.SELECT_FILE_COMMAND;
 import static com.ejisto.util.GuiUtils.getMessage;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.BorderFactory;
@@ -20,24 +21,28 @@ import javax.swing.filechooser.FileFilter;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
+import ch.lambdaj.function.closure.Closure1;
+
 import com.ejisto.modules.gui.components.EjistoDialog;
+import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.gui.components.helper.Step;
 
-public class FileSelectionController extends AbstractApplicationInstallerController implements ActionListener {
-
-    public FileSelectionController(EjistoDialog dialog) {
-        super(dialog);
-    }
-
+public class FileSelectionController extends AbstractApplicationInstallerController {
     private JXPanel fileSelectionTab;
     private JXPanel fileSelectionPanel;
     private JXLabel selectedFilePath;
     private JButton fileSelection;
     private File selectedFile;
     private boolean executionCompleted;
+    private Closure1<ActionEvent> callActionPerformed;
 
+    public FileSelectionController(EjistoDialog dialog) {
+        super(dialog);
+    }
+    
     @Override
     public JPanel getView() {
+    	callActionPerformed = new Closure1<ActionEvent>() {{ of(FileSelectionController.this).actionPerformed(var(ActionEvent.class)); }};
         return getFileSelectionTab();
     }
 
@@ -48,7 +53,6 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
 
     @Override
     public boolean isExecutionSucceeded() {
-        getSession().setWarFile(selectedFile);
         return selectedFile != null;
     }
 
@@ -57,10 +61,13 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
         return Step.FILE_SELECTION;
     }
     
-    @Override
     public void actionPerformed(ActionEvent e) {
         if(SELECT_FILE_COMMAND.getValue().equals(e.getActionCommand())) {
             selectedFile = openFileSelectionDialog();
+            if(selectedFile != null) {
+            	getSelectedFilePath().setText(selectedFile.getAbsolutePath());
+            	getSelectedFilePath().setToolTipText(selectedFile.getAbsolutePath());
+            }
             executionCompleted=true;
         }
     }
@@ -97,8 +104,11 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
     
     private JXPanel getFileSelectionTab() {
         if(fileSelectionTab != null) return fileSelectionTab;
-        fileSelectionTab = new JXPanel(new FlowLayout());
-        fileSelectionTab.add(getFileSelectionPanel());
+        fileSelectionTab = new JXPanel(new BorderLayout());
+        JXPanel spacer = new JXPanel();
+        spacer.setPreferredSize(new Dimension(500, 100));
+        fileSelectionTab.add(spacer, BorderLayout.NORTH);
+        fileSelectionTab.add(getFileSelectionPanel(), BorderLayout.CENTER);
         return fileSelectionTab;
     }
     
@@ -112,9 +122,8 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
             fileSelectionPanel.setLayout(flowLayout);
             fileSelectionPanel.setMinimumSize(new Dimension(500, 50));
             fileSelectionPanel.setPreferredSize(new Dimension(500, 50));
-            fileSelectionPanel.setBorder(BorderFactory.createEmptyBorder());
-            fileSelectionPanel.add(getSelectedFilePath(), null);
-            fileSelectionPanel.add(getFileSelection(), null);
+            fileSelectionPanel.add(getSelectedFilePath());
+            fileSelectionPanel.add(getFileSelection());
         }
         return fileSelectionPanel;
     }
@@ -132,11 +141,24 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
     
     private JButton getFileSelection() {
         if (fileSelection == null) {
-            fileSelection = new JButton();
-            fileSelection.setText("...");
-            fileSelection.setActionCommand(SELECT_FILE_COMMAND.getValue());
+            fileSelection = new JButton(new CallbackAction("...", SELECT_FILE_COMMAND.getValue(), callActionPerformed));
         }
         return fileSelection;
     }
+    
+    @Override
+    public void beforeNext() {
+    	getSession().setWarFile(selectedFile);
+    }
+
+	@Override
+	public String getTitleKey() {
+		return "wizard.fileselection.title";
+	}
+
+	@Override
+	public String getDescriptionKey() {
+		return "wizard.fileselection.description";
+	}
 
 }

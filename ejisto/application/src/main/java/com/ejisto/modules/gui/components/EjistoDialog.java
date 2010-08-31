@@ -120,6 +120,14 @@ public class EjistoDialog extends JDialog {
     public Action getActionFor(String command) {
         return getContent().getActionMap().get(command);
     }
+    
+    public void setHeaderTitle(String title) {
+    	getHeader().setTitle(title);
+    }
+    
+    public void setHeaderDescription(String headerDescription) {
+    	getHeader().setDescription(headerDescription);
+    }
 
     protected JPanel getButtonsBar() {
         if (this.buttonsBar != null) return this.buttonsBar;

@@ -67,4 +67,16 @@ public interface StepController<K> {
      * Do post-execution stuff. Last chance for controllers...
      */
     void beforeNext();
+    
+    /**
+     * Returns the i18n key for window title, if any
+     * @return
+     */
+    String getTitleKey();
+    
+    /**
+     * Returns the i18n key for title description, if any
+     * @return
+     */
+    String getDescriptionKey();
 }

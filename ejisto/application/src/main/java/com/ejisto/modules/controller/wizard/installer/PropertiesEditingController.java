@@ -62,4 +62,14 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
     private List<MockedField> getModifiedFields() {
         return select(getSession().getFields(), having(on(MockedField.class).getFieldValue(), notNullValue()));
     }
+
+	@Override
+	public String getTitleKey() {
+		return "wizard.propertiesedit.title";
+	}
+
+	@Override
+	public String getDescriptionKey() {
+		return "wizard.propertiesedit.description";
+	}
 }

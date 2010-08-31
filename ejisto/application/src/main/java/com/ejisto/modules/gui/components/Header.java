@@ -3,7 +3,6 @@ package com.ejisto.modules.gui.components;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
@@ -18,19 +17,10 @@ import javax.swing.JLabel;
 
 import org.jdesktop.swingx.JXHeader;
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.plaf.DefaultsList;
-import org.jdesktop.swingx.plaf.HeaderAddon;
-import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 
 public class Header extends JXPanel implements ComponentListener {
 
     private static final long serialVersionUID = -8596340359045874928L;
-    
-    static {
-        @SuppressWarnings("unused")
-        String a = JXHeader.uiClassID;//initialize JXHeader.class
-        LookAndFeelAddons.getAddon().loadDefaults(new Object[]{"JXHeader.descriptionFont", new Font("Dialog", Font.PLAIN, 9), "JXHeader.background", Color.white});
-    }
 
     private JLabel logo = null;
     private JLabel gradient = null;
@@ -87,7 +77,7 @@ public class Header extends JXPanel implements ComponentListener {
         setMaximumSize(new Dimension(32767, 60));
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.gray));
         add(logo, BorderLayout.WEST);
-        add(gradient, BorderLayout.EAST);
+//        add(gradient, BorderLayout.EAST);
         add(getHeader(), BorderLayout.CENTER);
         addComponentListener(this);
     }

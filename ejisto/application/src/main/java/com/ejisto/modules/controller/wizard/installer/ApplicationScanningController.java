@@ -7,7 +7,7 @@ import static com.ejisto.util.IOUtils.getClasspathEntries;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,7 +30,7 @@ import com.ejisto.util.WebApplicationDescriptor;
 public class ApplicationScanningController extends AbstractApplicationInstallerController implements Callable<Void> {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
     private Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
-    private FutureTask<Void> task;
+    private Future<?> task;
     private ProgressPanel applicationScanningTab;
 
     public ApplicationScanningController(EjistoDialog dialog) {
@@ -61,7 +61,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
 
     @Override
     public void activate() {
-        task = new FutureTask<Void>(this);
+        task = addJob(this);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         }
     }
     
-    private String getContextPath(String realPath) {
+    protected String getContextPath(String realPath) {
         Matcher matcher = contextExtractor.matcher(realPath.replaceAll(Pattern.quote("\\"), "/"));
         if (matcher.matches())
             return matcher.group(1);
@@ -138,5 +138,15 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     private void notifyJobCompleted(String nextClass) {
         getView().jobCompleted(getMessage("progress.scan.class", nextClass));
     }
+
+	@Override
+	public String getTitleKey() {
+		return "wizard.applicationscanning.title";
+	}
+
+	@Override
+	public String getDescriptionKey() {
+		return "wizard.applicationscanning.description";
+	}
 
 }

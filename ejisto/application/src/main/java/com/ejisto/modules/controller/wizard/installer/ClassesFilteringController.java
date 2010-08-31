@@ -71,4 +71,14 @@ public class ClassesFilteringController extends AbstractApplicationInstallerCont
         getSession().setBlacklist(getView().getBlacklistedObjects());
     }
 
+	@Override
+	public String getTitleKey() {
+		return "wizard.classesfiltering.title";
+	}
+
+	@Override
+	public String getDescriptionKey() {
+		return "wizard.classesfiltering.description";
+	}
+
 }
