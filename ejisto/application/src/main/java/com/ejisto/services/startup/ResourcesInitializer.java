@@ -94,7 +94,7 @@ public class ResourcesInitializer extends BaseStartupService {
         
         @SuppressWarnings("unused")
         String a = JXHeader.uiClassID;//initialize JXHeader.class
-        LookAndFeelAddons.getAddon().loadDefaults(new Object[]{"JXHeader.descriptionFont", defaultFont, "JXHeader.titleFont", bold, "JXHeader.background", Color.white});
+        LookAndFeelAddons.getAddon().loadDefaults(new Object[]{"JXHeader.descriptionFont", defaultFont, "JXHeader.titleFont", bold, "JXTitledPanel.titleFont", bold, "JXHeader.background", Color.white});
 
     }
 }

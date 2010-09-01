@@ -25,12 +25,17 @@ public class MockedFieldsEditor extends JXPanel {
     private MockedFieldTree tree;
 	
 	public MockedFieldsEditor() {
-        init();
+        this(false);
     }
 	
-	private void init() {
+	public MockedFieldsEditor(boolean main) {
+		init(main);
+	}
+	
+	private void init(boolean main) {
 		setLayout(new BorderLayout());
 		add(getEditorContainer(), BorderLayout.CENTER);
+//		if(main) addbuttonspanel
 	}
 	
 	private JTabbedPane getEditorContainer() {

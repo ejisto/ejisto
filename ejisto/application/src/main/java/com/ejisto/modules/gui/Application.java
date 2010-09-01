@@ -15,10 +15,13 @@
  */
 package com.ejisto.modules.gui;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.annotation.Resource;
+import javax.swing.SwingUtilities;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.event.EventManager;
@@ -41,7 +44,8 @@ public class Application extends javax.swing.JFrame {
         setTitle(settingsManager.getValue(StringConstants.MAIN_TITLE));
         rootPane = new MainRootPane();
         setRootPane(rootPane);
-        setMinimumSize(new java.awt.Dimension(600, 300));
+        setMinimumSize(new Dimension(600, 300));
+        setSize(new Dimension(600, 300));
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -50,6 +54,14 @@ public class Application extends javax.swing.JFrame {
             }
         });
         pack();
+        SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				if(Toolkit.getDefaultToolkit().isFrameStateSupported(MAXIMIZED_BOTH))
+					setExtendedState(MAXIMIZED_BOTH);
+			}
+		});
     }
 
     public void log(String message) {
