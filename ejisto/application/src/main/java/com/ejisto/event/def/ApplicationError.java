@@ -47,4 +47,9 @@ public class ApplicationError extends BaseApplicationEvent{
     public String getDescription() {
         return "error";
     }
+
+    @Override
+    public String getKey() {
+        return null;
+    }
 }

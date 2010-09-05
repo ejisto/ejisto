@@ -1,5 +1,7 @@
 package com.ejisto.modules.gui.components;
 
+
+import static com.ejisto.util.GuiUtils.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -58,7 +60,7 @@ public class EjistoDialog extends JDialog {
 
     public void registerAction(Action action) {
         if (logger.isDebugEnabled()) logger.debug("registering action [" + action.getValue(Action.ACTION_COMMAND_KEY) + "]");
-        getContent().getActionMap().put(action.getValue(Action.ACTION_COMMAND_KEY), action);
+        putAction(action.getValue(Action.ACTION_COMMAND_KEY), action);
         this.actions.add(action);
     }
 
@@ -72,6 +74,7 @@ public class EjistoDialog extends JDialog {
 
     public void setContent(JPanel content) {
         this.content = content;
+        this.content.getActionMap().setParent(getActionMap());
     }
 
     @Override
@@ -113,12 +116,8 @@ public class EjistoDialog extends JDialog {
         }
     }
 
-    public void putAction(String command, Action action) {
-        getContent().getActionMap().put(command, action);
-    }
-
     public Action getActionFor(String command) {
-        return getContent().getActionMap().get(command);
+        return getAction(command);
     }
     
     public void setHeaderTitle(String title) {

@@ -1,5 +1,7 @@
 package com.ejisto.modules.gui;
 
+import static com.ejisto.util.GuiUtils.*;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -29,15 +31,18 @@ public class MainRootPane extends JXRootPane {
         JMenuBar jMenuBar = new javax.swing.JMenuBar();
         JMenu jMenuFile = new javax.swing.JMenu("File");
         JMenu jMenuSystem = new javax.swing.JMenu("System");
-
-        JMenuItem open = new JMenuItem(new EjistoAction<LoadWebApplication>(new LoadWebApplication(this)));
+        EjistoAction<LoadWebApplication> openAction  = new EjistoAction<LoadWebApplication>(new LoadWebApplication(this));
+        putAction(openAction);
+        EjistoAction<ShutdownRequest> shutdownAction = new EjistoAction<ShutdownRequest>(new ShutdownRequest(this));
+        putAction(shutdownAction);
+        JMenuItem open = new JMenuItem(openAction);
         open.setText("Open");
         open.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         jMenuFile.add(open);
 
         JMenuItem jMenuItemExit = new javax.swing.JMenuItem();
         jMenuItemExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItemExit.setAction(new EjistoAction<ShutdownRequest>(new ShutdownRequest(this)));
+        jMenuItemExit.setAction(shutdownAction);
         jMenuItemExit.setText("Exit");
         jMenuFile.add(jMenuItemExit);
 
@@ -48,6 +53,10 @@ public class MainRootPane extends JXRootPane {
 
     public void log(String message) {
         mainPanel.log(message);
+    }
+    
+    public void toggleDisplayServerLog() {
+        mainPanel.toggleDisplayServerLog();
     }
     
     

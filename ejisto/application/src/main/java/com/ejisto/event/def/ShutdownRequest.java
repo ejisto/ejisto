@@ -16,6 +16,8 @@
 
 package com.ejisto.event.def;
 
+import com.ejisto.constants.StringConstants;
+
 
 public class ShutdownRequest extends BaseApplicationEvent {
 
@@ -28,5 +30,10 @@ public class ShutdownRequest extends BaseApplicationEvent {
     @Override
     public String getDescription() {
         return "System shutdown requested";
+    }
+
+    @Override
+    public String getKey() {
+        return StringConstants.SHUTDOWN.getValue();
     }
 }

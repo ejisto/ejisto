@@ -29,6 +29,9 @@ public enum StringConstants {
     SELECT_NONE("selectNone"),
     CLOSE("close"),
     CONFIRM("confirm"),
+    START_JETTY("startJetty"),
+    STOP_JETTY("stopJetty"),
+    SHUTDOWN("shutdown"),
     ;
 
 

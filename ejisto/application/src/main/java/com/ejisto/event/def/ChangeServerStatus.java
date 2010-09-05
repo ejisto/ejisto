@@ -16,6 +16,8 @@
 
 package com.ejisto.event.def;
 
+import com.ejisto.constants.StringConstants;
+
 
 public class ChangeServerStatus extends BaseApplicationEvent {
     private static final long serialVersionUID = 62223689929514687L;
@@ -63,5 +65,10 @@ public class ChangeServerStatus extends BaseApplicationEvent {
     @Override
     public String getIconKey() {
         return command.getIcon();
+    }
+
+    @Override
+    public String getKey() {
+        return command == Command.STARTUP ? StringConstants.START_JETTY.getValue() : StringConstants.STOP_JETTY.getValue();
     }
 }

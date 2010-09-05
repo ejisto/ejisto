@@ -31,4 +31,6 @@ public abstract class BaseApplicationEvent extends ApplicationEvent {
         return "";
     }
     
+    public abstract String getKey();
+    
 }

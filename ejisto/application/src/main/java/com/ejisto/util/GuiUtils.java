@@ -1,5 +1,7 @@
 package com.ejisto.util;
 
+import static com.ejisto.util.GuiUtils.putAction;
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -7,11 +9,17 @@ import java.awt.Window;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.JOptionPane;
 
+import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.EjistoAction;
 
 public class GuiUtils {
+    
+    private static ActionMap actionMap = new ActionMap();
 	
 	public static void centerOnScreen(Window window) {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -48,5 +56,25 @@ public class GuiUtils {
         }
         return fieldsAsString;
     }
+	
+	public static synchronized void putAction(Action action) {
+	    actionMap.put(action.getValue(Action.NAME), action);
+	}
+	
+	public static synchronized void putAction(Object key, Action action) {
+        actionMap.put(key, action);
+    }
+	
+	public static synchronized <T extends BaseApplicationEvent> void putAction(EjistoAction<T> action) {
+        actionMap.put(action.getKey(), action);
+    }
+	
+	public static synchronized Action getAction(String name) {
+	    return actionMap.get(name);
+	}
+	
+	public static synchronized ActionMap getActionMap() {
+	    return actionMap;
+	}
 	
 }

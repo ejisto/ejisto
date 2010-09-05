@@ -50,6 +50,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
     @Override
     public String convertValueToText(Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
+        if(EmptyTreeNode.class.isAssignableFrom(node.getClass())) return getMessage("main.propertieseditor.tree.novalues.text");
         if(!MockedField.class.isAssignableFrom(node.getUserObject().getClass())) return super.convertValueToText(value, selected, expanded, leaf, row, hasFocus);
         MockedField mockedField = (MockedField)((DefaultMutableTreeNode)value).getUserObject();
         if(!leaf) return row == 0 ? rootText : mockedField.getClassName();
@@ -69,6 +70,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
      * @return
      */
     private TreeNode mockedFields2Nodes(Collection<MockedField> in) {
+        if(in.isEmpty()) return new EmptyTreeNode();
         Group<MockedField> groupedFields = group(in, by(on(MockedField.class).getGroupKey()), by(on(MockedField.class).getFieldName()));
         DefaultMutableTreeNode root = group2Node(groupedFields);
         return root;
@@ -116,5 +118,10 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
             super.delegate.setValue(((MockedField)node.getUserObject()).getFieldValue());
             return super.editorComponent;
         }
+    }
+    
+    private static final class EmptyTreeNode extends DefaultMutableTreeNode {
+        private static final long serialVersionUID = 1L;
+        
     }
 }

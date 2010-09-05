@@ -37,4 +37,9 @@ public class MockedFieldChanged extends BaseApplicationEvent {
     public String getDescription() {
         return mockedField + " changed";
     }
+
+    @Override
+    public String getKey() {
+        return null;
+    }
 }

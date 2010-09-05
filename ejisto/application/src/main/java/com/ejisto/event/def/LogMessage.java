@@ -34,4 +34,9 @@ public class LogMessage extends BaseApplicationEvent {
     public String getDescription() {
         return "log message";
     }
+
+    @Override
+    public String getKey() {
+        return null;
+    }
 }

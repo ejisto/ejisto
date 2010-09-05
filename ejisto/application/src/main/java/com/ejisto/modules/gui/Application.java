@@ -15,16 +15,21 @@
  */
 package com.ejisto.modules.gui;
 
+import static com.ejisto.util.GuiUtils.getMessage;
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Date;
 
 import javax.annotation.Resource;
 import javax.swing.SwingUtilities;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.event.EventManager;
+import com.ejisto.event.def.ChangeServerStatus;
+import com.ejisto.event.def.ChangeServerStatus.Command;
 import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.modules.conf.SettingsManager;
 
@@ -66,6 +71,12 @@ public class Application extends javax.swing.JFrame {
 
     public void log(String message) {
         rootPane.log(message);
+    }
+    
+    public void onServerStatusChange(ChangeServerStatus event) {
+        if(event.getCommand() == Command.SHUTDOWN) rootPane.log(getMessage("jetty.shutdown.log", new Date()));
+        rootPane.toggleDisplayServerLog();
+        
     }
 
 }

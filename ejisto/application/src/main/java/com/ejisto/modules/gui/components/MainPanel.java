@@ -39,6 +39,8 @@ public class MainPanel extends JXPanel {
 
 	private JXStatusBar statusBar;
 
+    private JXPanel widgetsPane;
+
     public MainPanel() {
         super();
         init();
@@ -56,7 +58,7 @@ public class MainPanel extends JXPanel {
     private void initComponents() {
     	setBackground(SystemColor.control);
     	add(getHeader(), BorderLayout.NORTH);
-        add(getSplitPane(), BorderLayout.CENTER);
+        add(getWidgetsPane(), BorderLayout.CENTER);
         add(getStatusBar(), BorderLayout.SOUTH);
     }
     
@@ -65,24 +67,20 @@ public class MainPanel extends JXPanel {
     	header = new Header(getMessage("main.header.title"),getMessage("main.header.description"));
     	return header;
 	}
+    
+    private JXPanel getWidgetsPane() {
+        if(this.widgetsPane != null) return this.widgetsPane;
+        widgetsPane = new JXPanel(new BorderLayout());
+        widgetsPane.add(getSplitPane(),BorderLayout.CENTER);
+        widgetsPane.add(getLogViewer(), BorderLayout.SOUTH);
+        return widgetsPane;
+    }
 
 	private JSplitPane getSplitPane() {
         if(splitPane != null) return splitPane;
-        JSplitPane internal = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getTaskPaneContainer(), getEditorContainer());
-        internal.setOneTouchExpandable(true);
-        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, internal, getLogViewer());
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getTaskPaneContainer(), getEditorContainer());
         splitPane.setOneTouchExpandable(true);
         splitPane.setBackground(SystemColor.control);
-        SwingUtilities.invokeLater(new Runnable() {
-			
-			@Override
-			public void run() {
-				BasicSplitPaneUI ui = (BasicSplitPaneUI)splitPane.getUI();
-				BasicSplitPaneDivider divider = ui.getDivider();
-				JButton button = (JButton)divider.getComponent(1);
-				button.doClick();
-			}
-		});
         return splitPane;
     }
 
@@ -138,6 +136,10 @@ public class MainPanel extends JXPanel {
 
     public void log(String message) {
         getLogViewer().log(message);
+    }
+    
+    public void toggleDisplayServerLog() {
+        getLogViewer().toggleDisplayServerLog();
     }
 
 }

@@ -16,6 +16,7 @@
 
 package com.ejisto.event.def;
 
+
 public class LoadWebApplication extends BaseApplicationEvent {
     private static final long serialVersionUID = 871817827988790201L;
 
@@ -26,6 +27,11 @@ public class LoadWebApplication extends BaseApplicationEvent {
     @Override
     public String getDescription() {
         return "Load new application";
+    }
+
+    @Override
+    public String getKey() {
+        return null;
     }
 
 }

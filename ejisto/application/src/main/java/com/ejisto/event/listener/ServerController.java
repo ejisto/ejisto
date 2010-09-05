@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.ChangeServerStatus;
+import com.ejisto.modules.gui.Application;
 
 
 public class ServerController implements ApplicationListener<ChangeServerStatus> {
@@ -36,6 +37,9 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
 
     @Resource
     private EventManager eventManager;
+    
+    @Resource
+    private Application application;
 
     @Override
     public void onApplicationEvent(ChangeServerStatus event) {
@@ -50,6 +54,7 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
                 jettyServer.stop();
                 logger.info("done");
             }
+            application.onServerStatusChange(event);
         } catch (Exception e) {
             logger.error("event handling failed", e);
             eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));

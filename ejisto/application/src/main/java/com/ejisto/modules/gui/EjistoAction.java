@@ -23,6 +23,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.springframework.util.StringUtils;
@@ -44,7 +45,16 @@ public class EjistoAction<T extends BaseApplicationEvent> extends AbstractAction
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        publishApplicationEvent(applicationEvent);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                publishApplicationEvent(applicationEvent);     
+            }
+        });
+    }
+    
+    public String getKey() {
+        return applicationEvent.getDescription();
     }
     
     private ImageIcon getIcon(T applicationEvent) {
@@ -52,6 +62,5 @@ public class EjistoAction<T extends BaseApplicationEvent> extends AbstractAction
         if(!StringUtils.hasText(iconKey)) return null;
         return new ImageIcon(getClass().getResource(getMessage(iconKey)));
     }
-
     
 }
