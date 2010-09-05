@@ -1,7 +1,5 @@
 package com.ejisto.util;
 
-import static com.ejisto.util.GuiUtils.putAction;
-
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
