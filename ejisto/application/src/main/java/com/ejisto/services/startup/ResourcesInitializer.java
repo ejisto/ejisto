@@ -20,6 +20,7 @@ import static com.ejisto.constants.StringConstants.DERBY_SCRIPT;
 import static com.ejisto.constants.StringConstants.INITIALIZE_DATABASE;
 import static com.ejisto.constants.StringConstants.JETTY_HOME_DIR;
 import static com.ejisto.constants.StringConstants.JETTY_WEBAPPS_DIR;
+import static com.ejisto.util.GuiUtils.putAction;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -32,7 +33,12 @@ import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
+import com.ejisto.event.def.ChangeServerStatus;
+import com.ejisto.event.def.ChangeServerStatus.Command;
+import com.ejisto.event.def.LoadWebApplication;
+import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
+import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.Header;
 
 public class ResourcesInitializer extends BaseStartupService {
@@ -63,6 +69,7 @@ public class ResourcesInitializer extends BaseStartupService {
             throw new RuntimeException(e);
         }
         initFonts();
+        initDefaultActions();
     }
 
     private void initBaseDir(File baseDir) {
@@ -96,5 +103,12 @@ public class ResourcesInitializer extends BaseStartupService {
         String a = JXHeader.uiClassID;//initialize JXHeader.class
         LookAndFeelAddons.getAddon().loadDefaults(new Object[]{"JXHeader.descriptionFont", defaultFont, "JXHeader.titleFont", bold, "JXTitledPanel.titleFont", bold, "JXHeader.background", Color.white});
 
+    }
+    
+    private void initDefaultActions() {
+    	putAction(new EjistoAction<LoadWebApplication>(new LoadWebApplication(this)));
+    	putAction(new EjistoAction<ShutdownRequest>(new ShutdownRequest(this)));
+    	putAction(new EjistoAction<ChangeServerStatus>(new ChangeServerStatus(this, Command.STARTUP)));
+    	putAction(new EjistoAction<ChangeServerStatus>(new ChangeServerStatus(this, Command.SHUTDOWN)));
     }
 }

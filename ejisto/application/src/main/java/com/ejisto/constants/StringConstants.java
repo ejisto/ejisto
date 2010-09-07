@@ -32,6 +32,7 @@ public enum StringConstants {
     START_JETTY("startJetty"),
     STOP_JETTY("stopJetty"),
     SHUTDOWN("shutdown"),
+    LOAD_WEB_APP("loadwebapp"),
     ;
 
 

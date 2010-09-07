@@ -9,7 +9,10 @@ import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+
+import org.springframework.util.StringUtils;
 
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -27,6 +30,12 @@ public class GuiUtils {
 	public static String getMessage(String key, Object... values) {
 		return SpringBridge.getMessage(key, "en", values);//TODO localize
 	}
+	
+	public static <T extends BaseApplicationEvent> ImageIcon getIcon(T applicationEvent) {
+        String iconKey = applicationEvent.getIconKey();
+        if(!StringUtils.hasText(iconKey)) return null;
+        return new ImageIcon(GuiUtils.class.getResource(getMessage(iconKey)));
+    }
 	
 	public static boolean showWarning(Component owner, String text, Object... values) {
 		return JOptionPane.showConfirmDialog(owner, getMessage(text, values), getMessage("confirmation.title"), JOptionPane.YES_NO_OPTION,

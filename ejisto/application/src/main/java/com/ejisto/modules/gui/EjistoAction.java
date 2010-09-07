@@ -16,17 +16,16 @@
 
 package com.ejisto.modules.gui;
 
+import static com.ejisto.util.GuiUtils.getIcon;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
-import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import org.jdesktop.swingx.action.AbstractActionExt;
-import org.springframework.util.StringUtils;
 
 import com.ejisto.event.def.BaseApplicationEvent;
 
@@ -39,8 +38,8 @@ public class EjistoAction<T extends BaseApplicationEvent> extends AbstractAction
         super();
         this.applicationEvent=applicationEvent;
         putValue(Action.NAME, getMessage(applicationEvent.getDescription()));
-//        putValue(Action.SHORT_DESCRIPTION, applicationEvent.getDescription());
         putValue(Action.SMALL_ICON, getIcon(applicationEvent));
+        putValue(Action.SHORT_DESCRIPTION, getMessage(applicationEvent.getDescription()));
     }
     
     @Override
@@ -54,13 +53,6 @@ public class EjistoAction<T extends BaseApplicationEvent> extends AbstractAction
     }
     
     public String getKey() {
-        return applicationEvent.getDescription();
+        return applicationEvent.getKey();
     }
-    
-    private ImageIcon getIcon(T applicationEvent) {
-        String iconKey = applicationEvent.getIconKey();
-        if(!StringUtils.hasText(iconKey)) return null;
-        return new ImageIcon(getClass().getResource(getMessage(iconKey)));
-    }
-    
 }

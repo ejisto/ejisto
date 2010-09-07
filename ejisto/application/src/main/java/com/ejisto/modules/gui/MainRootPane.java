@@ -1,15 +1,19 @@
 package com.ejisto.modules.gui;
 
-import static com.ejisto.util.GuiUtils.*;
+import static com.ejisto.util.GuiUtils.getAction;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 import org.jdesktop.swingx.JXRootPane;
+import org.jdesktop.swingx.JXStatusBar;
 
-import com.ejisto.event.def.LoadWebApplication;
-import com.ejisto.event.def.ShutdownRequest;
+import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.gui.components.MainPanel;
 
 public class MainRootPane extends JXRootPane {
@@ -24,25 +28,21 @@ public class MainRootPane extends JXRootPane {
     private void init() {
         initMenuBar();
         mainPanel = new MainPanel();
-        setContentPane(mainPanel);
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
+        setStatusBar(initStatusBar());
     }
     
     private void initMenuBar() {
         JMenuBar jMenuBar = new javax.swing.JMenuBar();
         JMenu jMenuFile = new javax.swing.JMenu("File");
         JMenu jMenuSystem = new javax.swing.JMenu("System");
-        EjistoAction<LoadWebApplication> openAction  = new EjistoAction<LoadWebApplication>(new LoadWebApplication(this));
-        putAction(openAction);
-        EjistoAction<ShutdownRequest> shutdownAction = new EjistoAction<ShutdownRequest>(new ShutdownRequest(this));
-        putAction(shutdownAction);
-        JMenuItem open = new JMenuItem(openAction);
+        JMenuItem open = new JMenuItem(getAction(StringConstants.LOAD_WEB_APP.getValue()));
         open.setText("Open");
         open.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         jMenuFile.add(open);
 
-        JMenuItem jMenuItemExit = new javax.swing.JMenuItem();
+        JMenuItem jMenuItemExit = new JMenuItem(getAction(StringConstants.SHUTDOWN.getValue()));
         jMenuItemExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItemExit.setAction(shutdownAction);
         jMenuItemExit.setText("Exit");
         jMenuFile.add(jMenuItemExit);
 
@@ -59,6 +59,16 @@ public class MainRootPane extends JXRootPane {
         mainPanel.toggleDisplayServerLog();
     }
     
+    private JXStatusBar initStatusBar() {
+        if (statusBar != null)
+            return statusBar;
+        statusBar = new JXStatusBar();
+        statusBar.setMinimumSize(new Dimension(400,20));
+        statusBar.setPreferredSize(new Dimension(400,20));
+        statusBar.setMaximumSize(new Dimension(Short.MAX_VALUE, 20));
+        statusBar.add(new JLabel("done"));
+        return statusBar;
+    }
     
     
 

@@ -31,7 +31,6 @@ public class ApplicationStartup extends BaseStartupService {
 	public void execute() {
 		application.init();
 		centerOnScreen(application);
-		
 		application.setVisible(true);
 	}
 

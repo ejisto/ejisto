@@ -1,10 +1,12 @@
 package com.ejisto.modules.gui.components;
 
+import static com.ejisto.util.GuiUtils.getAction;
 import static com.ejisto.util.GuiUtils.getMessage;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -15,13 +17,17 @@ import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
 import org.jdesktop.swingx.JXCollapsiblePane;
+import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTitledPanel;
+
+import com.ejisto.constants.StringConstants;
 
 public class LogViewer extends JXTitledPanel {
     private static final long serialVersionUID = 2849704565034218976L;
     private JTextArea log;
     private JXCollapsiblePane collapsibleLogPane; 
     private JButton expandCollapseButton;
+    private JXPanel toolbarPanel;
 
     public LogViewer() { 
     	super(getMessage("main.logviewer.title.text"));
@@ -31,7 +37,7 @@ public class LogViewer extends JXTitledPanel {
     private void init() {
     	getContentContainer().setLayout(new BorderLayout());
         getContentContainer().add(getCollapsibleLogPane(), BorderLayout.CENTER);
-        setRightDecoration(getExpandCollapseButton());
+        setRightDecoration(getToolbarPanel());
     }
     
     private JXCollapsiblePane getCollapsibleLogPane() {
@@ -53,10 +59,30 @@ public class LogViewer extends JXTitledPanel {
         return collapsibleLogPane;
     }
     
+    private JXPanel getToolbarPanel() {
+        if(this.toolbarPanel != null) return this.toolbarPanel;
+        toolbarPanel = new JXPanel(new FlowLayout());
+        toolbarPanel.add(createButton(getAction(StringConstants.START_JETTY.getValue())));
+        toolbarPanel.add(createButton(getAction(StringConstants.STOP_JETTY.getValue())));
+        toolbarPanel.add(getExpandCollapseButton());
+        toolbarPanel.setBackground(new Color(255,255,255,0));
+        return toolbarPanel;
+    }
+    
+    private JButton createButton(Action action) {
+        JButton button = new JButton(action);
+        button.setSize(new Dimension(100,16));
+        button.setBorder(BorderFactory.createEmptyBorder());
+        button.setBackground(new Color(255,255,255,0));
+        button.setHideActionText(true);
+        return button;
+    }
+    
     private JButton getExpandCollapseButton() {
         if(this.expandCollapseButton != null) return this.expandCollapseButton;
         expandCollapseButton = new JButton(getCollapsibleLogPane().getActionMap().get(JXCollapsiblePane.TOGGLE_ACTION));
         expandCollapseButton.setBorder(BorderFactory.createEmptyBorder());
+        expandCollapseButton.setSize(new Dimension(16,16));
         expandCollapseButton.setBackground(new Color(255,255,255,0));
         return expandCollapseButton;
     }

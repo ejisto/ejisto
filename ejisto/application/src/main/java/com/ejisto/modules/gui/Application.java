@@ -59,14 +59,6 @@ public class Application extends javax.swing.JFrame {
             }
         });
         pack();
-        SwingUtilities.invokeLater(new Runnable() {
-			
-			@Override
-			public void run() {
-				if(Toolkit.getDefaultToolkit().isFrameStateSupported(MAXIMIZED_BOTH))
-					setExtendedState(MAXIMIZED_BOTH);
-			}
-		});
     }
 
     public void log(String message) {
