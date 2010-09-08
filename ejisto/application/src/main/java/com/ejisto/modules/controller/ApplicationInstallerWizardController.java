@@ -1,6 +1,22 @@
+/*******************************************************************************
+ * Copyright 2010 Celestino Bellone
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package com.ejisto.modules.controller;
 
-import static ch.lambdaj.Lambda.*;
+import static ch.lambdaj.Lambda.forEach;
+import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.CONFIRM;
 import static com.ejisto.constants.StringConstants.NEXT_STEP_COMMAND;
 import static com.ejisto.constants.StringConstants.PREVIOUS_STEP_COMMAND;
@@ -14,7 +30,6 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
@@ -24,6 +39,7 @@ import org.apache.log4j.Logger;
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.closure.Closure1;
 
+import com.ejisto.core.jetty.WebApplicationDescriptor;
 import com.ejisto.modules.controller.wizard.StepController;
 import com.ejisto.modules.controller.wizard.StepControllerComparator;
 import com.ejisto.modules.controller.wizard.installer.ApplicationScanningController;
@@ -35,7 +51,6 @@ import com.ejisto.modules.controller.wizard.installer.SummaryController;
 import com.ejisto.modules.gui.components.ApplicationInstallerWizard;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
-import com.ejisto.util.WebApplicationDescriptor;
 
 public class ApplicationInstallerWizardController {
 	private static final Logger logger = Logger.getLogger(ApplicationInstallerWizard.class);
@@ -46,7 +61,7 @@ public class ApplicationInstallerWizardController {
     private Closure0 confirm;
     private Frame application;
     private EjistoDialog dialog;
-    private ListIterator<StepController<WebApplicationDescriptor>> stepsIterator;
+    private int currentIndex = -1;
     private StepController<WebApplicationDescriptor> currentController;
 	private boolean success;
     
@@ -63,7 +78,6 @@ public class ApplicationInstallerWizardController {
         controllers.add(new PropertiesEditingController(dialog));
         controllers.add(new SummaryController(dialog));
         sort(controllers, new StepControllerComparator());
-        stepsIterator=controllers.listIterator();
         //init session object
         WebApplicationDescriptor session = new WebApplicationDescriptor();
         forEach(controllers).setSession(session);
@@ -117,11 +131,11 @@ public class ApplicationInstallerWizardController {
     }
     
     private void navigate(final boolean fwd) {
-        if((fwd && !stepsIterator.hasNext()) || (!fwd && !stepsIterator.hasPrevious())) {
+        if((fwd && !isNextAvailable()) || (!fwd && !isPreviousAvailable())) {
             if(fwd) confirm();
             return;
         } 
-        StepController<WebApplicationDescriptor> controller = fwd ? stepsIterator.next() : stepsIterator.previous();
+        StepController<WebApplicationDescriptor> controller = fwd ? nextController() : previousController();
         if(currentController != null && currentController.equals(controller)) return;
         if(currentController != null) currentController.beforeNext();
         currentController = controller;
@@ -136,7 +150,7 @@ public class ApplicationInstallerWizardController {
                 executeStep(fwd);
             }
         });
-        dialog.getActionFor(PREVIOUS_STEP_COMMAND.getValue()).setEnabled(stepsIterator.hasPrevious());
+        dialog.getActionFor(PREVIOUS_STEP_COMMAND.getValue()).setEnabled(isPreviousAvailable());
         dialog.getActionFor(NEXT_STEP_COMMAND.getValue()).setEnabled(!isSummaryStep());
         dialog.getActionFor(CONFIRM.getValue()).setEnabled(isSummaryStep());
     }
@@ -157,7 +171,7 @@ public class ApplicationInstallerWizardController {
     }
     
     boolean isSummaryStep() {
-        return !stepsIterator.hasNext();
+        return !isNextAvailable();
     }
     
     void confirm() {
@@ -168,6 +182,24 @@ public class ApplicationInstallerWizardController {
     private ApplicationInstallerWizard createWizard() {
         wizard = new ApplicationInstallerWizard();
         return wizard;
+    }
+    
+    private StepController<WebApplicationDescriptor> nextController() {
+    	if(!isNextAvailable()) return currentController;
+    	return controllers.get(++currentIndex);
+    }
+    
+    private StepController<WebApplicationDescriptor> previousController() {
+    	if(!isPreviousAvailable()) return currentController;
+    	return controllers.get(--currentIndex);
+    }
+    
+    private boolean isNextAvailable() {
+    	return currentIndex + 1 < controllers.size();
+    }
+    
+    private boolean isPreviousAvailable() {
+    	return currentIndex - 1 >= 0;
     }
 
 }

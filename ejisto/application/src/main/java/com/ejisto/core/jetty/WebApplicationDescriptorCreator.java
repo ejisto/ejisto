@@ -13,29 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+package com.ejisto.core.jetty;
 
-package com.ejisto.modules.dao.entities;
+import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
 
+import org.jdom.Element;
 
-public class Setting {
+import ch.jamme.conf.def.DefaultObjectCreator;
 
-    private String key;
-    private String value;
+public class WebApplicationDescriptorCreator extends DefaultObjectCreator {
 
-    public String getKey() {
-        return key;
+    @Override
+    public Object createObject(Element element, Class<?> objectClass, Field field) {
+        try {
+            if(!objectClass.isInterface() && URL.class.isAssignableFrom(objectClass)) return new URL("file","",element.getChildText("file"));
+            return super.createObject(element, objectClass, field);
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-        
 }

@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2010 Celestino Bellone
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package com.ejisto.modules.gui.components;
 
 import static com.ejisto.util.GuiUtils.getMessage;
@@ -59,32 +74,6 @@ public class MainPanel extends JXPanel {
         return widgetsPane;
     }
 
-//	private JSplitPane getSplitPane() {
-//        if(splitPane != null) return splitPane;
-//        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getTaskPaneContainer(), getEditorContainer());
-//        splitPane.setOneTouchExpandable(true);
-//        splitPane.setBackground(SystemColor.control);
-//        return splitPane;
-//    }
-
-//    private JXTaskPaneContainer getTaskPaneContainer() {
-//        if (taskPaneContainer != null)
-//            return taskPaneContainer;
-//        taskPaneContainer = new JXTaskPaneContainer();
-//        taskPaneContainer.setMinimumSize(new Dimension(200,200));
-//        taskPaneContainer.setPreferredSize(new Dimension(200,200));
-//        taskPaneContainer.setMaximumSize(new Dimension(200, Short.MAX_VALUE));
-//        taskPaneContainer.setBackground(SystemColor.control);
-//        JXTaskPane task = new JXTaskPane();
-//        task.setName("Jetty Server");
-//        task.add(getAction(StringConstants.START_JETTY.getValue()));
-//        task.add(getAction(StringConstants.STOP_JETTY.getValue()));
-//        task.setTitle(getMessage("main.task.servercontrol"));
-//        task.setBackground(SystemColor.control);
-//        taskPaneContainer.add(task, "Start server");
-//        return taskPaneContainer;
-//    }
-    
     private MockedFieldsEditor getPropertiesEditor() {
         if(propertiesEditor != null) return propertiesEditor;
         propertiesEditor = new MockedFieldsEditor(true);
@@ -110,8 +99,12 @@ public class MainPanel extends JXPanel {
         getLogViewer().log(message);
     }
     
-    public void toggleDisplayServerLog() {
-        getLogViewer().toggleDisplayServerLog();
+    public void toggleDisplayServerLog(boolean collapse) {
+        getLogViewer().toggleDisplayServerLog(collapse);
+    }
+    
+    public void refreshMockedFieldsEditor() {
+    	getPropertiesEditor().setFields(getAllMockedFields());
     }
 
 }
