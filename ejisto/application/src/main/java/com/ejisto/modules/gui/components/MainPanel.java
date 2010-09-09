@@ -21,23 +21,17 @@ import static com.ejisto.util.SpringBridge.getAllMockedFields;
 import java.awt.BorderLayout;
 import java.awt.SystemColor;
 
+import javax.swing.BorderFactory;
+
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTitledPanel;
 
 public class MainPanel extends JXPanel {
     private static final long serialVersionUID = -28148619997853619L;
-
-//    private JXTaskPaneContainer taskPaneContainer;
     private LogViewer logViewer;
-//    private JSplitPane splitPane;
-
     private MockedFieldsEditor propertiesEditor;
-
 	private Header header;
-
 	private JXTitledPanel editorContainer;
-
-
     private JXPanel widgetsPane;
 
     public MainPanel() {
@@ -51,7 +45,7 @@ public class MainPanel extends JXPanel {
     }
 
     private void initLayout() {
-        setLayout(new BorderLayout(5,5));
+        setLayout(new BorderLayout());
     }
 
     private void initComponents() {
@@ -84,6 +78,7 @@ public class MainPanel extends JXPanel {
     private JXTitledPanel getEditorContainer() {
     	if(this.editorContainer != null) return this.editorContainer;
     	editorContainer = new JXTitledPanel(getMessage("main.propertieseditor.title.text"));
+    	editorContainer.setBorder(BorderFactory.createEmptyBorder());
     	editorContainer.setContentContainer(getPropertiesEditor());
     	return editorContainer;
     }

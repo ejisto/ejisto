@@ -17,24 +17,28 @@
 package com.ejisto.event.listener;
 
 import java.util.logging.Level;
-
+import javax.annotation.Resource;
+import static com.ejisto.util.GuiUtils.*;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.MessageSource;
 
 import com.ejisto.event.def.ApplicationError;
+import com.ejisto.modules.gui.Application;
 
 
 public class ErrorListener implements ApplicationListener<ApplicationError> {
 
+    @Resource
+    private Application application;
+    
     @Override
     public void onApplicationEvent(ApplicationError event) {
-        JXErrorPane errorPane = new JXErrorPane();
-        errorPane.setErrorInfo(getErrorInfo(event));
-        errorPane.setVisible(true);
+        JXErrorPane.showDialog(application, getErrorInfo(event));
     }
 
     private ErrorInfo getErrorInfo(ApplicationError event) {
-        return new ErrorInfo("Error","An error has occurred", event.getError().getMessage(), event.getPriority().name(),event.getError(), Level.SEVERE, null);
+        return new ErrorInfo(getMessage("error.dialog.title"),getMessage("error.dialog.message", event.getError().getClass().getName()), event.getError().getMessage(), event.getPriority().name(),event.getError(), Level.SEVERE, null);
     }
 }

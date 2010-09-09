@@ -53,6 +53,7 @@ public class LogViewer extends JXTitledPanel {
     	getContentContainer().setLayout(new BorderLayout());
         getContentContainer().add(getCollapsibleLogPane(), BorderLayout.CENTER);
         setRightDecoration(getToolbarPanel());
+        setBorder(BorderFactory.createEmptyBorder());
     }
     
     private JXCollapsiblePane getCollapsibleLogPane() {

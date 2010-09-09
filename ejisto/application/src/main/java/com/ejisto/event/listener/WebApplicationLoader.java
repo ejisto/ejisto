@@ -125,6 +125,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     }
 
     private void startBrowser(WebApplicationDescriptor descriptor) {
+        //thanks to sun, browser is not available on kde http://bugs.sun.com/view_bug.do?bug_id=6486393
         if (!Desktop.isDesktopSupported() || !jettyServer.isRunning()) return;
         try {
             Desktop.getDesktop().browse(URI.create(determineWebApplicationUri(descriptor)));
