@@ -39,6 +39,7 @@ import org.springframework.context.ApplicationListener;
 import ch.jamme.Marshaller;
 
 import com.ejisto.core.classloading.EjistoClassLoader;
+import com.ejisto.core.jetty.WebAppContextRepository;
 import com.ejisto.core.jetty.WebApplicationDescriptor;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
@@ -63,6 +64,8 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     private Server jettyServer;
     @Resource
     private Marshaller marshaller;
+    @Resource
+    private WebAppContextRepository webAppContextRepository;
 
     @Override
     public void onApplicationEvent(LoadWebApplication event) {
@@ -79,9 +82,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         mockedFieldsDao.deleteContext(webApplicationDescriptor.getContextPath());
         mockedFieldsDao.insert(fields);
         deployWebApp(webApplicationDescriptor);
+        saveWebAppDescriptor(webApplicationDescriptor);
         startBrowser(webApplicationDescriptor);
         application.onApplicationDeploy();
-        saveWebAppDescriptor(webApplicationDescriptor);
     }
 
     private void loadExistingWebApplications() {
@@ -90,17 +93,29 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
 
     private void deployWebApp(WebApplicationDescriptor webApplicationDescriptor) {
         if (webApplicationDescriptor == null) return;
-        WebAppContext context = new WebAppContext(contexts, webApplicationDescriptor.getInstallationPath(), webApplicationDescriptor.getContextPath());
-        context.setResourceBase(webApplicationDescriptor.getInstallationPath());
         try {
+            undeployExistingWebapp(webApplicationDescriptor.getContextPath());
+            WebAppContext context = new WebAppContext(contexts, webApplicationDescriptor.getInstallationPath(), webApplicationDescriptor.getContextPath());
+            context.setResourceBase(webApplicationDescriptor.getInstallationPath());
             EjistoClassLoader classLoader = new EjistoClassLoader(webApplicationDescriptor.getInstallationPath(), mockedFieldsDao.loadContextPathFields(context
                     .getContextPath()), context);
             context.setClassLoader(classLoader);
             context.setParentLoaderPriority(false);
             context.start();
+            webAppContextRepository.registerWebAppContext(context);
         } catch (Exception e) {
             eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));
             logger.error(e.getMessage(), e);
+        }
+    }
+    
+    private void undeployExistingWebapp(String contextPath) throws Exception {
+        if(webAppContextRepository.containsWebAppContext(contextPath)) {
+            logger.info("undeploying webapp "+contextPath);
+            WebAppContext webAppContext = webAppContextRepository.getWebAppContext(contextPath);
+            webAppContext.stop();
+            webAppContext.destroy();
+            logger.info("webapp "+contextPath+ " undeployed");
         }
     }
 
@@ -109,7 +124,8 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             String xml = marshaller.marshall(webApplicationDescriptor);
             writeFile(xml.getBytes(), System.getProperty(DESCRIPTOR_DIR.getValue()) + webApplicationDescriptor.getContextPath() + ".xml");
         } catch (Exception e) {
-            logger.error("unable to write webapp descriptor: ", e);
+            eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));
+            logger.error("error saving webappdescriptor", e);
         }
     }
 

@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.Action;
@@ -27,8 +28,10 @@ import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.util.StringUtils;
 
+import com.ejisto.core.jetty.WebAppContextRepository;
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.EjistoAction;
@@ -97,6 +100,10 @@ public class GuiUtils {
 	
 	public static synchronized ActionMap getActionMap() {
 	    return actionMap;
+	}
+	
+	public static Collection<WebAppContext> getAllRegisteredContexts() {
+	    return SpringBridge.getInstance().getBean("webAppContextRepository", WebAppContextRepository.class).getAllContexts();
 	}
 	
 }
