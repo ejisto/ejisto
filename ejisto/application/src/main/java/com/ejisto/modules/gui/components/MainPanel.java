@@ -28,11 +28,11 @@ import org.jdesktop.swingx.JXTitledPanel;
 
 public class MainPanel extends JXPanel {
     private static final long serialVersionUID = -28148619997853619L;
-    private LogViewer logViewer;
     private MockedFieldsEditor propertiesEditor;
 	private Header header;
 	private JXTitledPanel editorContainer;
     private JXPanel widgetsPane;
+    private JettyControl jettyControl;
 
     public MainPanel() {
         super();
@@ -64,7 +64,7 @@ public class MainPanel extends JXPanel {
         if(this.widgetsPane != null) return this.widgetsPane;
         widgetsPane = new JXPanel(new BorderLayout());
         widgetsPane.add(getEditorContainer(),BorderLayout.CENTER);
-        widgetsPane.add(getLogViewer(), BorderLayout.SOUTH);
+        widgetsPane.add(getJettyControl(), BorderLayout.SOUTH);
         return widgetsPane;
     }
 
@@ -83,23 +83,23 @@ public class MainPanel extends JXPanel {
     	return editorContainer;
     }
     
-    private LogViewer getLogViewer() {
-        if (logViewer != null)
-            return logViewer;
-        logViewer = new LogViewer();
-        return logViewer;
+    private JettyControl getJettyControl() {
+        if(this.jettyControl != null) return this.jettyControl;
+        jettyControl = new JettyControl();
+        return jettyControl;
     }
-
+    
     public void log(String message) {
-        getLogViewer().log(message);
+        getJettyControl().log(message);
     }
     
     public void toggleDisplayServerLog(boolean collapse) {
-        getLogViewer().toggleDisplayServerLog(collapse);
+        getJettyControl().toggleDisplayServerLog(collapse);
     }
     
-    public void refreshMockedFieldsEditor() {
+    public void onJettyStatusChange() {
     	getPropertiesEditor().setFields(getAllMockedFields());
+    	getJettyControl().reloadContextList();
     }
 
 }

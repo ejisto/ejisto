@@ -20,16 +20,20 @@ import static com.ejisto.util.GuiUtils.centerOnScreen;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
+
 import com.ejisto.modules.gui.Application;
 
 public class ApplicationStartup extends BaseStartupService {
-
-	@Resource
+    private static final Logger logger = Logger.getLogger(ApplicationStartup.class);
+	
+    @Resource
 	private Application application;
 
 	@Override
 	public void execute() {
-		application.init();
+		logger.info("executing ApplicationStartup");
+	    application.init();
 		centerOnScreen(application);
 		application.setVisible(true);
 	}

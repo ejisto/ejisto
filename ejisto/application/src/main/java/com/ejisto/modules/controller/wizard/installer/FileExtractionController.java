@@ -103,9 +103,11 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
         if (!overwriteDir(baseDir)) return null;
         ZipFile war = new ZipFile(file);
         Enumeration<? extends ZipEntry> entries = war.entries();
+        getView().initProgress(war.size(),getMessage("progress.start")); 
         ZipEntry entry;
         while (entries.hasMoreElements()) {
             entry = entries.nextElement();
+            getView().jobCompleted(getMessage("progress.file.extraction", entry.getName()));
             if (!entry.isDirectory()) writeFile(war.getInputStream(entry), baseDir, entry.getName());
             if (entry.getName().endsWith(".jar")) getSession().addJarFileName(retrieveFilenameFromZipEntryPath(entry.getName()));
         }

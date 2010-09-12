@@ -85,8 +85,12 @@ public class Application extends javax.swing.JFrame {
 	}
 	
 	public void onApplicationDeploy() {
-		rootPane.refreshMockedFieldsEditor();
+		rootPane.onPropertyChange();
 	}
+	
+	public void onWebAppContextStatusChange() {
+        rootPane.onPropertyChange();
+    }
 	
 	public boolean isReady() {
 	    return this.ready;

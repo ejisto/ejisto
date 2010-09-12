@@ -34,6 +34,13 @@ public enum StringConstants {
     STOP_JETTY("stopJetty"),
     SHUTDOWN("shutdown"),
     LOAD_WEB_APP("loadwebapp"),
+    CONTEXT_PREFIX_SEPARATOR("!!registeredContext!!"),
+    START_CONTEXT_COMMAND("start"),
+    START_CONTEXT_PREFIX("start!!registeredContext!!"),
+    STOP_CONTEXT_COMMAND("stop"),
+    STOP_CONTEXT_PREFIX("stop!!registeredContext!!"),
+    DELETE_CONTEXT_COMMAND("delete"),
+    DELETE_CONTEXT_PREFIX("delete!!registeredContext!!"),
     ;
 
 

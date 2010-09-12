@@ -18,6 +18,9 @@ package com.ejisto.modules.gui.components.helper;
 import java.awt.event.ActionEvent;
 import java.util.UUID;
 
+import javax.swing.Action;
+import javax.swing.Icon;
+
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.springframework.util.StringUtils;
 
@@ -88,4 +91,9 @@ public class CallbackAction extends AbstractActionExt {
         }
         return actionCommand;
     }
+    
+    public void setIcon(Icon icon) {
+        putValue(Action.SMALL_ICON, icon);
+    }
+    
 }

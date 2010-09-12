@@ -30,9 +30,13 @@ public class EventManager implements ApplicationContextAware {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                applicationContext.publishEvent(event);                
+                publishEventAndWait(event);                
             }
         });
+    }
+    
+    public void publishEventAndWait(ApplicationEvent event) {
+        applicationContext.publishEvent(event);                
     }
 
     @Override

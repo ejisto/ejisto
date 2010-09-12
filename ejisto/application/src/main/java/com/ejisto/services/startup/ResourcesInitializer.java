@@ -25,6 +25,7 @@ import java.io.File;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXHeader;
 import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 
@@ -39,7 +40,7 @@ import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.Header;
 
 public class ResourcesInitializer extends BaseStartupService {
-
+    private static final Logger logger = Logger.getLogger(ResourcesInitializer.class);
     @Resource
     private EventManager eventManager;
     @Resource
@@ -47,6 +48,7 @@ public class ResourcesInitializer extends BaseStartupService {
 
     @Override
     public void execute() {
+        logger.info("executing ResourcesInitializer");
         File baseDir = new File(System.getProperty("user.home"), ".ejisto");
         if (!baseDir.exists()) initBaseDir(baseDir);
         String fileSeparator = System.getProperty("file.separator");
@@ -75,13 +77,13 @@ public class ResourcesInitializer extends BaseStartupService {
     }
 
     private void initBaseDir(File baseDir) {
-        if (!baseDir.mkdirs()) eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
+        if (!baseDir.mkdirs()) eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
     }
     
     private void initStoredWebApps() {
         LoadWebApplication event = new LoadWebApplication(this);
         event.setLoadStored(true);
-        eventManager.publishEvent(event);
+        eventManager.publishEventAndWait(event);
     }
 
     private void initFonts() {

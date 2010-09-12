@@ -14,6 +14,10 @@ public class WebAppContextRepository {
         contextMap.put(context.getContextPath(), context);
     }
     
+    public void unregisterWebAppContext(WebAppContext context) {
+        contextMap.remove(context.getContextPath());
+    }
+    
     public WebAppContext getWebAppContext(String contextPath) {
         return contextMap.get(contextPath);
     }
@@ -22,7 +26,11 @@ public class WebAppContextRepository {
         return contextMap.values();
     }
     
+    
+    
     public boolean containsWebAppContext(String contextPath) {
         return contextMap.containsKey(contextPath);
     }
+    
+    
 }

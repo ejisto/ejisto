@@ -16,6 +16,8 @@
 package com.ejisto.util;
 
 import java.awt.Component;
+import static ch.lambdaj.Lambda.*;
+import static org.hamcrest.Matchers.*;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -100,6 +102,10 @@ public class GuiUtils {
 	
 	public static synchronized ActionMap getActionMap() {
 	    return actionMap;
+	}
+	
+	public static synchronized Collection<Action> getActionsFor(String prefix) {
+	    return select(actionMap, having(on(Action.class).getValue(Action.NAME).toString().startsWith(prefix), equalTo(true)));
 	}
 	
 	public static Collection<WebAppContext> getAllRegisteredContexts() {

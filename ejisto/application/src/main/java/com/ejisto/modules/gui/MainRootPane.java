@@ -74,8 +74,8 @@ public class MainRootPane extends JXRootPane {
         mainPanel.toggleDisplayServerLog(collapse);
     }
     
-    public void refreshMockedFieldsEditor() {
-    	mainPanel.refreshMockedFieldsEditor();
+    public void onPropertyChange() {
+    	mainPanel.onJettyStatusChange();
     }
     
     private JXStatusBar initStatusBar() {
