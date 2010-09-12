@@ -50,8 +50,8 @@ public class LogViewer extends JXPanel {
         log = new JTextArea();
         logPanel = new JScrollPane(log, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         logPanel.setMinimumSize(new Dimension(500, 100));
-        logPanel.setPreferredSize(new Dimension(500, 100));
-        logPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 300));
+//        logPanel.setPreferredSize(new Dimension(500, 100));
+//        logPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 300));
         log.setEditable(false);
         log.setFont(new java.awt.Font("Monospaced", 0, 9));
         return logPanel;

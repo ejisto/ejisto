@@ -61,8 +61,8 @@ public class RegisteredContextList extends JXPanel {
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setName(getMessage("main.tab.webappcontext.text"));
         setMinimumSize(new Dimension(500, 200));
-        setPreferredSize(new Dimension(500, 200));
-        setMaximumSize(new Dimension(Short.MAX_VALUE, 300));
+//        setPreferredSize(new Dimension(500, 200));
+//        setMaximumSize(new Dimension(Short.MAX_VALUE, 300));
         setLayout(new FlowLayout(FlowLayout.LEADING));
         internalReloadAllContexts(false);
     }

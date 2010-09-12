@@ -58,7 +58,6 @@ public class JettyControl extends JXTitledPanel {
         getContentContainer().add(getCollapsibleLogPane(), BorderLayout.CENTER);
         setBorder(BorderFactory.createEmptyBorder());
         setRightDecoration(getToolbarPanel());
-        
     }
 
     private JXPanel getToolbarPanel() {
@@ -95,8 +94,8 @@ public class JettyControl extends JXTitledPanel {
         if(this.jettyControlTab != null) return this.jettyControlTab;
         jettyControlTab = new JTabbedPane(JTabbedPane.BOTTOM);
         jettyControlTab.setMinimumSize(new Dimension(500, 100));
-        jettyControlTab.setPreferredSize(new Dimension(500, 100));
-        jettyControlTab.setMaximumSize(new Dimension(Short.MAX_VALUE, 300));
+        jettyControlTab.setPreferredSize(new Dimension(500, 250));
+        jettyControlTab.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
         jettyControlTab.add(getLogViewer());
         jettyControlTab.add(getScrollableContextList());
         return jettyControlTab;
@@ -106,8 +105,8 @@ public class JettyControl extends JXTitledPanel {
         if(this.scrollableContextList != null) return this.scrollableContextList;
         scrollableContextList = new JScrollPane(getContextList(), ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollableContextList.setMinimumSize(new Dimension(500, 100));
-        scrollableContextList.setPreferredSize(new Dimension(500, 100));
-        scrollableContextList.setMaximumSize(new Dimension(Short.MAX_VALUE, 300));
+        scrollableContextList.setPreferredSize(new Dimension(500, 250));
+        scrollableContextList.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
         scrollableContextList.setName(getContextList().getName());
         return scrollableContextList;
     }
@@ -126,9 +125,10 @@ public class JettyControl extends JXTitledPanel {
     
     private JXCollapsiblePane getCollapsibleLogPane() {
         if(this.collapsibleLogPane != null) return this.collapsibleLogPane;
-        collapsibleLogPane = new JXCollapsiblePane();
-        collapsibleLogPane.add(getJettyControlTab());
+        collapsibleLogPane = new JXCollapsiblePane(new BorderLayout());
+        collapsibleLogPane.add(getJettyControlTab(), BorderLayout.CENTER);
         collapsibleLogPane.setCollapsed(true);
+        collapsibleLogPane.setPreferredSize(new Dimension(500,250));
         Action toggleAction = collapsibleLogPane.getActionMap().get(JXCollapsiblePane.TOGGLE_ACTION);
         toggleAction.putValue(JXCollapsiblePane.EXPAND_ICON, new ImageIcon(getClass().getResource("/icons/expand.png")));
         toggleAction.putValue(JXCollapsiblePane.COLLAPSE_ICON, new ImageIcon(getClass().getResource("/icons/collapse.png")));
