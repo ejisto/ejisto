@@ -59,6 +59,21 @@ public class SpringBridge implements ApplicationContextAware {
         return getInstance().loadAllMockedFields();
     }
     
+    public static MockedField getMockedField(String contextPath, String className, String fieldName) {
+        if(!isApplicationInitialized()) return null;
+        return getInstance().loadMockedField(contextPath, className, fieldName);
+    }
+    
+    public static List<MockedField> getMockedFieldsFor(String contextPath, String className) {
+        if(!isApplicationInitialized()) return null;
+        return getInstance().loadMockedFields(contextPath, className);
+    }
+    
+    public static boolean isMockableClass(String contextPath, String className) {
+        if(!isApplicationInitialized()) return false;
+        return getInstance().hasMockedFields(contextPath, className);
+    }
+    
     public static boolean updateMockedField(MockedField mockedField) {
         if(!isApplicationInitialized()) return false;
         return getInstance().internalUpdateMockedField(mockedField);
@@ -104,6 +119,14 @@ public class SpringBridge implements ApplicationContextAware {
         return mockedFieldsDao.loadAll();
     }
     
+    private MockedField loadMockedField(String contextPath, String className, String fieldName) {
+        return mockedFieldsDao.getMockedField(contextPath, className, fieldName);
+    }
+    
+    private List<MockedField> loadMockedFields(String contextPath, String className) {
+        return mockedFieldsDao.loadByContextPathAndClassName(contextPath,className);
+    }
+    
     private boolean internalUpdateMockedField(MockedField mockedField) {
         return mockedFieldsDao.update(mockedField);
     }
@@ -112,6 +135,10 @@ public class SpringBridge implements ApplicationContextAware {
         long id = mockedFieldsDao.insert(mockedField);
         mockedField.setId(id);
         return mockedField;
+    }
+    
+    private boolean hasMockedFields(String contextPath, String className) {
+        return mockedFieldsDao.countByContextPathAndClassName(contextPath, className) > 0;
     }
 
 }

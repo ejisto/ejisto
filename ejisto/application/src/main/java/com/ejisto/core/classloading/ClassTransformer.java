@@ -16,17 +16,13 @@
 
 package com.ejisto.core.classloading;
 
-import static ch.lambdaj.Lambda.having;
-import static ch.lambdaj.Lambda.on;
-import static ch.lambdaj.Lambda.select;
-import static org.hamcrest.Matchers.equalTo;
+import static com.ejisto.util.SpringBridge.getMockedFieldsFor;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.Collection;
 import java.util.List;
 
 import javassist.ClassClassPath;
@@ -46,15 +42,14 @@ import com.ejisto.modules.dao.entities.MockedField;
 public class ClassTransformer implements ClassFileTransformer {
 
 	private static final Logger logger = Logger.getLogger(ClassTransformer.class);
-	private Collection<MockedField> mockedFields;
 	private EjistoClassLoader classLoader;
 	private ClassPool classPool;
+	private String contextPath;
 	
-	public ClassTransformer(EjistoClassLoader classLoader, Collection<MockedField> mockedFields) {
-		this.mockedFields = mockedFields;
+	public ClassTransformer(EjistoClassLoader classLoader) {
 		this.classLoader = classLoader;
+		this.contextPath = classLoader.getContextPath();
 		initClassPool();
-		logger.info("Created ClassTransformer for fields: "+mockedFields);
 	}
 	
 	private void initClassPool() {
@@ -64,7 +59,7 @@ public class ClassTransformer implements ClassFileTransformer {
 	
 	public Class<?> transform(String className) throws Exception {
 		CtClass clazz = classPool.get(className.replaceAll("/", "."));
-		clazz.instrument(new ObjectEditor(new EjistoMethodFilter(getFieldsFor(className))));
+		clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, getFieldsFor(className))));
 		Class<?> transformedClass = clazz.toClass();
 		clazz.detach();
 		return transformedClass;
@@ -85,7 +80,7 @@ public class ClassTransformer implements ClassFileTransformer {
 	}
 	
 	private List<MockedField> getFieldsFor(String className) {
-		return select(mockedFields, having(on(MockedField.class).getClassName(), equalTo(className.replaceAll("/", "."))));
+	    return getMockedFieldsFor(contextPath, className);
 	}
 	
 	private byte[] proxyClass(String className, byte[] classFileBuffer, List<MockedField> fields) {
@@ -106,7 +101,7 @@ public class ClassTransformer implements ClassFileTransformer {
 		ProxyFactory proxyFactory = new ProxyFactory();
 		proxyFactory.setInterfaces(getInterfaces(clazz.getInterfaces()));
 		proxyFactory.setSuperclass(classLoader.loadInstrumentableClass(className));
-		proxyFactory.setFilter(new EjistoMethodFilter(fields));
+		proxyFactory.setFilter(new EjistoMethodFilter(contextPath, fields));
 		proxyFactory.setHandler(new EjistoMethodHandler(fields));
 		Class<?> proxy = proxyFactory.createClass();
 		cp.appendClassPath(new ClassClassPath(proxy));

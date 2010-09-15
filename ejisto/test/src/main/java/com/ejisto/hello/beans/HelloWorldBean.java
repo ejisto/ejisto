@@ -21,9 +21,9 @@ import java.io.Serializable;
 public class HelloWorldBean implements Serializable {
 
 	private static final long serialVersionUID = 6175502203990776213L;
-	private String title = "";
-	private String description = "";
-	private int hits = -1;
+	private String title = "Unchanged Title";
+	private String description = "Unchanged Description";
+	private int hits = 0;
 	private long timestamp = 0L;
 
 	public String getTitle() {

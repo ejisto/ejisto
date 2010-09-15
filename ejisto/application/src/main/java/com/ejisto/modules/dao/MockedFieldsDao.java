@@ -35,8 +35,10 @@ import com.ejisto.modules.dao.entities.MockedField;
 
 public class MockedFieldsDao extends BaseDao {
     private static final String LOAD_ALL = "SELECT * FROM MOCKEDFIELDS";
-    private static final String LOAD_BY_CLASSNAME = "SELECT * FROM MOCKEDFIELDS WHERE CLASSNAME = ? AND FIELDNAME = ?";
+    private static final String LOAD_BY_CLASSNAME = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH=? AND CLASSNAME = ? AND FIELDNAME = ?";
     private static final String LOAD_BY_CONTEXTPATH = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH = ?";
+    private static final String LOAD_BY_CONTEXTPATH_CLASSNAME = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND CLASSNAME = ?";
+    private static final String COUNT_BY_CONTEXTPATH_CLASSNAME = "SELECT COUNT(*) FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND CLASSNAME = ?";
     private static final String UPDATE = "UPDATE MOCKEDFIELDS SET CONTEXTPATH = ?, CLASSNAME = ? , FIELDNAME = ?, FIELDTYPE=?, FIELDVALUE=? WHERE ID=?";
     private static final String INSERT = "INSERT INTO MOCKEDFIELDS (CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE) VALUES(?,?,?,?,?)";
     private static final String DELETE_CONTEXT     = "DELETE FROM MOCKEDFIELDS WHERE CONTEXTPATH=?";
@@ -59,9 +61,22 @@ public class MockedFieldsDao extends BaseDao {
             }
         });
     }
+    
+    public List<MockedField> loadByContextPathAndClassName(String contextPath, String className) {
+        return getJdbcTemplate().query(LOAD_BY_CONTEXTPATH_CLASSNAME, new Object[] {contextPath, className}, new RowMapper<MockedField>() {
+            @Override
+            public MockedField mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return loadFromResultSet(rs);
+            }
+        });
+    }
+    
+    public int countByContextPathAndClassName(String contextPath, String className) {
+        return getJdbcTemplate().queryForInt(COUNT_BY_CONTEXTPATH_CLASSNAME, contextPath, className);
+    }
 
-    public MockedField getMockedField(String className, String fieldName) {
-        return getJdbcTemplate().query(LOAD_BY_CLASSNAME, new Object[]{className, fieldName}, new ResultSetExtractor<MockedField>() {
+    public MockedField getMockedField(String contextPath, String className, String fieldName) {
+        return getJdbcTemplate().query(LOAD_BY_CLASSNAME, new Object[]{contextPath, className, fieldName}, new ResultSetExtractor<MockedField>() {
             @Override
             public MockedField extractData(ResultSet rs) throws SQLException, DataAccessException {
             	if(rs.next()) return loadFromResultSet(rs);

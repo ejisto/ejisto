@@ -33,8 +33,10 @@ import com.ejisto.modules.dao.entities.MockedField;
 public class EjistoMethodFilter implements MethodFilter {
 	
 	private Collection<MockedField> fields;
+    private String contextPath;
 
-	public EjistoMethodFilter(Collection<MockedField> fields) {
+	public EjistoMethodFilter(String contextPath, Collection<MockedField> fields) {
+	    this.contextPath = contextPath;
 		this.fields=fields;
 	}
 
@@ -47,5 +49,9 @@ public class EjistoMethodFilter implements MethodFilter {
 	public boolean isFieldHandled(String fieldName) {
 		return selectFirst(fields, having(on(MockedField.class).getFieldName(),equalTo(StringUtils.uncapitalize(fieldName)))) != null;
 	}
+	
+	public String getContextPath() {
+        return contextPath;
+    }
 
 }

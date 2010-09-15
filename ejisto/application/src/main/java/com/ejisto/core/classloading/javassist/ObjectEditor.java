@@ -58,17 +58,18 @@ public class ObjectEditor extends ExprEditor {
 	}
 
 	/**
-	 * Calls <code>public static T mockField(String fieldName, String className, T actual)</code> where <code>T</code> is field type
+	 * Calls <code>public static T mockField(String contextPath, String fieldName, String className, T actual)</code> where <code>T</code> is field type
 	 */
 	@Override
 	public void edit(FieldAccess f) throws CannotCompileException {
 		if(f.isReader() && filter.isFieldHandled(f.getFieldName())) {
 			StringBuilder instruction = new StringBuilder("{ $_ = ($r) com.ejisto.core.classloading.javassist.PropertyManager.mockField(");
+			instruction.append("\"").append(filter.getContextPath()).append("\",");
 			try {
 				if(f.getField().getType().isPrimitive())
 					instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(f.getClassName()).append("\", $_); return $_; }");
 				else
-					instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(f.getClassName()).append("\", $type); return $_; }");
+					instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(f.getClassName()).append("\", $type, $_); return $_; }");
 				f.replace(instruction.toString());
 			} catch (NotFoundException e) {
 				e.printStackTrace();

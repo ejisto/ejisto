@@ -20,67 +20,72 @@ import java.lang.reflect.Constructor;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
 
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
 
 public class PropertyManager implements InitializingBean {
 
-	@Resource
-	private MockedFieldsDao mockedFieldsDao;
+    private static PropertyManager INSTANCE;
+    private static final Logger logger = Logger.getLogger(PropertyManager.class);
+    @Resource
+    private MockedFieldsDao mockedFieldsDao;
 
-	private static PropertyManager INSTANCE;
+    private <T> T getFieldValue(String contextPath, String className, String fieldName, Class<T> type, T actualValue) {
+        try {
+            MockedField mockedField = mockedFieldsDao.getMockedField(contextPath, className, fieldName);
+            if (mockedField != null) {
+                Constructor<T> constructor = type.getConstructor(String.class);
+                return constructor.newInstance(mockedField.getFieldValue());
+            } else {
+                return actualValue;
+            }
+        } catch (Exception e) {
+            logger.error("Property " + fieldName + " of class " + className + " not found. Returning " + actualValue, e);
+            return actualValue;
+        }
+    }
 
-	private <T> T getFieldValue(String className, String fieldName,	Class<T> type) {
-		try {
-			MockedField mockedField = mockedFieldsDao.getMockedField(className, fieldName);
-			Assert.notNull(mockedField);
-			Constructor<T> constructor = type.getConstructor(String.class);
-			return constructor.newInstance(mockedField.getFieldValue());
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        INSTANCE = this;
+    }
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		INSTANCE = this;
-	}
-	
-	public static <T> T mockField(String fieldName, String className,
-			Class<T> type) {
-		return INSTANCE.getFieldValue(className, fieldName, type);
-	}
+    public static <T> T mockField(String contextPath, String fieldName, String className, Class<T> type, T actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, type, actual);
+    }
 
-	public static int mockField(String fieldName, String className,
-			int actual) {
-		return INSTANCE.getFieldValue(className, fieldName, Integer.class);
-	}
-	
-	public static long mockField(String fieldName, String className,
-			long actual) {
-		return INSTANCE.getFieldValue(className, fieldName, Long.class);
-	}
-	
-	public static double mockField(String fieldName, String className,
-			double actual) {
-		return INSTANCE.getFieldValue(className, fieldName, Double.class);
-	}
-	
-	public static float mockField(String fieldName, String className,
-			float actual) {
-		return INSTANCE.getFieldValue(className, fieldName, Float.class);
-	}
-	
-	public static short mockField(String fieldName, String className,
-			short actual) {
-		return INSTANCE.getFieldValue(className, fieldName, Short.class);
-	}
-	
-	public static byte mockField(String fieldName, String className,
-			byte actual) {
-		return INSTANCE.getFieldValue(className, fieldName, Byte.class);
-	}
+    public static byte mockField(String contextPath, String fieldName, String className, byte actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, Byte.class, actual);
+    }
+
+    public static short mockField(String contextPath, String fieldName, String className, short actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, Short.class, actual);
+    }
+
+    public static int mockField(String contextPath, String fieldName, String className, int actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, Integer.class, actual);
+    }
+
+    public static long mockField(String contextPath, String fieldName, String className, long actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, Long.class, actual);
+    }
+
+    public static float mockField(String contextPath, String fieldName, String className, float actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, Float.class, actual);
+    }
+
+    public static double mockField(String contextPath, String fieldName, String className, double actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, Double.class, actual);
+    }
+
+    public static char mockField(String contextPath, String fieldName, String className, char actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, Character.class, actual);
+    }
+
+    public static boolean mockField(String contextPath, String fieldName, String className, boolean actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, Boolean.class, actual);
+    }
 }

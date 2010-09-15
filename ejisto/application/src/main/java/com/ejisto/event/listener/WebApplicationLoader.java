@@ -23,7 +23,10 @@ import static com.ejisto.constants.StringConstants.DELETE_CONTEXT_PREFIX;
 import static com.ejisto.constants.StringConstants.DESCRIPTOR_DIR;
 import static com.ejisto.constants.StringConstants.START_CONTEXT_PREFIX;
 import static com.ejisto.constants.StringConstants.STOP_CONTEXT_PREFIX;
-import static com.ejisto.util.GuiUtils.*;
+import static com.ejisto.util.GuiUtils.getAction;
+import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.putAction;
+import static com.ejisto.util.GuiUtils.showWarning;
 import static com.ejisto.util.IOUtils.determineWebApplicationUri;
 import static com.ejisto.util.IOUtils.readFile;
 import static com.ejisto.util.IOUtils.writeFile;
@@ -113,8 +116,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             undeployExistingWebapp(webApplicationDescriptor.getContextPath(), false);
             WebAppContext context = new WebAppContext(contexts, webApplicationDescriptor.getInstallationPath(), webApplicationDescriptor.getContextPath());
             context.setResourceBase(webApplicationDescriptor.getInstallationPath());
-            EjistoClassLoader classLoader = new EjistoClassLoader(webApplicationDescriptor.getInstallationPath(), mockedFieldsDao.loadContextPathFields(context
-                    .getContextPath()), context);
+            EjistoClassLoader classLoader = new EjistoClassLoader(webApplicationDescriptor.getInstallationPath(), context);
             context.setClassLoader(classLoader);
             context.setParentLoaderPriority(false);
             context.start();

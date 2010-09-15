@@ -16,36 +16,33 @@
 
 package com.ejisto.core.classloading;
 
-import static ch.lambdaj.Lambda.having;
-import static ch.lambdaj.Lambda.on;
-import static ch.lambdaj.Lambda.selectFirst;
-import static org.hamcrest.Matchers.equalTo;
+import static com.ejisto.util.SpringBridge.isMockableClass;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.webapp.WebAppClassLoader;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import com.ejisto.modules.dao.entities.MockedField;
-
 public class EjistoClassLoader extends WebAppClassLoader {
 
     private static final Logger logger = Logger.getLogger(EjistoClassLoader.class);
 	private ClassTransformer transformer;
-	private Collection<MockedField> mockedFields;
+	private String contextPath;
+    private String installationPath;
 
-    public EjistoClassLoader(String webAppPath, Collection<MockedField> mockedFields, WebAppContext context) throws IOException {
+    public EjistoClassLoader(String installationPath, WebAppContext context) throws IOException {
         super(context);
 //        InstrumentationHolder.getInstrumentation().addTransformer(new ClassTransformer(this, mockedFields), true);
-        this.transformer=new ClassTransformer(this, mockedFields);
-        this.mockedFields=mockedFields;
+        this.installationPath=installationPath;
+        this.contextPath = context.getContextPath();
+        this.transformer=new ClassTransformer(this);
     }
 
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		try {
+		    
 			boolean instrumentableClass = isInstrumentableClass(name);
 			if(logger.isDebugEnabled()) logger.debug(name+" is mockable class: "+instrumentableClass);
 			if(instrumentableClass) return loadInstrumentableClass(name);
@@ -61,7 +58,17 @@ public class EjistoClassLoader extends WebAppClassLoader {
 	}
 	
 	public boolean isInstrumentableClass(String name) {
-		return (selectFirst(mockedFields, having(on(MockedField.class).getClassName(), equalTo(name.replaceAll("/", ".")))) != null);
+	    return isMockableClass(contextPath, name.replaceAll("/", "."));
 	}
+	
+	public String getContextPath() {
+        return contextPath;
+    }
+	
+	public String getInstallationPath() {
+        return installationPath;
+    }
+	
+	
 	
 }
