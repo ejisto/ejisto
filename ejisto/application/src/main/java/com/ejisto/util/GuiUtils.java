@@ -20,6 +20,7 @@ import java.awt.Component;
 import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.*;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ import com.ejisto.modules.gui.EjistoAction;
 public class GuiUtils {
     
     private static ActionMap actionMap = new ActionMap();
+    private static Font defaultFont;
 	
 	public static void centerOnScreen(Window window) {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -112,5 +114,13 @@ public class GuiUtils {
 	public static Collection<WebAppContext> getAllRegisteredContexts() {
 	    return SpringBridge.getInstance().getBean("webAppContextRepository", WebAppContextRepository.class).getAllContexts();
 	}
+	
+	public static void setDefaultFont(Font defaultFont) {
+        GuiUtils.defaultFont = defaultFont;
+    }
+	
+	public static Font getDefaultFont() {
+        return defaultFont;
+    }
 	
 }

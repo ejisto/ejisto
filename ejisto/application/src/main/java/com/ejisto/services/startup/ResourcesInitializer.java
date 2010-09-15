@@ -38,6 +38,7 @@ import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.Header;
+import com.ejisto.util.GuiUtils;
 
 public class ResourcesInitializer extends BaseStartupService {
     private static final Logger logger = Logger.getLogger(ResourcesInitializer.class);
@@ -112,7 +113,7 @@ public class ResourcesInitializer extends BaseStartupService {
         @SuppressWarnings("unused")
         String a = JXHeader.uiClassID;//initialize JXHeader.class
         LookAndFeelAddons.getAddon().loadDefaults(new Object[]{"JXHeader.descriptionFont", defaultFont, "JXHeader.titleFont", bold, "JXTitledPanel.titleFont", bold, "JXHeader.background", Color.white});
-
+        GuiUtils.setDefaultFont(defaultFont);
     }
     
     private void initDefaultActions() {

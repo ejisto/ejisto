@@ -39,16 +39,19 @@ public class MockedFieldsEditor extends JXPanel {
 	private JScrollPane flattenTableContainer;
 	private JScrollPane treeContainer;
     private MockedFieldTree tree;
+    private boolean main;
 	
 	public MockedFieldsEditor() {
         this(false);
     }
 	
 	public MockedFieldsEditor(boolean main) {
-		init(main);
+		this.main=main;
+	    init();
+		
 	}
 	
-	private void init(boolean main) {
+	private void init() {
 		setLayout(new BorderLayout());
 		add(getEditorContainer(), BorderLayout.CENTER);
 //		if(main) addbuttonspanel
@@ -90,7 +93,7 @@ public class MockedFieldsEditor extends JXPanel {
 	}
 	
 	public void setFields(List<MockedField> fields) {
-		getFlattenTable().setModel(new MockedFieldsTableModel(fields, false, true));
+		getFlattenTable().setModel(new MockedFieldsTableModel(fields, main, !main));
 		getTree().setFields(fields);
 	}
 	

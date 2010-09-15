@@ -44,7 +44,7 @@
         <org.eclipse.jetty.version>7.1.5.v20100705</org.eclipse.jetty.version>
     </properties>
     <dependencies>
-        <dependency>
+         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>${org.springframework.version}</version>
@@ -57,71 +57,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-expression</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
             <version>${org.springframework.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-oxm</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc-portlet</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${org.springframework.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
+         <dependency>
             <groupId>com.googlecode.lambdaj</groupId>
             <artifactId>lambdaj</artifactId>
             <version>[2.3,)</version>
@@ -137,6 +76,16 @@
             </exclusions>
         </dependency>
         <dependency>
+	    <groupId>com.googlecode</groupId>
+	    <artifactId>jamme</artifactId>
+	    <version>1.2</version>
+       </dependency>
+       <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>1.1</version>
+      </dependency>
+        <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
             <version>${org.eclipse.jetty.version}</version>
@@ -144,11 +93,6 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>${org.eclipse.jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-deploy</artifactId>
             <version>${org.eclipse.jetty.version}</version>
         </dependency>
         <dependency>
@@ -170,6 +114,12 @@
             <groupId>org.swinglabs</groupId>
             <artifactId>swingx</artifactId>
             <version>1.6.1</version>
+            <exclusions>
+               <exclusion>
+                 <groupId>org.swinglabs</groupId>
+                 <artifactId>swing-worker</artifactId>
+               </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
@@ -181,7 +131,6 @@
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
         </dependency>
-
         <dependency>
         	<groupId>junit</groupId>
         	<artifactId>junit</artifactId>
@@ -203,7 +152,7 @@
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
-            </plugin>
+           </plugin>
         </plugins>
     </build>
 

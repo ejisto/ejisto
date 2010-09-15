@@ -130,7 +130,7 @@ public class ResourcesFilter extends JXPanel {
         List<String> ret = new ArrayList<String>();
         int i = 0;
         for (String jar : resources)
-            if (binarySearch(indices, i++) > -1) ret.add(jar);
+            if (binarySearch(indices, i++) < 0) ret.add(jar);
         return ret;
     }
     

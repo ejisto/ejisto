@@ -34,6 +34,7 @@ import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.util.GuiUtils;
 
 public class RegisteredContextList extends JXPanel {
     private static final long serialVersionUID = 7817710546838911106L;
@@ -76,9 +77,9 @@ public class RegisteredContextList extends JXPanel {
                 getMessage("jettycontrol.context.stop.text")));
         panel.add(getCommandButton(getAction(StringConstants.DELETE_CONTEXT_PREFIX.getValue() + context.getContextPath()),
                 getMessage("jettycontrol.context.delete.text")));
-        panel.setMinimumSize(new Dimension(250, 30));
-        panel.setMaximumSize(new Dimension(250, 30));
-        panel.setPreferredSize(new Dimension(250, 30));
+        panel.setMinimumSize(new Dimension(210, 30));
+        panel.setMaximumSize(new Dimension(210, 30));
+        panel.setPreferredSize(new Dimension(210, 30));
         panel.setBorder(BorderFactory.createLineBorder(Color.black, 1));
         return panel;
     }
@@ -89,6 +90,7 @@ public class RegisteredContextList extends JXPanel {
         String status = getMessage(active ? "jettycontrol.context.active" : "jettycontrol.context.inactive");
         String message = getMessage("jettycontrol.context.template", context.getContextPath(), color, status);
         JXLabel label = new JXLabel(message);
+        label.setFont(GuiUtils.getDefaultFont());
         return label;
     }
 
