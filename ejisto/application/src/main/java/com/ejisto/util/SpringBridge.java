@@ -29,7 +29,9 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.event.EventManager;
+import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
 
@@ -40,6 +42,8 @@ public class SpringBridge implements ApplicationContextAware {
     private MessageSource messageSource;
     @Resource
     private MockedFieldsDao mockedFieldsDao;
+    @Resource
+    private SettingsManager settingsManager;
 
     public static boolean publishApplicationEvent(ApplicationEvent e) {
         boolean ret = isApplicationInitialized();
@@ -83,6 +87,21 @@ public class SpringBridge implements ApplicationContextAware {
         if(!isApplicationInitialized()) return mockedField;
         return getInstance().internalInsertMockedField(mockedField);
     }
+    
+    public static String getSettingValue(StringConstants key) {
+    	if(!isApplicationInitialized()) return null;
+    	return getInstance().getSetting(key);
+    }
+    
+    public static int getSettingIntValue(StringConstants key) {
+    	if(!isApplicationInitialized()) return -1;
+    	return getInstance().getIntSetting(key);
+    }
+    
+    public static void putSettingValue(StringConstants key, Object value) {
+    	if(!isApplicationInitialized()) return;
+    	getInstance().putSetting(key, value);
+    }
 
     public static SpringBridge getInstance() {
         return instance;
@@ -113,6 +132,18 @@ public class SpringBridge implements ApplicationContextAware {
         } catch (NoSuchMessageException e) {
             return key;
         }
+    }
+    
+    private String getSetting(StringConstants key) {
+    	return settingsManager.getValue(key);
+    }
+    
+    private int getIntSetting(StringConstants key) {
+    	return Integer.parseInt(getSetting(key));
+    }
+    
+    private void putSetting(StringConstants key, Object value) {
+    	settingsManager.putValue(key, value);
     }
 
     private List<MockedField> loadAllMockedFields() {

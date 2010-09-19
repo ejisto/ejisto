@@ -16,13 +16,24 @@
 
 package com.ejisto.modules.dao.entities;
 
+import com.ejisto.constants.StringConstants;
+
 
 public class Setting {
 
     private String key;
     private String value;
+    private transient StringConstants humanReadableKey;
+    
+    public Setting() {
+    }
+    
+    public Setting(String key, String value) {
+		this.key = key;
+		this.value = value;
+	}
 
-    public String getKey() {
+	public String getKey() {
         return key;
     }
 
@@ -37,5 +48,12 @@ public class Setting {
     public void setValue(String value) {
         this.value = value;
     }
-        
+
+	public void setHumanReadableKey(StringConstants humanReadableKey) {
+		this.humanReadableKey = humanReadableKey;
+	}
+
+	public StringConstants getHumanReadableKey() {
+		return humanReadableKey;
+	}
 }

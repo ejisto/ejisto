@@ -115,10 +115,12 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
     @Override
     public void editingStopped(ChangeEvent e) {
         TreeCellEditor editor = getCellEditor();
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) getEditingPath().getLastPathComponent();
+        TreePath editingPath = getEditingPath(); 
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) editingPath.getLastPathComponent();
         MockedField mf = (MockedField) node.getUserObject();
         mf.setFieldValue(String.valueOf(editor.getCellEditorValue()));
         ((DefaultTreeModel) getModel()).reload(node.getParent());
+        setSelectionPath(editingPath);
     }
 
     private static final class MockedFieldCellEditor extends DefaultCellEditor {

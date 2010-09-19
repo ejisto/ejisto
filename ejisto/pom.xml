@@ -44,7 +44,7 @@
         <org.eclipse.jetty.version>7.1.5.v20100705</org.eclipse.jetty.version>
     </properties>
     <dependencies>
-        <dependency>
+         <dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 			<version>1.1.1</version>

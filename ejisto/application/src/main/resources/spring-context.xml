@@ -108,7 +108,7 @@
 	<bean abstract="true" id="baseDao" class="com.ejisto.modules.dao.BaseDao"
 		lazy-init="true" />
 	<bean id="settingsDao" class="com.ejisto.modules.dao.SettingsDao"
-		parent="baseDao" lazy-init="true" />
+		parent="baseDao" lazy-init="true"/>
 	<bean id="mockedFieldsDao" class="com.ejisto.modules.dao.MockedFieldsDao"
 		parent="baseDao" lazy-init="true" />
 

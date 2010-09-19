@@ -16,12 +16,26 @@
 
 package com.ejisto.core.launcher;
 
+import java.io.File;
+
+import javax.swing.JOptionPane;
+
 import org.apache.log4j.Logger;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 public class Main {
+	
+	static {
+		File baseDir = new File(System.getProperty("user.home"), ".ejisto");
+		if(!baseDir.exists() && !baseDir.mkdir()) {
+			JOptionPane.showConfirmDialog(null, "Ejisto doesn't have permissions to create its homedir. Please check system configuration.", "error", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+			throw new ExceptionInInitializerError("Cannot create home dir. Exiting.");
+		}
+		System.setProperty("ejisto.home", baseDir.getAbsolutePath());
+	}
+	
     private static Logger logger = Logger.getLogger(Main.class);
 
     public static void main(String[] args) {

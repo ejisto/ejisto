@@ -35,6 +35,7 @@ import javax.swing.JOptionPane;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.util.StringUtils;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.core.jetty.WebAppContextRepository;
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -122,5 +123,17 @@ public class GuiUtils {
 	public static Font getDefaultFont() {
         return defaultFont;
     }
+	
+	public static int getSettingIntValue(StringConstants key) {
+		return SpringBridge.getSettingIntValue(key);
+	}
+	
+	public static String getSettingValue(StringConstants key) {
+		return SpringBridge.getSettingValue(key);
+	}
+	
+	public static void putSettingValue(StringConstants key, Object value) {
+		SpringBridge.putSettingValue(key, value);
+	}
 	
 }

@@ -20,6 +20,9 @@ public enum StringConstants {
     JETTY_HOME_DIR("jetty.home"),
     JETTY_WEBAPPS_DIR("jetty.webapps.dir"),
     MAIN_TITLE("main.title"),
+    APPLICATION_WIDTH("application.dimension.width"),
+    APPLICATION_HEIGHT("application.dimension.height"),
+    LAST_FILESELECTION_PATH("fileselection.last.path"),
     DERBY_SCRIPT("derby.script"),
     DESCRIPTOR_DIR("descriptor.dir"),
     INITIALIZE_DATABASE("INITIALIZE_DATABASE"),
@@ -57,5 +60,12 @@ public enum StringConstants {
 
     public String getValue() {
         return value;
+    }
+    
+    public static StringConstants fromValue(String value) {
+    	for (StringConstants constant : values()) {
+			if(constant.getValue().equals(value)) return constant;
+		}
+    	return null;
     }
 }

@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.SettingsDao;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -41,16 +42,17 @@ public class DatabaseDump extends BaseShutdownService {
 	private MockedFieldsDao mockedFieldsDao;
 	@Resource
 	private SettingsDao settingsDao;
+	@Resource
+	private SettingsManager settingsManager;
 
 	@Override
 	public void execute() {
 		try {
+			settingsManager.flush();
 			StringBuilder file = new StringBuilder();
 			Collection<Setting> settings = settingsDao.loadAll();
 			for (Setting setting : settings) {
-				file.append(
-						String.format(INSERT_SETTING, setting.getKey(),
-								setting.getValue())).append(NEWLINE);
+				file.append(String.format(INSERT_SETTING, setting.getKey(),	setting.getValue())).append(NEWLINE);
 			}
 			Collection<MockedField> mockedFields = mockedFieldsDao.loadAll();
 			for (MockedField field : mockedFields) {

@@ -16,8 +16,13 @@
 
 package com.ejisto.modules.gui;
 
-import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.constants.StringConstants.APPLICATION_HEIGHT;
+import static com.ejisto.constants.StringConstants.APPLICATION_WIDTH;
+import static com.ejisto.constants.StringConstants.MAIN_TITLE;
+import static com.ejisto.constants.StringConstants.START_JETTY;
+import static com.ejisto.constants.StringConstants.STOP_JETTY;
 import static com.ejisto.util.GuiUtils.getAction;
+import static com.ejisto.util.GuiUtils.getMessage;
 
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
@@ -27,7 +32,6 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
-import com.ejisto.constants.StringConstants;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.event.def.ChangeServerStatus.Command;
@@ -49,14 +53,16 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	public void init() {
-		setTitle(settingsManager.getValue(StringConstants.MAIN_TITLE));
+		setTitle(settingsManager.getValue(MAIN_TITLE));
 		rootPane = new MainRootPane();
 		setRootPane(rootPane);
-		setMinimumSize(new Dimension(700, 350));
-		setSize(new Dimension(700, 350));
+		Dimension size = new Dimension(settingsManager.getIntValue(APPLICATION_WIDTH), settingsManager.getIntValue(APPLICATION_HEIGHT));
+		setMinimumSize(size);
+		setSize(size);
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
+				saveSettings();
 				setVisible(false);
 				eventManager.publishEvent(new ShutdownRequest(this));
 			}
@@ -64,7 +70,7 @@ public class Application extends javax.swing.JFrame {
 		pack();
 		ready=true;
 	}
-
+	
 	public void log(String message) {
 		if(ready) {
 		    for (String oldMessage : pendingMessages) rootPane.log(oldMessage);
@@ -79,8 +85,8 @@ public class Application extends javax.swing.JFrame {
 		boolean shutdown = event.getCommand() == Command.SHUTDOWN;
 		if (shutdown)
 			rootPane.log(getMessage("jetty.shutdown.log", new Date()));
-		getAction(StringConstants.START_JETTY.getValue()).setEnabled(shutdown);
-		getAction(StringConstants.STOP_JETTY.getValue()).setEnabled(!shutdown);
+		getAction(START_JETTY.getValue()).setEnabled(shutdown);
+		getAction(STOP_JETTY.getValue()).setEnabled(!shutdown);
 		rootPane.toggleDisplayServerLog(shutdown);
 	}
 	
@@ -94,6 +100,11 @@ public class Application extends javax.swing.JFrame {
 	
 	public boolean isReady() {
 	    return this.ready;
+	}
+	
+	private void saveSettings() {
+		settingsManager.putValue(APPLICATION_WIDTH, getWidth());
+		settingsManager.putValue(APPLICATION_HEIGHT, getHeight());
 	}
 
 }

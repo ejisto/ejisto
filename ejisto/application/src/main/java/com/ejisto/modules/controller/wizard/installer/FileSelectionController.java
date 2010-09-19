@@ -17,8 +17,8 @@
 package com.ejisto.modules.controller.wizard.installer;
 
 import static ch.lambdaj.Lambda.var;
-import static com.ejisto.constants.StringConstants.SELECT_FILE_COMMAND;
-import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.constants.StringConstants.*;
+import static com.ejisto.util.GuiUtils.*;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -100,7 +100,8 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
 
     
     private File openFileSelectionDialog() {
-        JFileChooser fileChooser = new JFileChooser();
+    	String directoryPath = getSettingValue(LAST_FILESELECTION_PATH);
+        JFileChooser fileChooser = new JFileChooser(directoryPath);
         fileChooser.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File f) {
@@ -112,8 +113,10 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
                 return "*.war";
             }
         });
-        if (fileChooser.showOpenDialog(getDialog()) == JFileChooser.APPROVE_OPTION)
-            return fileChooser.getSelectedFile();
+        if (fileChooser.showOpenDialog(getDialog()) == JFileChooser.APPROVE_OPTION) {
+        	putSettingValue(LAST_FILESELECTION_PATH, fileChooser.getCurrentDirectory().getAbsolutePath());
+        	return fileChooser.getSelectedFile();
+        }            
         else
             return null;
     }

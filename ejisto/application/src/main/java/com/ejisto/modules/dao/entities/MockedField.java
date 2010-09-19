@@ -84,7 +84,11 @@ public class MockedField {
 	}
 	
 	public String getGroupKey() {
-		return className;
+		return className.substring(0, className.lastIndexOf('.'));
+	}
+	
+	public String getClassSimpleName() {
+		return className.substring(className.lastIndexOf('.') + 1);
 	}
 	
 }
