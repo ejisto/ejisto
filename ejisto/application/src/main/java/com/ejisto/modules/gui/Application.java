@@ -56,9 +56,10 @@ public class Application extends javax.swing.JFrame {
 		setTitle(settingsManager.getValue(MAIN_TITLE));
 		rootPane = new MainRootPane();
 		setRootPane(rootPane);
+		setMinimumSize(new Dimension(700,350));
 		Dimension size = new Dimension(settingsManager.getIntValue(APPLICATION_WIDTH), settingsManager.getIntValue(APPLICATION_HEIGHT));
-		setMinimumSize(size);
 		setSize(size);
+		setPreferredSize(size);
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {

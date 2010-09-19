@@ -16,13 +16,15 @@
 
 package com.ejisto.event.listener;
 
+import static com.ejisto.util.GuiUtils.getMessage;
+
 import java.util.logging.Level;
+
 import javax.annotation.Resource;
-import static com.ejisto.util.GuiUtils.*;
+
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.MessageSource;
 
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.modules.gui.Application;

@@ -33,39 +33,41 @@ import com.ejisto.modules.dao.entities.Setting;
 
 public class DatabaseDump extends BaseShutdownService {
 
-	private static final Logger logger = Logger.getLogger(DatabaseDump.class);
-	private static final String INSERT_SETTING = "INSERT INTO SETTINGS VALUES ('%s','%s');";
-	private static final String INSERT_FIELD = "INSERT INTO MOCKEDFIELDS(CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE) VALUES('%s','%s','%s','%s','%s');";
-	private static final String NEWLINE = "\n";
+    private static final Logger logger = Logger.getLogger(DatabaseDump.class);
+    private static final String INSERT_SETTING = "INSERT INTO SETTINGS VALUES ('%s','%s');";
+    private static final String INSERT_FIELD = "INSERT INTO MOCKEDFIELDS(CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE) VALUES('%s','%s','%s','%s','%s');";
+    private static final String NEWLINE = "\n";
 
-	@Resource
-	private MockedFieldsDao mockedFieldsDao;
-	@Resource
-	private SettingsDao settingsDao;
-	@Resource
-	private SettingsManager settingsManager;
+    @Resource
+    private MockedFieldsDao mockedFieldsDao;
+    @Resource
+    private SettingsDao settingsDao;
+    @Resource
+    private SettingsManager settingsManager;
 
-	@Override
-	public void execute() {
-		try {
-			settingsManager.flush();
-			StringBuilder file = new StringBuilder();
-			Collection<Setting> settings = settingsDao.loadAll();
-			for (Setting setting : settings) {
-				file.append(String.format(INSERT_SETTING, setting.getKey(),	setting.getValue())).append(NEWLINE);
-			}
-			Collection<MockedField> mockedFields = mockedFieldsDao.loadAll();
-			for (MockedField field : mockedFields) {
-				file.append(
-						String.format(INSERT_FIELD, 
-								field.getContextPath(), field.getClassName(),
-								field.getFieldName(), field.getFieldType(),
-								field.getFieldValue())).append(NEWLINE);
-			}
-			writeFile(file.toString().getBytes(), System.getProperty(StringConstants.DERBY_SCRIPT.getValue()));
-		} catch (Exception e) {
-			logger.error("error during db dump", e);
-		}
-	}
+    @Override
+    public void execute() {
+        try {
+            settingsManager.flush();
+            StringBuilder file = new StringBuilder();
+            Collection<Setting> settings = settingsDao.loadAll();
+            for (Setting setting : settings) {
+                file.append(String.format(INSERT_SETTING, setting.getKey(), escape(setting.getValue()))).append(NEWLINE);
+            }
+            Collection<MockedField> mockedFields = mockedFieldsDao.loadAll();
+            for (MockedField field : mockedFields) {
+                file.append(
+                        String.format(INSERT_FIELD, field.getContextPath(), field.getClassName(), field.getFieldName(), field.getFieldType(),
+                                escape(field.getFieldValue()))).append(NEWLINE);
+            }
+            writeFile(file.toString().getBytes(), System.getProperty(StringConstants.DERBY_SCRIPT.getValue()));
+        } catch (Exception e) {
+            logger.error("error during db dump", e);
+        }
+    }
+    
+    private String escape(String in) {
+        return in.replaceAll("'", "''");
+    }
 
 }
