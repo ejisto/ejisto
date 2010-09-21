@@ -21,6 +21,8 @@ package com.ejisto.modules.gui.components.helper;
 
 import ch.lambdaj.group.Group;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.validation.MockedFieldValidator;
+import org.springframework.validation.Errors;
 
 import javax.swing.*;
 import javax.swing.event.CellEditorListener;
@@ -37,9 +39,11 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
     private static final long serialVersionUID = 3542351125591491996L;
     private String rootText = getMessage("wizard.properties.editor.tab.hierarchical.rootnode");
     private JTextField textField;
+    private MockedFieldValidator validator;
 
     public MockedFieldTree() {
         super();
+        this.validator = new MockedFieldValidator();
         setCellEditor(new MockedFieldCellEditor(getTextField()));
     }
 
@@ -77,8 +81,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
     private TreeNode mockedFields2Nodes(Collection<MockedField> in) {
         if (in.isEmpty()) return new EmptyTreeNode();
         Group<MockedField> groupedFields = group(in, by(on(MockedField.class).getGroupKey()), by(on(MockedField.class).getFieldName()));
-        DefaultMutableTreeNode root = group2Node(groupedFields);
-        return root;
+        return group2Node(groupedFields);
     }
 
     private DefaultMutableTreeNode group2Node(Group<MockedField> group) {
@@ -110,7 +113,11 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
         TreePath editingPath = getEditingPath(); 
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) editingPath.getLastPathComponent();
         MockedField mf = (MockedField) node.getUserObject();
+        String previous = mf.getFieldValue();
         mf.setFieldValue(String.valueOf(editor.getCellEditorValue()));
+        Errors errors = new MockedFieldValidator.ValidationErrors();
+        validator.validate(mf,errors);//TODO show popup error message
+        if(errors.hasFieldErrors()) mf.setFieldValue(previous);
         ((DefaultTreeModel) getModel()).reload(node.getParent());
         setSelectionPath(editingPath);
     }

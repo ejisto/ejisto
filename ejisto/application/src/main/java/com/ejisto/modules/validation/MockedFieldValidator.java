@@ -21,9 +21,36 @@ package com.ejisto.modules.validation;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 public class MockedFieldValidator implements Validator {
+
+    private static Map<String, Pattern> validatorMap;
+
+    static {
+        validatorMap = new HashMap<String, Pattern>();
+        validatorMap.put("java.lang.String", Pattern.compile("^.*$"));
+
+        validatorMap.put("java.lang.Byte", Pattern.compile("^-?\\d{1,3}$"));
+        validatorMap.put("byte", Pattern.compile("^-?\\d{1,3}$"));
+        validatorMap.put("java.lang.Short", Pattern.compile("^-?\\d{1,5}$"));
+        validatorMap.put("short", Pattern.compile("^-?\\d{1,5}$"));
+        validatorMap.put("java.lang.Integer", Pattern.compile("^-?\\d{1,9}$"));
+        validatorMap.put("int", Pattern.compile("^-?\\d{1,9}$"));
+        validatorMap.put("java.lang.Long", Pattern.compile("^-?\\d{1,19}$"));
+        validatorMap.put("long", Pattern.compile("^-?\\d{1,19}$"));
+        validatorMap.put("java.lang.Double", Pattern.compile("^-?\\d+?(\\.\\d+)*$"));
+        validatorMap.put("double", Pattern.compile("^-?\\d+?(\\.\\d+)*$"));
+        validatorMap.put("java.lang.Float", Pattern.compile("^-?\\d+?(\\.\\d+)*$"));
+        validatorMap.put("float", Pattern.compile("^-?\\d+?(\\.\\d+)*$"));
+    }
 
 	public MockedFieldValidator() {
 	}
@@ -35,7 +62,166 @@ public class MockedFieldValidator implements Validator {
 
 	@Override
 	public void validate(Object target, Errors errors) {
-		// TODO Auto-generated method stub
+        MockedField field = (MockedField)target;
+        String type = field.getFieldType();
+        if(validatorMap.containsKey(type)) {
+            if(!validatorMap.get(type).matcher(field.getFieldValue()).matches()) {
+                errors.rejectValue("fieldValue","mockedfield.notvalid");
+                return;
+            }
+        }
 	}
-	
+
+    public static class ValidationErrors implements org.springframework.validation.Errors {
+        private int fieldErrorCount;
+        private String field;
+        private String errorCode;
+
+        @Override
+        public String getObjectName() {
+            return null;
+        }
+
+        @Override
+        public void setNestedPath(String nestedPath) {
+
+        }
+
+        @Override
+        public String getNestedPath() {
+            return null;
+        }
+
+        @Override
+        public void pushNestedPath(String subPath) {
+
+        }
+
+        @Override
+        public void popNestedPath() throws IllegalStateException {
+
+        }
+
+        @Override
+        public void reject(String errorCode) {
+
+        }
+
+        @Override
+        public void reject(String errorCode, String defaultMessage) {
+
+        }
+
+        @Override
+        public void reject(String errorCode, Object[] errorArgs, String defaultMessage) {
+
+        }
+
+        @Override
+        public void rejectValue(String field, String errorCode) {
+            this.field=field;
+            this.errorCode=errorCode;
+            this.fieldErrorCount++;
+        }
+
+        @Override
+        public void rejectValue(String field, String errorCode, String defaultMessage) {
+
+        }
+
+        @Override
+        public void rejectValue(String field, String errorCode, Object[] errorArgs, String defaultMessage) {
+
+        }
+
+        @Override
+        public void addAllErrors(org.springframework.validation.Errors errors) {
+
+        }
+
+        @Override
+        public boolean hasErrors() {
+            return false;
+        }
+
+        @Override
+        public int getErrorCount() {
+            return 0;
+        }
+
+        @Override
+        public List<ObjectError> getAllErrors() {
+            return null;
+        }
+
+        @Override
+        public boolean hasGlobalErrors() {
+            return false;
+        }
+
+        @Override
+        public int getGlobalErrorCount() {
+            return 0;
+        }
+
+        @Override
+        public List<ObjectError> getGlobalErrors() {
+            return null;
+        }
+
+        @Override
+        public ObjectError getGlobalError() {
+            return null;
+        }
+
+        @Override
+        public boolean hasFieldErrors() {
+            return getFieldErrorCount() > 0;
+        }
+
+        @Override
+        public int getFieldErrorCount() {
+            return fieldErrorCount;
+        }
+
+        @Override
+        public List<FieldError> getFieldErrors() {
+            return null;
+        }
+
+        @Override
+        public FieldError getFieldError() {
+            return null;
+        }
+
+        @Override
+        public boolean hasFieldErrors(String field) {
+            return false;
+        }
+
+        @Override
+        public int getFieldErrorCount(String field) {
+            return 0;
+        }
+
+        @Override
+        public List<FieldError> getFieldErrors(String field) {
+            return null;
+        }
+
+        @Override
+        public FieldError getFieldError(String field) {
+            return null;
+        }
+
+        @Override
+        public Object getFieldValue(String field) {
+            return null;
+        }
+
+        @Override
+        public Class getFieldType(String field) {
+            return null;
+        }
+    }
 }
