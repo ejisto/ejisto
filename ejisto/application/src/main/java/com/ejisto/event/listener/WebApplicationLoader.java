@@ -1,58 +1,26 @@
-/*******************************************************************************
- * Copyright 2010 Celestino Bellone
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
+/*
+ * Ejisto, a powerful developer assistant
+ *
+ * Copyright (C) 2010  Celestino Bellone
+ *
+ * Ejisto is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Ejisto is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.ejisto.event.listener;
 
-import static ch.lambdaj.Lambda.forEach;
-import static ch.lambdaj.Lambda.var;
-import static com.ejisto.constants.StringConstants.CONTEXT_PREFIX_SEPARATOR;
-import static com.ejisto.constants.StringConstants.DELETE_CONTEXT_PREFIX;
-import static com.ejisto.constants.StringConstants.DESCRIPTOR_DIR;
-import static com.ejisto.constants.StringConstants.START_CONTEXT_PREFIX;
-import static com.ejisto.constants.StringConstants.STOP_CONTEXT_PREFIX;
-import static com.ejisto.util.GuiUtils.getAction;
-import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.GuiUtils.putAction;
-import static com.ejisto.util.GuiUtils.showWarning;
-import static com.ejisto.util.IOUtils.determineWebApplicationUri;
-import static com.ejisto.util.IOUtils.readFile;
-import static com.ejisto.util.IOUtils.writeFile;
-
-import java.awt.Desktop;
-import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import javax.annotation.Resource;
-import javax.swing.ImageIcon;
-import javax.swing.SwingUtilities;
-
-import org.apache.log4j.Logger;
-import org.eclipse.jetty.server.HandlerContainer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.springframework.context.ApplicationListener;
-import org.springframework.util.Assert;
-
 import ch.jamme.Marshaller;
 import ch.lambdaj.function.closure.Closure1;
-
 import com.ejisto.core.classloading.EjistoClassLoader;
 import com.ejisto.core.jetty.WebAppContextRepository;
 import com.ejisto.core.jetty.WebApplicationDescriptor;
@@ -65,6 +33,28 @@ import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
+import org.apache.log4j.Logger;
+import org.eclipse.jetty.server.HandlerContainer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.springframework.context.ApplicationListener;
+import org.springframework.util.Assert;
+
+import javax.annotation.Resource;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import static ch.lambdaj.Lambda.forEach;
+import static ch.lambdaj.Lambda.var;
+import static com.ejisto.constants.StringConstants.*;
+import static com.ejisto.util.GuiUtils.*;
+import static com.ejisto.util.IOUtils.*;
 
 public class WebApplicationLoader implements ApplicationListener<LoadWebApplication> {
 

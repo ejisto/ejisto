@@ -1,33 +1,23 @@
-/*******************************************************************************
- * Copyright 2010 Celestino Bellone
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
+/*
+ * Ejisto, a powerful developer assistant
+ *
+ * Copyright (C) 2010  Celestino Bellone
+ *
+ * Ejisto is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Ejisto is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.ejisto.services.startup;
-
-import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.util.GuiUtils.putAction;
-
-import java.awt.Color;
-import java.awt.Font;
-import java.io.File;
-
-import javax.annotation.Resource;
-
-import org.apache.log4j.Logger;
-import org.jdesktop.swingx.JXHeader;
-import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
@@ -39,6 +29,16 @@ import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.Header;
 import com.ejisto.util.GuiUtils;
+import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXHeader;
+import org.jdesktop.swingx.plaf.LookAndFeelAddons;
+
+import javax.annotation.Resource;
+import java.awt.*;
+import java.io.File;
+
+import static com.ejisto.constants.StringConstants.*;
+import static com.ejisto.util.GuiUtils.putAction;
 
 public class ResourcesInitializer extends BaseStartupService {
     private static final Logger logger = Logger.getLogger(ResourcesInitializer.class);
