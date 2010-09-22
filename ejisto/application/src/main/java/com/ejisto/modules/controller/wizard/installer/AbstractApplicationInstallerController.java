@@ -19,7 +19,7 @@
 
 package com.ejisto.modules.controller.wizard.installer;
 
-import com.ejisto.core.jetty.WebApplicationDescriptor;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.controller.wizard.AbstractStepController;
 import com.ejisto.modules.gui.components.EjistoDialog;
 

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.core.jetty;
+package com.ejisto.modules.dao.entities;
 
 import com.ejisto.modules.dao.entities.MockedField;
 
@@ -28,6 +28,9 @@ import java.util.*;
 
 public class WebApplicationDescriptor implements Serializable {
     private static final long serialVersionUID = 2024622778793996648L;
+
+    private List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>();
+    private int id;
 
     private String installationPath;
 	private String contextPath;
@@ -109,5 +112,19 @@ public class WebApplicationDescriptor implements Serializable {
 	
 	public List<MockedField> getModifiedFields() {
         return modifiedFields;
+    }
+
+
+    public List<WebApplicationDescriptorElement> getElements() {
+        return elements;
+    }
+
+    public void setElements(List<WebApplicationDescriptorElement> elements) {
+        this.elements = elements;
+    }
+
+    public void addElement(WebApplicationDescriptorElement element) {
+        element.setId(id);
+        this.elements.add(element);
     }
 }

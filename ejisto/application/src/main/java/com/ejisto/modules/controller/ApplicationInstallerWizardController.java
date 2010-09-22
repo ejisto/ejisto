@@ -21,7 +21,7 @@ package com.ejisto.modules.controller;
 
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.closure.Closure1;
-import com.ejisto.core.jetty.WebApplicationDescriptor;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.controller.wizard.StepController;
 import com.ejisto.modules.controller.wizard.StepControllerComparator;
 import com.ejisto.modules.controller.wizard.installer.*;

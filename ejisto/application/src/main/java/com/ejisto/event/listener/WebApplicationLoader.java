@@ -23,7 +23,7 @@ import ch.jamme.Marshaller;
 import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.core.classloading.EjistoClassLoader;
 import com.ejisto.core.jetty.WebAppContextRepository;
-import com.ejisto.core.jetty.WebApplicationDescriptor;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.ChangeWebAppContextStatus.WebAppContextStatusCommand;

@@ -19,7 +19,7 @@
 
 package com.ejisto.util;
 
-import com.ejisto.core.jetty.WebApplicationDescriptor;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 
 import java.io.*;
 import java.net.MalformedURLException;
