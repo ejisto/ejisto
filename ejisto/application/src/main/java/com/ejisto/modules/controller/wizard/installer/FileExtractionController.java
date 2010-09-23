@@ -21,6 +21,7 @@ package com.ejisto.modules.controller.wizard.installer;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.controller.WizardException;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
@@ -110,7 +111,7 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
             entry = entries.nextElement();
             getView().jobCompleted(getMessage("progress.file.extraction", entry.getName()));
             if (!entry.isDirectory()) writeFile(war.getInputStream(entry), baseDir, entry.getName());
-            if (entry.getName().endsWith(".jar")) getSession().addJarFileName(retrieveFilenameFromZipEntryPath(entry.getName()));
+            if (entry.getName().endsWith(".jar")) getSession().addElement(new WebApplicationDescriptorElement(retrieveFilenameFromZipEntryPath(entry.getName())));
         }
         return baseDir.getAbsolutePath();
     }

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
   ~ Ejisto, a powerful developer assistant
   ~
@@ -97,6 +98,7 @@
 	<bean id="logManager" class="com.ejisto.event.listener.LogManager" />
 	<bean id="applicationLoader" class="com.ejisto.event.listener.WebApplicationLoader" />
 	<bean id="errorListener" class="com.ejisto.event.listener.ErrorListener" />
+    <bean id="statusBarLogger" class="com.ejisto.event.listener.StatusBarLogger" />
 	<bean id="fieldChangesListener" class="com.ejisto.event.listener.FieldsUpdateListener" />
     <bean id="webAppContextRepository" class="com.ejisto.core.jetty.WebAppContextRepository" />
 
@@ -114,11 +116,9 @@
 		parent="baseDao" lazy-init="true"/>
 	<bean id="mockedFieldsDao" class="com.ejisto.modules.dao.MockedFieldsDao"
 		parent="baseDao" lazy-init="true" />
+    <bean id="webApplicationDescriptorDao" class="com.ejisto.modules.dao.WebApplicationDescriptorDao"
+		parent="baseDao" lazy-init="true"/>
 
 	<bean id="dataSource" class="com.ejisto.modules.dao.db.EmbeddedDatabaseManager"
 		lazy-init="true" />
-
-	<bean id="marshaller" class="ch.jamme.impl.MarshallerImpl">
-	   <property name="objectCreator"><bean class="com.ejisto.core.jetty.WebApplicationDescriptorCreator"/></property>
-	</bean>
 </beans>

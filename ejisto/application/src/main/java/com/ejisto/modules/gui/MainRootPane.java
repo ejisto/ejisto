@@ -21,6 +21,7 @@ package com.ejisto.modules.gui;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.gui.components.MainPanel;
+import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXRootPane;
 import org.jdesktop.swingx.JXStatusBar;
 
@@ -32,6 +33,7 @@ import static com.ejisto.util.GuiUtils.getAction;
 public class MainRootPane extends JXRootPane {
     private static final long serialVersionUID = -3265545519465961578L;
     private MainPanel mainPanel;
+    private JXLabel statusLabel;
 
     public MainRootPane() {
         super();
@@ -75,6 +77,11 @@ public class MainRootPane extends JXRootPane {
     public void onPropertyChange() {
     	mainPanel.onJettyStatusChange();
     }
+
+    public void setStatusBarMessage(String messageText, boolean error) {
+        statusLabel.setForeground(error ? Color.red : Color.black);
+        statusLabel.setText(messageText);
+    }
     
     private JXStatusBar initStatusBar() {
         if (statusBar != null)
@@ -83,7 +90,8 @@ public class MainRootPane extends JXRootPane {
         statusBar.setMinimumSize(new Dimension(400,20));
         statusBar.setPreferredSize(new Dimension(400,20));
         statusBar.setMaximumSize(new Dimension(Short.MAX_VALUE, 20));
-        statusBar.add(new JLabel("done"));
+        statusLabel = new JXLabel("done");
+        statusBar.add(statusLabel);
         return statusBar;
     }
     

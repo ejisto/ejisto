@@ -20,6 +20,7 @@
 package com.ejisto.modules.gui.components.helper;
 
 import ch.lambdaj.group.Group;
+import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.validation.MockedFieldValidator;
 import org.springframework.validation.Errors;
@@ -34,6 +35,7 @@ import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
 public class MockedFieldTree extends JTree implements CellEditorListener {
     private static final long serialVersionUID = 3542351125591491996L;
@@ -110,14 +112,18 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
     @Override
     public void editingStopped(ChangeEvent e) {
         TreeCellEditor editor = getCellEditor();
-        TreePath editingPath = getEditingPath(); 
+        TreePath editingPath = getEditingPath();
+        if(editingPath == null) return;
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) editingPath.getLastPathComponent();
         MockedField mf = (MockedField) node.getUserObject();
         String previous = mf.getFieldValue();
         mf.setFieldValue(String.valueOf(editor.getCellEditorValue()));
         Errors errors = new MockedFieldValidator.ValidationErrors();
-        validator.validate(mf,errors);//TODO show popup error message
-        if(errors.hasFieldErrors()) mf.setFieldValue(previous);
+        validator.validate(mf,errors);
+        if(errors.hasFieldErrors()) {
+            mf.setFieldValue(previous);
+            publishApplicationEvent(new StatusBarMessage(this, getMessage("propertieseditor.invalid.input", String.valueOf(editor.getCellEditorValue()), mf.getFieldName()), true));
+        }
         ((DefaultTreeModel) getModel()).reload(node.getParent());
         setSelectionPath(editingPath);
     }

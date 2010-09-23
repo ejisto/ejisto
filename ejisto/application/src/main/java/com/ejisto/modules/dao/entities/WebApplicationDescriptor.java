@@ -19,39 +19,44 @@
 
 package com.ejisto.modules.dao.entities;
 
-import com.ejisto.modules.dao.entities.MockedField;
+
+import com.ejisto.modules.dao.entities.helper.WebApplicationDescriptorHelper;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.Serializable;
-import java.net.URL;
 import java.util.*;
+
 
 public class WebApplicationDescriptor implements Serializable {
     private static final long serialVersionUID = 2024622778793996648L;
-
+    private static final Logger logger = Logger.getLogger(WebApplicationDescriptor.class);
     private List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>();
-    private int id;
+    private int id = -1;
 
     private String installationPath;
 	private String contextPath;
 	private Collection<MockedField> fields;
-	private List<MockedField> modifiedFields;
-	private URL[] classpathEntries;
-	private List<String> blacklist;
-	private HashSet<String> includedJars = new HashSet<String>();
+	private transient WebApplicationDescriptorHelper helper;
 	private transient File warFile;
-	
-	public WebApplicationDescriptor() {
+    private transient List<WebApplicationDescriptorElement> classpathEntries;
+
+    public WebApplicationDescriptor() {
         this.fields = new TreeSet<MockedField>(new Comparator<MockedField>() {
             @Override
             public int compare(MockedField o1, MockedField o2) {
                 return o1.getComparisonKey().compareTo(o2.getComparisonKey());
             }
         });
+        this.helper = new WebApplicationDescriptorHelper(this);
     }
 	
 	public void addField(MockedField field) {
 	    this.fields.add(field);
+	}
+
+    public void deleteAllFields() {
+	    this.fields.clear();
 	}
 	
 	public void setContextPath(String contextPath) {
@@ -70,32 +75,21 @@ public class WebApplicationDescriptor implements Serializable {
         return installationPath;
     }
 	
-	public void setClasspathEntries(URL[] classpathEntries) {
-        this.classpathEntries = classpathEntries;
-    }
-	
-	public URL[] getClasspathEntries() {
-        return classpathEntries;
-    }
-	
 	public Collection<MockedField> getFields() {
         return fields;
     }
 	
 	public void setBlacklist(List<String> blacklist) {
-        this.blacklist = blacklist;
+        logger.debug("blacklisting: "+blacklist);
+        helper.setBlacklist(blacklist);
     }
 	
 	public boolean isBlacklistedEntry(String filename) {
-	    return blacklist.contains(filename);
-	}
-	
-	public void addJarFileName(String filename) {
-	    this.includedJars.add(filename);
+	    return helper.isBlacklistedEntry(filename);
 	}
 	
 	public List<String> getIncludedJars() {
-        return new ArrayList<String>(includedJars);
+        return helper.getIncludedJars();
     }
 	
 	public File getWarFile() {
@@ -106,15 +100,6 @@ public class WebApplicationDescriptor implements Serializable {
         this.warFile = warFile;
     }
 	
-	public void setModifiedFields(List<MockedField> modifiedFields) {
-        this.modifiedFields = modifiedFields;
-    }
-	
-	public List<MockedField> getModifiedFields() {
-        return modifiedFields;
-    }
-
-
     public List<WebApplicationDescriptorElement> getElements() {
         return elements;
     }
@@ -126,5 +111,25 @@ public class WebApplicationDescriptor implements Serializable {
     public void addElement(WebApplicationDescriptorElement element) {
         element.setId(id);
         this.elements.add(element);
+    }
+
+    public List<MockedField> getModifiedFields() {
+        return helper.getModifiedFields();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setClassPathElements(List<WebApplicationDescriptorElement> classpathEntries) {
+        this.classpathEntries=classpathEntries;
+    }
+
+    public List<WebApplicationDescriptorElement> getClassPathElements() {
+        return classpathEntries;
     }
 }

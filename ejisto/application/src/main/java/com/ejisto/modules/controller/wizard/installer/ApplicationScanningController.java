@@ -19,9 +19,9 @@
 
 package com.ejisto.modules.controller.wizard.installer;
 
-import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
@@ -29,6 +29,7 @@ import javassist.*;
 import org.apache.log4j.Logger;
 import org.springframework.util.Assert;
 
+import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -37,8 +38,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.IOUtils.findAllWebApplicationClasses;
-import static com.ejisto.util.IOUtils.getClasspathEntries;
+import static com.ejisto.util.IOUtils.*;
 
 public class ApplicationScanningController extends AbstractApplicationInstallerController implements Callable<Void> {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
@@ -98,15 +98,16 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         Assert.notNull(getSession().getInstallationPath());
         String basePath = getSession().getInstallationPath();
         getSession().setContextPath(getContextPath(basePath));
-        getSession().setClasspathEntries(getClasspathEntries(basePath));
+        getSession().setClassPathElements(getClasspathEntries(basePath));
         loadAllClasses(findAllWebApplicationClasses(basePath, getSession()), getSession());
         getView().jobCompleted(getMessage("progress.scan.end"));
     }
     
-    private void loadAllClasses(Collection<String> classnames, WebApplicationDescriptor descriptor) throws NotFoundException {
+    private void loadAllClasses(Collection<String> classnames, WebApplicationDescriptor descriptor) throws NotFoundException, MalformedURLException {
         notifyStart(classnames.size());
+        descriptor.deleteAllFields();
         ClassPool cp = ClassPool.getDefault();
-        cp.appendClassPath(new LoaderClassPath(new URLClassLoader(descriptor.getClasspathEntries())));
+        cp.appendClassPath(new LoaderClassPath(new URLClassLoader(toUrlArray(descriptor))));
         CtClass clazz;
         for (String classname : classnames) {
             notifyJobCompleted(classname);

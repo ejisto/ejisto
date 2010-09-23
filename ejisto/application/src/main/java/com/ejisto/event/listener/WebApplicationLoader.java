@@ -19,18 +19,19 @@
 
 package com.ejisto.event.listener;
 
-import ch.jamme.Marshaller;
 import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.core.classloading.EjistoClassLoader;
 import com.ejisto.core.jetty.WebAppContextRepository;
-import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.ChangeWebAppContextStatus.WebAppContextStatusCommand;
 import com.ejisto.event.def.LoadWebApplication;
+import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.controller.ApplicationInstallerWizardController;
 import com.ejisto.modules.dao.MockedFieldsDao;
+import com.ejisto.modules.dao.WebApplicationDescriptorDao;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import org.apache.log4j.Logger;
@@ -54,7 +55,7 @@ import static ch.lambdaj.Lambda.forEach;
 import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.*;
-import static com.ejisto.util.IOUtils.*;
+import static com.ejisto.util.IOUtils.determineWebApplicationUri;
 
 public class WebApplicationLoader implements ApplicationListener<LoadWebApplication> {
 
@@ -71,9 +72,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     @Resource
     private Server jettyServer;
     @Resource
-    private Marshaller marshaller;
-    @Resource
     private WebAppContextRepository webAppContextRepository;
+    @Resource
+    private WebApplicationDescriptorDao webApplicationDescriptorDao;
     private Closure1<ActionEvent> callNotifyCommand;
     
     @Override
@@ -94,6 +95,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         saveWebAppDescriptor(webApplicationDescriptor);
         startBrowser(webApplicationDescriptor);
         application.onApplicationDeploy();
+        eventManager.publishEvent(new StatusBarMessage(this, getMessage("statusbar.installation.successful.message", webApplicationDescriptor.getContextPath()), false));
     }
 
     private void loadExistingWebApplications() {
@@ -190,6 +192,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             webAppContext.start();
             logger.info("started webapp "+contextPath);
             modifyActionState(contextPath, true);
+            eventManager.publishEvent(new StatusBarMessage(this, "", false));
         }
     }
     
@@ -210,8 +213,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
 
     private void saveWebAppDescriptor(WebApplicationDescriptor webApplicationDescriptor) {
         try {
-            String xml = marshaller.marshall(webApplicationDescriptor);
-            writeFile(xml.getBytes(), System.getProperty(DESCRIPTOR_DIR.getValue()) + webApplicationDescriptor.getContextPath() + ".xml");
+            webApplicationDescriptorDao.insert(webApplicationDescriptor);
         } catch (Exception e) {
             eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));
             logger.error("error saving webappdescriptor", e);
@@ -220,11 +222,10 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
 
     private void loadWebAppDescriptors() {
         try {
-            File dir = new File(System.getProperty(DESCRIPTOR_DIR.getValue()));
-            for (File xml : dir.listFiles()) {
-                deployWebApp((WebApplicationDescriptor)marshaller.unmarshall(new String(readFile(xml))));
+            for (WebApplicationDescriptor descriptor : webApplicationDescriptorDao.loadAll()) {
+                deployWebApp(descriptor);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("unable to load webapp descriptor: ", e);
         }
     }

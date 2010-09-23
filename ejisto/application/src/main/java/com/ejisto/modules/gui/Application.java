@@ -80,6 +80,12 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
+    public void setStatusBarMessage(String messageKey, boolean error) {
+        if(ready) {
+            rootPane.setStatusBarMessage(messageKey, error);
+        }
+    }
+
 	public void onServerStatusChange(ChangeServerStatus event) {
 		boolean shutdown = event.getCommand() == Command.SHUTDOWN;
 		if (shutdown)

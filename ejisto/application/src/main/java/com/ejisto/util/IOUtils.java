@@ -20,6 +20,7 @@
 package com.ejisto.util;
 
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -78,17 +79,17 @@ public class IOUtils {
         return filename.substring(0, filename.lastIndexOf("."));
     }
 
-    public static URL[] getClasspathEntries(String basePath, URL[] baseUrls) throws MalformedURLException {
+    public static List<WebApplicationDescriptorElement> getClasspathEntries(String basePath, URL[] baseUrls) throws MalformedURLException {
         File base = new File(basePath);
-        List<URL> entries = new ArrayList<URL>();
+        List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>();
         for (URL url : baseUrls)
-            entries.add(url);
-        entries.add(new File(base, "WEB-INF/classes/").toURI().toURL());
-        entries.addAll(toUrl(getAllFiles(base, jarFilter)));
-        return entries.toArray(new URL[entries.size()]);
+            elements.add(new WebApplicationDescriptorElement(url.getPath()));
+        //elements.add(new File(base, "WEB-INF/classes/").toURI().toURL());
+        elements.addAll(toWebApplicationDescriptorElement(getAllFiles(base, jarFilter)));
+        return elements;
     }
 
-    public static URL[] getClasspathEntries(String basePath) throws MalformedURLException {
+    public static List<WebApplicationDescriptorElement> getClasspathEntries(String basePath) throws MalformedURLException {
         return getClasspathEntries(basePath, getSystemClasspathEntries());
     }
 
@@ -114,14 +115,26 @@ public class IOUtils {
         return files;
     }
 
-    public static List<URL> toUrl(List<File> in) throws MalformedURLException {
+    public static URL[] toUrlArray(WebApplicationDescriptor descriptor) throws MalformedURLException {
+        List<URL> urls = new ArrayList<URL>();
+        File base = new File(descriptor.getInstallationPath(), "WEB-INF");
+        File classes = new File(base, "classes");
+        File lib     = new File(base, "lib");
+        if(classes.exists()) urls.add(classes.toURI().toURL());
+        for (WebApplicationDescriptorElement element : descriptor.getClassPathElements()) {
+            urls.add(new File(lib, element.getPath()).toURI().toURL());
+        }
+        return urls.toArray(new URL[urls.size()]);
+    }
+
+    public static List<WebApplicationDescriptorElement> toWebApplicationDescriptorElement(List<File> in) throws MalformedURLException {
         if (in.isEmpty())
             return emptyList();
-        List<URL> urls = new ArrayList<URL>(in.size());
+        List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>(in.size());
         for (File file : in) {
-            urls.add(file.toURI().toURL());
+            elements.add(new WebApplicationDescriptorElement(file.getName()));
         }
-        return urls;
+        return elements;
     }
 
     public static Collection<String> findAllWebApplicationClasses(String basePath, WebApplicationDescriptor descriptor) throws IOException {

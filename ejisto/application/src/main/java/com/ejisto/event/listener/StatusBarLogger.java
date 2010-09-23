@@ -17,25 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.core.jetty;
+package com.ejisto.event.listener;
 
-import ch.jamme.conf.def.DefaultObjectCreator;
-import org.jdom.Element;
+import com.ejisto.event.def.StatusBarMessage;
+import com.ejisto.modules.gui.Application;
+import org.springframework.context.ApplicationListener;
 
-import java.lang.reflect.Field;
-import java.net.MalformedURLException;
-import java.net.URL;
+import javax.annotation.Resource;
 
-public class WebApplicationDescriptorCreator extends DefaultObjectCreator {
+public class StatusBarLogger implements ApplicationListener<StatusBarMessage> {
+    @Resource
+    private Application application;
 
     @Override
-    public Object createObject(Element element, Class<?> objectClass, Field field) {
-        try {
-            if(!objectClass.isInterface() && URL.class.isAssignableFrom(objectClass)) return new URL("file","",element.getChildText("file"));
-            return super.createObject(element, objectClass, field);
-        } catch (MalformedURLException e) {
-            return null;
-        }
+    public void onApplicationEvent(StatusBarMessage event) {
+        application.setStatusBarMessage(event.getMessage(), event.isError());
     }
-
 }

@@ -28,9 +28,6 @@ import com.ejisto.modules.gui.components.helper.Step;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ch.lambdaj.Lambda.*;
-import static org.hamcrest.Matchers.notNullValue;
-
 public class PropertiesEditingController extends AbstractApplicationInstallerController {
 
     private MockedFieldsEditor propertiesEditingTab;
@@ -73,11 +70,11 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
 
     @Override
     public void beforeNext() {
-        getSession().setModifiedFields(getModifiedFields());
+        
     }
     
     private List<MockedField> getModifiedFields() {
-        return select(getSession().getFields(), having(on(MockedField.class).getFieldValue(), notNullValue()));
+        return getSession().getModifiedFields();
     }
 
 	@Override
