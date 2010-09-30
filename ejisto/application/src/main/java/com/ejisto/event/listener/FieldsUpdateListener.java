@@ -36,7 +36,7 @@ public class FieldsUpdateListener implements ApplicationListener<MockedFieldChan
     public void onApplicationEvent(MockedFieldChanged event) {
         MockedField field = event.getMockedField();
         if(field.getId() > 0) mockedFieldsDao.update(field);
-        else mockedFieldsDao.update(field);
+        else mockedFieldsDao.insert(field);
     }
 
 }

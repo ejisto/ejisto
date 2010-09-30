@@ -21,10 +21,10 @@ package com.ejisto.modules.controller;
 
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.closure.Closure1;
-import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.controller.wizard.StepController;
 import com.ejisto.modules.controller.wizard.StepControllerComparator;
 import com.ejisto.modules.controller.wizard.installer.*;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.components.ApplicationInstallerWizard;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
@@ -129,8 +129,9 @@ public class ApplicationInstallerWizardController {
         StepController<WebApplicationDescriptor> controller = fwd ? nextController() : previousController();
         if(currentController != null && currentController.equals(controller)) return;
         if(currentController != null) currentController.beforeNext();
+        if(fwd && !controller.canProceed()) return;
         currentController = controller;
-        if(!currentController.canProceed()) return;
+        if(fwd) currentIndex++;
         currentController.activate();
         wizard.goToStep(currentController.getStep());
         dialog.setHeaderTitle(getMessage(currentController.getTitleKey()));
@@ -177,12 +178,14 @@ public class ApplicationInstallerWizardController {
     
     private StepController<WebApplicationDescriptor> nextController() {
     	if(!isNextAvailable()) return currentController;
-    	return controllers.get(++currentIndex);
+    	return controllers.get(currentIndex+1);
     }
     
     private StepController<WebApplicationDescriptor> previousController() {
     	if(!isPreviousAvailable()) return currentController;
-    	return controllers.get(--currentIndex);
+        StepController<WebApplicationDescriptor> controller = controllers.get(--currentIndex);
+        if(!controller.isBackEnabled()) return previousController();
+    	return controller;
     }
     
     private boolean isNextAvailable() {

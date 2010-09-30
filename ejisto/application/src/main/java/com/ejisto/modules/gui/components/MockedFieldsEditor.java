@@ -25,6 +25,8 @@ import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTable;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.util.List;
@@ -32,7 +34,7 @@ import java.util.List;
 import static com.ejisto.util.GuiUtils.getMessage;
 
 
-public class MockedFieldsEditor extends JXPanel {
+public class MockedFieldsEditor extends JXPanel implements ChangeListener {
     private static final long serialVersionUID = 4090818654347648102L;
 	private JXTable flattenTable;
 	private JTabbedPane editorContainer;
@@ -40,8 +42,9 @@ public class MockedFieldsEditor extends JXPanel {
 	private JScrollPane treeContainer;
     private MockedFieldTree tree;
     private boolean main;
-	
-	public MockedFieldsEditor() {
+    private List<MockedField> fields;
+
+    public MockedFieldsEditor() {
         this(false);
     }
 	
@@ -62,6 +65,7 @@ public class MockedFieldsEditor extends JXPanel {
 	    editorContainer = new JTabbedPane(JTabbedPane.BOTTOM);
 	    editorContainer.addTab(getMessage("wizard.properties.editor.tab.flat.text"), getFlattenTableContainer());
 	    editorContainer.addTab(getMessage("wizard.properties.editor.tab.hierarchical.text"), getTreeContainer());
+        editorContainer.addChangeListener(this);
 	    return editorContainer;
 	}
 	
@@ -73,7 +77,7 @@ public class MockedFieldsEditor extends JXPanel {
 	
 	private MockedFieldTree getTree() {
 	    if(this.tree != null) return this.tree;
-	    tree = new MockedFieldTree();
+	    tree = new MockedFieldTree(main);
 	    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 	    tree.setEditable(true);
 	    tree.setExpandsSelectedPaths(true);
@@ -93,8 +97,27 @@ public class MockedFieldsEditor extends JXPanel {
 	}
 	
 	public void setFields(List<MockedField> fields) {
-		getFlattenTable().setModel(new MockedFieldsTableModel(fields, main, !main));
-		getTree().setFields(fields);
+        this.fields=fields;
+		refreshFlattenTableModel(fields);
+		refreshTreeModel(fields);
 	}
-	
+
+    private void refreshFlattenTableModel(List<MockedField> fields) {
+        getFlattenTable().setModel(new MockedFieldsTableModel(fields, main, !main));
+    }
+
+    private void refreshTreeModel(List<MockedField> fields) {
+        getTree().setFields(fields);
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        int selectedIndex = ((JTabbedPane)e.getSource()).getSelectedIndex();
+        if(selectedIndex == 0) {
+            refreshFlattenTableModel(fields);
+        } else {
+            refreshTreeModel(fields);
+        }
+        
+    }
 }

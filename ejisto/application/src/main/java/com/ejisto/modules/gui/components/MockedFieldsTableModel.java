@@ -121,5 +121,9 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
         return columnHeaders[column];
     }
 
+    public void refresh() {
+        fieldsAsString=stringify(fields, partial);
+    }
+
     
 }

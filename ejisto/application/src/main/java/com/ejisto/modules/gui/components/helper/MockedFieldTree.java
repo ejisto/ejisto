@@ -20,6 +20,7 @@
 package com.ejisto.modules.gui.components.helper;
 
 import ch.lambdaj.group.Group;
+import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.validation.MockedFieldValidator;
@@ -42,11 +43,13 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
     private String rootText = getMessage("wizard.properties.editor.tab.hierarchical.rootnode");
     private JTextField textField;
     private MockedFieldValidator validator;
+    private boolean notifyChanges;
 
-    public MockedFieldTree() {
+    public MockedFieldTree(boolean notifyChanges) {
         super();
         this.validator = new MockedFieldValidator();
         setCellEditor(new MockedFieldCellEditor(getTextField()));
+        this.notifyChanges=notifyChanges;
     }
 
     private JTextField getTextField() {
@@ -124,8 +127,14 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
             mf.setFieldValue(previous);
             publishApplicationEvent(new StatusBarMessage(this, getMessage("propertieseditor.invalid.input", String.valueOf(editor.getCellEditorValue()), mf.getFieldName()), true));
         }
+
         ((DefaultTreeModel) getModel()).reload(node.getParent());
         setSelectionPath(editingPath);
+        if(notifyChanges) {
+            MockedFieldChanged event = new MockedFieldChanged(this, mf);
+            publishApplicationEvent(event);
+        }
+
     }
 
     private static final class MockedFieldCellEditor extends DefaultCellEditor {

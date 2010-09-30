@@ -19,8 +19,8 @@
 
 package com.ejisto.modules.controller.wizard.installer;
 
-import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.controller.wizard.AbstractStepController;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.components.EjistoDialog;
 
 public abstract class AbstractApplicationInstallerController extends AbstractStepController<WebApplicationDescriptor> {
@@ -36,6 +36,11 @@ public abstract class AbstractApplicationInstallerController extends AbstractSte
     
     @Override
     public void beforeNext() {
+    }
+
+    @Override
+    public boolean isBackEnabled() {
+        return true;
     }
 
 }

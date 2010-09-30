@@ -47,6 +47,12 @@ public interface StepController<K> {
      * @return
      */
     boolean automaticallyProceedToNextStep();
+
+    /**
+     * Check if step supports "back"
+     * @return
+     */
+    boolean isBackEnabled();
     
     /**
      * Returns the Controller's exit status

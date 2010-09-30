@@ -103,6 +103,7 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
     private String openWar(File file) throws IOException {
         File baseDir = new File(System.getProperty(StringConstants.JETTY_WEBAPPS_DIR.getValue()) + getFilenameWithoutExt(file) + File.separator);
         if (!overwriteDir(baseDir)) return null;
+        getSession().clearElements();
         ZipFile war = new ZipFile(file);
         Enumeration<? extends ZipEntry> entries = war.entries();
         getView().initProgress(war.size(),getMessage("progress.start")); 
@@ -130,5 +131,10 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
 	public String getDescriptionKey() {
 		return "wizard.fileextraction.description";
 	}
+
+    @Override
+    public boolean isBackEnabled() {
+        return false;
+    }
     
 }

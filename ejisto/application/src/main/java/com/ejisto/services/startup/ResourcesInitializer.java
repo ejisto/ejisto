@@ -25,6 +25,7 @@ import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.event.def.ChangeServerStatus.Command;
 import com.ejisto.event.def.LoadWebApplication;
 import com.ejisto.event.def.ShutdownRequest;
+import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.Header;
@@ -46,6 +47,8 @@ public class ResourcesInitializer extends BaseStartupService {
     private EventManager eventManager;
     @Resource
     private EmbeddedDatabaseManager dataSource;
+    @Resource
+    private SettingsManager settingsManager;
 
     @Override
     public void execute() {
@@ -76,6 +79,8 @@ public class ResourcesInitializer extends BaseStartupService {
         initFonts();
         initDefaultActions();
     }
+
+
 
     private void initBaseDir(File baseDir) {
         if (!baseDir.mkdirs()) eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));

@@ -113,6 +113,10 @@ public class WebApplicationDescriptor implements Serializable {
         this.elements.add(element);
     }
 
+    public void clearElements() {
+        this.elements.clear();
+    }
+
     public List<MockedField> getModifiedFields() {
         return helper.getModifiedFields();
     }

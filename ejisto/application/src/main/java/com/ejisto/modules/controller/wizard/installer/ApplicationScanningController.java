@@ -163,4 +163,9 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
 		return "wizard.applicationscanning.description";
 	}
 
+    @Override
+    public boolean isBackEnabled() {
+        return false;
+    }
+
 }
