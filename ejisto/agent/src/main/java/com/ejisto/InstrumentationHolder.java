@@ -23,6 +23,7 @@ import java.lang.instrument.Instrumentation;
 
 public class InstrumentationHolder {
 
+  
 	private static Instrumentation instrumentation;
 
 	private InstrumentationHolder() {
