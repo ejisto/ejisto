@@ -22,26 +22,27 @@ package com.ejisto.modules.dao.entities;
 public class MockedField {
     private long id;
     private String contextPath;
-	private String className;
+    private String className;
     private String fieldName;
     private String fieldType;
     private String fieldValue;
-    
+    private boolean active;
+
     public long getId() {
         return id;
     }
-    
+
     public void setId(long id) {
         this.id = id;
     }
-    
-    public String getContextPath() {
-		return contextPath;
-	}
 
-	public void setContextPath(String contextPath) {
-		this.contextPath = contextPath;
-	}
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
 
     public String getClassName() {
         return className;
@@ -75,23 +76,31 @@ public class MockedField {
         this.fieldValue = fieldValue;
     }
 
-	@Override
-	public String toString() {
-		return "MockedField [id="+id+", contextPath=" + contextPath + ", className="
-				+ className + ", fieldName=" + fieldName + ", fieldType="
-				+ fieldType + ", fieldValue=" + fieldValue + "]";
-	}
-	
-	public String getComparisonKey() {
-	    return contextPath+"/"+className+"/"+fieldName;
-	}
-	
-	public String getGroupKey() {
-		return className.substring(0, className.lastIndexOf('.'));
-	}
-	
-	public String getClassSimpleName() {
-		return className.substring(className.lastIndexOf('.') + 1);
-	}
-	
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    @Override
+    public String toString() {
+        return "MockedField [id=" + id + ", contextPath=" + contextPath + ", className="
+                + className + ", fieldName=" + fieldName + ", fieldType="
+                + fieldType + ", fieldValue=" + fieldValue + ", active=" + active + "]";
+    }
+
+    public String getComparisonKey() {
+        return contextPath + "/" + className + "/" + fieldName;
+    }
+
+    public String getGroupKey() {
+        return className.substring(0, className.lastIndexOf('.'));
+    }
+
+    public String getClassSimpleName() {
+        return className.substring(className.lastIndexOf('.') + 1);
+    }
+
 }

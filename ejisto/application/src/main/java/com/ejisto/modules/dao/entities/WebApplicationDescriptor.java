@@ -21,7 +21,9 @@ package com.ejisto.modules.dao.entities;
 
 
 import com.ejisto.modules.dao.entities.helper.WebApplicationDescriptorHelper;
+import com.ejisto.util.JndiDataSourcesRepository;
 import org.apache.log4j.Logger;
+import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.Serializable;
@@ -33,12 +35,11 @@ public class WebApplicationDescriptor implements Serializable {
     private static final Logger logger = Logger.getLogger(WebApplicationDescriptor.class);
     private List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>();
     private int id = -1;
-
     private String installationPath;
-	private String contextPath;
-	private Collection<MockedField> fields;
-	private transient WebApplicationDescriptorHelper helper;
-	private transient File warFile;
+    private String contextPath;
+    private Collection<MockedField> fields;
+    private transient WebApplicationDescriptorHelper helper;
+    private transient File warFile;
     private transient List<WebApplicationDescriptorElement> classpathEntries;
 
     public WebApplicationDescriptor() {
@@ -50,56 +51,56 @@ public class WebApplicationDescriptor implements Serializable {
         });
         this.helper = new WebApplicationDescriptorHelper(this);
     }
-	
-	public void addField(MockedField field) {
-	    this.fields.add(field);
-	}
+
+    public void addField(MockedField field) {
+        this.fields.add(field);
+    }
 
     public void deleteAllFields() {
-	    this.fields.clear();
-	}
-	
-	public void setContextPath(String contextPath) {
+        this.fields.clear();
+    }
+
+    public void setContextPath(String contextPath) {
         this.contextPath = contextPath;
     }
-	
-	public String getContextPath() {
+
+    public String getContextPath() {
         return contextPath;
     }
-	
-	public void setInstallationPath(String installationPath) {
+
+    public void setInstallationPath(String installationPath) {
         this.installationPath = installationPath;
     }
-	
-	public String getInstallationPath() {
+
+    public String getInstallationPath() {
         return installationPath;
     }
-	
-	public Collection<MockedField> getFields() {
+
+    public Collection<MockedField> getFields() {
         return fields;
     }
-	
-	public void setBlacklist(List<String> blacklist) {
-        logger.debug("blacklisting: "+blacklist);
+
+    public void setBlacklist(List<String> blacklist) {
+        logger.debug("blacklisting: " + blacklist);
         helper.setBlacklist(blacklist);
     }
-	
-	public boolean isBlacklistedEntry(String filename) {
-	    return helper.isBlacklistedEntry(filename);
-	}
-	
-	public List<String> getIncludedJars() {
+
+    public boolean isBlacklistedEntry(String filename) {
+        return helper.isBlacklistedEntry(filename);
+    }
+
+    public List<String> getIncludedJars() {
         return helper.getIncludedJars();
     }
-	
-	public File getWarFile() {
+
+    public File getWarFile() {
         return warFile;
     }
-	
-	public void setWarFile(File warFile) {
+
+    public void setWarFile(File warFile) {
         this.warFile = warFile;
     }
-	
+
     public List<WebApplicationDescriptorElement> getElements() {
         return elements;
     }
@@ -130,10 +131,18 @@ public class WebApplicationDescriptor implements Serializable {
     }
 
     public void setClassPathElements(List<WebApplicationDescriptorElement> classpathEntries) {
-        this.classpathEntries=classpathEntries;
+        this.classpathEntries = classpathEntries;
     }
 
     public List<WebApplicationDescriptorElement> getClassPathElements() {
         return classpathEntries;
+    }
+
+    public List<JndiDataSource> getDataSources() {
+        return JndiDataSourcesRepository.loadDataSources();
+    }
+
+    public boolean containsDataSources() {
+        return !CollectionUtils.isEmpty(JndiDataSourcesRepository.loadDataSources());
     }
 }

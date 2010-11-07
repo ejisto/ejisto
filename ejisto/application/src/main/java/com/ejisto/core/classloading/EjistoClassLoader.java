@@ -19,59 +19,69 @@
 
 package com.ejisto.core.classloading;
 
+import com.ejisto.util.GuiUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.webapp.WebAppClassLoader;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import static com.ejisto.util.SpringBridge.isMockableClass;
 
 public class EjistoClassLoader extends WebAppClassLoader {
 
     private static final Logger logger = Logger.getLogger(EjistoClassLoader.class);
-	private ClassTransformer transformer;
-	private String contextPath;
+    private ClassTransformer transformer;
+    private String contextPath;
     private String installationPath;
 
     public EjistoClassLoader(String installationPath, WebAppContext context) throws IOException {
         super(context);
 //        InstrumentationHolder.getInstrumentation().addTransformer(new ClassTransformer(this, mockedFields), true);
-        this.installationPath=installationPath;
+        this.installationPath = installationPath;
         this.contextPath = context.getContextPath();
-        this.transformer=new ClassTransformer(this);
+        this.transformer = new ClassTransformer(this);
     }
 
-	@Override
-	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		try {
-		    
-			boolean instrumentableClass = isInstrumentableClass(name);
-			if(logger.isDebugEnabled()) logger.debug(name+" is mockable class: "+instrumentableClass);
-			if(instrumentableClass) return loadInstrumentableClass(name);
-			return super.loadClass(name);
-		} catch (Exception e) {
-			throw new ClassNotFoundException("Unable to load class ["+name+"]",e);
-		}
-	}
-	
-	public Class<?> loadInstrumentableClass(String name) throws Exception {
-		if(logger.isDebugEnabled()) logger.debug("loading instrumentable class: "+name);
-		return transformer.transform(name);
-	}
-	
-	public boolean isInstrumentableClass(String name) {
-	    return isMockableClass(contextPath, name.replaceAll("/", "."));
-	}
-	
-	public String getContextPath() {
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+        try {
+            boolean instrumentableClass = isInstrumentableClass(name);
+            if (logger.isDebugEnabled()) logger.debug(name + " is mockable class: " + instrumentableClass);
+            if (instrumentableClass) return loadInstrumentableClass(name);
+            Class<?> c = loadFromExtraClasspath(name);
+            if (c != null) return c;
+            return super.loadClass(name);
+        } catch (Exception e) {
+            throw new ClassNotFoundException("Unable to load class [" + name + "]", e);
+        }
+    }
+
+    public Class<?> loadInstrumentableClass(String name) throws Exception {
+        if (logger.isDebugEnabled()) logger.debug("loading instrumentable class: " + name);
+        return transformer.transform(name);
+    }
+
+    public boolean isInstrumentableClass(String name) {
+        return isMockableClass(contextPath, name.replaceAll("/", "."));
+    }
+
+    public String getContextPath() {
         return contextPath;
     }
-	
-	public String getInstallationPath() {
+
+    public String getInstallationPath() {
         return installationPath;
     }
-	
-	
-	
+
+    public void addExtraEntries(Collection<String> entries) {
+        GuiUtils.addExtraPathsToSharedClassLoader(entries);
+    }
+
+    private Class<?> loadFromExtraClasspath(String name) {
+        return GuiUtils.loadClassFromSharedClassLoader(name);
+    }
+
+
 }

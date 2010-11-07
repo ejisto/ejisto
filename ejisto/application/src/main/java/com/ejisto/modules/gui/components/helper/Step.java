@@ -20,28 +20,16 @@
 package com.ejisto.modules.gui.components.helper;
 
 public enum Step {
-    FILE_SELECTION(0),FILE_EXTRACTION(1), CLASSES_FILTERING(2), APPLICATION_SCANNING(3), PROPERTIES_EDITING(4), SUMMARY(5);
-    private int index;
+    FILE_SELECTION,
+    FILE_EXTRACTION,
+    CLASSES_FILTERING,
+    APPLICATION_SCANNING,
+    JNDI_RESOURCES_EDITOR,
+    PROPERTIES_EDITING,
+    SUMMARY;
 
-    private Step(int index) {
-        this.index = index;
-    }
 
     public int getIndex() {
-        return index;
-    }
-
-    public static Step nextStep(Step current) {
-        if (current.getIndex() >= Step.values().length - 1)
-            return null;
-        else
-            return Step.values()[current.getIndex() + 1];
-    }
-    
-    public static Step previousStep(Step current) {
-        if (current.getIndex() <= 0)
-            return null;
-        else
-            return Step.values()[current.getIndex() - 1];
+        return ordinal();
     }
 }

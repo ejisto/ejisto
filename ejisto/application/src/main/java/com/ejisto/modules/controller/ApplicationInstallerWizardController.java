@@ -44,7 +44,7 @@ import static com.ejisto.util.GuiUtils.*;
 import static java.util.Collections.sort;
 
 public class ApplicationInstallerWizardController {
-	private static final Logger logger = Logger.getLogger(ApplicationInstallerWizard.class);
+    private static final Logger logger = Logger.getLogger(ApplicationInstallerWizard.class);
     private List<StepController<WebApplicationDescriptor>> controllers;
     private ApplicationInstallerWizard wizard;
     private Closure1<ActionEvent> callActionPerformed;
@@ -54,18 +54,19 @@ public class ApplicationInstallerWizardController {
     private EjistoDialog dialog;
     private int currentIndex = -1;
     private StepController<WebApplicationDescriptor> currentController;
-	private boolean success;
-    
+    private boolean success;
+
     public ApplicationInstallerWizardController(Frame application) {
-        this.application=application;
+        this.application = application;
     }
-    
+
     private void initAndSortControllers(EjistoDialog dialog) {
         controllers = new ArrayList<StepController<WebApplicationDescriptor>>();
         controllers.add(new FileSelectionController(dialog));
         controllers.add(new FileExtractionController(dialog));
         controllers.add(new ClassesFilteringController(dialog));
         controllers.add(new ApplicationScanningController(dialog));
+        controllers.add(new JndiResourcesEditorController(dialog));
         controllers.add(new PropertiesEditingController(dialog));
         controllers.add(new SummaryController(dialog));
         sort(controllers, new StepControllerComparator());
@@ -73,13 +74,13 @@ public class ApplicationInstallerWizardController {
         WebApplicationDescriptor session = new WebApplicationDescriptor();
         forEach(controllers).setSession(session);
     }
-    
+
     private void initContainer() {
         for (StepController<WebApplicationDescriptor> controller : controllers) {
-			wizard.addTab(controller.getView(), controller.getStep());
-		}
+            wizard.addTab(controller.getView(), controller.getStep());
+        }
     }
-    
+
     public boolean showWizard() {
         initClosures();
         dialog = new EjistoDialog(application, getMessage("wizard.title"), createWizard(), false);
@@ -98,40 +99,53 @@ public class ApplicationInstallerWizardController {
         dialog.setVisible(true);
         return success;
     }
-    
+
     public WebApplicationDescriptor getWebApplicationDescriptor() {
-    	return currentController.getSession();
+        return currentController.getSession();
     }
-    
+
     private void initClosures() {
-        if(callActionPerformed != null) return;
-        callActionPerformed = new Closure1<ActionEvent>() {{of(ApplicationInstallerWizardController.this).actionPerformed(var(ActionEvent.class));}};
-        closeDialog = new Closure0() {{ of(ApplicationInstallerWizardController.this).closeDialog();}};
-        confirm = new Closure0() {{ of(ApplicationInstallerWizardController.this).confirm();}};
+        if (callActionPerformed != null) return;
+        callActionPerformed = new Closure1<ActionEvent>() {{
+            of(ApplicationInstallerWizardController.this).actionPerformed(var(ActionEvent.class));
+        }};
+        closeDialog = new Closure0() {{
+            of(ApplicationInstallerWizardController.this).closeDialog();
+        }};
+        confirm = new Closure0() {{
+            of(ApplicationInstallerWizardController.this).confirm();
+        }};
     }
-    
+
     void closeDialog() {
-        if(showExitWarning()) {
-        	success=false;
-        	dialog.close();
+        if (showExitWarning()) {
+            success = false;
+            dialog.close();
         }
     }
-    
+
     synchronized void actionPerformed(ActionEvent e) {
         navigate(e.getActionCommand().equals(NEXT_STEP_COMMAND.getValue()));
     }
-    
+
     private void navigate(final boolean fwd) {
-        if((fwd && !isNextAvailable()) || (!fwd && !isPreviousAvailable())) {
-            if(fwd) confirm();
+        if ((fwd && !isNextAvailable()) || (!fwd && !isPreviousAvailable())) {
+            if (fwd) confirm();
             return;
-        } 
+        }
         StepController<WebApplicationDescriptor> controller = fwd ? nextController() : previousController();
-        if(currentController != null && currentController.equals(controller)) return;
-        if(currentController != null) currentController.beforeNext();
-        if(fwd && !controller.canProceed()) return;
+        if (currentController != null && currentController.equals(controller)) return;
+        if (fwd && !controller.isForwardEnabled()) {
+            currentIndex++;
+            navigate(true);
+        }
+        if (currentController != null) {
+            if (!currentController.validateInput()) return;
+            currentController.beforeNext();
+        }
+        if (fwd && !controller.canProceed()) return;
         currentController = controller;
-        if(fwd) currentIndex++;
+        if (fwd) currentIndex++;
         currentController.activate();
         wizard.goToStep(currentController.getStep());
         dialog.setHeaderTitle(getMessage(currentController.getTitleKey()));
@@ -146,54 +160,54 @@ public class ApplicationInstallerWizardController {
         dialog.getActionFor(NEXT_STEP_COMMAND.getValue()).setEnabled(!isSummaryStep());
         dialog.getActionFor(CONFIRM.getValue()).setEnabled(isSummaryStep());
     }
-    
-    
+
+
     private void executeStep(boolean fwd) {
         try {
-			if(currentController.executionCompleted() && currentController.isExecutionSucceeded() && fwd && currentController.automaticallyProceedToNextStep()) {
-			    navigate(true);
-			}
-		} catch (WizardException e) {
-			logger.error(e.getMessage(),e);
-		}
+            if (currentController.executionCompleted() && currentController.isExecutionSucceeded() && fwd && currentController.automaticallyProceedToNextStep()) {
+                navigate(true);
+            }
+        } catch (WizardException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
-    
+
     private boolean showExitWarning() {
         return showWarning(wizard, "wizard.quit.message");
     }
-    
+
     boolean isSummaryStep() {
         return !isNextAvailable();
     }
-    
+
     void confirm() {
-    	success=true;
+        success = true;
         dialog.setVisible(false);
     }
-    
+
     private ApplicationInstallerWizard createWizard() {
         wizard = new ApplicationInstallerWizard();
         return wizard;
     }
-    
+
     private StepController<WebApplicationDescriptor> nextController() {
-    	if(!isNextAvailable()) return currentController;
-    	return controllers.get(currentIndex+1);
+        if (!isNextAvailable()) return currentController;
+        return controllers.get(currentIndex + 1);
     }
-    
+
     private StepController<WebApplicationDescriptor> previousController() {
-    	if(!isPreviousAvailable()) return currentController;
+        if (!isPreviousAvailable()) return currentController;
         StepController<WebApplicationDescriptor> controller = controllers.get(--currentIndex);
-        if(!controller.isBackEnabled()) return previousController();
-    	return controller;
+        if (!controller.isBackEnabled()) return previousController();
+        return controller;
     }
-    
+
     private boolean isNextAvailable() {
-    	return currentIndex + 1 < controllers.size();
+        return currentIndex + 1 < controllers.size();
     }
-    
+
     private boolean isPreviousAvailable() {
-    	return currentIndex - 1 >= 0;
+        return currentIndex - 1 >= 0;
     }
 
 }

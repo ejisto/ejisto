@@ -20,6 +20,7 @@
 package com.ejisto.util;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.core.classloading.SharedClassLoader;
 import com.ejisto.event.EventManager;
 import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.dao.MockedFieldsDao;
@@ -27,6 +28,7 @@ import com.ejisto.modules.dao.entities.MockedField;
 import org.springframework.context.*;
 
 import javax.annotation.Resource;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -41,6 +43,8 @@ public class SpringBridge implements ApplicationContextAware {
     private MockedFieldsDao mockedFieldsDao;
     @Resource
     private SettingsManager settingsManager;
+    @Resource
+    private SharedClassLoader sharedClassLoader;
 
     public static boolean publishApplicationEvent(ApplicationEvent e) {
         boolean ret = isApplicationInitialized();
@@ -56,48 +60,61 @@ public class SpringBridge implements ApplicationContextAware {
     }
 
     public static List<MockedField> getAllMockedFields() {
-        if(!isApplicationInitialized()) return emptyList();
+        if (!isApplicationInitialized()) return emptyList();
         return getInstance().loadAllMockedFields();
     }
-    
+
     public static MockedField getMockedField(String contextPath, String className, String fieldName) {
-        if(!isApplicationInitialized()) return null;
+        if (!isApplicationInitialized()) return null;
         return getInstance().loadMockedField(contextPath, className, fieldName);
     }
-    
+
     public static List<MockedField> getMockedFieldsFor(String contextPath, String className) {
-        if(!isApplicationInitialized()) return null;
+        if (!isApplicationInitialized()) return null;
         return getInstance().loadMockedFields(contextPath, className);
     }
-    
+
     public static boolean isMockableClass(String contextPath, String className) {
-        if(!isApplicationInitialized()) return false;
+        if (!isApplicationInitialized()) return false;
         return getInstance().hasMockedFields(contextPath, className);
     }
-    
+
     public static boolean updateMockedField(MockedField mockedField) {
-        if(!isApplicationInitialized()) return false;
+        if (!isApplicationInitialized()) return false;
         return getInstance().internalUpdateMockedField(mockedField);
     }
-    
+
     public static MockedField insertMockedField(MockedField mockedField) {
-        if(!isApplicationInitialized()) return mockedField;
+        if (!isApplicationInitialized()) return mockedField;
         return getInstance().internalInsertMockedField(mockedField);
     }
-    
+
     public static String getSettingValue(StringConstants key) {
-    	if(!isApplicationInitialized()) return null;
-    	return getInstance().getSetting(key);
+        if (!isApplicationInitialized()) return null;
+        return getInstance().getSetting(key);
     }
-    
+
     public static int getSettingIntValue(StringConstants key) {
-    	if(!isApplicationInitialized()) return -1;
-    	return getInstance().getIntSetting(key);
+        if (!isApplicationInitialized()) return -1;
+        return getInstance().getIntSetting(key);
     }
-    
+
     public static void putSettingValue(StringConstants key, Object value) {
-    	if(!isApplicationInitialized()) return;
-    	getInstance().putSetting(key, value);
+        if (!isApplicationInitialized()) return;
+        getInstance().putSetting(key, value);
+    }
+
+    public static Class<?> loadClassFromSharedClassLoader(String name) {
+        if (!isApplicationInitialized()) return null;
+        return getInstance().loadClass(name);
+    }
+
+    public static void addExtraPathToSharedClassLoader(String path) {
+        getInstance().addExtraPath(path);
+    }
+
+    public static void addExtraPathsToSharedClassLoader(Collection<String> paths) {
+        getInstance().addExtraPaths(paths);
     }
 
     public static SpringBridge getInstance() {
@@ -130,43 +147,55 @@ public class SpringBridge implements ApplicationContextAware {
             return key;
         }
     }
-    
+
     private String getSetting(StringConstants key) {
-    	return settingsManager.getValue(key);
+        return settingsManager.getValue(key);
     }
-    
+
     private int getIntSetting(StringConstants key) {
-    	return Integer.parseInt(getSetting(key));
+        return Integer.parseInt(getSetting(key));
     }
-    
+
     private void putSetting(StringConstants key, Object value) {
-    	settingsManager.putValue(key, value);
+        settingsManager.putValue(key, value);
     }
 
     private List<MockedField> loadAllMockedFields() {
-        return mockedFieldsDao.loadAll();
+        return mockedFieldsDao.loadActiveFields();
     }
-    
+
     private MockedField loadMockedField(String contextPath, String className, String fieldName) {
         return mockedFieldsDao.getMockedField(contextPath, className, fieldName);
     }
-    
+
     private List<MockedField> loadMockedFields(String contextPath, String className) {
-        return mockedFieldsDao.loadByContextPathAndClassName(contextPath,className);
+        return mockedFieldsDao.loadByContextPathAndClassName(contextPath, className);
     }
-    
+
     private boolean internalUpdateMockedField(MockedField mockedField) {
         return mockedFieldsDao.update(mockedField);
     }
-    
+
     private MockedField internalInsertMockedField(MockedField mockedField) {
         long id = mockedFieldsDao.insert(mockedField);
         mockedField.setId(id);
         return mockedField;
     }
-    
+
     private boolean hasMockedFields(String contextPath, String className) {
         return mockedFieldsDao.countByContextPathAndClassName(contextPath, className) > 0;
+    }
+
+    private Class<?> loadClass(String name) {
+        return sharedClassLoader.loadClass(name);
+    }
+
+    private void addExtraPath(String path) {
+        sharedClassLoader.addEntry(path);
+    }
+
+    private void addExtraPaths(Collection<String> paths) {
+        sharedClassLoader.addEntries(paths);
     }
 
 }

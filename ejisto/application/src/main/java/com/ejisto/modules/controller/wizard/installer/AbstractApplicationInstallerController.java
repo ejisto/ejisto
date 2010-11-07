@@ -28,12 +28,12 @@ public abstract class AbstractApplicationInstallerController extends AbstractSte
     public AbstractApplicationInstallerController(EjistoDialog dialog) {
         super(dialog);
     }
-    
+
     @Override
     public boolean automaticallyProceedToNextStep() {
         return false;
     }
-    
+
     @Override
     public void beforeNext() {
     }
@@ -43,4 +43,13 @@ public abstract class AbstractApplicationInstallerController extends AbstractSte
         return true;
     }
 
+    @Override
+    public boolean isForwardEnabled() {
+        return true;
+    }
+
+    @Override
+    public boolean validateInput() {
+        return true;
+    }
 }

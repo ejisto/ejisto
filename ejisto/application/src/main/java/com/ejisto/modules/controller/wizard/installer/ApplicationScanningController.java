@@ -20,18 +20,27 @@
 package com.ejisto.modules.controller.wizard.installer;
 
 import com.ejisto.modules.controller.WizardException;
+import com.ejisto.modules.dao.entities.JndiDataSource;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
+import com.ejisto.util.JndiDataSourcesRepository;
+import com.ejisto.util.JndiUtils;
 import javassist.*;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.webapp.WebXmlProcessor;
+import org.eclipse.jetty.xml.XmlParser;
 import org.springframework.util.Assert;
+import org.xml.sax.SAXException;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
@@ -43,7 +52,7 @@ import static com.ejisto.util.IOUtils.*;
 public class ApplicationScanningController extends AbstractApplicationInstallerController implements Callable<Void> {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
     private Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
-    private Future<?> task;
+    private Future<Void> task;
     private ProgressPanel applicationScanningTab;
 
     public ApplicationScanningController(EjistoDialog dialog) {
@@ -52,8 +61,8 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
 
     @Override
     public ProgressPanel getView() {
-        if(applicationScanningTab != null) return applicationScanningTab;
-        applicationScanningTab=new ProgressPanel();
+        if (applicationScanningTab != null) return applicationScanningTab;
+        applicationScanningTab = new ProgressPanel();
         return applicationScanningTab;
     }
 
@@ -93,16 +102,17 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         processWebApplication();
         return null;
     }
-    
+
     private void processWebApplication() throws Exception {
         Assert.notNull(getSession().getInstallationPath());
         String basePath = getSession().getInstallationPath();
         getSession().setContextPath(getContextPath(basePath));
         getSession().setClassPathElements(getClasspathEntries(basePath));
         loadAllClasses(findAllWebApplicationClasses(basePath, getSession()), getSession());
+        processWebXmlDescriptor(getSession());
         getView().jobCompleted(getMessage("progress.scan.end"));
     }
-    
+
     private void loadAllClasses(Collection<String> classnames, WebApplicationDescriptor descriptor) throws NotFoundException, MalformedURLException {
         notifyStart(classnames.size());
         descriptor.deleteAllFields();
@@ -115,9 +125,9 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
             fillMockedFields(cp, clazz, descriptor);
             clazz.detach();
         }
-        logger.info("just finished processing "+descriptor.getInstallationPath());
+        logger.info("just finished processing " + descriptor.getInstallationPath());
     }
-    
+
     private void fillMockedFields(ClassPool cp, CtClass clazz, WebApplicationDescriptor descriptor) throws NotFoundException {
         MockedField mockedField;
         try {
@@ -129,7 +139,6 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
                 mockedField.setFieldType(field.getType().getName());
                 descriptor.addField(mockedField);
             }
-
             CtClass zuperclazz = clazz.getSuperclass();
             if (!zuperclazz.getName().startsWith("java"))
                 fillMockedFields(cp, zuperclazz, descriptor);
@@ -137,31 +146,66 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
             e.printStackTrace();
         }
     }
-    
+
+    private void processWebXmlDescriptor(WebApplicationDescriptor descriptor) {
+        StringBuilder webXmlPath = new StringBuilder(descriptor.getInstallationPath()).append(File.separator);
+        webXmlPath.append("WEB-INF").append(File.separator).append("web.xml");
+        File webXml = new File(webXmlPath.toString());
+        if (!webXml.exists()) return;
+        try {
+            XmlParser.Node root = WebXmlProcessor.webXmlParser().parse(webXml);
+            Iterator<?> it = root.iterator("resource-ref");
+            while (it.hasNext()) {
+                buildEnvEntry((XmlParser.Node) it.next());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void buildEnvEntry(XmlParser.Node node) {
+        String type = node.getString("res-type", false, true);
+        if (!"javax.sql.DataSource".equals(type)) return;
+        JndiDataSource entry = new JndiDataSource();
+        entry.setName(node.getString("res-ref-name", false, true));
+        entry.setType(type);
+        checkBindingState(entry);
+        if (!entry.isAlreadyBound())
+            JndiDataSourcesRepository.store(entry);
+    }
+
+    private void checkBindingState(JndiDataSource entry) {
+        entry.setAlreadyBound(JndiUtils.getBoundDataSource(entry.getName()) != null);
+    }
+
     protected String getContextPath(String realPath) {
         Matcher matcher = contextExtractor.matcher(realPath.replaceAll(Pattern.quote("\\"), "/"));
         if (matcher.matches())
             return matcher.group(1);
         return null;
     }
-    
+
     private void notifyStart(int numJobs) {
         getView().initProgress(numJobs, getMessage("progress.scan.start"));
     }
-    
+
     private void notifyJobCompleted(String nextClass) {
         getView().jobCompleted(getMessage("progress.scan.class", nextClass));
     }
 
-	@Override
-	public String getTitleKey() {
-		return "wizard.applicationscanning.title";
-	}
+    @Override
+    public String getTitleKey() {
+        return "wizard.applicationscanning.title";
+    }
 
-	@Override
-	public String getDescriptionKey() {
-		return "wizard.applicationscanning.description";
-	}
+    @Override
+    public String getDescriptionKey() {
+        return "wizard.applicationscanning.description";
+    }
 
     @Override
     public boolean isBackEnabled() {

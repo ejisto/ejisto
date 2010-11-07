@@ -32,57 +32,61 @@ import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
 
 public class SettingsManager implements InitializingBean {
-	@Resource(name = "settings")
-	private Properties settings;
-	@Resource
-	private SettingsDao settingsDao;
-	private List<Setting> settingsList;
+    @Resource(name = "settings")
+    private Properties settings;
+    @Resource
+    private SettingsDao settingsDao;
+    private List<Setting> settingsList;
 
-	public int getIntValue(StringConstants key) {
-		return Integer.parseInt(getValue(key));
-	}
+    public int getIntValue(StringConstants key) {
+        return Integer.parseInt(getValue(key));
+    }
 
-	public String getValue(StringConstants key) {
-		return getValue(key.getValue());
-	}
+    public String getValue(StringConstants key) {
+        return getValue(key.getValue());
+    }
 
-	public String getValue(String key) {
-		init();
-		Setting setting = find(key);
-		if(setting != null) return setting.getValue();
-		setting = new Setting(key, settings.getProperty(key));
-		settingsList.add(setting);
-		return setting.getValue();
-	}
+    public String getValueFromProperties(StringConstants key) {
+        return settings.getProperty(key.getValue());
+    }
 
-	public void flush() throws Exception {
-		if (settingsDao.clearSettings(settingsList))
-			settingsDao.insertSettings(settingsList);
-	}
-	
-	public void putValue(StringConstants key, Object value) {
-		putValue(key.getValue(), String.valueOf(value));
-	}
-	
-	public void putValue(String key, String value) {
-		Setting setting = find(key);
-		if(setting != null) {
-			setting.setValue(value);
-		} else {
-			setting = new Setting(key, value);
-			settingsList.add(setting);
-		}
-	}
+    public String getValue(String key) {
+        init();
+        Setting setting = find(key);
+        if (setting != null) return setting.getValue();
+        setting = new Setting(key, settings.getProperty(key));
+        settingsList.add(setting);
+        return setting.getValue();
+    }
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-	}
-	
-	private void init() {
-		if(settingsList == null) settingsList = settingsDao.loadAll();
-	}
-	
-	private Setting find(String key) {
-		return selectFirst(settingsList, having(on(Setting.class).getKey(), equalTo(key)));
-	}
+    public void flush() throws Exception {
+        if (settingsDao.clearSettings(settingsList))
+            settingsDao.insertSettings(settingsList);
+    }
+
+    public void putValue(StringConstants key, Object value) {
+        putValue(key.getValue(), String.valueOf(value));
+    }
+
+    public void putValue(String key, String value) {
+        Setting setting = find(key);
+        if (setting != null) {
+            setting.setValue(value);
+        } else {
+            setting = new Setting(key, value);
+            settingsList.add(setting);
+        }
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+    }
+
+    private void init() {
+        if (settingsList == null) settingsList = settingsDao.loadAll();
+    }
+
+    private Setting find(String key) {
+        return selectFirst(settingsList, having(on(Setting.class).getKey(), equalTo(key)));
+    }
 }

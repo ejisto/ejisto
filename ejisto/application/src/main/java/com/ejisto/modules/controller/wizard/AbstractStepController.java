@@ -32,32 +32,32 @@ public abstract class AbstractStepController<K> implements StepController<K> {
     private ExecutorService executor;
 
     public AbstractStepController(EjistoDialog dialog) {
-        this.dialog=dialog;
+        this.dialog = dialog;
         this.executor = Executors.newCachedThreadPool();
     }
-    
+
     public void setSession(K session) {
-        this.session=session;
+        this.session = session;
     }
-    
+
     public K getSession() {
         return session;
     }
-    
+
     protected EjistoDialog getDialog() {
         return dialog;
     }
-    
+
     protected Future<?> addJob(Runnable task) {
-    	return executor.submit(task);
+        return executor.submit(task);
     }
-    
+
     protected <T> Future<T> addJob(Callable<T> task) {
-    	return executor.submit(task);
+        return executor.submit(task);
     }
-    
+
     protected void execute(Runnable task) {
-    	executor.execute(task);
+        executor.execute(task);
     }
-    
+
 }

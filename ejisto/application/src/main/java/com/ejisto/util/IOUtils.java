@@ -41,6 +41,18 @@ public class IOUtils {
     private static final FileExtensionFilter jarFilter = new FileExtensionFilter(FileExtensionFilter.ALL_JARS, true);
     private static final FileExtensionFilter classesFilter = new FileExtensionFilter(FileExtensionFilter.ALL_CLASSES, true);
 
+    public static String copyFile(String filePath, File destDir) {
+        try {
+            File original = new File(filePath);
+            File newFile = new File(destDir, original.getName());
+            if (newFile.exists()) return newFile.getName();
+            writeFile(new FileInputStream(original), destDir, original.getName());
+            return original.getName();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void writeFile(InputStream inputStream, File baseDir, String filename) throws IOException {
         File dest = new File(baseDir, filename);
         if (!dest.getParentFile().exists() && !dest.getParentFile().mkdirs())
@@ -63,11 +75,11 @@ public class IOUtils {
         ch.close();
         fos.close();
     }
-    
+
     public static byte[] readFile(File file) throws IOException {
         FileInputStream fin = new FileInputStream(file);
         FileChannel ch = fin.getChannel();
-        ByteBuffer bb = ByteBuffer.allocate((int)ch.size());
+        ByteBuffer bb = ByteBuffer.allocate((int) ch.size());
         ch.read(bb);
         ch.close();
         fin.close();
@@ -119,8 +131,8 @@ public class IOUtils {
         List<URL> urls = new ArrayList<URL>();
         File base = new File(descriptor.getInstallationPath(), "WEB-INF");
         File classes = new File(base, "classes");
-        File lib     = new File(base, "lib");
-        if(classes.exists()) urls.add(classes.toURI().toURL());
+        File lib = new File(base, "lib");
+        if (classes.exists()) urls.add(classes.toURI().toURL());
         for (WebApplicationDescriptorElement element : descriptor.getClassPathElements()) {
             urls.add(new File(lib, element.getPath()).toURI().toURL());
         }
@@ -193,17 +205,17 @@ public class IOUtils {
         }
         return file.delete();
     }
-    
+
     public static String retrieveFilenameFromZipEntryPath(String filename) {
         return retrieveFilenameFromPath(filename, "/");
     }
-    
+
     public static String retrieveFilenameFromPath(String filename, String fileSeparator) {
         return filename.substring(filename.lastIndexOf(fileSeparator) + 1);
     }
-    
+
     public static String determineWebApplicationUri(WebApplicationDescriptor descriptor) {
-    	return new StringBuilder("http://localhost:9000").append(descriptor.getContextPath()).append("/").toString();
+        return new StringBuilder("http://localhost:9000").append(descriptor.getContextPath()).append("/").toString();
     }
 
 }

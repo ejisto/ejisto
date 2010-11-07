@@ -37,6 +37,8 @@ import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 import javax.annotation.Resource;
 import java.awt.*;
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.putAction;
@@ -55,37 +57,47 @@ public class ResourcesInitializer extends BaseStartupService {
         logger.info("executing ResourcesInitializer");
         File baseDir = new File(System.getProperty("user.home"), ".ejisto");
         if (!baseDir.exists()) initBaseDir(baseDir);
-        String fileSeparator = System.getProperty("file.separator");
-        StringBuilder path = new StringBuilder(baseDir.getAbsolutePath()).append(fileSeparator).append("jetty").append(fileSeparator);
-        System.setProperty(JETTY_HOME_DIR.getValue(), path.toString());
-        System.setProperty(JETTY_WEBAPPS_DIR.getValue(), path.append(fileSeparator).append("webapps").append(fileSeparator).toString());
-        File webappsDir = new File(path.toString());
-        if (!webappsDir.exists()) initBaseDir(webappsDir);
-        path.delete(0, path.length());
-        File derbyHome = new File(path.append(baseDir.getAbsolutePath()).append(fileSeparator).append("derby").append(fileSeparator).toString());
-        if (!derbyHome.exists()) initBaseDir(derbyHome);
-        System.setProperty(DERBY_SCRIPT.getValue(), path.append("ejisto.sql").toString());
-        System.setProperty(INITIALIZE_DATABASE.getValue(), String.valueOf(!new File(path.toString()).exists()));
+        initDirectories(baseDir);
         try {
             dataSource.initDb();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        path.delete(0, path.length());
-        File descriptorDir = new File(path.append(baseDir.getAbsolutePath()).append(fileSeparator).append("descriptors").toString());
-        if (!descriptorDir.exists()) initBaseDir(descriptorDir);
-        System.setProperty(DESCRIPTOR_DIR.getValue(), path.toString());
         initStoredWebApps();
         initFonts();
         initDefaultActions();
     }
 
+    private void initDirectories(File baseDir) {
+        File jettyDir = new File(baseDir, "jetty");
+        File derbyDir = new File(baseDir, "derby");
+        File derbyScript = new File(derbyDir, "ejisto.sql");
+        File libDir = new File(baseDir, "lib");
+        File webappsDir = new File(jettyDir, "webapps");
+        initDirectories(Arrays.asList(derbyDir,
+                jettyDir,
+                webappsDir,
+                libDir,
+                new File(baseDir, "log")));
+        System.setProperty(JETTY_HOME_DIR.getValue(), jettyDir.getAbsolutePath() + File.separator);
+        System.setProperty(JETTY_WEBAPPS_DIR.getValue(), webappsDir.getAbsolutePath() + File.separator);
+        System.setProperty(DERBY_SCRIPT.getValue(), derbyScript.getAbsolutePath());
+        System.setProperty(INITIALIZE_DATABASE.getValue(), String.valueOf(!derbyScript.exists()));
+        System.setProperty(LIB_DIR.getValue(), libDir.getAbsolutePath() + File.separator);
+    }
 
+    private void initDirectories(List<File> directories) {
+        for (File directory : directories) {
+            if (!directory.exists() && !directory.mkdirs())
+                eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
+        }
+    }
 
     private void initBaseDir(File baseDir) {
-        if (!baseDir.mkdirs()) eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
+        if (!baseDir.mkdirs())
+            eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
     }
-    
+
     private void initStoredWebApps() {
         LoadWebApplication event = new LoadWebApplication(this);
         event.setLoadStored(true);
@@ -95,18 +107,18 @@ public class ResourcesInitializer extends BaseStartupService {
     private void initFonts() {
 
         Font defaultFont = null;
-        Font baseFont = null;
+        Font baseFont;
         Font bold = null;
         try {
             baseFont = Font.createFont(Font.TRUETYPE_FONT, Header.class.getResourceAsStream("/fonts/DejaVuSans.ttf"));
-            bold     = Font.createFont(Font.TRUETYPE_FONT, Header.class.getResourceAsStream("/fonts/DejaVuSans-Bold.ttf"));
+            bold = Font.createFont(Font.TRUETYPE_FONT, Header.class.getResourceAsStream("/fonts/DejaVuSans-Bold.ttf"));
             defaultFont = baseFont.deriveFont(10f);
             bold = bold.deriveFont(Font.BOLD, 13f);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
-        }        
-        
+        }
+
 //        String[] properties = { "Label.font", "List.font", "Panel.font", "ProgressBar.font", "Viewport.font", "TabbedPane.font", "Table.font",
 //                "TableHeader.font", "TextField.font", "PasswordField.font", "TextArea.font", "TextPane.font", "EditorPane.font", "TitledBorder.font",
 //                "ToolBar.font", "ToolTip.font", "Tree.font" };
@@ -114,17 +126,17 @@ public class ResourcesInitializer extends BaseStartupService {
 //        for (String property : properties) {
 //            UIManager.put(property, new FontUIResource(systemFont));
 //        }
-        
+
         @SuppressWarnings("unused")
         String a = JXHeader.uiClassID;//initialize JXHeader.class
         LookAndFeelAddons.getAddon().loadDefaults(new Object[]{"JXHeader.descriptionFont", defaultFont, "JXHeader.titleFont", bold, "JXTitledPanel.titleFont", bold, "JXHeader.background", Color.white});
         GuiUtils.setDefaultFont(defaultFont);
     }
-    
+
     private void initDefaultActions() {
-    	putAction(new EjistoAction<LoadWebApplication>(new LoadWebApplication(this)));
-    	putAction(new EjistoAction<ShutdownRequest>(new ShutdownRequest(this)));
-    	putAction(new EjistoAction<ChangeServerStatus>(new ChangeServerStatus(this, Command.STARTUP)));
-    	putAction(new EjistoAction<ChangeServerStatus>(new ChangeServerStatus(this, Command.SHUTDOWN)));
+        putAction(new EjistoAction<LoadWebApplication>(new LoadWebApplication(this)));
+        putAction(new EjistoAction<ShutdownRequest>(new ShutdownRequest(this)));
+        putAction(new EjistoAction<ChangeServerStatus>(new ChangeServerStatus(this, Command.STARTUP)));
+        putAction(new EjistoAction<ChangeServerStatus>(new ChangeServerStatus(this, Command.SHUTDOWN)));
     }
 }

@@ -32,15 +32,25 @@ import java.util.Collection;
 import java.util.List;
 
 public class MockedFieldsDao extends BaseDao {
+    private static final String LOAD_ALL_ACTIVE = "SELECT * FROM MOCKEDFIELDS WHERE ACTIVE=1";
     private static final String LOAD_ALL = "SELECT * FROM MOCKEDFIELDS";
-    private static final String LOAD_BY_CLASSNAME = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH=? AND CLASSNAME = ? AND FIELDNAME = ?";
-    private static final String LOAD_BY_CONTEXTPATH = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH = ?";
-    private static final String LOAD_BY_CONTEXTPATH_CLASSNAME = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND CLASSNAME = ?";
-    private static final String COUNT_BY_CONTEXTPATH_CLASSNAME = "SELECT COUNT(*) FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND CLASSNAME = ?";
-    private static final String UPDATE = "UPDATE MOCKEDFIELDS SET CONTEXTPATH = ?, CLASSNAME = ? , FIELDNAME = ?, FIELDTYPE=?, FIELDVALUE=? WHERE ID=?";
-    private static final String INSERT = "INSERT INTO MOCKEDFIELDS (CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE) VALUES(?,?,?,?,?)";
-    private static final String DELETE_CONTEXT     = "DELETE FROM MOCKEDFIELDS WHERE CONTEXTPATH=?";
+    private static final String LOAD_BY_CLASSNAME = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH=? AND CLASSNAME = ? AND FIELDNAME = ? AND ACTIVE = 1";
+    private static final String LOAD_BY_CONTEXTPATH = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND ACTIVE = 1";
+    private static final String LOAD_BY_CONTEXTPATH_CLASSNAME = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND CLASSNAME = ? AND ACTIVE = 1";
+    private static final String COUNT_BY_CONTEXTPATH_CLASSNAME = "SELECT COUNT(*) FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND CLASSNAME = ? AND ACTIVE = 1";
+    private static final String UPDATE = "UPDATE MOCKEDFIELDS SET CONTEXTPATH = ?, CLASSNAME = ? , FIELDNAME = ?, FIELDTYPE=?, FIELDVALUE=?, ACTIVE = ? WHERE ID=?";
+    private static final String INSERT = "INSERT INTO MOCKEDFIELDS (CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE, ACTIVE) VALUES(?,?,?,?,?, ?)";
+    private static final String DELETE_CONTEXT = "DELETE FROM MOCKEDFIELDS WHERE CONTEXTPATH=?";
 //    private static final String DELETE_MOCKEDFIELD = "DELETE FROM MOCKEDFIELDS WHERE ID=?";
+
+    public List<MockedField> loadActiveFields() {
+        return getJdbcTemplate().query(LOAD_ALL_ACTIVE, new RowMapper<MockedField>() {
+            @Override
+            public MockedField mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return loadFromResultSet(rs);
+            }
+        });
+    }
 
     public List<MockedField> loadAll() {
         return getJdbcTemplate().query(LOAD_ALL, new RowMapper<MockedField>() {
@@ -50,25 +60,25 @@ public class MockedFieldsDao extends BaseDao {
             }
         });
     }
-    
+
     public Collection<MockedField> loadContextPathFields(String contextPath) {
-        return getJdbcTemplate().query(LOAD_BY_CONTEXTPATH, new Object[] {contextPath}, new RowMapper<MockedField>() {
+        return getJdbcTemplate().query(LOAD_BY_CONTEXTPATH, new Object[]{contextPath}, new RowMapper<MockedField>() {
             @Override
             public MockedField mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return loadFromResultSet(rs);
             }
         });
     }
-    
+
     public List<MockedField> loadByContextPathAndClassName(String contextPath, String className) {
-        return getJdbcTemplate().query(LOAD_BY_CONTEXTPATH_CLASSNAME, new Object[] {contextPath, className}, new RowMapper<MockedField>() {
+        return getJdbcTemplate().query(LOAD_BY_CONTEXTPATH_CLASSNAME, new Object[]{contextPath, className}, new RowMapper<MockedField>() {
             @Override
             public MockedField mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return loadFromResultSet(rs);
             }
         });
     }
-    
+
     public int countByContextPathAndClassName(String contextPath, String className) {
         return getJdbcTemplate().queryForInt(COUNT_BY_CONTEXTPATH_CLASSNAME, contextPath, className);
     }
@@ -77,12 +87,12 @@ public class MockedFieldsDao extends BaseDao {
         return getJdbcTemplate().query(LOAD_BY_CLASSNAME, new Object[]{contextPath, className, fieldName}, new ResultSetExtractor<MockedField>() {
             @Override
             public MockedField extractData(ResultSet rs) throws SQLException, DataAccessException {
-            	if(rs.next()) return loadFromResultSet(rs);
-            	else throw new RuntimeException("No mockedField found.");
+                if (rs.next()) return loadFromResultSet(rs);
+                else throw new RuntimeException("No mockedFields found.");
             }
         });
     }
-    
+
     public boolean update(final MockedField field) {
         return getJdbcTemplate().update(new PreparedStatementCreator() {
             @Override
@@ -93,12 +103,13 @@ public class MockedFieldsDao extends BaseDao {
                 pstm.setString(3, field.getFieldName());
                 pstm.setString(4, field.getFieldType());
                 pstm.setString(5, field.getFieldValue());
-                pstm.setLong  (6, field.getId());
+                pstm.setBoolean(6, field.isActive());
+                pstm.setLong(7, field.getId());
                 return pstm;
             }
         }) == 1;
     }
-    
+
     public long insert(final MockedField field) {
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
         getJdbcTemplate().update(new PreparedStatementCreator() {
@@ -110,27 +121,28 @@ public class MockedFieldsDao extends BaseDao {
                 pstm.setString(3, field.getFieldName());
                 pstm.setString(4, field.getFieldType());
                 pstm.setString(5, field.getFieldValue());
+                pstm.setBoolean(6, field.isActive());
                 return pstm;
             }
         }, holder);
         return holder.getKey().longValue();
     }
-    
+
     public void insert(Collection<MockedField> mockedFields) {
         for (MockedField mockedField : mockedFields) {
             insert(mockedField);
         }
     }
-    
+
     public boolean deleteContext(final String contextPath) {
-    	return getJdbcTemplate().update(DELETE_CONTEXT, new PreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setString(1, contextPath);
-			}
-		}) > 0;
+        return getJdbcTemplate().update(DELETE_CONTEXT, new PreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setString(1, contextPath);
+            }
+        }) > 0;
     }
-    
+
     private MockedField loadFromResultSet(ResultSet rs) throws SQLException {
         MockedField mockedField = new MockedField();
         mockedField.setId(rs.getLong("ID"));
@@ -139,11 +151,9 @@ public class MockedFieldsDao extends BaseDao {
         mockedField.setFieldName(rs.getString("FIELDNAME"));
         mockedField.setFieldType(rs.getString("FIELDTYPE"));
         mockedField.setFieldValue(rs.getString("FIELDVALUE"));
+        mockedField.setActive(rs.getBoolean("ACTIVE"));
         return mockedField;
     }
-    
-    
-    
-    
+
 
 }

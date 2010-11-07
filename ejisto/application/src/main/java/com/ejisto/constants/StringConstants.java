@@ -20,12 +20,15 @@
 package com.ejisto.constants;
 
 public enum StringConstants {
+    LIB_DIR("lib.dir"),
+    SYSTEM_FOLDERS("system.folders"),
     JETTY_HOME_DIR("jetty.home"),
     JETTY_WEBAPPS_DIR("jetty.webapps.dir"),
     MAIN_TITLE("main.title"),
     APPLICATION_WIDTH("application.dimension.width"),
     APPLICATION_HEIGHT("application.dimension.height"),
     LAST_FILESELECTION_PATH("fileselection.last.path"),
+    DERBY_HOME_DIR("derby.home.dir"),
     DERBY_SCRIPT("derby.script"),
     DESCRIPTOR_DIR("descriptor.dir"),
     INITIALIZE_DATABASE("INITIALIZE_DATABASE"),
@@ -46,14 +49,13 @@ public enum StringConstants {
     STOP_CONTEXT_COMMAND("stop"),
     STOP_CONTEXT_PREFIX("stop!!registeredContext!!"),
     DELETE_CONTEXT_COMMAND("delete"),
-    DELETE_CONTEXT_PREFIX("delete!!registeredContext!!"),
-    ;
+    DELETE_CONTEXT_PREFIX("delete!!registeredContext!!"),;
 
 
     private String value;
 
     private StringConstants(String value) {
-        this.value=value;
+        this.value = value;
     }
 
     @Override
@@ -64,11 +66,11 @@ public enum StringConstants {
     public String getValue() {
         return value;
     }
-    
+
     public static StringConstants fromValue(String value) {
-    	for (StringConstants constant : values()) {
-			if(constant.getValue().equals(value)) return constant;
-		}
-    	return null;
+        for (StringConstants constant : values()) {
+            if (constant.getValue().equals(value)) return constant;
+        }
+        return null;
     }
 }

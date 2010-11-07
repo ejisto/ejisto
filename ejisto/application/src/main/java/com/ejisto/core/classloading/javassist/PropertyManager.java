@@ -37,7 +37,7 @@ public class PropertyManager implements InitializingBean {
     private <T> T getFieldValue(String contextPath, String className, String fieldName, Class<T> type, T actualValue) {
         try {
             MockedField mockedField = mockedFieldsDao.getMockedField(contextPath, className, fieldName);
-            if (mockedField != null) {
+            if (mockedField != null && mockedField.isActive()) {
                 Constructor<T> constructor = type.getConstructor(String.class);
                 return constructor.newInstance(mockedField.getFieldValue());
             } else {

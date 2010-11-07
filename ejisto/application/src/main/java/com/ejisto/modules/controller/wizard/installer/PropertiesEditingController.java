@@ -20,10 +20,14 @@
 package com.ejisto.modules.controller.wizard.installer;
 
 import com.ejisto.modules.controller.WizardException;
+import com.ejisto.modules.dao.entities.JndiDataSource;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.Step;
+import com.ejisto.modules.validation.DataSourceEnvEntryValidator;
+import com.ejisto.modules.validation.ValidationErrors;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,14 +42,23 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
 
     @Override
     public MockedFieldsEditor getView() {
-        if(propertiesEditingTab != null) return propertiesEditingTab;
+        if (propertiesEditingTab != null) return propertiesEditingTab;
         propertiesEditingTab = new MockedFieldsEditor();
         return propertiesEditingTab;
     }
 
     @Override
     public boolean canProceed() {
-        return true;
+        return validateEnvEntries();
+    }
+
+    private boolean validateEnvEntries() {
+        List<JndiDataSource> entries = getSession().getDataSources();
+        if (CollectionUtils.isEmpty(entries)) return true;
+        DataSourceEnvEntryValidator validator = new DataSourceEnvEntryValidator();
+        ValidationErrors errors = new ValidationErrors("JndiDataSource");
+        validator.validateAll(entries, errors);
+        return !errors.hasErrors();
     }
 
     @Override
@@ -70,20 +83,20 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
 
     @Override
     public void beforeNext() {
-        
+
     }
-    
+
     private List<MockedField> getModifiedFields() {
         return getSession().getModifiedFields();
     }
 
-	@Override
-	public String getTitleKey() {
-		return "wizard.propertiesedit.title";
-	}
+    @Override
+    public String getTitleKey() {
+        return "wizard.propertiesedit.title";
+    }
 
-	@Override
-	public String getDescriptionKey() {
-		return "wizard.propertiesedit.description";
-	}
+    @Override
+    public String getDescriptionKey() {
+        return "wizard.propertiesedit.description";
+    }
 }
