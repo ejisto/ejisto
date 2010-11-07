@@ -19,7 +19,7 @@
 
 package com.ejisto.core.classloading;
 
-import com.ejisto.util.GuiUtils;
+import com.ejisto.util.SpringBridge;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.webapp.WebAppClassLoader;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -76,11 +76,11 @@ public class EjistoClassLoader extends WebAppClassLoader {
     }
 
     public void addExtraEntries(Collection<String> entries) {
-        GuiUtils.addExtraPathsToSharedClassLoader(entries);
+        SpringBridge.addExtraPathsToSharedClassLoader(entries);
     }
 
     private Class<?> loadFromExtraClasspath(String name) {
-        return GuiUtils.loadClassFromSharedClassLoader(name);
+        return SpringBridge.loadClassFromSharedClassLoader(name);
     }
 
 
