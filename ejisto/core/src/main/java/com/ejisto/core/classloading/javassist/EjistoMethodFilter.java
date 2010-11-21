@@ -21,19 +21,20 @@ package com.ejisto.core.classloading.javassist;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import javassist.util.proxy.MethodFilter;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
 
 import static ch.lambdaj.Lambda.*;
+import static com.ejisto.core.classloading.util.ReflectionUtils.getFieldName;
+import static com.ejisto.core.classloading.util.ReflectionUtils.isGetter;
 import static org.hamcrest.Matchers.equalTo;
 
 public class EjistoMethodFilter implements MethodFilter {
 	
 	private Collection<MockedField> fields;
     private String contextPath;
-
+    
 	public EjistoMethodFilter(String contextPath, Collection<MockedField> fields) {
 	    this.contextPath = contextPath;
 		this.fields=fields;
@@ -42,11 +43,11 @@ public class EjistoMethodFilter implements MethodFilter {
 	@Override
 	public boolean isHandled(Method m) {
 		String methodName = m.getName();
-		return methodName.startsWith("get") && isFieldHandled(methodName.substring(4));
+		return isGetter(methodName) && isFieldHandled(getFieldName(methodName));
 	}
 	
 	public boolean isFieldHandled(String fieldName) {
-		return selectFirst(fields, having(on(MockedField.class).getFieldName(),equalTo(StringUtils.uncapitalize(fieldName)))) != null;
+		return selectFirst(fields, having(on(MockedField.class).getFieldName(),equalTo(fieldName))) != null;
 	}
 	
 	public String getContextPath() {

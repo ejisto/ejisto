@@ -27,7 +27,6 @@ import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
 import com.ejisto.util.JndiDataSourcesRepository;
-import com.ejisto.util.JndiUtils;
 import javassist.*;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.webapp.WebXmlProcessor;
@@ -48,6 +47,7 @@ import java.util.regex.Pattern;
 
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.IOUtils.*;
+import static com.ejisto.util.JndiUtils.*;
 
 public class ApplicationScanningController extends AbstractApplicationInstallerController implements Callable<Void> {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
@@ -173,13 +173,8 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         JndiDataSource entry = new JndiDataSource();
         entry.setName(node.getString("res-ref-name", false, true));
         entry.setType(type);
-        checkBindingState(entry);
-        if (!entry.isAlreadyBound())
+        if(!isAlreadyBound(entry.getName()))
             JndiDataSourcesRepository.store(entry);
-    }
-
-    private void checkBindingState(JndiDataSource entry) {
-        entry.setAlreadyBound(JndiUtils.getBoundDataSource(entry.getName()) != null);
     }
 
     protected String getContextPath(String realPath) {

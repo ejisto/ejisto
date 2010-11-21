@@ -47,18 +47,18 @@ public class JndiUtils {
 
     public static void bindResources(List<JndiDataSource> entries) throws Exception {
         for (JndiDataSource entry : entries) {
-            bindResource(entry, entry.isAlreadyBound());
+            bindResource(entry);
         }
     }
 
-    public static void bindResource(JndiDataSource entry, boolean rebind) throws NamingException {
-        bindResource(entry.getName(), createDataSource(entry), rebind);
+    public static void bindResource(JndiDataSource entry) throws NamingException {
+        bindResource(entry.getName(), createDataSource(entry));
     }
 
-    public static void bindResource(String name, Object value, boolean rebind) throws NamingException {
+    public static void bindResource(String name, Object value) throws NamingException {
         JndiTemplate template = new JndiTemplate(environment);
         checkParentResources(name, template);
-        if (rebind) template.rebind(name, value);
+        if (isAlreadyBound(name)) template.rebind(name, value);
         else template.bind(name, value);
     }
 
@@ -69,6 +69,10 @@ public class JndiUtils {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    public static boolean isAlreadyBound(String resourceName) {
+        return getBoundDataSource(resourceName) != null;
     }
 
     private static void checkParentResources(String resourceName, JndiTemplate template) throws NamingException {

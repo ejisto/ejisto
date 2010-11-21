@@ -121,14 +121,6 @@ public class JndiDataSource {
         this.driverJarPath = driverJarPath;
     }
 
-    public void setAlreadyBound(boolean alreadyBound) {
-        this.alreadyBound = alreadyBound;
-    }
-
-    public boolean isAlreadyBound() {
-        return alreadyBound;
-    }
-
     @Override
     public String toString() {
         return getName();

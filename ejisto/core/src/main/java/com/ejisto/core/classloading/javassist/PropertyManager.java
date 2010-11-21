@@ -19,6 +19,8 @@
 
 package com.ejisto.core.classloading.javassist;
 
+import com.ejisto.core.classloading.ognl.OgnlAdapter;
+import com.ejisto.core.classloading.proxy.EjistoProxyFactory;
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
 import org.apache.log4j.Logger;
@@ -27,19 +29,24 @@ import org.springframework.beans.factory.InitializingBean;
 import javax.annotation.Resource;
 import java.lang.reflect.Constructor;
 
+import static com.ejisto.core.classloading.util.ReflectionUtils.hasStringConstructor;
+
 public class PropertyManager implements InitializingBean {
 
     private static PropertyManager INSTANCE;
     private static final Logger logger = Logger.getLogger(PropertyManager.class);
     @Resource
     private MockedFieldsDao mockedFieldsDao;
+    @Resource
+    private EjistoProxyFactory ejistoProxyFactory;
+    @Resource
+    private OgnlAdapter ognlAdapter;
 
     private <T> T getFieldValue(String contextPath, String className, String fieldName, Class<T> type, T actualValue) {
         try {
             MockedField mockedField = mockedFieldsDao.getMockedField(contextPath, className, fieldName);
             if (mockedField != null && mockedField.isActive()) {
-                Constructor<T> constructor = type.getConstructor(String.class);
-                return constructor.newInstance(mockedField.getFieldValue());
+                return evaluateResult(mockedField, type, actualValue);
             } else {
                 return actualValue;
             }
@@ -47,6 +54,21 @@ public class PropertyManager implements InitializingBean {
             logger.error("Property " + fieldName + " of class " + className + " not found. Returning " + actualValue, e);
             return actualValue;
         }
+    }
+
+    private <T> T evaluateResult(MockedField mockedField, Class<T> type, T actualValue) throws Exception {
+        if(!mockedField.isSimpleValue()) return parseExpression(mockedField, type);
+        if(hasStringConstructor(type)) {
+            Constructor<T> constructor = type.getConstructor(String.class);
+            return constructor.newInstance(mockedField.getFieldValue());
+        }
+        return actualValue;
+    }
+
+    private <T> T parseExpression(MockedField mockedField, Class<T> type) throws Exception {
+        T instance = ejistoProxyFactory.proxyClass(type, mockedField);
+        ognlAdapter.apply(instance, mockedField);
+        return instance;
     }
 
     @Override

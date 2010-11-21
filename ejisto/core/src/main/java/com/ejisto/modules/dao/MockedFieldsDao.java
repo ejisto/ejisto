@@ -38,8 +38,8 @@ public class MockedFieldsDao extends BaseDao {
     private static final String LOAD_BY_CONTEXTPATH = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND ACTIVE = 1";
     private static final String LOAD_BY_CONTEXTPATH_CLASSNAME = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND CLASSNAME = ? AND ACTIVE = 1";
     private static final String COUNT_BY_CONTEXTPATH_CLASSNAME = "SELECT COUNT(*) FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND CLASSNAME = ? AND ACTIVE = 1";
-    private static final String UPDATE = "UPDATE MOCKEDFIELDS SET CONTEXTPATH = ?, CLASSNAME = ? , FIELDNAME = ?, FIELDTYPE=?, FIELDVALUE=?, ACTIVE = ? WHERE ID=?";
-    private static final String INSERT = "INSERT INTO MOCKEDFIELDS (CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE, ACTIVE) VALUES(?,?,?,?,?, ?)";
+    private static final String UPDATE = "UPDATE MOCKEDFIELDS SET CONTEXTPATH = ?, CLASSNAME = ? , FIELDNAME = ?, FIELDTYPE=?, FIELDVALUE=?, EXPRESSION=?, ACTIVE = ? WHERE ID=?";
+    private static final String INSERT = "INSERT INTO MOCKEDFIELDS (CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE,EXPRESSION, ACTIVE) VALUES(?,?,?,?,?,?,?)";
     private static final String DELETE_CONTEXT = "DELETE FROM MOCKEDFIELDS WHERE CONTEXTPATH=?";
 //    private static final String DELETE_MOCKEDFIELD = "DELETE FROM MOCKEDFIELDS WHERE ID=?";
 
@@ -103,8 +103,9 @@ public class MockedFieldsDao extends BaseDao {
                 pstm.setString(3, field.getFieldName());
                 pstm.setString(4, field.getFieldType());
                 pstm.setString(5, field.getFieldValue());
-                pstm.setBoolean(6, field.isActive());
-                pstm.setLong(7, field.getId());
+                pstm.setString(6, field.getExpression());
+                pstm.setBoolean(7, field.isActive());
+                pstm.setLong(8, field.getId());
                 return pstm;
             }
         }) == 1;
@@ -121,7 +122,8 @@ public class MockedFieldsDao extends BaseDao {
                 pstm.setString(3, field.getFieldName());
                 pstm.setString(4, field.getFieldType());
                 pstm.setString(5, field.getFieldValue());
-                pstm.setBoolean(6, field.isActive());
+                pstm.setString(6, field.getExpression());
+                pstm.setBoolean(7, field.isActive());
                 return pstm;
             }
         }, holder);
@@ -152,6 +154,7 @@ public class MockedFieldsDao extends BaseDao {
         mockedField.setFieldType(rs.getString("FIELDTYPE"));
         mockedField.setFieldValue(rs.getString("FIELDVALUE"));
         mockedField.setActive(rs.getBoolean("ACTIVE"));
+        mockedField.setExpression(rs.getString("EXPRESSION"));
         return mockedField;
     }
 

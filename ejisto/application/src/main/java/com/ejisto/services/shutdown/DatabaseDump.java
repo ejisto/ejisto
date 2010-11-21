@@ -39,7 +39,7 @@ public class DatabaseDump extends BaseShutdownService {
 
     private static final Logger logger = Logger.getLogger(DatabaseDump.class);
     private static final String INSERT_SETTING = "INSERT INTO SETTINGS VALUES ('%s','%s');";
-    private static final String INSERT_FIELD = "INSERT INTO MOCKEDFIELDS(CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE, ACTIVE) VALUES('%s','%s','%s','%s',%s,%s);";
+    private static final String INSERT_FIELD = "INSERT INTO MOCKEDFIELDS(CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE,EXPRESSION, ACTIVE) VALUES('%s','%s','%s','%s',%s,%s,%s);";
     private static final String INSERT_CONTEXT = "INSERT INTO WEBAPPLICATIONDESCRIPTOR(CONTEXTPATH,INSTALLATIONPATH) VALUES('%s','%s');";
     private static final String INSERT_ELEMENT = "INSERT INTO WEBAPPLICATIONDESCRIPTORELEMENT(CONTEXTPATH,PATH,KIND) VALUES('%s','%s','%s');";
     private static final String INSERT_DATASOURCE = "INSERT INTO JNDI_DATASOURCE (RESOURCENAME,RESOURCETYPE,DRIVERCLASSNAME,CONNECTIONURL,DRIVERJAR,USERNAME,PASSWORD,MAXACTIVE,MAXWAIT,MAXIDLE) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)";
@@ -83,7 +83,7 @@ public class DatabaseDump extends BaseShutdownService {
         for (MockedField field : mockedFields) {
             file.append(
                     format(INSERT_FIELD, field.getContextPath(), field.getClassName(), field.getFieldName(), field.getFieldType(),
-                            escapeRaw(field.getFieldValue()), field.isActive() ? "1" : "0")).append(NEWLINE);
+                            escapeRaw(field.getFieldValue()), escapeRaw(field.getExpression()), field.isActive() ? "1" : "0")).append(NEWLINE);
         }
     }
 

@@ -22,13 +22,14 @@ package com.ejisto.core.classloading.javassist;
 import com.ejisto.modules.dao.entities.MockedField;
 import javassist.util.proxy.MethodHandler;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
 import static ch.lambdaj.Lambda.*;
+import static com.ejisto.core.classloading.util.ReflectionUtils.getFieldName;
+import static com.ejisto.core.classloading.util.ReflectionUtils.isGetterForProperty;
 import static org.hamcrest.Matchers.equalTo;
 
 public class EjistoMethodHandler implements MethodHandler {
@@ -48,15 +49,14 @@ public class EjistoMethodHandler implements MethodHandler {
 	private Object getFieldValue(Method method) throws Exception {
 		MockedField mockedField = retrieveFieldToMock(method.getName());
 		Assert.notNull(mockedField);
-		String storedMethod = "get"+StringUtils.capitalize(mockedField.getFieldName());
-		Assert.isTrue(method.getName().equals(storedMethod), "method mismatch: declared method ["+method.getName()+"], stored method ["+storedMethod+"]");
+		Assert.isTrue(isGetterForProperty(method.getName(), mockedField.getFieldName()), "error: undefined method ["+method.getName()+"]");
 		Class<?> returnType = method.getReturnType();
 		Constructor<?> constructor = returnType.getConstructor(String.class);
 		return constructor.newInstance(mockedField.getFieldValue());
 	}
 	
 	private MockedField retrieveFieldToMock(String methodName) {
-		return selectFirst(fields, having(on(MockedField.class).getFieldName(), equalTo(StringUtils.uncapitalize(methodName.substring(4)))));
+		return selectFirst(fields, having(on(MockedField.class).getFieldName(), equalTo(getFieldName(methodName))));
 	}
 
 }

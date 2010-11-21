@@ -26,7 +26,9 @@ public class MockedField {
     private String fieldName;
     private String fieldType;
     private String fieldValue;
+    private String expression;
     private boolean active;
+
 
     public long getId() {
         return id;
@@ -82,6 +84,18 @@ public class MockedField {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean isSimpleValue() {
+        return expression == null;
+    }
+
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String expression) {
+        this.expression = expression;
     }
 
     @Override

@@ -33,7 +33,7 @@ public class JndiDataSourcesDao extends BaseDao {
     private static final String LOAD_ALL = "SELECT * FROM JNDI_DATASOURCE";
     private static final String LOAD_ONE = "SELECT * FROM JNDI_DATASOURCE WHERE RESOURCENAME=?";
     private static final String INSERT = "INSERT INTO JNDI_DATASOURCE (RESOURCENAME,RESOURCETYPE,DRIVERCLASSNAME,CONNECTIONURL,DRIVERJAR,USERNAME,PASSWORD,MAXACTIVE,MAXWAIT,MAXIDLE) VALUES(?,?,?,?,?,?,?,?,?,?)";
-    private static final String UPDATE = "UPDATE JNDI_DATASOURCE SET RESOURCENAME=?,RESOURCETYPE=?,DRIVERCLASSNAME=?,CONNECTIONURL=?,DRIVERJAR=?,USERNAME=?,PASSWORD=?,MAXACTIVE=?,MAXWAIT=?,MAXIDLE=?";
+    private static final String UPDATE = "UPDATE JNDI_DATASOURCE SET RESOURCENAME=?,RESOURCETYPE=?,DRIVERCLASSNAME=?,CONNECTIONURL=?,DRIVERJAR=?,USERNAME=?,PASSWORD=?,MAXACTIVE=?,MAXWAIT=?,MAXIDLE=? WHERE ID=?";
 
     public JndiDataSource insert(final JndiDataSource dataSource) {
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
@@ -55,6 +55,7 @@ public class JndiDataSourcesDao extends BaseDao {
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                 PreparedStatement pstm = con.prepareStatement(UPDATE);
                 fillStatement(pstm, dataSource);
+                pstm.setLong(11, dataSource.getId());
                 return pstm;
             }
         });
