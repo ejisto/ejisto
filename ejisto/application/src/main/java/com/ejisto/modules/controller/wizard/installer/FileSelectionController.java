@@ -23,6 +23,7 @@ import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.gui.components.helper.Step;
+import com.ejisto.modules.repository.SettingsRepository;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
@@ -35,7 +36,7 @@ import java.io.File;
 import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
 import static com.ejisto.constants.StringConstants.SELECT_FILE_COMMAND;
-import static com.ejisto.util.GuiUtils.*;
+import static com.ejisto.util.GuiUtils.getMessage;
 
 public class FileSelectionController extends AbstractApplicationInstallerController {
     private JXPanel fileSelectionTab;
@@ -49,10 +50,12 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
     public FileSelectionController(EjistoDialog dialog) {
         super(dialog);
     }
-    
+
     @Override
     public JPanel getView() {
-    	callActionPerformed = new Closure1<ActionEvent>() {{ of(FileSelectionController.this).actionPerformed(var(ActionEvent.class)); }};
+        callActionPerformed = new Closure1<ActionEvent>() {{
+            of(FileSelectionController.this).actionPerformed(var(ActionEvent.class));
+        }};
         return getFileSelectionTab();
     }
 
@@ -70,18 +73,18 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
     public Step getStep() {
         return Step.FILE_SELECTION;
     }
-    
+
     public void actionPerformed(ActionEvent e) {
-        if(SELECT_FILE_COMMAND.getValue().equals(e.getActionCommand())) {
+        if (SELECT_FILE_COMMAND.getValue().equals(e.getActionCommand())) {
             selectedFile = openFileSelectionDialog();
-            if(selectedFile != null) {
-            	getSelectedFilePath().setText(selectedFile.getAbsolutePath());
-            	getSelectedFilePath().setToolTipText(selectedFile.getAbsolutePath());
+            if (selectedFile != null) {
+                getSelectedFilePath().setText(selectedFile.getAbsolutePath());
+                getSelectedFilePath().setToolTipText(selectedFile.getAbsolutePath());
             }
-            executionCompleted=true;
+            executionCompleted = true;
         }
     }
-    
+
     @Override
     public void activate() {
         //no extra work here :)
@@ -92,9 +95,9 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
         return executionCompleted;
     }
 
-    
+
     private File openFileSelectionDialog() {
-    	String directoryPath = getSettingValue(LAST_FILESELECTION_PATH);
+        String directoryPath = SettingsRepository.getInstance().getSettingValue(LAST_FILESELECTION_PATH);
         JFileChooser fileChooser = new JFileChooser(directoryPath);
         fileChooser.setFileFilter(new FileFilter() {
             @Override
@@ -108,15 +111,14 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
             }
         });
         if (fileChooser.showOpenDialog(getDialog()) == JFileChooser.APPROVE_OPTION) {
-        	putSettingValue(LAST_FILESELECTION_PATH, fileChooser.getCurrentDirectory().getAbsolutePath());
-        	return fileChooser.getSelectedFile();
-        }            
-        else
+            SettingsRepository.getInstance().putSettingValue(LAST_FILESELECTION_PATH, fileChooser.getCurrentDirectory().getAbsolutePath());
+            return fileChooser.getSelectedFile();
+        } else
             return null;
     }
-    
+
     private JXPanel getFileSelectionTab() {
-        if(fileSelectionTab != null) return fileSelectionTab;
+        if (fileSelectionTab != null) return fileSelectionTab;
         fileSelectionTab = new JXPanel(new BorderLayout());
         JXPanel spacer = new JXPanel();
         spacer.setPreferredSize(new Dimension(500, 100));
@@ -124,7 +126,7 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
         fileSelectionTab.add(getFileSelectionPanel(), BorderLayout.CENTER);
         return fileSelectionTab;
     }
-    
+
     private JXPanel getFileSelectionPanel() {
         if (this.fileSelectionPanel == null) {
             fileSelectionPanel = new JXPanel();
@@ -140,9 +142,9 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
         }
         return fileSelectionPanel;
     }
-    
+
     private JXLabel getSelectedFilePath() {
-        if(selectedFilePath != null) return selectedFilePath;
+        if (selectedFilePath != null) return selectedFilePath;
         selectedFilePath = new JXLabel(getMessage("wizard.file.selected.default.text"));
         selectedFilePath.setFont(new Font("Helvetica", Font.PLAIN, 10));
         selectedFilePath.setMaximumSize(new Dimension(300, 25));
@@ -151,27 +153,27 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
         selectedFilePath.setPreferredSize(new Dimension(300, 25));
         return selectedFilePath;
     }
-    
+
     private JButton getFileSelection() {
         if (fileSelection == null) {
             fileSelection = new JButton(new CallbackAction("...", SELECT_FILE_COMMAND.getValue(), callActionPerformed));
         }
         return fileSelection;
     }
-    
+
     @Override
     public void beforeNext() {
-    	getSession().setWarFile(selectedFile);
+        getSession().setWarFile(selectedFile);
     }
 
-	@Override
-	public String getTitleKey() {
-		return "wizard.fileselection.title";
-	}
+    @Override
+    public String getTitleKey() {
+        return "wizard.fileselection.title";
+    }
 
-	@Override
-	public String getDescriptionKey() {
-		return "wizard.fileselection.description";
-	}
+    @Override
+    public String getDescriptionKey() {
+        return "wizard.fileselection.description";
+    }
 
 }

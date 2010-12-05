@@ -20,6 +20,7 @@
 package com.ejisto.modules.dao;
 
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -146,7 +147,7 @@ public class MockedFieldsDao extends BaseDao {
     }
 
     private MockedField loadFromResultSet(ResultSet rs) throws SQLException {
-        MockedField mockedField = new MockedField();
+        MockedField mockedField = new MockedFieldImpl();
         mockedField.setId(rs.getLong("ID"));
         mockedField.setContextPath(rs.getString("CONTEXTPATH"));
         mockedField.setClassName(rs.getString("CLASSNAME"));

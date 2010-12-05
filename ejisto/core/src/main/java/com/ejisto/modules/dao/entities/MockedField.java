@@ -19,102 +19,50 @@
 
 package com.ejisto.modules.dao.entities;
 
-public class MockedField {
-    private long id;
-    private String contextPath;
-    private String className;
-    private String fieldName;
-    private String fieldType;
-    private String fieldValue;
-    private String expression;
-    private boolean active;
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: Dec 5, 2010
+ * Time: 10:39:18 AM
+ */
+public interface MockedField {
+    long getId();
 
+    void setId(long id);
 
-    public long getId() {
-        return id;
-    }
+    String getContextPath();
 
-    public void setId(long id) {
-        this.id = id;
-    }
+    void setContextPath(String contextPath);
 
-    public String getContextPath() {
-        return contextPath;
-    }
+    String getClassName();
 
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
-    }
+    void setClassName(String className);
 
-    public String getClassName() {
-        return className;
-    }
+    String getFieldName();
 
-    public void setClassName(String className) {
-        this.className = className;
-    }
+    void setFieldName(String fieldName);
 
-    public String getFieldName() {
-        return fieldName;
-    }
+    String getFieldType();
 
-    public void setFieldName(String fieldName) {
-        this.fieldName = fieldName;
-    }
+    void setFieldType(String fieldType);
 
-    public String getFieldType() {
-        return fieldType;
-    }
+    String getFieldValue();
 
-    public void setFieldType(String fieldType) {
-        this.fieldType = fieldType;
-    }
+    void setFieldValue(String fieldValue);
 
-    public String getFieldValue() {
-        return fieldValue;
-    }
+    boolean isActive();
 
-    public void setFieldValue(String fieldValue) {
-        this.fieldValue = fieldValue;
-    }
+    void setActive(boolean active);
 
-    public boolean isActive() {
-        return active;
-    }
+    boolean isSimpleValue();
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+    String getExpression();
 
-    public boolean isSimpleValue() {
-        return expression == null;
-    }
+    void setExpression(String expression);
 
-    public String getExpression() {
-        return expression;
-    }
+    String getComparisonKey();
 
-    public void setExpression(String expression) {
-        this.expression = expression;
-    }
+    String getGroupKey();
 
-    @Override
-    public String toString() {
-        return "MockedField [id=" + id + ", contextPath=" + contextPath + ", className="
-                + className + ", fieldName=" + fieldName + ", fieldType="
-                + fieldType + ", fieldValue=" + fieldValue + ", active=" + active + "]";
-    }
-
-    public String getComparisonKey() {
-        return contextPath + "/" + className + "/" + fieldName;
-    }
-
-    public String getGroupKey() {
-        return className.substring(0, className.lastIndexOf('.'));
-    }
-
-    public String getClassSimpleName() {
-        return className.substring(className.lastIndexOf('.') + 1);
-    }
-
+    String getClassSimpleName();
 }

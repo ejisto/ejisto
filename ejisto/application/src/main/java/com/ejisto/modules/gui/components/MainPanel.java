@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTitledPanel;
 
@@ -26,13 +27,12 @@ import javax.swing.*;
 import java.awt.*;
 
 import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.SpringBridge.getAllMockedFields;
 
 public class MainPanel extends JXPanel {
     private static final long serialVersionUID = -28148619997853619L;
     private MockedFieldsEditor propertiesEditor;
-	private Header header;
-	private JXTitledPanel editorContainer;
+    private Header header;
+    private JXTitledPanel editorContainer;
     private JXPanel widgetsPane;
     private JettyControl jettyControl;
 
@@ -51,57 +51,57 @@ public class MainPanel extends JXPanel {
     }
 
     private void initComponents() {
-    	setBackground(SystemColor.control);
-    	add(getHeader(), BorderLayout.NORTH);
+        setBackground(SystemColor.control);
+        add(getHeader(), BorderLayout.NORTH);
         add(getWidgetsPane(), BorderLayout.CENTER);
     }
-    
+
     private Header getHeader() {
-    	if(header != null) return header;
-    	header = new Header(getMessage("main.header.title"),getMessage("main.header.description"));
-    	return header;
-	}
-    
+        if (header != null) return header;
+        header = new Header(getMessage("main.header.title"), getMessage("main.header.description"));
+        return header;
+    }
+
     private JXPanel getWidgetsPane() {
-        if(this.widgetsPane != null) return this.widgetsPane;
+        if (this.widgetsPane != null) return this.widgetsPane;
         widgetsPane = new JXPanel(new BorderLayout());
-        widgetsPane.add(getEditorContainer(),BorderLayout.CENTER);
+        widgetsPane.add(getEditorContainer(), BorderLayout.CENTER);
         widgetsPane.add(getJettyControl(), BorderLayout.SOUTH);
         return widgetsPane;
     }
 
     private MockedFieldsEditor getPropertiesEditor() {
-        if(propertiesEditor != null) return propertiesEditor;
+        if (propertiesEditor != null) return propertiesEditor;
         propertiesEditor = new MockedFieldsEditor(true);
-        propertiesEditor.setFields(getAllMockedFields());
+        propertiesEditor.setFields(MockedFieldsRepository.getInstance().loadAll());
         return propertiesEditor;
     }
-    
+
     private JXTitledPanel getEditorContainer() {
-    	if(this.editorContainer != null) return this.editorContainer;
-    	editorContainer = new JXTitledPanel(getMessage("main.propertieseditor.title.text"));
-    	editorContainer.setBorder(BorderFactory.createEmptyBorder());
-    	editorContainer.setContentContainer(getPropertiesEditor());
-    	return editorContainer;
+        if (this.editorContainer != null) return this.editorContainer;
+        editorContainer = new JXTitledPanel(getMessage("main.propertieseditor.title.text"));
+        editorContainer.setBorder(BorderFactory.createEmptyBorder());
+        editorContainer.setContentContainer(getPropertiesEditor());
+        return editorContainer;
     }
-    
+
     private JettyControl getJettyControl() {
-        if(this.jettyControl != null) return this.jettyControl;
+        if (this.jettyControl != null) return this.jettyControl;
         jettyControl = new JettyControl();
         return jettyControl;
     }
-    
+
     public void log(String message) {
         getJettyControl().log(message);
     }
-    
+
     public void toggleDisplayServerLog(boolean collapse) {
         getJettyControl().toggleDisplayServerLog(collapse);
     }
-    
+
     public void onJettyStatusChange() {
-    	getPropertiesEditor().setFields(getAllMockedFields());
-    	getJettyControl().reloadContextList();
+        getPropertiesEditor().setFields(MockedFieldsRepository.getInstance().loadAll());
+        getJettyControl().reloadContextList();
     }
 
 }

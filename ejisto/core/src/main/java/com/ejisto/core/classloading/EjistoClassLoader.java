@@ -19,6 +19,7 @@
 
 package com.ejisto.core.classloading;
 
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.SpringBridge;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.webapp.WebAppClassLoader;
@@ -27,14 +28,13 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import java.io.IOException;
 import java.util.Collection;
 
-import static com.ejisto.util.SpringBridge.isMockableClass;
-
 public class EjistoClassLoader extends WebAppClassLoader {
 
     private static final Logger logger = Logger.getLogger(EjistoClassLoader.class);
     private ClassTransformer transformer;
     private String contextPath;
     private String installationPath;
+    private MockedFieldsRepository mockedFieldsRepository;
 
     public EjistoClassLoader(String installationPath, WebAppContext context) throws IOException {
         super(context);
@@ -42,6 +42,7 @@ public class EjistoClassLoader extends WebAppClassLoader {
         this.installationPath = installationPath;
         this.contextPath = context.getContextPath();
         this.transformer = new ClassTransformer(this);
+        this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
     }
 
     @Override
@@ -64,7 +65,7 @@ public class EjistoClassLoader extends WebAppClassLoader {
     }
 
     public boolean isInstrumentableClass(String name) {
-        return isMockableClass(contextPath, name.replaceAll("/", "."));
+        return mockedFieldsRepository.isMockableClass(contextPath, name.replaceAll("/", "."));
     }
 
     public String getContextPath() {

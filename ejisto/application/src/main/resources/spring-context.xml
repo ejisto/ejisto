@@ -34,6 +34,8 @@
 
     <context:annotation-config/>
 
+    <import resource="core-context.xml"/>
+
     <bean id="messageSource"
           class="org.springframework.context.support.ResourceBundleMessageSource">
         <property name="basenames">
@@ -42,12 +44,6 @@
             </list>
         </property>
     </bean>
-
-    <bean id="springBridge" class="com.ejisto.util.SpringBridge"
-          factory-method="getInstance"/>
-
-    <util:properties id="settings" location="classpath:settings.properties"/>
-
 
     <bean id="contexts"
           class="org.eclipse.jetty.server.handler.ContextHandlerCollection"
@@ -60,53 +56,17 @@
         </property>
     </bean>
 
-    <!-- init-method="start" destroy-method="stop" -->
-    <bean id="jettyServer" class="org.eclipse.jetty.server.Server"
-          lazy-init="true">
-
-        <property name="threadPool">
-            <bean id="threadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
-                <property name="minThreads" value="10"/>
-                <property name="maxThreads" value="50"/>
-            </bean>
-        </property>
-
-        <property name="connectors">
-            <list>
-                <bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                    <property name="port" value="9000"/>
-                </bean>
-            </list>
-        </property>
-
-        <property name="handler">
-            <bean id="handlers" class="org.eclipse.jetty.server.handler.HandlerCollection">
-                <property name="handlers">
-                    <list>
-                        <ref bean="contexts"/>
-                    </list>
-                </property>
-            </bean>
-        </property>
-    </bean>
-
     <bean id="applicationController" class="com.ejisto.core.launcher.ApplicationController"/>
     <bean id="eventManager" class="com.ejisto.event.EventManager"/>
     <bean id="application" class="com.ejisto.modules.gui.Application" depends-on="settingsManager"/>
     <bean id="settingsManager" class="com.ejisto.modules.conf.SettingsManager"/>
-    <bean id="propertyManager" class="com.ejisto.core.classloading.javassist.PropertyManager"/>
-    <bean id="ognlAdapter" class="com.ejisto.core.classloading.ognl.OgnlAdapter" />
-    <bean id="ognlContext" class="ognl.OgnlContext" />
-    <bean id="ejistoProxyFactory" class="com.ejisto.core.classloading.proxy.EjistoProxyFactory" />
+
     <bean id="serverController" class="com.ejisto.event.listener.ServerController"/>
     <bean id="logManager" class="com.ejisto.event.listener.LogManager"/>
     <bean id="applicationLoader" class="com.ejisto.event.listener.WebApplicationLoader"/>
     <bean id="errorListener" class="com.ejisto.event.listener.ErrorListener"/>
     <bean id="statusBarLogger" class="com.ejisto.event.listener.StatusBarLogger"/>
     <bean id="fieldChangesListener" class="com.ejisto.event.listener.FieldsUpdateListener"/>
-    <bean id="webAppContextRepository" class="com.ejisto.core.jetty.WebAppContextRepository"/>
-    <bean id="sharedClassLoader" class="com.ejisto.core.classloading.SharedClassLoader"/>
-    <bean id="jndiResourcesRepository" class="com.ejisto.util.JndiDataSourcesRepository" factory-method="getInstance"/>
 
     <util:list id="services" value-type="com.ejisto.services.Service">
         <bean class="com.ejisto.services.shutdown.JettyShutdown"/>
@@ -114,19 +74,5 @@
         <bean class="com.ejisto.services.startup.ApplicationStartup"/>
         <bean class="com.ejisto.services.shutdown.DatabaseDump"/>
     </util:list>
-
-
-    <bean abstract="true" id="baseDao" class="com.ejisto.modules.dao.BaseDao"
-          lazy-init="true"/>
-    <bean id="settingsDao" class="com.ejisto.modules.dao.SettingsDao"
-          parent="baseDao" lazy-init="true"/>
-    <bean id="mockedFieldsDao" class="com.ejisto.modules.dao.MockedFieldsDao"
-          parent="baseDao" lazy-init="true"/>
-    <bean id="webApplicationDescriptorDao" class="com.ejisto.modules.dao.WebApplicationDescriptorDao"
-          parent="baseDao" lazy-init="true"/>
-    <bean id="jndiDataSourcesDao" class="com.ejisto.modules.dao.JndiDataSourcesDao"
-          parent="baseDao" lazy-init="true"/>
-    <bean id="dataSource" class="com.ejisto.modules.dao.db.EmbeddedDatabaseManager"
-          lazy-init="true"/>
 
 </beans>

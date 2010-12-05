@@ -17,26 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.event.listener;
+package com.ejisto.modules.factory.impl;
 
-import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.repository.MockedFieldsRepository;
-import org.springframework.context.ApplicationListener;
+import com.ejisto.modules.factory.ObjectFactory;
 
-import javax.annotation.Resource;
-
-
-public class FieldsUpdateListener implements ApplicationListener<MockedFieldChanged> {
-
-    @Resource
-    private MockedFieldsRepository mockedFieldsRepository;
-
+/**
+ * Default Object factory
+ */
+public class DefaultObjectFactory implements ObjectFactory<Object> {
     @Override
-    public void onApplicationEvent(MockedFieldChanged event) {
-        MockedField field = event.getMockedField();
-        if (field.getId() > 0) mockedFieldsRepository.update(field);
-        else mockedFieldsRepository.insert(field);
+    public String getTargetClassName() {
+        return "java.lang.Object";
     }
 
+    @Override
+    public Object create(MockedField m) {
+        return new Object();
+    }
 }

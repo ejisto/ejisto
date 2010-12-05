@@ -19,8 +19,8 @@
 
 package com.ejisto.core.classloading.proxy;
 
-import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import net.sf.cglib.proxy.Enhancer;
 import ognl.ObjectNullHandler;
 
@@ -29,14 +29,14 @@ import java.util.Map;
 
 public class EjistoProxyFactory extends ObjectNullHandler {
     @Resource
-    private MockedFieldsDao mockedFieldsDao;
+    private MockedFieldsRepository mockedFieldsRepository;
 
     @SuppressWarnings("unchecked")
     public <T> T proxyClass(Class<T> target, String contextPath) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(target);
-        enhancer.setCallback(new EjistoProxy(mockedFieldsDao.loadByContextPathAndClassName(contextPath, target.getName())));
-        return (T)enhancer.create();
+        enhancer.setCallback(new EjistoProxy(mockedFieldsRepository.load(contextPath, target.getName())));
+        return (T) enhancer.create();
     }
 
     public <T> T proxyClass(Class<T> target, MockedField mockedField) {

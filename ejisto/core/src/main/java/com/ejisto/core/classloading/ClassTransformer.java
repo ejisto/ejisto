@@ -22,6 +22,7 @@ package com.ejisto.core.classloading;
 import com.ejisto.core.classloading.javassist.EjistoMethodFilter;
 import com.ejisto.core.classloading.javassist.ObjectEditor;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.LoaderClassPath;
@@ -33,18 +34,18 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-import static com.ejisto.util.SpringBridge.getMockedFieldsFor;
-
 public class ClassTransformer implements ClassFileTransformer {
 
     private static final Logger logger = Logger.getLogger(ClassTransformer.class);
     private EjistoClassLoader classLoader;
     private ClassPool classPool;
     private String contextPath;
+    private MockedFieldsRepository mockedFieldsRepository;
 
     public ClassTransformer(EjistoClassLoader classLoader) {
         this.classLoader = classLoader;
         this.contextPath = classLoader.getContextPath();
+        this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
         initClassPool();
     }
 
@@ -79,7 +80,7 @@ public class ClassTransformer implements ClassFileTransformer {
 
     private void removeFinalModifier(CtClass clazz) {
         int modifiers = clazz.getModifiers();
-        if(Modifier.isFinal(clazz.getModifiers())) {
+        if (Modifier.isFinal(clazz.getModifiers())) {
             int cleanModifiers = Modifier.clear(modifiers, Modifier.FINAL);
             clazz.setModifiers(cleanModifiers);
         }
@@ -97,7 +98,7 @@ public class ClassTransformer implements ClassFileTransformer {
     }
 
     private List<MockedField> getFieldsFor(String className) {
-        return getMockedFieldsFor(contextPath, className);
+        return mockedFieldsRepository.load(contextPath, className);
     }
 
 }

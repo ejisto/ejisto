@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.controller.wizard.installer;
 
+import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.dao.entities.JndiDataSource;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -45,9 +46,10 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.ejisto.modules.repository.ClassPoolRepository.registerClassPool;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.IOUtils.*;
-import static com.ejisto.util.JndiUtils.*;
+import static com.ejisto.util.JndiUtils.isAlreadyBound;
 
 public class ApplicationScanningController extends AbstractApplicationInstallerController implements Callable<Void> {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
@@ -116,7 +118,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     private void loadAllClasses(Collection<String> classnames, WebApplicationDescriptor descriptor) throws NotFoundException, MalformedURLException {
         notifyStart(classnames.size());
         descriptor.deleteAllFields();
-        ClassPool cp = ClassPool.getDefault();
+        ClassPool cp = new ClassPool(ClassPool.getDefault());
         cp.appendClassPath(new LoaderClassPath(new URLClassLoader(toUrlArray(descriptor))));
         CtClass clazz;
         for (String classname : classnames) {
@@ -125,14 +127,16 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
             fillMockedFields(cp, clazz, descriptor);
             clazz.detach();
         }
+        registerClassPool(descriptor.getContextPath(), cp);
         logger.info("just finished processing " + descriptor.getInstallationPath());
     }
 
     private void fillMockedFields(ClassPool cp, CtClass clazz, WebApplicationDescriptor descriptor) throws NotFoundException {
         MockedField mockedField;
+
         try {
             for (CtField field : clazz.getDeclaredFields()) {
-                mockedField = new MockedField();
+                mockedField = new MockedFieldDecorator();
                 mockedField.setContextPath(descriptor.getContextPath());
                 mockedField.setClassName(clazz.getName());
                 mockedField.setFieldName(field.getName());
@@ -173,7 +177,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         JndiDataSource entry = new JndiDataSource();
         entry.setName(node.getString("res-ref-name", false, true));
         entry.setType(type);
-        if(!isAlreadyBound(entry.getName()))
+        if (!isAlreadyBound(entry.getName()))
             JndiDataSourcesRepository.store(entry);
     }
 
@@ -205,6 +209,16 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     @Override
     public boolean isBackEnabled() {
         return false;
+    }
+
+    private boolean isCollection(CtClass clazz) {
+        try {
+            CtClass collection = clazz.getClassPool().get("java.util.Collection");
+            return clazz.subtypeOf(collection);
+        } catch (NotFoundException e) {
+            logger.error(e.getMessage(), e);
+            return false;
+        }
     }
 
 }

@@ -29,13 +29,13 @@ import com.ejisto.event.def.ChangeWebAppContextStatus.WebAppContextStatusCommand
 import com.ejisto.event.def.LoadWebApplication;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.controller.ApplicationInstallerWizardController;
-import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.WebApplicationDescriptorDao;
 import com.ejisto.modules.dao.entities.JndiDataSource;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.JndiUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.HandlerContainer;
@@ -74,7 +74,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     @Resource
     private HandlerContainer contexts;
     @Resource
-    private MockedFieldsDao mockedFieldsDao;
+    private MockedFieldsRepository mockedFieldsRepository;
     @Resource
     private Server jettyServer;
     @Resource
@@ -96,8 +96,8 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         List<MockedField> fields = new ArrayList<MockedField>(webApplicationDescriptor.getFields());
         forEach(select(fields, having(on(MockedField.class).getFieldValue(), notNullValue()))).setContextPath(webApplicationDescriptor.getContextPath());
         forEach(select(fields, having(on(MockedField.class).getFieldValue(), notNullValue()))).setActive(true);
-        mockedFieldsDao.deleteContext(webApplicationDescriptor.getContextPath());
-        mockedFieldsDao.insert(fields);
+        mockedFieldsRepository.deleteContext(webApplicationDescriptor.getContextPath());
+        mockedFieldsRepository.insert(fields);
         deployWebApp(webApplicationDescriptor);
         saveWebAppDescriptor(webApplicationDescriptor);
         startBrowser(webApplicationDescriptor);

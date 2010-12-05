@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Ejisto, a powerful developer assistant
+  ~
+  ~ Copyright (C) 2010  Celestino Bellone
+  ~
+  ~ Ejisto is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Ejisto is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util.xsd
+           http://www.springframework.org/schema/jdbc
+           http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
+
+    <bean id="springBridge" class="com.ejisto.util.SpringBridge" factory-method="getInstance"/>
+    <util:properties id="settings" location="classpath:settings.properties"/>
+
+    <bean id="jettyServer" class="org.eclipse.jetty.server.Server" lazy-init="true">
+        <property name="threadPool">
+            <bean id="threadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+                <property name="minThreads" value="10"/>
+                <property name="maxThreads" value="50"/>
+            </bean>
+        </property>
+        <property name="connectors">
+            <list>
+                <bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                    <property name="port" value="9000"/>
+                </bean>
+            </list>
+        </property>
+        <property name="handler">
+            <bean id="handlers" class="org.eclipse.jetty.server.handler.HandlerCollection">
+                <property name="handlers">
+                    <list>
+                        <ref bean="contexts"/>
+                    </list>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="ognlContext" class="ognl.OgnlContext"/>
+    <bean id="propertyManager" class="com.ejisto.core.classloading.javassist.PropertyManager"/>
+    <bean id="ognlAdapter" class="com.ejisto.core.classloading.ognl.OgnlAdapter"/>
+    <bean id="ejistoProxyFactory" class="com.ejisto.core.classloading.proxy.EjistoProxyFactory"/>
+    <bean id="webAppContextRepository" class="com.ejisto.core.jetty.WebAppContextRepository"/>
+    <bean id="sharedClassLoader" class="com.ejisto.core.classloading.SharedClassLoader"/>
+    <bean id="jndiResourcesRepository" class="com.ejisto.util.JndiDataSourcesRepository" factory-method="getInstance"/>
+    <bean abstract="true" id="baseDao" class="com.ejisto.modules.dao.BaseDao" lazy-init="true"/>
+    <bean id="settingsDao" class="com.ejisto.modules.dao.SettingsDao" parent="baseDao" lazy-init="true"/>
+    <bean id="mockedFieldsDao" class="com.ejisto.modules.dao.MockedFieldsDao" parent="baseDao" lazy-init="true"/>
+    <bean id="webApplicationDescriptorDao" class="com.ejisto.modules.dao.WebApplicationDescriptorDao"
+          parent="baseDao" lazy-init="true"/>
+    <bean id="jndiDataSourcesDao" class="com.ejisto.modules.dao.JndiDataSourcesDao" parent="baseDao" lazy-init="true"/>
+    <bean id="dataSource" class="com.ejisto.modules.dao.db.EmbeddedDatabaseManager" lazy-init="true"/>
+    <bean id="mockedFieldRepository" class="com.ejisto.modules.repository.MockedFieldsRepository"
+          factory-method="getInstance"/>
+    <bean id="settingsRepository" class="com.ejisto.modules.repository.SettingsRepository"
+          factory-method="getInstance"/>
+</beans>
