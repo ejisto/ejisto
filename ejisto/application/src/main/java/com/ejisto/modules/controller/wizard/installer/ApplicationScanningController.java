@@ -124,16 +124,15 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         for (String classname : classnames) {
             notifyJobCompleted(classname);
             clazz = cp.get(classname);
-            fillMockedFields(cp, clazz, descriptor);
+            fillMockedFields(clazz, descriptor);
             clazz.detach();
         }
         registerClassPool(descriptor.getContextPath(), cp);
         logger.info("just finished processing " + descriptor.getInstallationPath());
     }
 
-    private void fillMockedFields(ClassPool cp, CtClass clazz, WebApplicationDescriptor descriptor) throws NotFoundException {
+    private void fillMockedFields(CtClass clazz, WebApplicationDescriptor descriptor) throws NotFoundException {
         MockedField mockedField;
-
         try {
             for (CtField field : clazz.getDeclaredFields()) {
                 mockedField = new MockedFieldDecorator();
@@ -145,7 +144,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
             }
             CtClass zuperclazz = clazz.getSuperclass();
             if (!zuperclazz.getName().startsWith("java"))
-                fillMockedFields(cp, zuperclazz, descriptor);
+                fillMockedFields(zuperclazz, descriptor);
         } catch (Exception e) {
             e.printStackTrace();
         }

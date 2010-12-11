@@ -33,6 +33,7 @@
            http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
 
     <bean id="springBridge" class="com.ejisto.util.SpringBridge" factory-method="getInstance"/>
+
     <util:properties id="settings" location="classpath:settings.properties"/>
 
     <bean id="jettyServer" class="org.eclipse.jetty.server.Server" lazy-init="true">
@@ -61,21 +62,48 @@
     </bean>
 
     <bean id="ognlContext" class="ognl.OgnlContext"/>
+
     <bean id="propertyManager" class="com.ejisto.core.classloading.javassist.PropertyManager"/>
+
     <bean id="ognlAdapter" class="com.ejisto.core.classloading.ognl.OgnlAdapter"/>
+
     <bean id="ejistoProxyFactory" class="com.ejisto.core.classloading.proxy.EjistoProxyFactory"/>
+
     <bean id="webAppContextRepository" class="com.ejisto.core.jetty.WebAppContextRepository"/>
-    <bean id="sharedClassLoader" class="com.ejisto.core.classloading.SharedClassLoader"/>
+
+    <bean id="sharedClassLoader" class="com.ejisto.core.classloading.SharedClassLoader" factory-method="getInstance"/>
+
     <bean id="jndiResourcesRepository" class="com.ejisto.util.JndiDataSourcesRepository" factory-method="getInstance"/>
+
     <bean abstract="true" id="baseDao" class="com.ejisto.modules.dao.BaseDao" lazy-init="true"/>
+
     <bean id="settingsDao" class="com.ejisto.modules.dao.SettingsDao" parent="baseDao" lazy-init="true"/>
+
     <bean id="mockedFieldsDao" class="com.ejisto.modules.dao.MockedFieldsDao" parent="baseDao" lazy-init="true"/>
+
     <bean id="webApplicationDescriptorDao" class="com.ejisto.modules.dao.WebApplicationDescriptorDao"
           parent="baseDao" lazy-init="true"/>
+
     <bean id="jndiDataSourcesDao" class="com.ejisto.modules.dao.JndiDataSourcesDao" parent="baseDao" lazy-init="true"/>
+
     <bean id="dataSource" class="com.ejisto.modules.dao.db.EmbeddedDatabaseManager" lazy-init="true"/>
+
     <bean id="mockedFieldRepository" class="com.ejisto.modules.repository.MockedFieldsRepository"
           factory-method="getInstance"/>
+
     <bean id="settingsRepository" class="com.ejisto.modules.repository.SettingsRepository"
           factory-method="getInstance"/>
+
+    <bean id="objectFactoryRepository" class="com.ejisto.modules.repository.ObjectFactoryRepository"
+          factory-method="getInstance"/>
+
+    <bean id="objectFactoryLoader" class="com.ejisto.modules.conf.ObjectFactoryLoader"/>
+
+    <bean id="objectFactoryLoaderTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+        <property name="delay" value="5000"/>
+        <property name="period" value="10000"/>
+        <property name="timerTask" ref="objectFactoryLoader"/>
+    </bean>
+
+
 </beans>

@@ -25,8 +25,8 @@ public class StatusBarMessage extends BaseApplicationEvent {
 
     public StatusBarMessage(Object source, String message, boolean error) {
         super(source);
-        this.message=message;
-        this.error=error;
+        this.message = message;
+        this.error = error;
     }
 
     @Override

@@ -22,14 +22,13 @@ package com.ejisto.core.classloading.javassist;
 import com.ejisto.core.classloading.ognl.OgnlAdapter;
 import com.ejisto.core.classloading.proxy.EjistoProxyFactory;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.modules.repository.ObjectFactoryRepository;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Constructor;
-
-import static com.ejisto.core.classloading.util.ReflectionUtils.hasStringConstructor;
 
 public class PropertyManager implements InitializingBean {
 
@@ -41,6 +40,8 @@ public class PropertyManager implements InitializingBean {
     private EjistoProxyFactory ejistoProxyFactory;
     @Resource
     private OgnlAdapter ognlAdapter;
+    @Resource
+    private ObjectFactoryRepository objectFactoryRepository;
 
     private <T> T getFieldValue(String contextPath, String className, String fieldName, Class<T> type, T actualValue) {
         try {
@@ -58,11 +59,8 @@ public class PropertyManager implements InitializingBean {
 
     private <T> T evaluateResult(MockedField mockedField, Class<T> type, T actualValue) throws Exception {
         if (!mockedField.isSimpleValue()) return parseExpression(mockedField, type);
-        if (hasStringConstructor(type)) {
-            Constructor<T> constructor = type.getConstructor(String.class);
-            return constructor.newInstance(mockedField.getFieldValue());
-        }
-        return actualValue;
+        ObjectFactory<T> objectFactory = objectFactoryRepository.getObjectFactory(type);
+        return objectFactory.create(mockedField, actualValue);
     }
 
     private <T> T parseExpression(MockedField mockedField, Class<T> type) throws Exception {

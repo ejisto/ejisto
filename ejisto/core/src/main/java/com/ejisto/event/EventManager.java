@@ -19,6 +19,7 @@
 
 package com.ejisto.event;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -27,23 +28,29 @@ import org.springframework.context.ApplicationEvent;
 import javax.swing.*;
 
 public class EventManager implements ApplicationContextAware {
+    private static final Logger logger = Logger.getLogger(EventManager.class);
+    private boolean initialized = false;
     private ApplicationContext applicationContext;
 
     public void publishEvent(final ApplicationEvent event) {
+        if (!initialized) {
+            logger.warn("discarded event from " + event.getSource() + " " + event);
+        }
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                publishEventAndWait(event);                
+                publishEventAndWait(event);
             }
         });
     }
-    
+
     public void publishEventAndWait(ApplicationEvent event) {
-        applicationContext.publishEvent(event);                
+        applicationContext.publishEvent(event);
     }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
+        this.initialized = true;
     }
 }

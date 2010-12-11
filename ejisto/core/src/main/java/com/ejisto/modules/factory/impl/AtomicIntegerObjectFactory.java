@@ -38,7 +38,7 @@ public class AtomicIntegerObjectFactory implements ObjectFactory<AtomicInteger> 
     }
 
     @Override
-    public AtomicInteger create(MockedField m) {
+    public AtomicInteger create(MockedField m, AtomicInteger actualValue) {
         return new AtomicInteger(Integer.parseInt(m.getFieldValue()));
     }
 }

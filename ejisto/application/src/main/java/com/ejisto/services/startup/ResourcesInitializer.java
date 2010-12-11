@@ -37,8 +37,6 @@ import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 import javax.annotation.Resource;
 import java.awt.*;
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.putAction;
@@ -73,20 +71,23 @@ public class ResourcesInitializer extends BaseStartupService {
         File derbyDir = new File(baseDir, "derby");
         File derbyScript = new File(derbyDir, "ejisto.sql");
         File libDir = new File(baseDir, "lib");
+        File libExtDir = new File(libDir, "ext");
         File webappsDir = new File(jettyDir, "webapps");
-        initDirectories(Arrays.asList(derbyDir,
+        initDirectories(derbyDir,
                 jettyDir,
                 webappsDir,
                 libDir,
-                new File(baseDir, "log")));
+                libExtDir,
+                new File(baseDir, "log"));
         System.setProperty(JETTY_HOME_DIR.getValue(), jettyDir.getAbsolutePath() + File.separator);
         System.setProperty(JETTY_WEBAPPS_DIR.getValue(), webappsDir.getAbsolutePath() + File.separator);
         System.setProperty(DERBY_SCRIPT.getValue(), derbyScript.getAbsolutePath());
         System.setProperty(INITIALIZE_DATABASE.getValue(), String.valueOf(!derbyScript.exists()));
         System.setProperty(LIB_DIR.getValue(), libDir.getAbsolutePath() + File.separator);
+        System.setProperty(EXTENSIONS_DIR.getValue(), libExtDir.getAbsolutePath());
     }
 
-    private void initDirectories(List<File> directories) {
+    private void initDirectories(File... directories) {
         for (File directory : directories) {
             if (!directory.exists() && !directory.mkdirs())
                 eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));

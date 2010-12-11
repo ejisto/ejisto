@@ -19,6 +19,7 @@
 
 package com.ejisto.core.launcher;
 
+import com.ejisto.core.classloading.SharedClassLoader;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
@@ -46,10 +47,14 @@ public class Main {
     public static void main(String[] args) {
         try {
             logger.info("Starting Ejisto...");
+            logger.info("setting dynamic ClassLoader");
+            Thread.currentThread().setContextClassLoader(SharedClassLoader.getInstance());
             System.setProperty("org.eclipse.jetty.util.log.class", "com.ejisto.core.jetty.logging.JettyLogger");
+            logger.info("initializing Spring framework");
             AbstractApplicationContext context = new ClassPathXmlApplicationContext("/spring-context.xml");
             context.registerShutdownHook();
             ApplicationController controller = context.getBean("applicationController", ApplicationController.class);
+            logger.info("starting application... enjoy ejisto!!");
             controller.startup();
         } catch (Exception e) {
             JXErrorPane.showDialog(null, new ErrorInfo("Startup error", "Startup failed", e.getMessage(), "SEVERE", e, Level.SEVERE, null));

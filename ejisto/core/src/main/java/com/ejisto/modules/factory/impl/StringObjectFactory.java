@@ -35,7 +35,7 @@ public class StringObjectFactory implements ObjectFactory<String> {
     }
 
     @Override
-    public String create(MockedField m) {
+    public String create(MockedField m, String actualValue) {
         return m.getFieldValue();
     }
 }

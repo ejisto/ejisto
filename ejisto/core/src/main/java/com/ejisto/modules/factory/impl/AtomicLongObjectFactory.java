@@ -38,7 +38,7 @@ public class AtomicLongObjectFactory implements ObjectFactory<AtomicLong> {
     }
 
     @Override
-    public AtomicLong create(MockedField m) {
+    public AtomicLong create(MockedField m, AtomicLong actualValue) {
         return new AtomicLong(Long.parseLong(m.getFieldValue()));
     }
 }

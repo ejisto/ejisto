@@ -33,10 +33,15 @@ import java.util.Set;
 public class SharedClassLoader extends URLClassLoader {
 
     private static final Logger logger = Logger.getLogger(SharedClassLoader.class);
+    private static final SharedClassLoader INSTANCE = new SharedClassLoader();
 
     private Set<String> entries;
 
-    public SharedClassLoader() {
+    public static SharedClassLoader getInstance() {
+        return INSTANCE;
+    }
+
+    private SharedClassLoader() {
         super(new URL[0]);
         entries = Collections.synchronizedSet(new HashSet<String>());
     }

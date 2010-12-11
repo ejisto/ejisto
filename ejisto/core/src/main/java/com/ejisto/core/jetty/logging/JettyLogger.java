@@ -20,13 +20,14 @@
 package com.ejisto.core.jetty.logging;
 
 import org.apache.log4j.Logger;
+import org.springframework.util.StringUtils;
 
 
-public class JettyLogger implements org.eclipse.jetty.util.log.Logger  {
+public class JettyLogger implements org.eclipse.jetty.util.log.Logger {
 
     private static final Logger logger = Logger.getLogger("jettylogger");
     private static final String SPACE = " ";
-    
+
     @Override
     public boolean isDebugEnabled() {
         return logger.isDebugEnabled();
@@ -39,12 +40,10 @@ public class JettyLogger implements org.eclipse.jetty.util.log.Logger  {
 
     @Override
     public void debug(String s, Object... objects) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public void debug(Throwable throwable) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
@@ -54,12 +53,12 @@ public class JettyLogger implements org.eclipse.jetty.util.log.Logger  {
 
     @Override
     public void warn(String msg, Throwable th) {
-        logger.warn(msg,th);
+        logger.warn(msg, th);
     }
 
     @Override
     public void info(String s, Object... objects) {
-        logger.info(concatMessage(s,objects));
+        logger.info(concatMessage(s, objects));
     }
 
     @Override
@@ -69,7 +68,7 @@ public class JettyLogger implements org.eclipse.jetty.util.log.Logger  {
 
     @Override
     public void info(String s, Throwable throwable) {
-        logger.info(s,throwable);
+        logger.info(s, throwable);
     }
 
     @Override
@@ -84,7 +83,7 @@ public class JettyLogger implements org.eclipse.jetty.util.log.Logger  {
 
     @Override
     public void warn(String s, Object... objects) {
-        logger.warn(concatMessage(s,objects));
+        logger.warn(concatMessage(s, objects));
     }
 
     @Override
@@ -92,12 +91,8 @@ public class JettyLogger implements org.eclipse.jetty.util.log.Logger  {
         logger.warn(throwable);
     }
 
-    private String concatMessage(String msg, Object... args) {
-        StringBuilder message = new StringBuilder(msg);
-        for (Object arg : args) {
-            message.append(SPACE).append(arg);
-        }
-        return message.toString();
+    private String concatMessage(Object... args) {
+        return StringUtils.arrayToDelimitedString(args, SPACE);
     }
 
 

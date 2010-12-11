@@ -29,6 +29,7 @@ public enum StringConstants {
     APPLICATION_HEIGHT("application.dimension.height"),
     LAST_FILESELECTION_PATH("fileselection.last.path"),
     DERBY_HOME_DIR("derby.home.dir"),
+    EXTENSIONS_DIR("extensions.dir"),
     DERBY_SCRIPT("derby.script"),
     DESCRIPTOR_DIR("descriptor.dir"),
     INITIALIZE_DATABASE("INITIALIZE_DATABASE"),

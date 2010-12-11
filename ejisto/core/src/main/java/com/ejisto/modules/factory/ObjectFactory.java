@@ -28,8 +28,8 @@ import com.ejisto.modules.dao.entities.MockedField;
  * $EJISTO_HOME/lib/ext .
  * Ejisto will load these classes, even if you've already started your application.
  *
- * @author Celestino Bellone
  * @param <T> the managed type
+ * @author Celestino Bellone
  */
 public interface ObjectFactory<T> {
     /**
@@ -43,8 +43,9 @@ public interface ObjectFactory<T> {
     /**
      * Factory's factory method
      *
-     * @param m the target Field
+     * @param m           the target Field
+     * @param actualValue actual field value
      * @return new Instance of managed Object
      */
-    T create(MockedField m);
+    T create(MockedField m, T actualValue);
 }

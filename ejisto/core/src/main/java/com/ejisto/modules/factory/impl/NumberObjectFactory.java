@@ -23,6 +23,8 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.ObjectFactory;
 
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -31,20 +33,39 @@ import java.lang.reflect.Constructor;
  * Time: 5:05:27 PM
  */
 public class NumberObjectFactory implements ObjectFactory<Number> {
+
+    private Map<String, Class<?>> registeredTypes = new HashMap<String, Class<?>>();
+
+    public NumberObjectFactory() {
+        //hand-made autoboxing...
+        registeredTypes.put("char", Character.class);
+        registeredTypes.put("short", Short.class);
+        registeredTypes.put("byte", Byte.class);
+        registeredTypes.put("int", Integer.class);
+        registeredTypes.put("long", Long.class);
+        registeredTypes.put("double", Double.class);
+        registeredTypes.put("float", Float.class);
+    }
+
     @Override
     public String getTargetClassName() {
         return "java.lang.Number";
     }
 
     @Override
-    public Number create(MockedField m) {
+    public Number create(MockedField m, Number actualValue) {
         try {
-            Class<?> type = Class.forName(m.getFieldType());
+            Class<?> type = translateType(m.getFieldType());
             Constructor<?> constructor = type.getConstructor(String.class);
             return (Number) constructor.newInstance(m.getFieldValue());
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    private Class<?> translateType(String type) throws ClassNotFoundException {
+        if (type.startsWith("java.")) return Class.forName(type);
+        return registeredTypes.get(type);
     }
 
 
