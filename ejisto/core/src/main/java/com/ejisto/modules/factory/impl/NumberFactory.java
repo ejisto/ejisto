@@ -32,13 +32,12 @@ import java.util.Map;
  * Date: Dec 5, 2010
  * Time: 5:05:27 PM
  */
-public class NumberObjectFactory implements ObjectFactory<Number> {
+public class NumberFactory implements ObjectFactory<Number> {
 
     private Map<String, Class<?>> registeredTypes = new HashMap<String, Class<?>>();
 
-    public NumberObjectFactory() {
+    public NumberFactory() {
         //hand-made autoboxing...
-        registeredTypes.put("char", Character.class);
         registeredTypes.put("short", Short.class);
         registeredTypes.put("byte", Byte.class);
         registeredTypes.put("int", Integer.class);

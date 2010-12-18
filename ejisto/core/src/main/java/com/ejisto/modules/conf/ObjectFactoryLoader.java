@@ -91,10 +91,10 @@ public class ObjectFactoryLoader extends TimerTask {
 
     public void init() {
         try {
-            objectFactoryRepository.registerObjectFactory(new AtomicIntegerObjectFactory(), false);
-            objectFactoryRepository.registerObjectFactory(new AtomicLongObjectFactory(), false);
-            objectFactoryRepository.registerObjectFactory(new NumberObjectFactory(), false);
-            objectFactoryRepository.registerObjectFactory(new StringObjectFactory(), false);
+            objectFactoryRepository.registerObjectFactory(new AtomicIntegerFactory(), false);
+            objectFactoryRepository.registerObjectFactory(new AtomicLongFactory(), false);
+            objectFactoryRepository.registerObjectFactory(new NumberFactory(), false);
+            objectFactoryRepository.registerObjectFactory(new StringFactory(), false);
             objectFactoryRepository.registerObjectFactory(new DefaultObjectFactory(), false);
             directory = new File(System.getProperty(StringConstants.EXTENSIONS_DIR.getValue()));
             cp = new ClassPool(ClassPool.getDefault());

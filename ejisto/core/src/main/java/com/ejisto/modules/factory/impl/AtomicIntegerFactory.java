@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Date: Dec 5, 2010
  * Time: 5:21:37 PM
  */
-public class AtomicIntegerObjectFactory implements ObjectFactory<AtomicInteger> {
+public class AtomicIntegerFactory implements ObjectFactory<AtomicInteger> {
 
     @Override
     public String getTargetClassName() {

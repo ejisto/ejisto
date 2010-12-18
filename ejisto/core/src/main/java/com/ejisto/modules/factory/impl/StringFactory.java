@@ -28,7 +28,7 @@ import com.ejisto.modules.factory.ObjectFactory;
  * Date: Dec 5, 2010
  * Time: 5:19:03 PM
  */
-public class StringObjectFactory implements ObjectFactory<String> {
+public class StringFactory implements ObjectFactory<String> {
     @Override
     public String getTargetClassName() {
         return "java.lang.String";

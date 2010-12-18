@@ -50,10 +50,10 @@ public class ObjectFactoryRepository {
     }
 
     private ObjectFactoryRepository() {
-        registerObjectFactory(new AtomicIntegerObjectFactory(), false);
-        registerObjectFactory(new AtomicLongObjectFactory(), false);
-        registerObjectFactory(new NumberObjectFactory(), false);
-        registerObjectFactory(new StringObjectFactory(), false);
+        registerObjectFactory(new AtomicIntegerFactory(), false);
+        registerObjectFactory(new AtomicLongFactory(), false);
+        registerObjectFactory(new NumberFactory(), false);
+        registerObjectFactory(new StringFactory(), false);
         registerObjectFactory(new DefaultObjectFactory(), false);
     }
 

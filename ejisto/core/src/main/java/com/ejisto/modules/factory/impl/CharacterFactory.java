@@ -21,24 +21,25 @@ package com.ejisto.modules.factory.impl;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.ObjectFactory;
-
-import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.util.StringUtils;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: Dec 5, 2010
- * Time: 5:23:23 PM
+ * Date: 12/18/10
+ * Time: 12:51 PM
  */
-public class AtomicLongObjectFactory implements ObjectFactory<AtomicLong> {
+public class CharacterFactory implements ObjectFactory<Character> {
 
     @Override
     public String getTargetClassName() {
-        return "java.util.concurrent.atomic.AtomicLong";
+        return "java.lang.Character";
     }
 
     @Override
-    public AtomicLong create(MockedField m, AtomicLong actualValue) {
-        return new AtomicLong(Long.parseLong(m.getFieldValue()));
+    public Character create(MockedField m, Character actualValue) {
+        if (StringUtils.hasText(m.getFieldValue()))
+            return m.getFieldValue().charAt(0);
+        return actualValue != null ? actualValue : ' ';
     }
 }
