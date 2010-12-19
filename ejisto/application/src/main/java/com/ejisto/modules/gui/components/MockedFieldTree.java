@@ -17,12 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.gui.components.helper;
+package com.ejisto.modules.gui.components;
 
 import ch.lambdaj.group.Group;
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.helper.MockedFieldValueEditor;
 import com.ejisto.modules.validation.MockedFieldValidator;
 import com.ejisto.modules.validation.ValidationErrors;
 import org.springframework.validation.Errors;
@@ -49,7 +50,6 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
     public MockedFieldTree(boolean notifyChanges) {
         super();
         this.validator = new MockedFieldValidator();
-        setCellEditor(new MockedFieldCellEditor(getTextField()));
         this.notifyChanges = notifyChanges;
     }
 
@@ -75,6 +75,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
 
     public void setFields(List<MockedField> fields) {
         setModel(new DefaultTreeModel(mockedFields2Nodes(fields)));
+        setCellEditor(new MockedFieldValueEditor(fields));
         getCellEditor().addCellEditorListener(this);
     }
 

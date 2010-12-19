@@ -36,6 +36,7 @@ public class MockedFieldsDao extends BaseDao {
     private static final String LOAD_ALL_ACTIVE = "SELECT * FROM MOCKEDFIELDS WHERE ACTIVE=1";
     private static final String LOAD_ALL = "SELECT * FROM MOCKEDFIELDS";
     private static final String LOAD_BY_CLASSNAME = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH=? AND CLASSNAME = ? AND FIELDNAME = ? AND ACTIVE = 1";
+    private static final String LOAD_ALL_TYPES = "SELECT DISTINCT CLASSNAME FROM MOCKEDFIELDS WHERE CONTEXTPATH = ?";
     private static final String LOAD_BY_CONTEXTPATH = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND ACTIVE = 1";
     private static final String LOAD_BY_CONTEXTPATH_CLASSNAME = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND CLASSNAME = ? AND ACTIVE = 1";
     private static final String COUNT_BY_CONTEXTPATH_CLASSNAME = "SELECT COUNT(*) FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND CLASSNAME = ? AND ACTIVE = 1";
@@ -60,6 +61,10 @@ public class MockedFieldsDao extends BaseDao {
                 return loadFromResultSet(rs);
             }
         });
+    }
+
+    public List<String> loadAllTypes(String contextPath) {
+        return getJdbcTemplate().queryForList(LOAD_ALL_TYPES, new Object[]{contextPath}, String.class);
     }
 
     public Collection<MockedField> loadContextPathFields(String contextPath) {

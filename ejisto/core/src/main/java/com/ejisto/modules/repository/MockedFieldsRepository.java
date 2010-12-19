@@ -64,6 +64,10 @@ public class MockedFieldsRepository {
         return convert(mockedFieldsDao.loadByContextPathAndClassName(contextPath, className), mockedFieldConverter);
     }
 
+    public List<String> findAllMockedTypes(String contextPath) {
+        return mockedFieldsDao.loadAllTypes(contextPath);
+    }
+
     public boolean update(MockedField mockedField) {
         return mockedFieldsDao.update(mockedField);
     }
