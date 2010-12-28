@@ -19,39 +19,69 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.gui.components.helper.MockedFieldValueEditor;
+import com.ejisto.modules.gui.components.helper.MockedFieldValueEditorPanel;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTable;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.util.Collection;
 import java.util.List;
 
 import static com.ejisto.util.GuiUtils.getMessage;
 
 
-public class MockedFieldsEditor extends JXPanel implements ChangeListener {
+public class MockedFieldsEditor extends JXPanel {
     private static final long serialVersionUID = 4090818654347648102L;
     private JXTable flattenTable;
     private JTabbedPane editorContainer;
     private JScrollPane flattenTableContainer;
+    private JPanel treeEditor;
     private JScrollPane treeContainer;
+    private MockedFieldValueEditorPanel valueEditorPanel;
     private MockedFieldTree tree;
     private boolean main;
     private List<MockedField> fields;
 
-    public MockedFieldsEditor() {
-        this(false);
-    }
-
     public MockedFieldsEditor(boolean main) {
         this.main = main;
         init();
+    }
 
+    public void setFields(List<MockedField> fields) {
+        this.fields = fields;
+        refreshFlattenTableModel();
+        refreshTreeModel();
+    }
+
+    public void initActionMap(ActionMap actionMap) {
+        getActionMap().setParent(actionMap);
+        getTree().getActionMap().setParent(actionMap);
+        getFlattenTable().getActionMap().setParent(actionMap);
+    }
+
+    public void refreshFlattenTableModel() {
+        getFlattenTable().setModel(new MockedFieldsTableModel(fields, main, !main));
+    }
+
+    public void refreshTreeModel() {
+        getTree().setFields(fields);
+    }
+
+    public void registerChangeListener(MockedFieldsEditorController controller) {
+        getEditorContainer().addChangeListener(controller);
+        getTree().addMouseListener(controller);
+    }
+
+    public void expandCollapseEditorPanel(boolean expand) {
+        getValueEditorPanel().setCollapsed(!expand);
+    }
+
+    public void initEditorPanel(Collection<String> types) {
+        getValueEditorPanel().init(getTree().getSelectedField(), types);
     }
 
     private void init() {
@@ -62,10 +92,25 @@ public class MockedFieldsEditor extends JXPanel implements ChangeListener {
     private JTabbedPane getEditorContainer() {
         if (editorContainer != null) return editorContainer;
         editorContainer = new JTabbedPane(JTabbedPane.BOTTOM);
-        editorContainer.addTab(getMessage("wizard.properties.editor.tab.hierarchical.text"), getTreeContainer());
+        editorContainer.addTab(getMessage("wizard.properties.editor.tab.hierarchical.text"), getTreeEditor());
         editorContainer.addTab(getMessage("wizard.properties.editor.tab.flat.text"), getFlattenTableContainer());
-        editorContainer.addChangeListener(this);
         return editorContainer;
+    }
+
+    private JPanel getTreeEditor() {
+        if (this.treeEditor != null) return this.treeEditor;
+        treeEditor = new JXPanel(new BorderLayout(2, 0));
+        treeEditor.add(getTreeContainer(), BorderLayout.CENTER);
+        treeEditor.add(getValueEditorPanel(), BorderLayout.SOUTH);
+        return treeEditor;
+    }
+
+    private MockedFieldValueEditorPanel getValueEditorPanel() {
+        if (this.valueEditorPanel != null) return valueEditorPanel;
+        valueEditorPanel = new MockedFieldValueEditorPanel();
+        valueEditorPanel.setCollapsed(true);
+        valueEditorPanel.setPreferredSize(new Dimension(200, 100));
+        return valueEditorPanel;
     }
 
     private JScrollPane getTreeContainer() {
@@ -74,7 +119,7 @@ public class MockedFieldsEditor extends JXPanel implements ChangeListener {
         return treeContainer;
     }
 
-    private MockedFieldTree getTree() {
+    public MockedFieldTree getTree() {
         if (this.tree != null) return this.tree;
         tree = new MockedFieldTree(main);
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -95,29 +140,4 @@ public class MockedFieldsEditor extends JXPanel implements ChangeListener {
         return flattenTable;
     }
 
-    public void setFields(List<MockedField> fields) {
-        this.fields = fields;
-        refreshFlattenTableModel(fields);
-        refreshTreeModel(fields);
-    }
-
-    private void refreshFlattenTableModel(List<MockedField> fields) {
-        getFlattenTable().setModel(new MockedFieldsTableModel(fields, main, !main));
-        getFlattenTable().setCellEditor(new MockedFieldValueEditor(fields));
-    }
-
-    private void refreshTreeModel(List<MockedField> fields) {
-        getTree().setFields(fields);
-    }
-
-    @Override
-    public void stateChanged(ChangeEvent e) {
-        int selectedIndex = ((JTabbedPane) e.getSource()).getSelectedIndex();
-        if (selectedIndex == 0) {
-            refreshTreeModel(fields);
-        } else {
-            refreshFlattenTableModel(fields);
-        }
-
-    }
 }

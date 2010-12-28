@@ -20,45 +20,55 @@
 package com.ejisto.hello.beans;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 public class HelloWorldBean implements Serializable {
 
-	private static final long serialVersionUID = 6175502203990776213L;
-	private String title = "Unchanged Title";
-	private String description = "Unchanged Description";
-	private int hits = 0;
-	private long timestamp = 0L;
+    private static final long serialVersionUID = 6175502203990776213L;
+    private String title = "Unchanged Title";
+    private String description = "Unchanged Description";
+    private Collection<String> propertyValues;
 
-	public String getTitle() {
-		return title;
-	}
+    private int hits = 0;
+    private long timestamp = 0L;
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public int getHits() {
-		return hits;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public void setHits(int hits) {
-		this.hits = hits;
-	}
+    public int getHits() {
+        return hits;
+    }
 
-	public long getTimestamp() {
-		return timestamp;
-	}
+    public void setHits(int hits) {
+        this.hits = hits;
+    }
 
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
+    public long getTimestamp() {
+        return timestamp;
+    }
 
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public Collection<String> getPropertyValues() {
+        return propertyValues;
+    }
+
+    public void setPropertyValues(Collection<String> propertyValues) {
+        this.propertyValues = propertyValues;
+    }
 }

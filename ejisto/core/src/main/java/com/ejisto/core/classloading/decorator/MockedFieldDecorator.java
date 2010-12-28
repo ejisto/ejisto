@@ -24,6 +24,7 @@ import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import javassist.ClassPool;
 import javassist.CtClass;
 
+import static com.ejisto.core.classloading.util.ReflectionUtils.detach;
 import static com.ejisto.modules.repository.ClassPoolRepository.getRegisteredClassPool;
 
 public class MockedFieldDecorator implements MockedField {
@@ -50,8 +51,7 @@ public class MockedFieldDecorator implements MockedField {
         } catch (Exception e) {
             return true;
         } finally {
-            if (clazz != null) clazz.detach();
-            if (targetClazz != null) targetClazz.detach();
+            detach(clazz, targetClazz);
         }
     }
 

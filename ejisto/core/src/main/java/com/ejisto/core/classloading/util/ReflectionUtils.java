@@ -19,6 +19,8 @@
 
 package com.ejisto.core.classloading.util;
 
+import javassist.CtClass;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,7 +32,7 @@ public class ReflectionUtils {
     private static final Pattern FIELD_EXTRACTOR = Pattern.compile("^((get)|(is)|(set)).*?$");
 
     public static String getFieldName(String methodName) {
-        if(isGetter(methodName) || isSetter(methodName)) return extractFieldName(methodName);
+        if (isGetter(methodName) || isSetter(methodName)) return extractFieldName(methodName);
         return null;
     }
 
@@ -50,9 +52,22 @@ public class ReflectionUtils {
         return Number.class.isAssignableFrom(type) || String.class.isAssignableFrom(type);
     }
 
+    public static void detach(CtClass... classes) {
+        for (CtClass clazz : classes) {
+            detachClass(clazz);
+        }
+    }
+
+    public static void detachClass(CtClass clazz) {
+        try {
+            clazz.detach();
+        } catch (Exception ignore) {
+        }
+    }
+
     private static String extractFieldName(String methodName) {
         Matcher m = FIELD_EXTRACTOR.matcher(methodName);
-        if(!m.matches()) return null;
+        if (!m.matches()) return null;
         return uncapitalize(methodName.substring(m.end(1)));
     }
 

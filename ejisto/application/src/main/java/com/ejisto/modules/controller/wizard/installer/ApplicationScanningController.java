@@ -30,13 +30,12 @@ import com.ejisto.modules.gui.components.helper.Step;
 import com.ejisto.util.JndiDataSourcesRepository;
 import javassist.*;
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.webapp.WebXmlProcessor;
+import org.eclipse.jetty.util.resource.FileResource;
+import org.eclipse.jetty.webapp.WebDescriptor;
 import org.eclipse.jetty.xml.XmlParser;
 import org.springframework.util.Assert;
-import org.xml.sax.SAXException;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 import java.util.Collection;
@@ -156,16 +155,14 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         File webXml = new File(webXmlPath.toString());
         if (!webXml.exists()) return;
         try {
-            XmlParser.Node root = WebXmlProcessor.webXmlParser().parse(webXml);
-            Iterator<?> it = root.iterator("resource-ref");
+            WebDescriptor webDescriptor = new WebDescriptor(new FileResource(webXml.toURI().toURL()));
+            webDescriptor.parse();
+            XmlParser.Node root = webDescriptor.getRoot();
+            Iterator<XmlParser.Node> it = root.iterator("resource-ref");
             while (it.hasNext()) {
-                buildEnvEntry((XmlParser.Node) it.next());
+                buildEnvEntry(it.next());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.controller.wizard.installer;
 
+import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.dao.entities.JndiDataSource;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -34,7 +35,7 @@ import java.util.List;
 
 public class PropertiesEditingController extends AbstractApplicationInstallerController {
 
-    private MockedFieldsEditor propertiesEditingTab;
+    private MockedFieldsEditorController editorController;
 
     public PropertiesEditingController(EjistoDialog dialog) {
         super(dialog);
@@ -42,9 +43,9 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
 
     @Override
     public MockedFieldsEditor getView() {
-        if (propertiesEditingTab != null) return propertiesEditingTab;
-        propertiesEditingTab = new MockedFieldsEditor();
-        return propertiesEditingTab;
+        if (editorController != null) return editorController.getView();
+        editorController = new MockedFieldsEditorController();
+        return editorController.getView();
     }
 
     @Override

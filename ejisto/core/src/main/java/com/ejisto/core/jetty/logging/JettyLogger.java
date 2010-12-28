@@ -77,6 +77,11 @@ public class JettyLogger implements org.eclipse.jetty.util.log.Logger {
     }
 
     @Override
+    public void ignore(Throwable ignored) {
+
+    }
+
+    @Override
     public String getName() {
         return "ejisto";
     }

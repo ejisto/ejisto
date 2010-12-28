@@ -23,41 +23,51 @@ import ch.lambdaj.group.Group;
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.gui.components.helper.MockedFieldValueEditor;
 import com.ejisto.modules.validation.MockedFieldValidator;
 import com.ejisto.modules.validation.ValidationErrors;
+import org.apache.log4j.Logger;
 import org.springframework.validation.Errors;
 
 import javax.swing.*;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.Collection;
 import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
+import static com.ejisto.modules.controller.MockedFieldsEditorController.START_EDITING;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
 public class MockedFieldTree extends JTree implements CellEditorListener {
     private static final long serialVersionUID = 3542351125591491996L;
+    private static final Logger logger = Logger.getLogger(MockedFieldTree.class);
     private String rootText = getMessage("wizard.properties.editor.tab.hierarchical.rootnode");
-    private JTextField textField;
     private MockedFieldValidator validator;
     private boolean notifyChanges;
+    private JTextField textField;
+    private boolean main;
 
-    public MockedFieldTree(boolean notifyChanges) {
-        super();
+    public MockedFieldTree(boolean main) {
+        super(new Object[0]);
+        setCellEditor(new MockedFieldCellEditor(getTextField()));
         this.validator = new MockedFieldValidator();
-        this.notifyChanges = notifyChanges;
+        this.notifyChanges = main;
+        this.main = main;
     }
 
-    private JTextField getTextField() {
-        if (this.textField != null) return this.textField;
-        textField = new JTextField();
-        textField.setPreferredSize(new Dimension(300, 20));
-        return textField;
+    @Override
+    public void startEditingAtPath(TreePath path) {
+        Object obj = path.getLastPathComponent();
+        if (obj == null || MockedField.class.isAssignableFrom(obj.getClass())) return;
+        if (((MockedField) obj).isSimpleValue()) super.startEditingAtPath(path);
+        getActionMap().get(START_EDITING).actionPerformed(new ActionEvent(this, -1, START_EDITING));
     }
 
     @Override
@@ -65,26 +75,26 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
         if (EmptyTreeNode.class.isAssignableFrom(node.getClass()))
             return getMessage("main.propertieseditor.tree.novalues.text");
-        if (!MockedField.class.isAssignableFrom(node.getUserObject().getClass()))
-            return super.convertValueToText(value, selected, expanded, leaf, row, hasFocus);
-        MockedField mockedField = (MockedField) ((DefaultMutableTreeNode) value).getUserObject();
-        if (!leaf) return row == 0 ? rootText : mockedField.getClassName();
+        node = (DefaultMutableTreeNode) scanNode(node);
+        if (node == null) return super.convertValueToText(value, selected, expanded, leaf, row, hasFocus);
+        MockedField mockedField = (MockedField) node.getUserObject();
+        if (!leaf) return row == 0 && main ? rootText : mockedField.getClassName();
         return new StringBuilder(mockedField.getFieldName()).append(" [").append(mockedField.getFieldType()).append("]: ").append(mockedField.getFieldValue())
                 .toString();
     }
 
     public void setFields(List<MockedField> fields) {
         setModel(new DefaultTreeModel(mockedFields2Nodes(fields)));
-        setCellEditor(new MockedFieldValueEditor(fields));
         getCellEditor().addCellEditorListener(this);
+        setExpandedState(getUI().getPathForRow(this, 0), true);
     }
 
     /**
      * Utility method that converts a <b>sorted</b> Collection of MockedField in
      * a List of TreeNode
      *
-     * @param in
-     * @return
+     * @param in Collection od MockedFields
+     * @return Tree structure
      */
     private TreeNode mockedFields2Nodes(Collection<MockedField> in) {
         if (in.isEmpty()) return new EmptyTreeNode();
@@ -106,38 +116,72 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
     }
 
     @Override
-    public void editingCanceled(ChangeEvent e) {
-
+    public boolean isPathEditable(TreePath path) {
+        if (!isEditable() || !getModel().isLeaf(path.getLastPathComponent())) return false;
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) scanNode((TreeNode) path.getLastPathComponent());
+        return node != null && ((MockedField) node.getUserObject()).isSimpleValue();
     }
 
     @Override
-    public boolean isPathEditable(TreePath path) {
-        return isEditable() && getModel().isLeaf(path.getLastPathComponent());
+    public void editingCanceled(ChangeEvent e) {
+        if (logger.isDebugEnabled()) logger.debug("editing canceled");
     }
 
     @Override
     public void editingStopped(ChangeEvent e) {
-        TreeCellEditor editor = getCellEditor();
         TreePath editingPath = getEditingPath();
         if (editingPath == null) return;
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) editingPath.getLastPathComponent();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) scanNode((TreeNode) editingPath.getLastPathComponent());
+        if (node == null) return;
         MockedField mf = (MockedField) node.getUserObject();
-        String previous = mf.getFieldValue();
-        mf.setFieldValue(String.valueOf(editor.getCellEditorValue()));
+        String previousType = mf.getFieldType();
+        String previousValue = mf.getFieldValue();
+        mf.setFieldValue(String.valueOf(getCellEditor().getCellEditorValue()));
         Errors errors = new ValidationErrors("MockedField");
         validator.validate(mf, errors);
         if (errors.hasErrors()) {
-            mf.setFieldValue(previous);
-            publishApplicationEvent(new StatusBarMessage(this, getMessage("propertieseditor.invalid.input", String.valueOf(editor.getCellEditorValue()), mf.getFieldName()), true));
+            mf.setFieldValue(previousValue);
+            mf.setFieldType(previousType);
+            publishApplicationEvent(new StatusBarMessage(this, getMessage("propertieseditor.invalid.input", String.valueOf(cellEditor.getCellEditorValue()), mf.getFieldName()), true));
         }
-
-        ((DefaultTreeModel) getModel()).reload(node.getParent());
+        ((DefaultTreeModel) getModel()).reload();
         setSelectionPath(editingPath);
         if (notifyChanges) {
             MockedFieldChanged event = new MockedFieldChanged(this, mf);
             publishApplicationEvent(event);
         }
+    }
 
+    public MockedField getMockedFieldAt(int x, int y) {
+        TreePath path = getPathForLocation(x, y);
+        if (path == null) return null;
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) scanNode((TreeNode) path.getLastPathComponent());
+        if (node == null) return null;
+        return (MockedField) node.getUserObject();
+    }
+
+    private TreeNode scanNode(TreeNode node) {
+        if (node == null || !isDefaultMutableTreeNode(node)) return null;
+        Object userObject = ((DefaultMutableTreeNode) node).getUserObject();
+        if (!MockedField.class.isAssignableFrom(userObject.getClass())) return scanNode(node.getParent());
+        return node;
+    }
+
+    private boolean isDefaultMutableTreeNode(TreeNode node) {
+        return DefaultMutableTreeNode.class.isAssignableFrom(node.getClass());
+    }
+
+    public MockedField getSelectedField() {
+        TreePath path = getSelectionPath();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+        return (MockedField) node.getUserObject();
+    }
+
+    private JTextField getTextField() {
+        if (this.textField != null) return this.textField;
+        textField = new JTextField();
+        textField.setPreferredSize(new Dimension(300, 20));
+        return textField;
     }
 
     private static final class MockedFieldCellEditor extends DefaultCellEditor {
@@ -145,6 +189,11 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
 
         public MockedFieldCellEditor(JTextField textField) {
             super(textField);
+        }
+
+        @Override
+        public void addCellEditorListener(CellEditorListener l) {
+            super.addCellEditorListener(l);
         }
 
         @Override

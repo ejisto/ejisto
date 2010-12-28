@@ -19,15 +19,19 @@
 
 package com.ejisto.modules.gui.components.helper;
 
+import ch.lambdaj.function.closure.Closure0;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+import org.jdesktop.swingx.JXCollapsiblePane;
 import org.jdesktop.swingx.JXLabel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
-import java.util.Vector;
+import java.util.Collection;
+
+import static com.ejisto.modules.controller.MockedFieldsEditorController.CANCEL_EDITING;
+import static com.ejisto.modules.controller.MockedFieldsEditorController.STOP_EDITING;
 
 
 /**
@@ -36,37 +40,65 @@ import java.util.Vector;
  * Date: 12/19/10
  * Time: 1:47 PM
  */
-public class MockedFieldValueEditorPanel {
+public class MockedFieldValueEditorPanel extends JXCollapsiblePane {
+    private static final String TYPE_SELECTION = "typeSelection";
     private JXLabel title;
     private JXLabel type;
     private JComboBox genericType;
     private JButton ok;
     private JButton cancel;
-    private List<String> types;
+    private Collection<String> types;
     private MockedField mockedField;
     private JPanel editor;
+    private JPanel buttonsPanel;
+    private String expression;
+    private String fieldType;
 
-    public MockedFieldValueEditorPanel(MockedField mockedField, List<String> types) {
+    public MockedFieldValueEditorPanel() {
+        $$$setupUI$$$();
+    }
+
+    public void init(MockedField mockedField, Collection<String> types) {
         this.types = types;
         this.mockedField = mockedField;
-        $$$setupUI$$$();
+        this.genericType.removeAllItems();
+        for (String s : types) {
+            this.genericType.addItem(s);
+        }
     }
 
     public JPanel getEditor() {
         return editor;
     }
 
-    public String getValueAsString() {
-        return "";
+    public String getFieldType() {
+        return fieldType;
+    }
+
+    public String getExpression() {
+        return expression;
     }
 
     private void createUIComponents() {
+        setLayout(new BorderLayout());
         editor = new JPanel();
+        editor.setPreferredSize(new Dimension(200, 100));
         title = new JXLabel("title");
         type = new JXLabel("type");
-        genericType = new JComboBox(new Vector<String>(types));
+        genericType = new JComboBox();
+        genericType.setAction(new CallbackAction("type", new Closure0() {{
+            of(MockedFieldValueEditorPanel.this).onTypeSelected();
+        }}));
+        genericType.setActionCommand(TYPE_SELECTION);
         ok = new JButton("ok");
+        ok.setActionCommand(STOP_EDITING);
         cancel = new JButton("cancel");
+        cancel.setActionCommand(CANCEL_EDITING);
+        add(editor, BorderLayout.CENTER);
+    }
+
+    public void onTypeSelected() {
+        fieldType = mockedField.getFieldType() + "<" + genericType.getSelectedItem() + ">";
     }
 
     /**
@@ -85,8 +117,11 @@ public class MockedFieldValueEditorPanel {
         editor.add(title, cc.xyw(3, 1, 3));
         editor.add(type, cc.xy(3, 3));
         editor.add(genericType, cc.xy(5, 3));
-        editor.add(ok, cc.xy(3, 5));
-        editor.add(cancel, cc.xy(5, 5));
+        buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        editor.add(buttonsPanel, cc.xyw(3, 5, 3));
+        buttonsPanel.add(ok);
+        buttonsPanel.add(cancel);
         type.setLabelFor(genericType);
     }
 

@@ -34,7 +34,7 @@ import static ch.lambdaj.Lambda.convert;
  * Created by IntelliJ IDEA.
  * User: celestino
  * Date: Dec 3, 2010
- * Time: 7:51:30 PM
+ * Time: 7:51 PM
  */
 public class MockedFieldsRepository {
     private static MockedFieldsRepository INSTANCE = new MockedFieldsRepository();
@@ -62,10 +62,6 @@ public class MockedFieldsRepository {
 
     public List<MockedField> load(String contextPath, String className) {
         return convert(mockedFieldsDao.loadByContextPathAndClassName(contextPath, className), mockedFieldConverter);
-    }
-
-    public List<String> findAllMockedTypes(String contextPath) {
-        return mockedFieldsDao.loadAllTypes(contextPath);
     }
 
     public boolean update(MockedField mockedField) {

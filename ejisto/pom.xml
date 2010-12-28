@@ -27,37 +27,38 @@
     <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
     <modules>
-	<module>core</module>
+        <module>core</module>
         <module>agent</module>
         <module>application</module>
         <module>test</module>
     </modules>
     <issueManagement>
-    	<system>google</system>
-    	<url>http://code.google.com/p/ejisto/issues/list</url>
+        <system>google</system>
+        <url>http://code.google.com/p/ejisto/issues/list</url>
     </issueManagement>
     <scm>
-    	<url>https://ejisto.googlecode.com/svn/trunk/</url>
+        <url>https://ejisto.googlecode.com/svn/trunk/</url>
     </scm>
     <organization>
-    	<name>Ejisto</name>
-    	<url>www.ejisto.com</url>
+        <name>Ejisto</name>
+        <url>www.ejisto.com</url>
     </organization>
     <properties>
-        <org.springframework.version>3.0.2.RELEASE</org.springframework.version>
-        <org.eclipse.jetty.version>7.1.5.v20100705</org.eclipse.jetty.version>
+        <org.springframework.version>3.0.5.RELEASE</org.springframework.version>
+        <org.eclipse.jetty.version>7.2.2.v20101205</org.eclipse.jetty.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
-         <dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.14</version>
-		</dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.14</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -68,8 +69,7 @@
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
-           </plugin>
+            </plugin>
         </plugins>
     </build>
-
 </project>

@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTitledPanel;
@@ -30,7 +31,7 @@ import static com.ejisto.util.GuiUtils.getMessage;
 
 public class MainPanel extends JXPanel {
     private static final long serialVersionUID = -28148619997853619L;
-    private MockedFieldsEditor propertiesEditor;
+    private MockedFieldsEditorController propertiesEditor;
     private Header header;
     private JXTitledPanel editorContainer;
     private JXPanel widgetsPane;
@@ -71,10 +72,9 @@ public class MainPanel extends JXPanel {
     }
 
     private MockedFieldsEditor getPropertiesEditor() {
-        if (propertiesEditor != null) return propertiesEditor;
-        propertiesEditor = new MockedFieldsEditor(true);
-        propertiesEditor.setFields(MockedFieldsRepository.getInstance().loadAll());
-        return propertiesEditor;
+        if (propertiesEditor != null) return propertiesEditor.getView();
+        propertiesEditor = new MockedFieldsEditorController(true);
+        return propertiesEditor.getView();
     }
 
     private JXTitledPanel getEditorContainer() {
