@@ -87,6 +87,8 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
         MockedField mf = getView().getTree().getMockedFieldAt(e.getX(), e.getY());
         if (mf != null && !mf.isSimpleValue()) {
             editingStarted();
+        } else {
+            editingCanceled();
         }
     }
 
