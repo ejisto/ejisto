@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@ import org.jdesktop.swingx.JXLabel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Collection;
 
 import static com.ejisto.modules.controller.MockedFieldsEditorController.CANCEL_EDITING;
@@ -40,7 +42,7 @@ import static com.ejisto.modules.controller.MockedFieldsEditorController.STOP_ED
  * Date: 12/19/10
  * Time: 1:47 PM
  */
-public class MockedFieldValueEditorPanel extends JXCollapsiblePane {
+public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements ActionListener {
     private static final String TYPE_SELECTION = "typeSelection";
     private JXLabel title;
     private JXLabel type;
@@ -92,13 +94,21 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane {
         genericType.setActionCommand(TYPE_SELECTION);
         ok = new JButton("ok");
         ok.setActionCommand(STOP_EDITING);
+        ok.addActionListener(this);
         cancel = new JButton("cancel");
         cancel.setActionCommand(CANCEL_EDITING);
+        cancel.addActionListener(this);
         add(editor, BorderLayout.CENTER);
     }
 
     public void onTypeSelected() {
-        fieldType = mockedField.getFieldType() + "<" + genericType.getSelectedItem() + ">";
+        fieldType = String.valueOf(genericType.getSelectedItem());
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Action action = getActionMap().get(e.getActionCommand());
+        if (action != null) action.actionPerformed(e);
     }
 
     /**
@@ -111,7 +121,6 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane {
     private void $$$setupUI$$$() {
         createUIComponents();
         editor.setLayout(new FormLayout("fill:max(d;4px):grow,left:4dlu:noGrow,fill:max(p;60px):grow,left:4dlu:noGrow,fill:216px:noGrow,left:9px:grow,fill:max(d;4px):noGrow", "center:d:noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
-        editor.setBackground(new Color(-1));
         title.setText("title");
         CellConstraints cc = new CellConstraints();
         editor.add(title, cc.xyw(3, 1, 3));

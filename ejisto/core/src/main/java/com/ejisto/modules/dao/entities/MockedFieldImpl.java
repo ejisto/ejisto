@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ public class MockedFieldImpl implements MockedField {
     private String fieldType;
     private String fieldValue;
     private String expression;
+    private String fieldElementType;
     private boolean active;
 
 
@@ -135,6 +136,26 @@ public class MockedFieldImpl implements MockedField {
     @Override
     public String getClassSimpleName() {
         return className.substring(className.lastIndexOf('.') + 1);
+    }
+
+    @Override
+    public String getFieldElementType() {
+        return fieldElementType;
+    }
+
+    @Override
+    public void setFieldElementType(String fieldElementType) {
+        this.fieldElementType = fieldElementType;
+    }
+
+    @Override
+    public String getCompleteDescription() {
+        return toString();
+    }
+
+    @Override
+    public String getCompleteFieldType() {
+        return getFieldType();
     }
 
 }

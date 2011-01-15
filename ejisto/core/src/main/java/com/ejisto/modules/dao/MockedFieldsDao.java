@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class MockedFieldsDao extends BaseDao {
+    private static final String DUMP_FIELD = "INSERT INTO MOCKEDFIELDS(CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE,EXPRESSION,FIELDELEMENTTYPE, ACTIVE) VALUES('%s','%s','%s','%s',%s,%s,'%s',%s);";
     private static final String LOAD_ALL_ACTIVE = "SELECT * FROM MOCKEDFIELDS WHERE ACTIVE=1";
     private static final String LOAD_ALL = "SELECT * FROM MOCKEDFIELDS";
     private static final String LOAD_BY_CLASSNAME = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH=? AND CLASSNAME = ? AND FIELDNAME = ? AND ACTIVE = 1";

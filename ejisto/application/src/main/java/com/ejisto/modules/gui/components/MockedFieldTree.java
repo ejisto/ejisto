@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,12 +36,10 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.Collection;
 import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
-import static com.ejisto.modules.controller.MockedFieldsEditorController.START_EDITING;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
@@ -63,14 +61,6 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
     }
 
     @Override
-    public void startEditingAtPath(TreePath path) {
-        Object obj = path.getLastPathComponent();
-        if (obj == null || MockedField.class.isAssignableFrom(obj.getClass())) return;
-        if (((MockedField) obj).isSimpleValue()) super.startEditingAtPath(path);
-        getActionMap().get(START_EDITING).actionPerformed(new ActionEvent(this, -1, START_EDITING));
-    }
-
-    @Override
     public String convertValueToText(Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
         if (EmptyTreeNode.class.isAssignableFrom(node.getClass()))
@@ -79,8 +69,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
         if (node == null) return super.convertValueToText(value, selected, expanded, leaf, row, hasFocus);
         MockedField mockedField = (MockedField) node.getUserObject();
         if (!leaf) return row == 0 && main ? rootText : mockedField.getClassName();
-        return new StringBuilder(mockedField.getFieldName()).append(" [").append(mockedField.getFieldType()).append("]: ").append(mockedField.getFieldValue())
-                .toString();
+        return mockedField.getCompleteDescription();
     }
 
     public void setFields(List<MockedField> fields) {
@@ -150,6 +139,12 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
             MockedFieldChanged event = new MockedFieldChanged(this, mf);
             publishApplicationEvent(event);
         }
+    }
+
+    public void redraw(int targetX, int targetY) {
+        TreePath path = getPathForLocation(targetX, targetY);
+        ((DefaultTreeModel) getModel()).reload();
+        setSelectionPath(path);
     }
 
     public MockedField getMockedFieldAt(int x, int y) {

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import javassist.ClassPool;
 import javassist.CtClass;
+import org.springframework.util.StringUtils;
 
 import static com.ejisto.core.classloading.util.ReflectionUtils.detach;
 import static com.ejisto.modules.repository.ClassPoolRepository.getRegisteredClassPool;
@@ -154,6 +155,29 @@ public class MockedFieldDecorator implements MockedField {
     @Override
     public String getClassSimpleName() {
         return target.getClassSimpleName();
+    }
+
+    @Override
+    public String getFieldElementType() {
+        return target.getFieldElementType();
+    }
+
+    @Override
+    public void setFieldElementType(String fieldElementType) {
+        target.setFieldElementType(fieldElementType);
+    }
+
+    @Override
+    public String getCompleteDescription() {
+        return new StringBuilder(getFieldName()).append(" [").append(getCompleteFieldType()).append("]: ").append(getFieldValue())
+                .toString();
+    }
+
+    @Override
+    public String getCompleteFieldType() {
+        if (StringUtils.hasText(target.getFieldElementType()))
+            return target.getFieldType() + "<" + target.getFieldElementType() + ">";
+        return target.getFieldType();
     }
 
 }

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ public class HelloWorldBean implements Serializable {
     private static final long serialVersionUID = 6175502203990776213L;
     private String title = "Unchanged Title";
     private String description = "Unchanged Description";
-    private Collection<String> propertyValues;
+    private Collection<SimplePropertyValue> propertyValues;
 
     private int hits = 0;
     private long timestamp = 0L;
@@ -64,11 +64,11 @@ public class HelloWorldBean implements Serializable {
         this.timestamp = timestamp;
     }
 
-    public Collection<String> getPropertyValues() {
+    public Collection<SimplePropertyValue> getPropertyValues() {
         return propertyValues;
     }
 
-    public void setPropertyValues(Collection<String> propertyValues) {
+    public void setPropertyValues(Collection<SimplePropertyValue> propertyValues) {
         this.propertyValues = propertyValues;
     }
 }

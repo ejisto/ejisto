@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,10 +29,14 @@ import com.ejisto.modules.repository.MockedFieldsRepository;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static ch.lambdaj.Lambda.convert;
 
@@ -42,13 +46,17 @@ import static ch.lambdaj.Lambda.convert;
  * Date: 12/28/10
  * Time: 5:22 PM
  */
-public class MockedFieldsEditorController extends MouseAdapter implements ChangeListener {
+public class MockedFieldsEditorController extends MouseAdapter implements ChangeListener, ActionListener {
     public static final String START_EDITING = "START_EDITING";
     public static final String STOP_EDITING = "STOP_EDITING";
     public static final String CANCEL_EDITING = "CANCEL_EDITING";
-
+    private MockedField editedField;
+    private ReentrantLock lock;
+    private int x;
+    private int y;
     private MockedFieldsEditor view;
     private ActionMap actionMap;
+    private Collection<MockedField> wizardFields;
 
     public MockedFieldsEditorController() {
         this(false);
@@ -61,6 +69,7 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
         view.registerChangeListener(this);
         view.initActionMap(getActionMap());
         view.setFields(MockedFieldsRepository.getInstance().loadAll());
+        lock = new ReentrantLock();
     }
 
     public MockedFieldsEditor getView() {
@@ -84,8 +93,10 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getClickCount() != 2) return;
-        MockedField mf = getView().getTree().getMockedFieldAt(e.getX(), e.getY());
-        if (mf != null && !mf.isSimpleValue()) {
+        x = e.getX();
+        y = e.getY();
+        editedField = getView().getTree().getMockedFieldAt(x, y);
+        if (editedField != null && !editedField.isSimpleValue()) {
             editingStarted();
         } else {
             editingCanceled();
@@ -93,9 +104,6 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
     }
 
     private void initActions() {
-        actionMap.put(START_EDITING, new CallbackAction(START_EDITING, new Closure0() {{
-            of(MockedFieldsEditorController.this).editingStarted();
-        }}));
         actionMap.put(STOP_EDITING, new CallbackAction(STOP_EDITING, new Closure0() {{
             of(MockedFieldsEditorController.this).editingStopped();
         }}));
@@ -105,19 +113,38 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
     }
 
     void editingStarted() {
+        if (lock.isLocked()) return;
+        lock.tryLock();
         getView().initEditorPanel(selectMockedFieldTypes());
         getView().expandCollapseEditorPanel(true);
     }
 
     void editingStopped() {
         getView().expandCollapseEditorPanel(false);
+        editedField.setFieldElementType(getView().getFieldType());
+        editedField.setExpression(getView().getExpression());
+        getView().getTree().redraw(x, y);
+        lock.unlock();
     }
 
     void editingCanceled() {
         getView().expandCollapseEditorPanel(false);
+        if (lock.isLocked()) lock.unlock();
     }
 
     private Collection<String> selectMockedFieldTypes() {
-        return new HashSet<String>(convert(MockedFieldsRepository.getInstance().loadAll(), new PropertyExtractor<Object, String>("className")));
+        Collection<MockedField> fields = new ArrayList<MockedField>(wizardFields);
+        fields.addAll(MockedFieldsRepository.getInstance().loadAll());
+        return new HashSet<String>(convert(fields, new PropertyExtractor<Object, String>("className")));
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Action action = getActionMap().get(e.getActionCommand());
+        if (action != null) action.actionPerformed(e);
+    }
+
+    public void setWizardFields(Collection<MockedField> wizardFields) {
+        this.wizardFields = wizardFields;
     }
 }

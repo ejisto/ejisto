@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,16 @@ public class MockedFieldsEditor extends JXPanel {
     public void initActionMap(ActionMap actionMap) {
         getActionMap().setParent(actionMap);
         getTree().getActionMap().setParent(actionMap);
+        getValueEditorPanel().getActionMap().setParent(actionMap);
         getFlattenTable().getActionMap().setParent(actionMap);
+    }
+
+    public String getExpression() {
+        return getValueEditorPanel().getExpression();
+    }
+
+    public String getFieldType() {
+        return getValueEditorPanel().getFieldType();
     }
 
     public void refreshFlattenTableModel() {

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@ public class ObjectFactoryRepository {
         registerObjectFactory(new NumberFactory(), false);
         registerObjectFactory(new StringFactory(), false);
         registerObjectFactory(new DefaultObjectFactory(), false);
+        registerObjectFactory(new CollectionFactory(), false);
     }
 
     public void registerObjectFactory(ObjectFactory<?> objectFactory) {
@@ -71,6 +72,16 @@ public class ObjectFactoryRepository {
             message = "rejected ObjectFactory [" + objectFactory.getClass().getName() + "]";
         }
         if (notify) eventManager.publishEvent(new StatusBarMessage(this, message, error));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> ObjectFactory<T> getObjectFactory(String objectClassName) {
+        try {
+            return (ObjectFactory<T>) getObjectFactory(Class.forName(objectClassName));
+        } catch (Exception e) {
+            logger.error("getObjectFactory failed with exception, returning default one", e);
+            return (ObjectFactory<T>) factories.get(DEFAULT);
+        }
     }
 
     @SuppressWarnings("unchecked")

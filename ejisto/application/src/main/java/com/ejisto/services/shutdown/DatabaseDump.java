@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +26,14 @@ import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.SettingsDao;
 import com.ejisto.modules.dao.WebApplicationDescriptorDao;
 import com.ejisto.modules.dao.entities.*;
+import com.ejisto.util.converter.MockedFieldDumpConverter;
 import org.apache.log4j.Logger;
 
 import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
 
+import static ch.lambdaj.Lambda.convert;
 import static com.ejisto.util.IOUtils.writeFile;
 import static java.lang.String.format;
 
@@ -39,7 +41,6 @@ public class DatabaseDump extends BaseShutdownService {
 
     private static final Logger logger = Logger.getLogger(DatabaseDump.class);
     private static final String INSERT_SETTING = "INSERT INTO SETTINGS VALUES ('%s','%s');";
-    private static final String INSERT_FIELD = "INSERT INTO MOCKEDFIELDS(CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE,EXPRESSION, ACTIVE) VALUES('%s','%s','%s','%s',%s,%s,%s);";
     private static final String INSERT_CONTEXT = "INSERT INTO WEBAPPLICATIONDESCRIPTOR(CONTEXTPATH,INSTALLATIONPATH) VALUES('%s','%s');";
     private static final String INSERT_ELEMENT = "INSERT INTO WEBAPPLICATIONDESCRIPTORELEMENT(CONTEXTPATH,PATH,KIND) VALUES('%s','%s','%s');";
     private static final String INSERT_DATASOURCE = "INSERT INTO JNDI_DATASOURCE (RESOURCENAME,RESOURCETYPE,DRIVERCLASSNAME,CONNECTIONURL,DRIVERJAR,USERNAME,PASSWORD,MAXACTIVE,MAXWAIT,MAXIDLE) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)";
@@ -80,10 +81,9 @@ public class DatabaseDump extends BaseShutdownService {
 
     private void dumpMockedFields(StringBuilder file) {
         Collection<MockedField> mockedFields = mockedFieldsDao.loadAll();
-        for (MockedField field : mockedFields) {
-            file.append(
-                    format(INSERT_FIELD, field.getContextPath(), field.getClassName(), field.getFieldName(), field.getFieldType(),
-                            escapeRaw(field.getFieldValue()), escapeRaw(field.getExpression()), field.isActive() ? "1" : "0")).append(NEWLINE);
+        List<String> fields = convert(mockedFields, new MockedFieldDumpConverter());
+        for (String field : fields) {
+            file.append(field).append(NEWLINE);
         }
     }
 
