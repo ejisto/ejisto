@@ -30,7 +30,9 @@
         <module>core</module>
         <module>agent</module>
         <module>application</module>
-        <module>test</module>
+        <module>test-webapp</module>
+        <module>test-factories</module>
+        <module>test-beans</module>
     </modules>
     <issueManagement>
         <system>google</system>
