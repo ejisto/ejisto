@@ -21,19 +21,21 @@ package com.ejisto.modules.conf;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.core.classloading.SharedClassLoader;
+import com.ejisto.modules.dao.CustomObjectFactoryDao;
+import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.factory.ObjectFactory;
-import com.ejisto.modules.factory.impl.*;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
 import com.ejisto.util.FileExtensionFilter;
 import javassist.ClassPool;
 import javassist.CtClass;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TimerTask;
 
 import static com.ejisto.util.IOUtils.findAllClassesInJarFile;
@@ -51,22 +53,23 @@ public class ObjectFactoryLoader extends TimerTask {
     private ObjectFactoryRepository objectFactoryRepository;
     @Resource
     private SharedClassLoader sharedClassLoader;
-    private Set<String> loadedPaths = new HashSet<String>();
+    @Resource
+    private CustomObjectFactoryDao customObjectFactoryDao;
     private File directory;
     private ClassPool cp;
     private CtClass bazeClazz;
 
     @Override
     public void run() {
-        if (!directory.exists()) {
+        if(!initialized) init();
+        if(!initialized) return; //workaround to avoid startup failures.
+        if(!directory.exists()) {
             logger.warn("directory " + directory.getAbsolutePath() + " does not exists. Exiting");
             return;
         }
-        if (!initialized) init();
         for (File file : directory.listFiles(new FileExtensionFilter(FileExtensionFilter.ALL_JARS, false))) {
             try {
                 processFile(file);
-                loadedPaths.add(file.getAbsolutePath());
             } catch (Exception e) {
                 logger.error("exception during ObjectFactory loading", e);
             }
@@ -74,7 +77,9 @@ public class ObjectFactoryLoader extends TimerTask {
     }
 
     private void processFile(File file) throws Exception {
-        if (loadedPaths.contains(file.getAbsolutePath())) return;
+        CustomObjectFactory factory = customObjectFactoryDao.load(file.getName());
+        String checksum = DigestUtils.shaHex(new FileInputStream(file));
+        if(factory != null && factory.getChecksum().equals(checksum)) return;
         logger.info("processing file: " + file.getAbsolutePath());
         cp.appendClassPath(file.getAbsolutePath());
         sharedClassLoader.addEntry(file.getAbsolutePath());
@@ -87,15 +92,20 @@ public class ObjectFactoryLoader extends TimerTask {
             }
             clazz.detach();
         }
+        saveCustomObjectFactory(factory, file, checksum);
+    }
+
+    private void saveCustomObjectFactory(CustomObjectFactory factory, File file, String checksum) throws IOException {
+        if(factory == null) factory = new CustomObjectFactory();
+        factory.setFileName(file.getName());
+        factory.setProcessed(true);
+        factory.setChecksum(checksum);
+        customObjectFactoryDao.save(factory);
     }
 
     public void init() {
         try {
-            objectFactoryRepository.registerObjectFactory(new AtomicIntegerFactory(), false);
-            objectFactoryRepository.registerObjectFactory(new AtomicLongFactory(), false);
-            objectFactoryRepository.registerObjectFactory(new NumberFactory(), false);
-            objectFactoryRepository.registerObjectFactory(new StringFactory(), false);
-            objectFactoryRepository.registerObjectFactory(new DefaultObjectFactory(), false);
+            if(System.getProperty(StringConstants.EXTENSIONS_DIR.getValue()) == null) return;
             directory = new File(System.getProperty(StringConstants.EXTENSIONS_DIR.getValue()));
             cp = new ClassPool(ClassPool.getDefault());
             bazeClazz = cp.get(ObjectFactory.class.getName());

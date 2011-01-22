@@ -81,6 +81,8 @@
 
     <bean id="mockedFieldsDao" class="com.ejisto.modules.dao.MockedFieldsDao" parent="baseDao" lazy-init="true"/>
 
+    <bean id="customObjectFactoryDao" class="com.ejisto.modules.dao.CustomObjectFactoryDao" parent="baseDao" lazy-init="true"/>
+
     <bean id="webApplicationDescriptorDao" class="com.ejisto.modules.dao.WebApplicationDescriptorDao"
           parent="baseDao" lazy-init="true"/>
 
@@ -101,9 +103,18 @@
 
     <bean id="objectFactoryLoaderTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
         <property name="delay" value="5000"/>
-        <property name="period" value="10000"/>
+        <property name="period" value="5000"/>
         <property name="timerTask" ref="objectFactoryLoader"/>
     </bean>
+
+    <bean id="timerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <ref bean="objectFactoryLoaderTask" />
+            </list>
+        </property>
+    </bean>
+
 
 
 </beans>

@@ -21,6 +21,7 @@ package com.ejisto.modules.repository;
 
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.StatusBarMessage;
+import com.ejisto.modules.dao.CustomObjectFactoryDao;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.factory.impl.*;
 import javassist.ClassPool;
@@ -73,7 +74,7 @@ public class ObjectFactoryRepository {
         }
         if (notify) eventManager.publishEvent(new StatusBarMessage(this, message, error));
     }
-
+    
     @SuppressWarnings("unchecked")
     public <T> ObjectFactory<T> getObjectFactory(String objectClassName) {
         try {
