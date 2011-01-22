@@ -55,10 +55,6 @@ public class ApplicationController implements InitializingBean, ApplicationListe
         System.exit(0);
     }
 
-    public void setServices(List<Service> services) {
-        this.services = services;
-    }
-
     @Override
     public void afterPropertiesSet() throws Exception {
     }

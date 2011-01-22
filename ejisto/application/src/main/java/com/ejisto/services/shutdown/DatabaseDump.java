@@ -21,10 +21,7 @@ package com.ejisto.services.shutdown;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.conf.SettingsManager;
-import com.ejisto.modules.dao.JndiDataSourcesDao;
-import com.ejisto.modules.dao.MockedFieldsDao;
-import com.ejisto.modules.dao.SettingsDao;
-import com.ejisto.modules.dao.WebApplicationDescriptorDao;
+import com.ejisto.modules.dao.*;
 import com.ejisto.modules.dao.entities.*;
 import com.ejisto.util.converter.MockedFieldDumpConverter;
 import org.apache.log4j.Logger;
@@ -56,6 +53,8 @@ public class DatabaseDump extends BaseShutdownService {
     private SettingsManager settingsManager;
     @Resource
     private WebApplicationDescriptorDao webApplicationDescriptorDao;
+    @Resource
+    private CustomObjectFactoryDao customObjectFactoryDao;
 
     @Override
     public void execute() {
@@ -75,16 +74,13 @@ public class DatabaseDump extends BaseShutdownService {
     private void dumpSettings(StringBuilder file) {
         Collection<Setting> settings = settingsDao.loadAll();
         for (Setting setting : settings) {
-            file.append(format(INSERT_SETTING, setting.getKey(), escape(setting.getValue()))).append(NEWLINE);
+            append(file, format(INSERT_SETTING, setting.getKey(), escape(setting.getValue())));
         }
     }
 
     private void dumpMockedFields(StringBuilder file) {
         Collection<MockedField> mockedFields = mockedFieldsDao.loadAll();
-        List<String> fields = convert(mockedFields, new MockedFieldDumpConverter());
-        for (String field : fields) {
-            file.append(field).append(NEWLINE);
-        }
+        append(file, convert(mockedFields, new MockedFieldDumpConverter()));
     }
 
     private void dumpDescriptors(StringBuilder file) {
@@ -99,10 +95,20 @@ public class DatabaseDump extends BaseShutdownService {
     private void dumpDataSources(StringBuilder file) {
         List<JndiDataSource> dataSources = jndiDataSourcesDao.loadAll();
         for (JndiDataSource dataSource : dataSources) {
-            file.append(format(INSERT_DATASOURCE, escapeRaw(dataSource.getName()), escapeRaw(dataSource.getType()),
+            append(file, format(INSERT_DATASOURCE, escapeRaw(dataSource.getName()), escapeRaw(dataSource.getType()),
                     escapeRaw(dataSource.getDriverClassName()), escapeRaw(dataSource.getUrl()), escapeRaw(dataSource.getDriverJarPath()),
                     escapeRaw(dataSource.getUsername()), escapeRaw(dataSource.getPassword()), dataSource.getMaxActive(), dataSource.getMaxWait(),
                     dataSource.getMaxIdle()));
+        }
+    }
+
+    private void append(StringBuilder file, String text) {
+        file.append(text).append(NEWLINE);
+    }
+
+    private void append(StringBuilder file, List<String> rows) {
+        for (String s : rows) {
+            append(file, s);
         }
     }
 
