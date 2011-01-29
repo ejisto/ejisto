@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static ch.lambdaj.Lambda.convert;
+import static com.ejisto.util.GuiUtils.getMessage;
 
 /**
  * Created by IntelliJ IDEA.
@@ -115,7 +116,7 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
     void editingStarted() {
         if (lock.isLocked()) return;
         lock.tryLock();
-        getView().initEditorPanel(selectMockedFieldTypes());
+        getView().initEditorPanel(selectMockedFieldTypes(), getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(), editedField.getClassSimpleName()));
         getView().expandCollapseEditorPanel(true);
     }
 

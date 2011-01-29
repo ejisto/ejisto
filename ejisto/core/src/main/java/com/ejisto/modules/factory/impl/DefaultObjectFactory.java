@@ -19,11 +19,10 @@
 
 package com.ejisto.modules.factory.impl;
 
+import com.ejisto.core.classloading.proxy.EjistoProxyFactory;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.ObjectFactory;
 import org.apache.log4j.Logger;
-
-import static com.ejisto.core.classloading.util.ReflectionUtils.hasStringConstructor;
 
 /**
  * Default Object factory
@@ -39,11 +38,7 @@ public class DefaultObjectFactory implements ObjectFactory<Object> {
     @Override
     public Object create(MockedField m, Object actualValue) {
         try {
-            Class<?> clazz = Class.forName(m.getFieldType());
-            if (hasStringConstructor(clazz)) {
-                clazz.getConstructor(String.class).newInstance(m.getFieldValue());
-            }
-            return clazz.newInstance();
+            return EjistoProxyFactory.getInstance().proxyClass(Class.forName(m.getFieldType()), m.getContextPath());
         } catch (Exception e) {
             logger.error("exception during field evaluation, returning actualValue.", e);
             return actualValue;

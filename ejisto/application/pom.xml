@@ -87,14 +87,19 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>java</goal>
+                            <goal>exec</goal>
                         </goals>
                     </execution>
                 </executions>
 
                 <configuration>
-                    <mainClass>com.ejisto.core.launcher.Main</mainClass>
-                    <workingDirectory>/tmp</workingDirectory>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>com.ejisto.core.launcher.Main</argument>
+                    </arguments>
+                    <workingDirectory>${java.io.tmpdir}</workingDirectory>
                 </configuration>
             </plugin>
 

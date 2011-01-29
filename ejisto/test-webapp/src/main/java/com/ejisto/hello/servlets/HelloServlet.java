@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class HelloServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -47,7 +48,22 @@ public class HelloServlet extends HttpServlet {
         TestDao dao = new TestDao();
         request.setAttribute("bean", bean);
         request.setAttribute("dao", dao);
-        request.getRequestDispatcher("/index.jsp").forward(request, response);
+//        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("index.jsp");
+//        dispatcher.forward(request, response);
+        PrintWriter pw = response.getWriter();
+        pw.write("<html><head><title>Ejisto Test servlet</title></head><body><b>Title: </b>");
+        pw.write(bean.getTitle());
+        pw.write("<br><b>Description: </b>");
+        pw.write(bean.getDescription());
+        pw.write("<br><b>Hit count: </b>");
+        pw.write(String.valueOf(bean.getHits()));
+        pw.write("<br><b>Time stamp: </b>");
+        pw.write(String.valueOf(bean.getTimestamp()));
+        pw.write("<br><b>what time is it?:</b>");
+        pw.write(String.valueOf(dao.whatTimeIsIt()));
+        pw.write("</body><html>");
+        pw.flush();
+
     }
 
 

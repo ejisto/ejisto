@@ -214,8 +214,8 @@ public class IOUtils {
         return filename.substring(filename.lastIndexOf(fileSeparator) + 1);
     }
 
-    public static String determineWebApplicationUri(WebApplicationDescriptor descriptor) {
-        return new StringBuilder("http://localhost:9000").append(descriptor.getContextPath()).append("/").toString();
+    public static String guessWebApplicationUri(WebApplicationDescriptor descriptor) {
+        return new StringBuilder("http://localhost:1706").append(descriptor.getContextPath()).append("/").toString();
     }
 
 }

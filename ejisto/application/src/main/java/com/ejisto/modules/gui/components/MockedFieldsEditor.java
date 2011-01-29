@@ -89,8 +89,8 @@ public class MockedFieldsEditor extends JXPanel {
         getValueEditorPanel().setCollapsed(!expand);
     }
 
-    public void initEditorPanel(Collection<String> types) {
-        getValueEditorPanel().init(getTree().getSelectedField(), types);
+    public void initEditorPanel(Collection<String> types, String title) {
+        getValueEditorPanel().init(getTree().getSelectedField(), types, title);
     }
 
     private void init() {

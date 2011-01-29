@@ -21,7 +21,6 @@ package com.ejisto.modules.repository;
 
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.StatusBarMessage;
-import com.ejisto.modules.dao.CustomObjectFactoryDao;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.factory.impl.*;
 import javassist.ClassPool;
@@ -57,6 +56,7 @@ public class ObjectFactoryRepository {
         registerObjectFactory(new StringFactory(), false);
         registerObjectFactory(new DefaultObjectFactory(), false);
         registerObjectFactory(new CollectionFactory(), false);
+        registerObjectFactory(new MapFactory(), false);
     }
 
     public void registerObjectFactory(ObjectFactory<?> objectFactory) {

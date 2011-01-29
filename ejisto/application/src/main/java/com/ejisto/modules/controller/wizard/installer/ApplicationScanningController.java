@@ -36,6 +36,9 @@ import org.eclipse.jetty.xml.XmlParser;
 import org.springframework.util.Assert;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 import java.util.Collection;
@@ -45,6 +48,8 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static ch.lambdaj.Lambda.extractProperty;
+import static ch.lambdaj.Lambda.join;
 import static com.ejisto.modules.repository.ClassPoolRepository.registerClassPool;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.IOUtils.*;
@@ -117,35 +122,51 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     private void loadAllClasses(Collection<String> classnames, WebApplicationDescriptor descriptor) throws NotFoundException, MalformedURLException {
         notifyStart(classnames.size());
         descriptor.deleteAllFields();
+        ClassLoader loader = new URLClassLoader(toUrlArray(descriptor));
         ClassPool cp = new ClassPool(ClassPool.getDefault());
-        cp.appendClassPath(new LoaderClassPath(new URLClassLoader(toUrlArray(descriptor))));
+        cp.appendClassPath(new LoaderClassPath(loader));
         CtClass clazz;
         for (String classname : classnames) {
             notifyJobCompleted(classname);
             clazz = cp.get(classname);
-            fillMockedFields(clazz, descriptor);
+            fillMockedFields(clazz, descriptor, loader);
             clazz.detach();
         }
         registerClassPool(descriptor.getContextPath(), cp);
         logger.info("just finished processing " + descriptor.getInstallationPath());
     }
 
-    private void fillMockedFields(CtClass clazz, WebApplicationDescriptor descriptor) throws NotFoundException {
+    private void fillMockedFields(CtClass clazz, WebApplicationDescriptor descriptor, ClassLoader loader) throws NotFoundException {
         MockedField mockedField;
         try {
+            Class<?> type;
             for (CtField field : clazz.getDeclaredFields()) {
                 mockedField = new MockedFieldDecorator();
                 mockedField.setContextPath(descriptor.getContextPath());
                 mockedField.setClassName(clazz.getName());
                 mockedField.setFieldName(field.getName());
                 mockedField.setFieldType(field.getType().getName());
+                parseGenerics(clazz, field, mockedField, loader);
                 descriptor.addField(mockedField);
             }
             CtClass zuperclazz = clazz.getSuperclass();
             if (!zuperclazz.getName().startsWith("java"))
-                fillMockedFields(zuperclazz, descriptor);
+                fillMockedFields(zuperclazz, descriptor, loader);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void parseGenerics(CtClass clazz, CtField field, MockedField mockedField, ClassLoader loader) {
+        try {
+            Class<?> cl = loader.loadClass(clazz.getName());
+            Field f = cl.getDeclaredField(field.getName());
+            Type type = f.getGenericType();
+            if(ParameterizedType.class.isAssignableFrom(type.getClass())) {
+                mockedField.setFieldElementType(join(extractProperty(((ParameterizedType)type).getActualTypeArguments(),"name")));
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(),e);
         }
     }
 

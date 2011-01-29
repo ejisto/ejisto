@@ -21,6 +21,7 @@ package com.ejisto.modules.gui.components.helper;
 
 import ch.lambdaj.function.closure.Closure0;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.util.GuiUtils;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import org.jdesktop.swingx.JXCollapsiblePane;
@@ -60,13 +61,14 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
         $$$setupUI$$$();
     }
 
-    public void init(MockedField mockedField, Collection<String> types) {
+    public void init(MockedField mockedField, Collection<String> types, String title) {
         this.types = types;
         this.mockedField = mockedField;
         this.genericType.removeAllItems();
         for (String s : types) {
             this.genericType.addItem(s);
         }
+        this.title.setText(title);
     }
 
     public JPanel getEditor() {
@@ -86,7 +88,7 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
         editor = new JPanel();
         editor.setPreferredSize(new Dimension(200, 100));
         title = new JXLabel("title");
-        type = new JXLabel("type");
+        type = new JXLabel(GuiUtils.getMessage("wizard.properties.editor.complex.type"));
         genericType = new JComboBox();
         genericType.setAction(new CallbackAction("type", new Closure0() {{
             of(MockedFieldValueEditorPanel.this).onTypeSelected();

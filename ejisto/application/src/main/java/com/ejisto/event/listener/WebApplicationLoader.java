@@ -60,7 +60,7 @@ import java.util.regex.Pattern;
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.*;
-import static com.ejisto.util.IOUtils.determineWebApplicationUri;
+import static com.ejisto.util.IOUtils.guessWebApplicationUri;
 import static org.hamcrest.Matchers.notNullValue;
 
 public class WebApplicationLoader implements ApplicationListener<LoadWebApplication> {
@@ -255,7 +255,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         //thanks to sun, browser is not available on kde http://bugs.sun.com/view_bug.do?bug_id=6486393
         if (!Desktop.isDesktopSupported() || !jettyServer.isRunning()) return;
         try {
-            Desktop.getDesktop().browse(URI.create(determineWebApplicationUri(descriptor)));
+            Desktop.getDesktop().browse(URI.create(guessWebApplicationUri(descriptor)));
         } catch (IOException e) {
             logger.error("unable to open system browser", e);
         }

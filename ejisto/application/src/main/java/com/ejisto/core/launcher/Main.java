@@ -28,6 +28,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.OutputStream;
 import java.util.logging.Level;
 
 
@@ -46,6 +47,9 @@ public class Main {
 
     public static void main(String[] args) {
         try {
+            //tanks to David Van Couvering for tip to disable this annoying "feature"
+            //http://davidvancouvering.blogspot.com/2007/10/quiet-time-and-how-to-suppress-derbylog.html
+            System.setProperty("derby.stream.error.field", "com.ejisto.core.launcher.Main.DEV_NULL");
             logger.info("Starting Ejisto...");
             logger.info("setting dynamic ClassLoader");
             Thread.currentThread().setContextClassLoader(SharedClassLoader.getInstance());
@@ -60,4 +64,8 @@ public class Main {
             JXErrorPane.showDialog(null, new ErrorInfo("Startup error", "Startup failed", e.getMessage(), "SEVERE", e, Level.SEVERE, null));
         }
     }
+
+    public static final OutputStream DEV_NULL = new OutputStream() {
+         public void write(int b) { }
+     };
 }

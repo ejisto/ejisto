@@ -23,10 +23,7 @@ import com.ejisto.core.classloading.javassist.EjistoMethodFilter;
 import com.ejisto.core.classloading.javassist.ObjectEditor;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.LoaderClassPath;
-import javassist.Modifier;
+import javassist.*;
 import org.apache.log4j.Logger;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -55,12 +52,18 @@ public class ClassTransformer implements ClassFileTransformer {
     }
 
     public Class<?> transform(String className) throws Exception {
-        CtClass clazz = classPool.get(className.replaceAll("/", "."));
-        removeFinalModifier(clazz);
-        clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, getFieldsFor(className))));
+        CtClass clazz = instrument(className);
         Class<?> transformedClass = clazz.toClass();
         clazz.detach();
         return transformedClass;
+    }
+
+    private CtClass instrument(String className) throws Exception {
+        CtClass clazz = classPool.get(className.replaceAll("/", "."));
+        removeFinalModifier(clazz);
+        addDefaultConstructor(clazz);
+        clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, getFieldsFor(className))));
+        return clazz;
     }
 
     @Override
@@ -86,11 +89,23 @@ public class ClassTransformer implements ClassFileTransformer {
         }
     }
 
+    private void addDefaultConstructor(CtClass clazz) throws NotFoundException, CannotCompileException {
+        boolean found = false;
+        for (CtConstructor constructor : clazz.getConstructors()) {
+            if(constructor.getParameterTypes().length == 0) {
+                found = true;
+                break;
+            }
+        }
+        if(!found) clazz.addConstructor(new CtConstructor(new CtClass[0], clazz));
+    }
+
     private byte[] transform(String className, List<MockedField> mockedFields) throws IllegalClassFormatException {
         try {
             CtClass clazz = classPool.get(className.replaceAll("/", "."));
             clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, mockedFields)));
             removeFinalModifier(clazz);
+            addDefaultConstructor(clazz);
             return clazz.toBytecode();
         } catch (Exception e) {
             throw new IllegalClassFormatException(e.getMessage());

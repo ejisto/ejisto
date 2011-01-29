@@ -31,16 +31,19 @@
         <welcome-file>default.htm</welcome-file>
         <welcome-file>default.jsp</welcome-file>
     </welcome-file-list>
+
     <servlet>
         <description>Simple servlet for testing purposes</description>
         <display-name>HelloServlet</display-name>
         <servlet-name>HelloServlet</servlet-name>
         <servlet-class>com.ejisto.hello.servlets.HelloServlet</servlet-class>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>HelloServlet</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
+
     <resource-ref>
         <description>ejisto-test Data Source</description>
         <res-ref-name>jdbc/testDataSource</res-ref-name>

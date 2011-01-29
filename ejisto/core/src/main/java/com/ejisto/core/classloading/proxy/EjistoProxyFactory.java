@@ -28,8 +28,14 @@ import javax.annotation.Resource;
 import java.util.Map;
 
 public class EjistoProxyFactory extends ObjectNullHandler {
+    private static final EjistoProxyFactory INSTANCE = new EjistoProxyFactory();
+    
     @Resource
     private MockedFieldsRepository mockedFieldsRepository;
+
+    public static EjistoProxyFactory getInstance() {
+        return INSTANCE;
+    }
 
     @SuppressWarnings("unchecked")
     public <T> T proxyClass(Class<T> target, String contextPath) {

@@ -46,7 +46,7 @@
         <property name="connectors">
             <list>
                 <bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                    <property name="port" value="9000"/>
+                    <property name="port" value="1706"/>
                 </bean>
             </list>
         </property>
@@ -67,7 +67,7 @@
 
     <bean id="ognlAdapter" class="com.ejisto.core.classloading.ognl.OgnlAdapter"/>
 
-    <bean id="ejistoProxyFactory" class="com.ejisto.core.classloading.proxy.EjistoProxyFactory"/>
+    <bean id="ejistoProxyFactory" class="com.ejisto.core.classloading.proxy.EjistoProxyFactory" factory-method="getInstance"/>
 
     <bean id="webAppContextRepository" class="com.ejisto.core.jetty.WebAppContextRepository"/>
 
