@@ -130,7 +130,8 @@ public class MockedFieldImpl implements MockedField {
 
     @Override
     public String getGroupKey() {
-        return className.substring(0, className.lastIndexOf('.'));
+        //return className.substring(0, className.lastIndexOf('.'));
+        return className;
     }
 
     @Override

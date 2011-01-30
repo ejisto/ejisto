@@ -139,7 +139,6 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     private void fillMockedFields(CtClass clazz, WebApplicationDescriptor descriptor, ClassLoader loader) throws NotFoundException {
         MockedField mockedField;
         try {
-            Class<?> type;
             for (CtField field : clazz.getDeclaredFields()) {
                 mockedField = new MockedFieldDecorator();
                 mockedField.setContextPath(descriptor.getContextPath());
@@ -226,16 +225,6 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     @Override
     public boolean isBackEnabled() {
         return false;
-    }
-
-    private boolean isCollection(CtClass clazz) {
-        try {
-            CtClass collection = clazz.getClassPool().get("java.util.Collection");
-            return clazz.subtypeOf(collection);
-        } catch (NotFoundException e) {
-            logger.error(e.getMessage(), e);
-            return false;
-        }
     }
 
 }
