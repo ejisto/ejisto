@@ -62,7 +62,7 @@ public interface MockedField {
 
     String getComparisonKey();
 
-    String getGroupKey();
+    String getPackageName();
 
     String getClassSimpleName();
 

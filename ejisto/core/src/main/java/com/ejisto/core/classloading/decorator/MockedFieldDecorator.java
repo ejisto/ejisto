@@ -148,8 +148,8 @@ public class MockedFieldDecorator implements MockedField {
     }
 
     @Override
-    public String getGroupKey() {
-        return target.getGroupKey();
+    public String getPackageName() {
+        return target.getPackageName();
     }
 
     @Override

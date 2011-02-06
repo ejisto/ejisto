@@ -67,9 +67,8 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
             return getMessage("main.propertieseditor.tree.novalues.text");
         node = (DefaultMutableTreeNode) scanNode(node);
         if (node == null) return super.convertValueToText(value, selected, expanded, leaf, row, hasFocus);
-        MockedField mockedField = (MockedField) node.getUserObject();
-        if (!leaf) return row == 0 && main ? rootText : mockedField.getClassName();
-        return mockedField.getCompleteDescription();
+        if (!leaf) return row == 0 && main ? rootText : node.toString();
+        return ((MockedField) node.getUserObject()).getCompleteDescription();
     }
 
     public void setFields(List<MockedField> fields) {
@@ -87,19 +86,18 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
      */
     private TreeNode mockedFields2Nodes(Collection<MockedField> in) {
         if (in.isEmpty()) return new EmptyTreeNode();
-        Group<MockedField> groupedFields = group(in, by(on(MockedField.class).getGroupKey()), by(on(MockedField.class).getFieldName()));
-        return group2Node(groupedFields);
+        Group<MockedField> groupedFields = group(in, by(on(MockedField.class).getPackageName()), by(on(MockedField.class).getClassSimpleName()), by(on(MockedField.class).getFieldName()));
+        return group2Node(groupedFields,0);
     }
 
-    private DefaultMutableTreeNode group2Node(Group<MockedField> group) {
-        DefaultMutableTreeNode node;
+    private MockedFieldNode group2Node(Group<MockedField> group, int depth) {
+        MockedFieldNode node;
         if (group.isLeaf()) {
-            node = new DefaultMutableTreeNode(group.first());
+            node = new MockedFieldNode(group.first());
         } else {
-            node = new DefaultMutableTreeNode(group.first());
-            for (Group<MockedField> child : group.subgroups()) {
-                node.add(group2Node(child));
-            }
+            node = new MockedFieldNode(group.first(), depth < 2);
+            for (Group<MockedField> child : group.subgroups())
+                node.add(group2Node(child, depth+1));
         }
         return node;
     }
@@ -203,6 +201,27 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
 
     private static final class EmptyTreeNode extends DefaultMutableTreeNode {
         private static final long serialVersionUID = 1L;
+    }
 
+    private static final class MockedFieldNode extends DefaultMutableTreeNode {
+        private static final long serialVersionUID = 1L;
+        private MockedField field;
+        private boolean head;
+
+
+
+        public MockedFieldNode(MockedField userObject) {
+            this(userObject, false);
+        }
+        public MockedFieldNode(MockedField userObject, boolean head) {
+            super(userObject);
+            this.field=userObject;
+            this.head=head;
+        }
+
+        @Override
+        public String toString() {
+            return head ? field.getPackageName() : field.getClassSimpleName();
+        }
     }
 }
