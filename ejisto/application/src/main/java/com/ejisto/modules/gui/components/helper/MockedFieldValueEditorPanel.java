@@ -20,7 +20,6 @@
 package com.ejisto.modules.gui.components.helper;
 
 import ch.lambdaj.function.closure.Closure0;
-import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.util.GuiUtils;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -50,8 +49,6 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
     private JComboBox genericType;
     private JButton ok;
     private JButton cancel;
-    private Collection<String> types;
-    private MockedField mockedField;
     private JPanel editor;
     private JPanel buttonsPanel;
     private String expression;
@@ -61,13 +58,14 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
         $$$setupUI$$$();
     }
 
-    public void init(MockedField mockedField, Collection<String> types, String title) {
-        this.types = types;
-        this.mockedField = mockedField;
+    public void setTypes(Collection<String> types) {
         this.genericType.removeAllItems();
         for (String s : types) {
             this.genericType.addItem(s);
         }
+    }
+
+    public void setTitle(String title) {
         this.title.setText(title);
     }
 

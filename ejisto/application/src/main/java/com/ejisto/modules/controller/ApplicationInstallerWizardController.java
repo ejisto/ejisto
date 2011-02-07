@@ -70,7 +70,7 @@ public class ApplicationInstallerWizardController {
         controllers.add(new PropertiesEditingController(dialog));
         controllers.add(new SummaryController(dialog));
         sort(controllers, new StepControllerComparator());
-        //init session object
+        //setTypes session object
         WebApplicationDescriptor session = new WebApplicationDescriptor();
         forEach(controllers).setSession(session);
     }

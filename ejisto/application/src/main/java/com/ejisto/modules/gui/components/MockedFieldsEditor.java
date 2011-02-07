@@ -28,6 +28,7 @@ import org.jdesktop.swingx.JXTable;
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -90,7 +91,12 @@ public class MockedFieldsEditor extends JXPanel {
     }
 
     public void initEditorPanel(Collection<String> types, String title) {
-        getValueEditorPanel().init(getTree().getSelectedField(), types, title);
+        MockedField field = getTree().getSelectedField();
+        if(field.getFieldElementType() != null)
+            getValueEditorPanel().setTypes(Arrays.asList(field.getFieldElementType()));
+        else
+            getValueEditorPanel().setTypes(types);
+        getValueEditorPanel().setTitle(title);
     }
 
     private void init() {

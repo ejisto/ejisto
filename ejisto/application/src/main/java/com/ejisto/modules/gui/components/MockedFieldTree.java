@@ -208,11 +208,10 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
         private MockedField field;
         private boolean head;
 
-
-
         public MockedFieldNode(MockedField userObject) {
             this(userObject, false);
         }
+
         public MockedFieldNode(MockedField userObject, boolean head) {
             super(userObject);
             this.field=userObject;
