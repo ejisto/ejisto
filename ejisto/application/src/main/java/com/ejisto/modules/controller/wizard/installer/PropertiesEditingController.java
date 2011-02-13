@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2011  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import com.ejisto.modules.validation.ValidationErrors;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class PropertiesEditingController extends AbstractApplicationInstallerController {
@@ -88,7 +89,7 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
 
     }
 
-    private List<MockedField> getModifiedFields() {
+    private Collection<MockedField> getModifiedFields() {
         return getSession().getModifiedFields();
     }
 

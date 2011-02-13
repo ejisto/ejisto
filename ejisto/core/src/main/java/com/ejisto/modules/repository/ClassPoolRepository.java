@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,10 @@ public class ClassPoolRepository {
         return INSTANCE.getValue(context);
     }
 
+    public static ClassPoolRepository getInstance() {
+        return INSTANCE;
+    }
+
     private ClassPoolRepository() {
         dictionary = Collections.synchronizedMap(new HashMap<String, ClassPool>());
     }
@@ -54,6 +58,5 @@ public class ClassPoolRepository {
     private ClassPool getValue(String context) {
         return dictionary.get(context);
     }
-
 
 }

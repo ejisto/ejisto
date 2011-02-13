@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2011  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +29,9 @@ import static com.ejisto.core.classloading.util.ReflectionUtils.detach;
 import static com.ejisto.modules.repository.ClassPoolRepository.getRegisteredClassPool;
 
 public class MockedFieldDecorator implements MockedField {
-
+    private static final String[] COMPLEX_TYPES = {"java.util.Collection","java.util.Map"};
     private MockedField target;
+
 
     public MockedFieldDecorator(MockedField target) {
         this.target = target;
@@ -42,13 +43,17 @@ public class MockedFieldDecorator implements MockedField {
 
     @Override
     public boolean isSimpleValue() {
-        CtClass clazz = null;
+        CtClass clazz=null;
         CtClass targetClazz = null;
         try {
             ClassPool cp = getRegisteredClassPool(target.getContextPath());
-            clazz = cp.get("java.util.Collection");
             targetClazz = cp.get(target.getFieldType());
-            return !targetClazz.subtypeOf(clazz);
+            for (String complexType : COMPLEX_TYPES) {
+                clazz = cp.get(complexType);
+                if(targetClazz.subtypeOf(clazz)) return false;
+                clazz.detach();
+            }
+            return true;
         } catch (Exception e) {
             return true;
         } finally {
@@ -169,15 +174,25 @@ public class MockedFieldDecorator implements MockedField {
 
     @Override
     public String getCompleteDescription() {
-        return new StringBuilder(getFieldName()).append(" [").append(getCompleteFieldType()).append("]: ").append(getFieldValue())
+        return new StringBuilder(getFieldName()).append(" [").append(getCompleteFieldType()).append("]: ").append(evaluateFieldValue())
                 .toString();
     }
 
     @Override
     public String getCompleteFieldType() {
         if (StringUtils.hasText(target.getFieldElementType()))
-            return target.getFieldType() + "<" + target.getFieldElementType() + ">";
+            return target.getFieldType() + "<" + cleanFieldElementType(target.getFieldElementType()) + ">";
         return target.getFieldType();
+    }
+
+    private String cleanFieldElementType(String fieldElementType) {
+        String[] path = fieldElementType.split("\\.");
+        return path[path.length -1];
+    }
+
+    private String evaluateFieldValue() {
+        if(isSimpleValue()) return getFieldValue();
+        return "**expression**";
     }
 
 }

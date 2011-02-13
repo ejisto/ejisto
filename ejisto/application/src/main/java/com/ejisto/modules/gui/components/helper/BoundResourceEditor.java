@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.gui.components.helper;
 
+import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.modules.dao.entities.JndiDataSource;
 import com.ejisto.modules.gui.components.JndiResourcesEditor;
@@ -30,12 +31,9 @@ import org.jdesktop.swingx.JXTitledSeparator;
 import org.springframework.util.CollectionUtils;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,6 +69,7 @@ public class BoundResourceEditor {
     private JndiDataSource dataSource;
     private JndiResourcesEditor container;
     private int index;
+    private Closure0 reloadElement;
 
     public BoundResourceEditor(JndiDataSource dataSource, JndiResourcesEditor container, int index) {
         this.dataSource = dataSource;
@@ -144,15 +143,15 @@ public class BoundResourceEditor {
 
     private JTextField createTextField(String propertyName) {
         JTextField field = new JTextField();
-        field.getDocument().addDocumentListener(new ClosurePropertyChangeListener(propertyName));
+        field.getDocument().addDocumentListener(new ClosurePropertyChangeListener(propertyName, actionMap, reloadElement));
         return field;
     }
 
     private JFormattedTextField createIntegerTextField(String propertyName) {
         JFormattedTextField field = new JFormattedTextField();
-        field.addPropertyChangeListener("value", new ClosurePropertyChangeListener(propertyName));
+        field.addPropertyChangeListener("value", new ClosurePropertyChangeListener(propertyName, actionMap, reloadElement));
         field.setInputVerifier(new NumberValidator());
-        field.addFocusListener(focusListener);
+        field.addFocusListener(new TextComponentFocusListener());
         return field;
     }
 
@@ -166,6 +165,10 @@ public class BoundResourceEditor {
 
     void setMaxIdle(String value) {
         dataSource.setMaxIdle(Integer.parseInt(value));
+    }
+
+    void reloadElement() {
+        container.reloadElement(index);
     }
 
     private void initClosures() {
@@ -194,6 +197,11 @@ public class BoundResourceEditor {
         actionMap.put("maxIdle", new Closure1<String>() {{
             of(BoundResourceEditor.this).setMaxIdle(var(String.class));
         }});
+
+        reloadElement = new Closure0() {{
+            of(BoundResourceEditor.this).reloadElement();
+        }};
+
     }
 
     /**
@@ -243,60 +251,4 @@ public class BoundResourceEditor {
         return boundResourceEditor;
     }
 
-    private class ClosurePropertyChangeListener implements PropertyChangeListener, DocumentListener {
-        private String propertyName;
-
-        public ClosurePropertyChangeListener(String propertyName) {
-            this.propertyName = propertyName;
-        }
-
-        @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            firePropertyChange(String.valueOf(evt.getNewValue()));
-        }
-
-        @Override
-        public void insertUpdate(DocumentEvent evt) {
-            try {
-                firePropertyChange(evt.getDocument().getText(0, evt.getDocument().getLength()));
-            } catch (BadLocationException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent evt) {
-            try {
-                firePropertyChange(evt.getDocument().getText(0, evt.getDocument().getLength()));
-            } catch (BadLocationException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent evt) {
-            try {
-                firePropertyChange(evt.getDocument().getText(0, evt.getDocument().getLength()));
-            } catch (BadLocationException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private void firePropertyChange(String newValue) {
-            actionMap.get(propertyName).apply(newValue);
-            container.reloadElement(index);
-        }
-    }
-
-    private static final FocusListener focusListener = new FocusAdapter() {
-        @Override
-        public void focusGained(final FocusEvent e) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    ((JFormattedTextField) e.getSource()).selectAll();
-                }
-            });
-        }
-    };
 }

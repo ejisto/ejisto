@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 
+import java.util.Collection;
 import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
@@ -49,8 +50,14 @@ public class WebApplicationDescriptorHelper {
         return extractProperty(getElements(), "path");
     }
 
-    public List<MockedField> getModifiedFields() {
-        return select(descriptor.getFields(), having(on(MockedField.class).getFieldValue(), notNullValue()));
+    @SuppressWarnings("unchecked")
+    public Collection<MockedField> getModifiedFields() {
+        List<MockedField> fields = select(descriptor.getFields(), having(on(MockedField.class).getFieldValue(), notNullValue()));
+        fields.addAll(select(descriptor.getFields(),
+                anyOf(having(on(MockedField.class).getFieldElementType(), notNullValue()),
+                      having(on(MockedField.class).getFieldValue(), notNullValue()),
+                      having(on(MockedField.class).getExpression(), notNullValue()))));
+        return selectDistinct(fields, "comparisonKey");
     }
 
     private List<WebApplicationDescriptorElement> getElements() {

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2011  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,6 +69,10 @@ public class MockedFieldsEditor extends JXPanel {
         return getValueEditorPanel().getExpression();
     }
 
+    public String getFieldSize() {
+        return getValueEditorPanel().getFieldSize();
+    }
+
     public String getFieldType() {
         return getValueEditorPanel().getFieldType();
     }
@@ -124,7 +128,7 @@ public class MockedFieldsEditor extends JXPanel {
         if (this.valueEditorPanel != null) return valueEditorPanel;
         valueEditorPanel = new MockedFieldValueEditorPanel();
         valueEditorPanel.setCollapsed(true);
-        valueEditorPanel.setPreferredSize(new Dimension(200, 100));
+        valueEditorPanel.setPreferredSize(new Dimension(200, 150));
         return valueEditorPanel;
     }
 

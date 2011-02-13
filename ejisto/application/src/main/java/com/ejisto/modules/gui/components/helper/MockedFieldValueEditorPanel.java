@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2011  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,8 @@
 package com.ejisto.modules.gui.components.helper;
 
 import ch.lambdaj.function.closure.Closure0;
-import com.ejisto.util.GuiUtils;
+import ch.lambdaj.function.closure.Closure1;
+import com.ejisto.modules.validation.NumberValidator;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import org.jdesktop.swingx.JXCollapsiblePane;
@@ -32,8 +33,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
 
+import static ch.lambdaj.Lambda.var;
 import static com.ejisto.modules.controller.MockedFieldsEditorController.CANCEL_EDITING;
 import static com.ejisto.modules.controller.MockedFieldsEditorController.STOP_EDITING;
+import static com.ejisto.util.GuiUtils.getMessage;
 
 
 /**
@@ -44,15 +47,17 @@ import static com.ejisto.modules.controller.MockedFieldsEditorController.STOP_ED
  */
 public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements ActionListener {
     private static final String TYPE_SELECTION = "typeSelection";
-    private JXLabel title;
     private JXLabel type;
     private JComboBox genericType;
     private JButton ok;
     private JButton cancel;
     private JPanel editor;
     private JPanel buttonsPanel;
+    private JXLabel size;
+    private JFormattedTextField collectionSize;
     private String expression;
     private String fieldType;
+    private String fieldSize;
 
     public MockedFieldValueEditorPanel() {
         $$$setupUI$$$();
@@ -63,10 +68,11 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
         for (String s : types) {
             this.genericType.addItem(s);
         }
+        this.fieldType=String.valueOf(this.genericType.getSelectedItem());
     }
 
     public void setTitle(String title) {
-        this.title.setText(title);
+        getEditor().setBorder(BorderFactory.createTitledBorder(title));
     }
 
     public JPanel getEditor() {
@@ -81,12 +87,15 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
         return expression;
     }
 
+    public String getFieldSize() {
+        return fieldSize;
+    }
+
     private void createUIComponents() {
         setLayout(new BorderLayout());
         editor = new JPanel();
-        editor.setPreferredSize(new Dimension(200, 100));
-        title = new JXLabel("title");
-        type = new JXLabel(GuiUtils.getMessage("wizard.properties.editor.complex.type"));
+        editor.setPreferredSize(new Dimension(200, 150));
+        type = new JXLabel(getMessage("wizard.properties.editor.complex.type"));
         genericType = new JComboBox();
         genericType.setAction(new CallbackAction("type", new Closure0() {{
             of(MockedFieldValueEditorPanel.this).onTypeSelected();
@@ -98,11 +107,23 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
         cancel = new JButton("cancel");
         cancel.setActionCommand(CANCEL_EDITING);
         cancel.addActionListener(this);
+        size = new JXLabel(getMessage("wizard.properties.editor.complex.size"));
+        collectionSize = new JFormattedTextField();
+        collectionSize.addPropertyChangeListener("value", new ClosurePropertyChangeListener("", new Closure1<String>() {{
+            of(MockedFieldValueEditorPanel.this).setSize(var(String.class));
+        }}, null));
+        collectionSize.setInputVerifier(new NumberValidator(NumberValidator.ValidationType.SIGNED_INTEGER));
+        collectionSize.addFocusListener(new TextComponentFocusListener());
+        collectionSize.setValue("10");
         add(editor, BorderLayout.CENTER);
     }
 
     public void onTypeSelected() {
         fieldType = String.valueOf(genericType.getSelectedItem());
+    }
+
+    void setSize(String fieldSize) {
+        this.fieldSize=fieldSize;
     }
 
     @Override
@@ -121,9 +142,7 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
     private void $$$setupUI$$$() {
         createUIComponents();
         editor.setLayout(new FormLayout("fill:max(d;4px):grow,left:4dlu:noGrow,fill:max(p;60px):grow,left:4dlu:noGrow,fill:216px:noGrow,left:9px:grow,fill:max(d;4px):noGrow", "center:d:noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
-        title.setText("title");
         CellConstraints cc = new CellConstraints();
-        editor.add(title, cc.xyw(3, 1, 3));
         editor.add(type, cc.xy(3, 3));
         editor.add(genericType, cc.xy(5, 3));
         buttonsPanel = new JPanel();

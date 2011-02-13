@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,8 @@ import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.JndiUtils;
+import javassist.ClassPool;
+import javassist.LoaderClassPath;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.HandlerContainer;
 import org.eclipse.jetty.server.Server;
@@ -57,11 +59,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static ch.lambdaj.Lambda.*;
+import static ch.lambdaj.Lambda.forEach;
+import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.*;
+import static com.ejisto.modules.repository.ClassPoolRepository.registerClassPool;
 import static com.ejisto.util.GuiUtils.*;
 import static com.ejisto.util.IOUtils.guessWebApplicationUri;
-import static org.hamcrest.Matchers.notNullValue;
 
 public class WebApplicationLoader implements ApplicationListener<LoadWebApplication> {
 
@@ -93,9 +96,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         ApplicationInstallerWizardController controller = new ApplicationInstallerWizardController(application);
         if (!controller.showWizard()) return;
         WebApplicationDescriptor webApplicationDescriptor = controller.getWebApplicationDescriptor();
-        List<MockedField> fields = new ArrayList<MockedField>(webApplicationDescriptor.getFields());
-        forEach(select(fields, having(on(MockedField.class).getFieldValue(), notNullValue()))).setContextPath(webApplicationDescriptor.getContextPath());
-        forEach(select(fields, having(on(MockedField.class).getFieldValue(), notNullValue()))).setActive(true);
+        List<MockedField> fields = new ArrayList<MockedField>(webApplicationDescriptor.getModifiedFields());
+        forEach(fields).setContextPath(webApplicationDescriptor.getContextPath());
+        forEach(fields).setActive(true);
         mockedFieldsRepository.deleteContext(webApplicationDescriptor.getContextPath());
         mockedFieldsRepository.insert(fields);
         deployWebApp(webApplicationDescriptor);
@@ -119,6 +122,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             context.setClassLoader(classLoader);
             context.setParentLoaderPriority(false);
             bindAllDataSources(classLoader, webApplicationDescriptor);
+            ClassPool cp = new ClassPool(ClassPool.getDefault());
+            cp.appendClassPath(new LoaderClassPath(classLoader));
+            registerClassPool(webApplicationDescriptor.getContextPath(), cp);
             context.start();
             webAppContextRepository.registerWebAppContext(context);
             registerActions(context);

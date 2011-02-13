@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ public class NumberValidator extends InputVerifier {
 
     public enum ValidationType {
         UNSIGNED_INTEGER,
+        SIGNED_INTEGER,
         DOUBLE
     }
 
@@ -52,6 +53,14 @@ public class NumberValidator extends InputVerifier {
     }
 
     private boolean internalVerify(String text) {
+        switch(validationType) {
+            case DOUBLE:
+                return new Double(text).compareTo(0.0D) >= 0;
+            case UNSIGNED_INTEGER:
+                return Integer.parseInt(text) >= 0;
+            case SIGNED_INTEGER:
+                return Integer.decode(text) != null;
+        }
         if (validationType == ValidationType.DOUBLE) {
             return new Double(text).compareTo(0.0D) >= 0;
         } else {

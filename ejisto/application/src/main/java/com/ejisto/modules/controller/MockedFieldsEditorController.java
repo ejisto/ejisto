@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2011  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -57,7 +58,7 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
     private int y;
     private MockedFieldsEditor view;
     private ActionMap actionMap;
-    private Collection<MockedField> wizardFields;
+    private Collection<MockedField> wizardFields = Collections.emptyList();
 
     public MockedFieldsEditorController() {
         this(false);
@@ -123,9 +124,13 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
     void editingStopped() {
         getView().expandCollapseEditorPanel(false);
         editedField.setFieldElementType(getView().getFieldType());
-        editedField.setExpression(getView().getExpression());
+        editedField.setExpression(buildExpression());
         getView().getTree().redraw(x, y);
         lock.unlock();
+    }
+
+    private String buildExpression() {
+        return "size="+getView().getFieldSize();
     }
 
     void editingCanceled() {
