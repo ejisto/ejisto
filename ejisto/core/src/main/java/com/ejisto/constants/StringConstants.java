@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,9 @@ public enum StringConstants {
     STOP_CONTEXT_COMMAND("stop"),
     STOP_CONTEXT_PREFIX("stop!!registeredContext!!"),
     DELETE_CONTEXT_COMMAND("delete"),
-    DELETE_CONTEXT_PREFIX("delete!!registeredContext!!"),;
+    DELETE_CONTEXT_PREFIX("delete!!registeredContext!!"),
+    CONTEXT_PARAM_NAME("ejisto-target-context-path"),
+    DEPLOYABLES_DIR("ejisto.deployables.dir");
 
 
     private String value;

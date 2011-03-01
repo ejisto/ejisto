@@ -59,7 +59,7 @@
         </property>
     </bean>
     <bean id="ognlContext" class="ognl.OgnlContext"/>
-    <bean id="propertyManager" class="com.ejisto.core.classloading.javassist.PropertyManager"/>
+    <bean id="propertyManager" class="com.ejisto.core.classloading.javassist.PropertyManager" factory-method="getInstance"/>
     <bean id="ognlAdapter" class="com.ejisto.core.classloading.ognl.OgnlAdapter"/>
     <bean id="ejistoProxyFactory" class="com.ejisto.core.classloading.proxy.EjistoProxyFactory" factory-method="getInstance"/>
     <bean id="webAppContextRepository" class="com.ejisto.core.jetty.WebAppContextRepository"/>
@@ -79,6 +79,7 @@
           factory-method="getInstance"/>
     <bean id="objectFactoryRepository" class="com.ejisto.modules.repository.ObjectFactoryRepository"
           factory-method="getInstance"/>
+    <bean id="customObjectFactoryRepository" class="com.ejisto.modules.repository.CustomObjectFactoryRepository" factory-method="getInstance" />
     <bean id="objectFactoryLoader" class="com.ejisto.modules.conf.ObjectFactoryLoader"/>
     <bean id="objectFactoryLoaderTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
         <property name="delay" value="5000"/>

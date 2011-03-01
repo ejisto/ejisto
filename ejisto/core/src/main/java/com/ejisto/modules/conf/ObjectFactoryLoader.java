@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,13 +82,15 @@ public class ObjectFactoryLoader extends TimerTask {
         if(factory != null && factory.getChecksum().equals(checksum)) return;
         logger.info("processing file: " + file.getAbsolutePath());
         cp.appendClassPath(file.getAbsolutePath());
-        sharedClassLoader.addEntry(file.getAbsolutePath());
+//        sharedClassLoader.addEntry(file.getAbsolutePath());
         CtClass clazz;
         Collection<String> clazzNames = findAllClassesInJarFile(file);
+        ObjectFactory<?> factoryInstance;
         for (String clazzName : clazzNames) {
             clazz = cp.get(clazzName);
             if (clazz.subtypeOf(bazeClazz)) {
-                objectFactoryRepository.registerObjectFactory((ObjectFactory<?>) clazz.toClass().newInstance());
+                factoryInstance = (ObjectFactory<?>) clazz.toClass().newInstance();
+                objectFactoryRepository.registerObjectFactory(clazz.getName(), factoryInstance.getTargetClassName());
             }
             clazz.detach();
         }

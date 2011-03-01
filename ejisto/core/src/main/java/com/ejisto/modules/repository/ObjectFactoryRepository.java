@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2011  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@ package com.ejisto.modules.repository;
 
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.StatusBarMessage;
-import com.ejisto.modules.factory.ObjectFactory;
-import com.ejisto.modules.factory.impl.*;
 import javassist.ClassPool;
 import javassist.CtClass;
 import org.apache.log4j.Logger;
@@ -41,7 +39,8 @@ public class ObjectFactoryRepository {
     private static final Logger logger = Logger.getLogger(ObjectFactoryRepository.class);
     private static final String DEFAULT = "java.lang.Object";
     private static final ObjectFactoryRepository INSTANCE = new ObjectFactoryRepository();
-    private Map<String, ObjectFactory<?>> factories = new HashMap<String, ObjectFactory<?>>();
+    private Map<String, String> factories = new HashMap<String, String>();
+
     @Resource
     private EventManager eventManager;
 
@@ -50,62 +49,53 @@ public class ObjectFactoryRepository {
     }
 
     private ObjectFactoryRepository() {
-        registerObjectFactory(new AtomicIntegerFactory(), false);
-        registerObjectFactory(new AtomicLongFactory(), false);
-        registerObjectFactory(new NumberFactory(), false);
-        registerObjectFactory(new StringFactory(), false);
-        registerObjectFactory(new DefaultObjectFactory(), false);
-        registerObjectFactory(new CollectionFactory(), false);
-        registerObjectFactory(new MapFactory(), false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicIntegerFactory","java.util.concurrent.AtomicInteger", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicLongFactory", "java.util.concurrent.atomic.AtomicLong", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.NumberFactory", "java.lang.Number", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.StringFactory", "java.lang.String", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.DefaultObjectFactory", DEFAULT, false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.CollectionFactory","java.util.Collection", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.MapFactory","java.util.Map", false);
     }
 
-    public void registerObjectFactory(ObjectFactory<?> objectFactory) {
-        registerObjectFactory(objectFactory, true);
+    public void registerObjectFactory(String objectFactoryClassName, String targetClassName) {
+        registerObjectFactory(objectFactoryClassName, targetClassName, true);
     }
 
-    public void registerObjectFactory(ObjectFactory<?> objectFactory, boolean notify) {
+    public void registerObjectFactory(String objectFactoryClassName, String targetClassName, boolean notify) {
         String message;
-        boolean error = factories.containsKey(objectFactory.getTargetClassName());
+        boolean error = factories.containsKey(targetClassName);
         if (!error) {
-            factories.put(objectFactory.getTargetClassName(), objectFactory);
-            message = "loaded ObjectFactory [" + objectFactory.getClass().getName() + "] for class " + objectFactory.getTargetClassName();
+            factories.put(targetClassName, objectFactoryClassName);
+            message = "registered ObjectFactory [" + objectFactoryClassName + "] for class " + targetClassName;
         } else {
-            message = "rejected ObjectFactory [" + objectFactory.getClass().getName() + "]";
+            message = "rejected ObjectFactory [" + objectFactoryClassName + "]";
         }
-        if (notify) eventManager.publishEvent(new StatusBarMessage(this, message, error));
+        if (notify && eventManager != null) eventManager.publishEvent(new StatusBarMessage(this, message, error));
     }
     
-    @SuppressWarnings("unchecked")
-    public <T> ObjectFactory<T> getObjectFactory(String objectClassName) {
+    public String getObjectFactory(String objectClassName, String contextPath) {
         try {
-            return (ObjectFactory<T>) getObjectFactory(Class.forName(objectClassName));
+            return scanForObjectFactory(retrieveClassPool(contextPath).get(objectClassName));
         } catch (Exception e) {
             logger.error("getObjectFactory failed with exception, returning default one", e);
-            return (ObjectFactory<T>) factories.get(DEFAULT);
+            return factories.get(DEFAULT);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> ObjectFactory<T> getObjectFactory(Class<T> objectClass) {
-        try {
-            if (factories.containsKey(objectClass.getName()))
-                return (ObjectFactory<T>) factories.get(objectClass.getName());
-            return (ObjectFactory<T>) scanForObjectFactory(ClassPool.getDefault().get(objectClass.getName()));
-        } catch (Exception e) {
-            logger.error("getObjectFactory failed with exception, returning default one", e);
-            return (ObjectFactory<T>) factories.get(DEFAULT);
-        }
+    private ClassPool retrieveClassPool(String contextPath) {
+        return ClassPoolRepository.getRegisteredClassPool(contextPath);
     }
 
-    private ObjectFactory<?> scanForObjectFactory(CtClass objectClass) throws Exception {
+    private String scanForObjectFactory(CtClass objectClass) throws Exception {
         try {
             debug("Hey! Could someone create an instance of [" + objectClass.getName() + "]?");
             if (factories.containsKey(objectClass.getName())) {
                 debug("yep!");
                 return factories.get(objectClass.getName());
             }
+            String factory;
             debug("nope. Trying interfaces...");
-            ObjectFactory<?> factory;
             for (CtClass c : objectClass.getInterfaces()) {
                 factory = scanForObjectFactory(c);
                 if (factory != null) return factory;

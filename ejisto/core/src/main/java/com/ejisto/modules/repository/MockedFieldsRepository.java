@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import ch.lambdaj.function.convert.Converter;
 import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.util.ExternalizableService;
 
 import javax.annotation.Resource;
 import java.util.Collection;
@@ -36,7 +37,7 @@ import static ch.lambdaj.Lambda.convert;
  * Date: Dec 3, 2010
  * Time: 7:51 PM
  */
-public class MockedFieldsRepository {
+public class MockedFieldsRepository extends ExternalizableService<MockedFieldsDao> {
     private static MockedFieldsRepository INSTANCE = new MockedFieldsRepository();
 
     @Resource
@@ -53,37 +54,57 @@ public class MockedFieldsRepository {
     }
 
     public List<MockedField> loadAll() {
-        return convert(mockedFieldsDao.loadActiveFields(), mockedFieldConverter);
+        return convert(getMockedFieldsDao().loadActiveFields(), mockedFieldConverter);
     }
 
     public MockedField load(String contextPath, String className, String fieldName) {
-        return mockedFieldConverter.convert(mockedFieldsDao.getMockedField(contextPath, className, fieldName));
+        return mockedFieldConverter.convert(getMockedFieldsDao().getMockedField(contextPath, className, fieldName));
     }
 
     public List<MockedField> load(String contextPath, String className) {
-        return convert(mockedFieldsDao.loadByContextPathAndClassName(contextPath, className), mockedFieldConverter);
+        return convert(getMockedFieldsDao().loadByContextPathAndClassName(contextPath, className), mockedFieldConverter);
     }
 
     public boolean update(MockedField mockedField) {
-        return mockedFieldsDao.update(mockedField);
+        return getMockedFieldsDao().update(mockedField);
     }
 
     public MockedField insert(MockedField mockedField) {
-        long id = mockedFieldsDao.insert(mockedField);
+        long id = getMockedFieldsDao().insert(mockedField);
         mockedField.setId(id);
         return mockedField;
     }
 
     public boolean isMockableClass(String contextPath, String className) {
-        return mockedFieldsDao.countByContextPathAndClassName(contextPath, className) > 0;
+        return getMockedFieldsDao().countByContextPathAndClassName(contextPath, className) > 0;
     }
 
     public boolean deleteContext(String contextPath) {
-        return mockedFieldsDao.deleteContext(contextPath);
+        return getMockedFieldsDao().deleteContext(contextPath);
     }
 
     public void insert(Collection<MockedField> fields) {
-        mockedFieldsDao.insert(fields);
+        getMockedFieldsDao().insert(fields);
+    }
+
+    private MockedFieldsDao getMockedFieldsDao() {
+        checkDao();
+        return getDaoInstance();
+    }
+
+    @Override
+    protected MockedFieldsDao getDaoInstance() {
+        return mockedFieldsDao;
+    }
+
+    @Override
+    protected void setDaoInstance(MockedFieldsDao daoInstance) {
+        this.mockedFieldsDao = daoInstance;
+    }
+
+    @Override
+    protected Class<MockedFieldsDao> getDaoClass() {
+        return MockedFieldsDao.class;
     }
 
     private static final class MockedFieldConverter implements Converter<MockedField, MockedField> {

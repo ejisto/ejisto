@@ -116,16 +116,25 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         if (webApplicationDescriptor == null) return;
         try {
             undeployExistingWebapp(webApplicationDescriptor.getContextPath(), false);
+//            TODO: refactor in order to use ContextHandler instead of WebAppContext
+//            ContextHandler handler = new ContextHandler();
+//            handler.setContextPath(webApplicationDescriptor.getContextPath());
+//            handler.setResourceBase(webApplicationDescriptor.getInstallationPath());
+
             WebAppContext context = new WebAppContext(contexts, webApplicationDescriptor.getInstallationPath(), webApplicationDescriptor.getContextPath());
             context.setResourceBase(webApplicationDescriptor.getInstallationPath());
             EjistoClassLoader classLoader = new EjistoClassLoader(webApplicationDescriptor.getInstallationPath(), context);
+            classLoader.addClassPath(webApplicationDescriptor.getInstallationPath()+"/WEB-INF/classes/");
+            classLoader.addJars(org.eclipse.jetty.util.resource.Resource.newResource(new File(webApplicationDescriptor.getInstallationPath()+"/WEB-INF/lib/").toURI()));
             context.setClassLoader(classLoader);
+//            handler.setClassLoader(classLoader);
+
             context.setParentLoaderPriority(false);
             bindAllDataSources(classLoader, webApplicationDescriptor);
             ClassPool cp = new ClassPool(ClassPool.getDefault());
             cp.appendClassPath(new LoaderClassPath(classLoader));
             registerClassPool(webApplicationDescriptor.getContextPath(), cp);
-            context.start();
+            if(jettyServer.isRunning()) context.start();
             webAppContextRepository.registerWebAppContext(context);
             registerActions(context);
 

@@ -1,7 +1,7 @@
 <%--
   ~ Ejisto, a powerful developer assistant
   ~
-  ~ Copyright (C) 2011  Celestino Bellone
+  ~ Copyright (C) 2010-2011  Celestino Bellone
   ~
   ~ Ejisto is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 <html>
 <head><title>Ejisto Test servlet</title></head>
 <body>
+<b><%= bean %></b><br>
 <b>Title: </b> <%= bean.getTitle() %>
 <br><b>Description: </b> <%= bean.getDescription() %>
 <br><b>Hit count: </b> <%= bean.getHits() %>

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,21 +34,18 @@ import java.util.List;
 public class ClassTransformer implements ClassFileTransformer {
 
     private static final Logger logger = Logger.getLogger(ClassTransformer.class);
-    private EjistoClassLoader classLoader;
+//    private EjistoClassLoader classLoader;
     private ClassPool classPool;
     private String contextPath;
-    private MockedFieldsRepository mockedFieldsRepository;
 
-    public ClassTransformer(EjistoClassLoader classLoader) {
-        this.classLoader = classLoader;
-        this.contextPath = classLoader.getContextPath();
-        this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
+    public ClassTransformer(String contextPath) {
+        this.contextPath = contextPath;
         initClassPool();
     }
 
     private void initClassPool() {
         classPool = new ClassPool();
-        classPool.appendClassPath(new LoaderClassPath(classLoader));
+//        classPool.appendClassPath(new LoaderClassPath(classLoader));
     }
 
     public Class<?> transform(String className) throws Exception {
@@ -60,6 +57,7 @@ public class ClassTransformer implements ClassFileTransformer {
 
     private CtClass instrument(String className) throws Exception {
         CtClass clazz = classPool.get(className.replaceAll("/", "."));
+        if(clazz.isFrozen()) clazz.defrost();
         removeFinalModifier(clazz);
         addDefaultConstructor(clazz);
         clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, getFieldsFor(className))));
@@ -70,12 +68,7 @@ public class ClassTransformer implements ClassFileTransformer {
     public byte[] transform(ClassLoader loader, String className,
                             Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                             byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (loader == null || !classLoader.getClass().isAssignableFrom(loader.getClass())) {
-            if (logger.isTraceEnabled())
-                logger.trace("no match for classloader " + loader + " while trying to transform class " + className);
-            return null;
-        }
-
+        if(!isInstrumentableClass(className)) return null;
         List<MockedField> fields = getFieldsFor(className);
         if (fields == null || fields.isEmpty()) return null;
         else return transform(className, fields);
@@ -113,7 +106,10 @@ public class ClassTransformer implements ClassFileTransformer {
     }
 
     private List<MockedField> getFieldsFor(String className) {
-        return mockedFieldsRepository.load(contextPath, className);
+        return MockedFieldsRepository.getInstance().load(contextPath, className);
     }
 
+    public boolean isInstrumentableClass(String name) {
+        return MockedFieldsRepository.getInstance().isMockableClass(contextPath, name.replaceAll("/", "."));
+    }
 }

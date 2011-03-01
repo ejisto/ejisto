@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ package com.ejisto.modules.conf;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.dao.SettingsDao;
 import com.ejisto.modules.dao.entities.Setting;
+import com.ejisto.util.ExternalizableService;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.Resource;
@@ -31,7 +32,7 @@ import java.util.Properties;
 import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
 
-public class SettingsManager implements InitializingBean {
+public class SettingsManager extends ExternalizableService<SettingsDao> implements InitializingBean {
     @Resource(name = "settings")
     private Properties settings;
     @Resource
@@ -60,8 +61,8 @@ public class SettingsManager implements InitializingBean {
     }
 
     public void flush() throws Exception {
-        if (settingsDao.clearSettings(settingsList))
-            settingsDao.insertSettings(settingsList);
+        if (getSettingsDao().clearSettings(settingsList))
+            getSettingsDao().insertSettings(settingsList);
     }
 
     public void putValue(StringConstants key, Object value) {
@@ -83,10 +84,30 @@ public class SettingsManager implements InitializingBean {
     }
 
     private void init() {
-        if (settingsList == null) settingsList = settingsDao.loadAll();
+        if (settingsList == null) settingsList = getSettingsDao().loadAll();
     }
 
     private Setting find(String key) {
         return selectFirst(settingsList, having(on(Setting.class).getKey(), equalTo(key)));
+    }
+
+    private SettingsDao getSettingsDao() {
+        checkDao();
+        return settingsDao;
+    }
+
+    @Override
+    protected SettingsDao getDaoInstance() {
+        return settingsDao;
+    }
+
+    @Override
+    protected void setDaoInstance(SettingsDao daoInstance) {
+        this.settingsDao = daoInstance;
+    }
+
+    @Override
+    protected Class<SettingsDao> getDaoClass() {
+        return SettingsDao.class;
     }
 }

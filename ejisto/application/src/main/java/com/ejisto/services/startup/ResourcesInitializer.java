@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,18 +73,21 @@ public class ResourcesInitializer extends BaseStartupService {
         File libDir = new File(baseDir, "lib");
         File libExtDir = new File(libDir, "ext");
         File webappsDir = new File(jettyDir, "webapps");
+        File deployables = new File(baseDir, "deployables");
         initDirectories(derbyDir,
                 jettyDir,
                 webappsDir,
                 libDir,
                 libExtDir,
-                new File(baseDir, "log"));
+                new File(baseDir, "log"),
+                deployables);
         System.setProperty(JETTY_HOME_DIR.getValue(), jettyDir.getAbsolutePath() + File.separator);
         System.setProperty(JETTY_WEBAPPS_DIR.getValue(), webappsDir.getAbsolutePath() + File.separator);
         System.setProperty(DERBY_SCRIPT.getValue(), derbyScript.getAbsolutePath());
         System.setProperty(INITIALIZE_DATABASE.getValue(), String.valueOf(!derbyScript.exists()));
         System.setProperty(LIB_DIR.getValue(), libDir.getAbsolutePath() + File.separator);
         System.setProperty(EXTENSIONS_DIR.getValue(), libExtDir.getAbsolutePath());
+        System.setProperty(DEPLOYABLES_DIR.getValue(), deployables.getAbsolutePath());
     }
 
     private void initDirectories(File... directories) {

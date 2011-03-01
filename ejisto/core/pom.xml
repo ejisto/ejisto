@@ -31,6 +31,11 @@
     <name>ejisto-core</name>
     <dependencies>
         <dependency>
+            <groupId>com.ejisto</groupId>
+            <artifactId>ejisto-agent</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
             <version>${org.eclipse.jetty.version}</version>
@@ -46,17 +51,69 @@
             <version>${org.eclipse.jetty.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>jasper</artifactId>
-            <version>6.0.29</version>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>10.6.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbynet</artifactId>
+            <version>10.6.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+            <version>10.6.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-core-uberjar</artifactId>
+            <version>1.0.6</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.tomcat</groupId>
-                    <artifactId>servlet-api</artifactId>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-core-container-geronimo</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.tomcat</groupId>
-                    <artifactId>catalina</artifactId>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-core-container-glassfish</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-core-container-jboss</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-core-container-jetty</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-core-container-jo</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-core-container-jonas</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-core-container-jrun</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-core-container-orion</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-core-container-tomcat</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-core-container-resin</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-core-container-weblogic</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -64,11 +121,23 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.11.0.GA</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${org.springframework.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-logging</artifactId>
+                    <groupId>commons-logging</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

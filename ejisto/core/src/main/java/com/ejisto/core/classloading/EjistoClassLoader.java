@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,13 +19,15 @@
 
 package com.ejisto.core.classloading;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import com.ejisto.util.SpringBridge;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.webapp.WebAppClassLoader;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Collection;
 
 public class EjistoClassLoader extends WebAppClassLoader {
@@ -37,23 +39,22 @@ public class EjistoClassLoader extends WebAppClassLoader {
     private MockedFieldsRepository mockedFieldsRepository;
 
     public EjistoClassLoader(String installationPath, WebAppContext context) throws IOException {
-        super(context);
+        super(SharedClassLoader.getInstance(), context);
 //        InstrumentationHolder.getInstrumentation().addTransformer(new ClassTransformer(this, mockedFields), true);
         this.installationPath = installationPath;
         this.contextPath = context.getContextPath();
-        this.transformer = new ClassTransformer(this);
+        this.transformer = new ClassTransformer(context.getContextPath());
         this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
+        addLibExt();
     }
 
     @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException {
+    public Class<?> findClass(String name) throws ClassNotFoundException {
         try {
             boolean instrumentableClass = isInstrumentableClass(name);
             if (logger.isDebugEnabled()) logger.debug(name + " is mockable class: " + instrumentableClass);
             if (instrumentableClass) return loadInstrumentableClass(name);
-            Class<?> c = loadFromExtraClasspath(name);
-            if (c != null) return c;
-            return super.loadClass(name);
+            return null;//should never happen...
         } catch (Exception e) {
             throw new ClassNotFoundException("Unable to load class [" + name + "]", e);
         }
@@ -76,13 +77,22 @@ public class EjistoClassLoader extends WebAppClassLoader {
         return installationPath;
     }
 
-    public void addExtraEntries(Collection<String> entries) {
-        SpringBridge.addExtraPathsToSharedClassLoader(entries);
+    private void addLibExt() {
+        try {
+            File directory = new File(System.getProperty(StringConstants.EXTENSIONS_DIR.getValue()));
+            if(!directory.exists() || !directory.isDirectory()) return;
+            for (File f : directory.listFiles()) {
+                if(f.getName().endsWith(".jar")) addURL(f.toURI().toURL());
+            }
+        } catch (Exception e) {
+            logger.error("unable to load extra classpath", e);
+        }
     }
 
-    private Class<?> loadFromExtraClasspath(String name) {
-        return SpringBridge.loadClassFromSharedClassLoader(name);
+    public void addExtraEntries(Collection<String> entries) throws MalformedURLException {
+        for (String entry : entries) {
+            addURL(new File(entry).toURI().toURL());
+        }
     }
-
 
 }

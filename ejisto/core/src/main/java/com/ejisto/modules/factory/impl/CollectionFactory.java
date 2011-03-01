@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2011  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 package com.ejisto.modules.factory.impl;
 
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.factory.AbstractContainerFactory;
 import com.ejisto.modules.factory.ObjectFactory;
-import com.ejisto.modules.repository.ObjectFactoryRepository;
 import ognl.Ognl;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import java.util.Collection;
  * Date: 1/15/11
  * Time: 7:41 PM
  */
-public class CollectionFactory<Y> implements ObjectFactory<Collection<Y>> {
+public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>, Y> {
     @Override
     public String getTargetClassName() {
         return "java.util.Collection";
@@ -41,21 +41,27 @@ public class CollectionFactory<Y> implements ObjectFactory<Collection<Y>> {
 
     @Override
     public Collection<Y> create(MockedField m, Collection<Y> actualValue) {
-        ObjectFactory<Y> elementObjectFactory = ObjectFactoryRepository.getInstance().getObjectFactory(m.getFieldElementType());
+        ObjectFactory<Y> elementObjectFactory = loadElementObjectFactory(m.getFieldElementType(), m.getContextPath());
         Collection<Y> value = new ArrayList<Y>();
-        applyExpressions(value, m.getExpression().split(";"), elementObjectFactory, m, null);
+        applyExpressions(value, m.getExpression(), elementObjectFactory, m, null);
         return value;
     }
 
-    private void applyExpressions(Collection<Y> in, String[] expressions, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Y actualValue) {
+    private void applyExpressions(Collection<Y> in, String expression, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Y actualValue) {
         try {
-            String[] keyValue;
-            for (String expression : expressions) {
-                keyValue = expression.split("=");
-                if (keyValue[0].equals("size"))
-                    fillCollection(in, Integer.parseInt(keyValue[1]), elementObjectFactory, mockedField, actualValue);
-                Ognl.setValue(keyValue[0], in, keyValue[1]);
+            int size = 10;
+            if(expression != null) {
+                String[] expressions = expression.split(";");
+                String[] keyValue;
+                for (String exp : expressions) {
+                    keyValue = exp.split("=");
+                    if (keyValue[0].equals("size"))
+                        size = Integer.parseInt(keyValue[1]);
+                    else
+                        Ognl.setValue(keyValue[0], in, keyValue[1]);
+                }
             }
+            fillCollection(in, size, elementObjectFactory, mockedField, actualValue);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import static ch.lambdaj.Lambda.*;
 import static java.util.Collections.emptyList;
@@ -59,7 +60,7 @@ public class IOUtils {
             throw new IOException("Unable to write file " + dest.getAbsolutePath());
         byte[] data = new byte[1024];
         BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(dest));
-        int readed = 0;
+        int readed;
         while (inputStream.available() > 0) {
             readed = inputStream.read(data);
             stream.write(data, 0, readed);
@@ -204,6 +205,29 @@ public class IOUtils {
                 return false;
         }
         return file.delete();
+    }
+
+    public static boolean zipDirectory(String path, String destFilePath) {
+        try {
+            File src  = new File(path);
+            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(destFilePath));
+            zipDirectory(path, src, out);
+            out.flush();
+            out.close();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public static void zipDirectory(String base, File src, ZipOutputStream out) throws IOException {
+        if(src.isDirectory()) {
+            for (File file : src.listFiles()) zipDirectory(base, file, out);
+        } else {
+            ZipEntry entry = new ZipEntry(src.getPath().substring(base.length()));
+            out.putNextEntry(entry);
+            out.write(readFile(src));
+        }
     }
 
     public static String retrieveFilenameFromZipEntryPath(String filename) {

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,18 +21,26 @@ package com.ejisto.modules.controller.wizard.installer;
 
 import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.modules.controller.WizardException;
+import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.dao.entities.JndiDataSource;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
+import com.ejisto.modules.repository.CustomObjectFactoryRepository;
+import com.ejisto.modules.web.ContextListener;
 import com.ejisto.util.JndiDataSourcesRepository;
 import javassist.*;
 import org.apache.log4j.Logger;
+import org.codehaus.cargo.module.webapp.WebXml;
+import org.codehaus.cargo.module.webapp.WebXmlIo;
+import org.codehaus.cargo.module.webapp.WebXmlType;
+import org.codehaus.cargo.module.webapp.WebXmlUtils;
 import org.eclipse.jetty.util.resource.FileResource;
 import org.eclipse.jetty.webapp.WebDescriptor;
 import org.eclipse.jetty.xml.XmlParser;
+import org.jdom.Element;
 import org.springframework.util.Assert;
 
 import java.io.File;
@@ -43,6 +51,7 @@ import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
@@ -50,10 +59,12 @@ import java.util.regex.Pattern;
 
 import static ch.lambdaj.Lambda.extractProperty;
 import static ch.lambdaj.Lambda.join;
+import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.modules.repository.ClassPoolRepository.registerClassPool;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.IOUtils.*;
 import static com.ejisto.util.JndiUtils.isAlreadyBound;
+
 
 public class ApplicationScanningController extends AbstractApplicationInstallerController implements Callable<Void> {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
@@ -116,6 +127,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         getSession().setClassPathElements(getClasspathEntries(basePath));
         loadAllClasses(findAllWebApplicationClasses(basePath, getSession()), getSession());
         processWebXmlDescriptor(getSession());
+        packageWar(getSession());
         getView().jobCompleted(getMessage("progress.scan.end"));
     }
 
@@ -168,13 +180,17 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
             logger.error(e.getMessage(),e);
         }
     }
-
+    @SuppressWarnings("unchecked")
     private void processWebXmlDescriptor(WebApplicationDescriptor descriptor) {
         StringBuilder webXmlPath = new StringBuilder(descriptor.getInstallationPath()).append(File.separator);
         webXmlPath.append("WEB-INF").append(File.separator).append("web.xml");
         File webXml = new File(webXmlPath.toString());
         if (!webXml.exists()) return;
         try {
+            WebXml xml = WebXmlIo.parseWebXmlFromFile(webXml, null);
+            WebXmlUtils.addContextParam(xml, CONTEXT_PARAM_NAME.getValue(), descriptor.getContextPath());
+            xml.getRootElement().getChildren().add(0, buildListener(xml.getRootElement().getNamespace().getURI()));
+            //TODO to be completed
             WebDescriptor webDescriptor = new WebDescriptor(new FileResource(webXml.toURI().toURL()));
             webDescriptor.parse();
             XmlParser.Node root = webDescriptor.getRoot();
@@ -182,9 +198,18 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
             while (it.hasNext()) {
                 buildEnvEntry(it.next());
             }
+            WebXmlIo.writeDescriptor(xml, webXml);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private Element buildListener(String namespaceURI) {
+        Element listener = new Element(WebXmlType.LISTENER, namespaceURI);
+        Element listenerClass = new Element("listener-class", namespaceURI);
+        listenerClass.setText(ContextListener.class.getName());
+        listener.addContent(listenerClass);
+        return listener;
     }
 
     private void buildEnvEntry(XmlParser.Node node) {
@@ -195,6 +220,20 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         entry.setType(type);
         if (!isAlreadyBound(entry.getName()))
             JndiDataSourcesRepository.store(entry);
+    }
+
+    private void packageWar(WebApplicationDescriptor session) {
+        String libDir = new StringBuilder(session.getInstallationPath())
+                        .append(File.separator)
+                        .append("WEB-INF")
+                        .append(File.separator)
+                        .append("lib")
+                        .append(File.separator).toString();
+        File dir = new File(libDir);
+        List<CustomObjectFactory> jars = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
+        for (CustomObjectFactory jar : jars) copyFile(System.getProperty(EXTENSIONS_DIR.getValue())+File.separator+jar.getFileName(), dir);
+        copyFile(System.getProperty("user.dir")+File.separator+"ejisto-0.1-SNAPSHOT.jar", dir);
+        zipDirectory(session.getInstallationPath(), System.getProperty(DEPLOYABLES_DIR.getValue())+File.separator+session.getWarFile().getName());
     }
 
     protected String getContextPath(String realPath) {

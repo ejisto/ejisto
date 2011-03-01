@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,10 +48,10 @@ public class SpringBridge implements ApplicationContextAware {
         return getInstance().internalGetMessage(key, language, values);
     }
 
-    public static Class<?> loadClassFromSharedClassLoader(String name) {
-        if (!isApplicationInitialized()) return null;
-        return getInstance().loadClass(name);
-    }
+//    public static Class<?> loadClassFromSharedClassLoader(String name) {
+//        if (!isApplicationInitialized()) return null;
+//        return getInstance().loadClass(name);
+//    }
 
     public static void addExtraPathToSharedClassLoader(String path) {
         getInstance().addExtraPath(path);
@@ -92,9 +92,9 @@ public class SpringBridge implements ApplicationContextAware {
         }
     }
 
-    private Class<?> loadClass(String name) {
-        return sharedClassLoader.loadClass(name);
-    }
+//    private Class<?> loadClass(String name) {
+//        return sharedClassLoader.loadClass(name);
+//    }
 
     private void addExtraPath(String path) {
         sharedClassLoader.addEntry(path);

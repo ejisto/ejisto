@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,13 +26,12 @@ import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.Resource;
 
-public class PropertyManager implements InitializingBean {
+public class PropertyManager {
 
-    private static PropertyManager INSTANCE;
+    private static final PropertyManager INSTANCE = new PropertyManager();
     private static final Logger logger = Logger.getLogger(PropertyManager.class);
     @Resource
     private MockedFieldsRepository mockedFieldsRepository;
@@ -42,6 +41,10 @@ public class PropertyManager implements InitializingBean {
     private OgnlAdapter ognlAdapter;
     @Resource
     private ObjectFactoryRepository objectFactoryRepository;
+
+    public static PropertyManager getInstance() {
+        return INSTANCE;
+    }
 
     private <T> T getFieldValue(String contextPath, String className, String fieldName, Class<T> type, T actualValue) {
         try {
@@ -57,9 +60,10 @@ public class PropertyManager implements InitializingBean {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T evaluateResult(MockedField mockedField, Class<T> type, T actualValue) throws Exception {
-        if (!mockedField.isSimpleValue()) return parseExpression(mockedField, type);
-        ObjectFactory<T> objectFactory = objectFactoryRepository.getObjectFactory(type);
+        String objectFactoryClass = objectFactoryRepository.getObjectFactory(mockedField.getFieldType(), mockedField.getContextPath());
+        ObjectFactory<T> objectFactory = (ObjectFactory<T>)Thread.currentThread().getContextClassLoader().loadClass(objectFactoryClass).newInstance();
         return objectFactory.create(mockedField, actualValue);
     }
 
@@ -67,11 +71,6 @@ public class PropertyManager implements InitializingBean {
         T instance = ejistoProxyFactory.proxyClass(type, mockedField);
         ognlAdapter.apply(instance, mockedField);
         return instance;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        INSTANCE = this;
     }
 
     public static <T> T mockField(String contextPath, String fieldName, String className, Class<T> type, T actual) {

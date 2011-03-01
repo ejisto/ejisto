@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,50 +20,78 @@
 package com.ejisto.modules.dao.db;
 
 import com.ejisto.constants.StringConstants;
+import org.apache.derby.drda.NetworkServerControl;
+import org.apache.derby.jdbc.ClientDriver;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.datasource.AbstractDataSource;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
+import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class EmbeddedDatabaseManager extends AbstractDataSource {
 	
 	private Logger logger = Logger.getLogger(EmbeddedDatabaseManager.class);
-	
-	private EmbeddedDatabase dataSource;
+    private SimpleDriverDataSource driverDataSource;
+    private NetworkServerControl serverControl;
 
 
 	public void initDb() throws Exception {
-		logger.info("starting Derby db");
-		EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder(new DefaultResourceLoader() {
+        serverControl = new NetworkServerControl(InetAddress.getByName("localhost"), 5555, "ejisto", "ejisto");
+        ResourceLoader loader = new DefaultResourceLoader() {
 			@Override
 			protected Resource getResourceByPath(String path) {
 				return new FileSystemResource(path);
 			}
-		});
-		builder.setType(EmbeddedDatabaseType.DERBY).setName("ejisto").addScript("classpath:sql/ejisto-schema.sql");
-		if(!Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) builder.addScript(System.getProperty(StringConstants.DERBY_SCRIPT.getValue()));
-//		else builder.addScript("classpath:sql/ejisto-data.sql");
-		dataSource = builder.build();
-		logger.info("done");
+		};
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.addScript(loader.getResource("classpath:sql/ejisto-schema.sql"));
+        if(!Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) populator.addScript(loader.getResource(System.getProperty(StringConstants.DERBY_SCRIPT.getValue())));
+//		EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder(loader);
+//		builder.setType(EmbeddedDatabaseType.DERBY).setName("ejisto").addScript("classpath:sql/ejisto-schema.sql");
+//		if(!Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) builder.addScript(System.getProperty(StringConstants.DERBY_SCRIPT.getValue()));
+//		dataSource = builder.build();
+        serverControl.start(new PrintWriter(System.out));
+        checkServerStartup();
+        driverDataSource = new SimpleDriverDataSource(new ClientDriver(),"jdbc:derby://localhost:5555/memory:ejisto;create=true","ejisto","ejisto");
+        populator.populate(getConnection());
+        logger.info("done");
 	}
 
+    private void checkServerStartup() throws Exception {
+        int tries = 0;
+        while(tries < 5) {
+            try {
+                Thread.sleep(500);
+                pingServer();
+                return;
+            } catch(Exception ex) {
+                tries++;
+            }
+        }
+        pingServer();
+    }
+
+    private void pingServer() throws Exception {
+        serverControl.ping();
+    }
 	
 	@Override
 	public Connection getConnection() throws SQLException {
-		return dataSource.getConnection();
+		return driverDataSource.getConnection();
 	}
 
 	@Override
 	public Connection getConnection(String username, String password)
 			throws SQLException {
-		return dataSource.getConnection();
+		return driverDataSource.getConnection();
 	}
 
 
