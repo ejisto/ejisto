@@ -233,7 +233,9 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         List<CustomObjectFactory> jars = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
         for (CustomObjectFactory jar : jars) copyFile(System.getProperty(EXTENSIONS_DIR.getValue())+File.separator+jar.getFileName(), dir);
         copyFile(System.getProperty("user.dir")+File.separator+"ejisto-0.1-SNAPSHOT.jar", dir);
-        zipDirectory(session.getInstallationPath(), System.getProperty(DEPLOYABLES_DIR.getValue())+File.separator+session.getWarFile().getName());
+        String deployablePath = System.getProperty(DEPLOYABLES_DIR.getValue())+File.separator+session.getWarFile().getName();
+        zipDirectory(session.getInstallationPath(), deployablePath);
+        session.setDeployablePath(deployablePath);
     }
 
     protected String getContextPath(String realPath) {

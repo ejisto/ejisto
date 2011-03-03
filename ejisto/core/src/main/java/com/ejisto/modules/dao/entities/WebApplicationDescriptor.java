@@ -38,6 +38,7 @@ public class WebApplicationDescriptor implements Serializable {
     private String installationPath;
     private String contextPath;
     private Collection<MockedField> fields;
+    private String deployablePath;
     private transient WebApplicationDescriptorHelper helper;
     private transient File warFile;
     private transient List<WebApplicationDescriptorElement> classpathEntries;
@@ -144,5 +145,13 @@ public class WebApplicationDescriptor implements Serializable {
 
     public boolean containsDataSources() {
         return !CollectionUtils.isEmpty(JndiDataSourcesRepository.loadDataSources());
+    }
+
+    public String getDeployablePath() {
+        return deployablePath;
+    }
+
+    public void setDeployablePath(String deployablePath) {
+        this.deployablePath = deployablePath;
     }
 }

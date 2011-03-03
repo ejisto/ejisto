@@ -3,7 +3,7 @@
 <!--
   ~ Ejisto, a powerful developer assistant
   ~
-  ~ Copyright (C) 2010  Celestino Bellone
+  ~ Copyright (C) 2010-2011  Celestino Bellone
   ~
   ~ Ejisto is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -67,6 +67,7 @@
     <bean id="errorListener" class="com.ejisto.event.listener.ErrorListener"/>
     <bean id="statusBarLogger" class="com.ejisto.event.listener.StatusBarLogger"/>
     <bean id="fieldChangesListener" class="com.ejisto.event.listener.FieldsUpdateListener"/>
+    <bean id="cargoManager" class="com.ejisto.modules.cargo.CargoManager" />
 
     <util:list id="services" value-type="com.ejisto.services.Service">
         <bean class="com.ejisto.services.shutdown.JettyShutdown"/>
