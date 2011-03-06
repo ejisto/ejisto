@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,8 @@ public class PropertyEditor extends JXPanel implements TableModelListener {
         if (table != null) return table;
         MockedFieldsTableModel tm = new MockedFieldsTableModel(MockedFieldsRepository.getInstance().loadAll());
         JTable data = new JTable(tm);
-        table = new JScrollPane(data, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        table = new JScrollPane(data, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         return table;
     }
 
@@ -71,6 +72,5 @@ public class PropertyEditor extends JXPanel implements TableModelListener {
     public void tableChanged(TableModelEvent e) {
 
     }
-
 
 }

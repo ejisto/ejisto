@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,29 +29,28 @@ import static com.ejisto.util.GuiUtils.getIcon;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
-
 public class EjistoAction<T extends BaseApplicationEvent> extends AbstractActionExt {
     private static final long serialVersionUID = 4999338415439543233L;
     private T applicationEvent;
 
     public EjistoAction(T applicationEvent) {
         super();
-        this.applicationEvent=applicationEvent;
+        this.applicationEvent = applicationEvent;
         putValue(Action.NAME, getMessage(applicationEvent.getDescription()));
         putValue(Action.SMALL_ICON, getIcon(applicationEvent));
         putValue(Action.SHORT_DESCRIPTION, getMessage(applicationEvent.getDescription()));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                publishApplicationEvent(applicationEvent);     
+                publishApplicationEvent(applicationEvent);
             }
         });
     }
-    
+
     public String getKey() {
         return applicationEvent.getKey();
     }

@@ -55,15 +55,18 @@ public class PropertyManager {
                 return actualValue;
             }
         } catch (Exception e) {
-            logger.error("Property " + fieldName + " of class " + className + " not found. Returning " + actualValue, e);
+            logger.error("Property " + fieldName + " of class " + className + " not found. Returning " + actualValue,
+                         e);
             return actualValue;
         }
     }
 
     @SuppressWarnings("unchecked")
     private <T> T evaluateResult(MockedField mockedField, Class<T> type, T actualValue) throws Exception {
-        String objectFactoryClass = objectFactoryRepository.getObjectFactory(mockedField.getFieldType(), mockedField.getContextPath());
-        ObjectFactory<T> objectFactory = (ObjectFactory<T>)Thread.currentThread().getContextClassLoader().loadClass(objectFactoryClass).newInstance();
+        String objectFactoryClass = objectFactoryRepository.getObjectFactory(mockedField.getFieldType(),
+                                                                             mockedField.getContextPath());
+        ObjectFactory<T> objectFactory = (ObjectFactory<T>) Thread.currentThread().getContextClassLoader().loadClass(
+                objectFactoryClass).newInstance();
         return objectFactory.create(mockedField, actualValue);
     }
 

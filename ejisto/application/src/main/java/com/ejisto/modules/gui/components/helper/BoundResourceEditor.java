@@ -101,7 +101,8 @@ public class BoundResourceEditor {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        getBoundResourceEditor().getActionMap().get(SELECT_FILE_COMMAND.getValue()).actionPerformed(new ActionEvent(BoundResourceEditor.this, 0, SELECT_FILE_COMMAND.getValue()));
+                        getBoundResourceEditor().getActionMap().get(SELECT_FILE_COMMAND.getValue()).actionPerformed(
+                                new ActionEvent(BoundResourceEditor.this, 0, SELECT_FILE_COMMAND.getValue()));
                     }
                 });
             }
@@ -143,13 +144,15 @@ public class BoundResourceEditor {
 
     private JTextField createTextField(String propertyName) {
         JTextField field = new JTextField();
-        field.getDocument().addDocumentListener(new ClosurePropertyChangeListener(propertyName, actionMap, reloadElement));
+        field.getDocument().addDocumentListener(
+                new ClosurePropertyChangeListener(propertyName, actionMap, reloadElement));
         return field;
     }
 
     private JFormattedTextField createIntegerTextField(String propertyName) {
         JFormattedTextField field = new JFormattedTextField();
-        field.addPropertyChangeListener("value", new ClosurePropertyChangeListener(propertyName, actionMap, reloadElement));
+        field.addPropertyChangeListener("value",
+                                        new ClosurePropertyChangeListener(propertyName, actionMap, reloadElement));
         field.setInputVerifier(new NumberValidator());
         field.addFocusListener(new TextComponentFocusListener());
         return field;
@@ -214,7 +217,9 @@ public class BoundResourceEditor {
     private void $$$setupUI$$$() {
         createUIComponents();
         boundResourceEditor = new JPanel();
-        boundResourceEditor.setLayout(new FormLayout("fill:max(d;4px):noGrow,left:100px:noGrow,left:3dlu:noGrow,left:70px:noGrow,left:3dlu:noGrow,fill:60px:noGrow,left:72px:noGrow", "center:d:noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
+        boundResourceEditor.setLayout(new FormLayout(
+                "fill:max(d;4px):noGrow,left:100px:noGrow,left:3dlu:noGrow,left:70px:noGrow,left:3dlu:noGrow,fill:60px:noGrow,left:72px:noGrow",
+                "center:d:noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
         CellConstraints cc = new CellConstraints();
         boundResourceEditor.add(nameLabel, cc.xy(2, 1));
         resourceName = new JLabel();

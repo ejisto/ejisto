@@ -80,9 +80,9 @@ public class EjistoClassLoader extends WebAppClassLoader {
     private void addLibExt() {
         try {
             File directory = new File(System.getProperty(StringConstants.EXTENSIONS_DIR.getValue()));
-            if(!directory.exists() || !directory.isDirectory()) return;
+            if (!directory.exists() || !directory.isDirectory()) return;
             for (File f : directory.listFiles()) {
-                if(f.getName().endsWith(".jar")) addURL(f.toURI().toURL());
+                if (f.getName().endsWith(".jar")) addURL(f.toURI().toURL());
             }
         } catch (Exception e) {
             logger.error("unable to load extra classpath", e);

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
 
 public class EmptyHandler extends AbstractHandler {
     private static final Logger logger = Logger.getLogger("jettylogger");

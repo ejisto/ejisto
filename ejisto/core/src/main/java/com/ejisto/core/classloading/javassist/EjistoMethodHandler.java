@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,30 +33,30 @@ import static com.ejisto.core.classloading.util.ReflectionUtils.isGetterForPrope
 import static org.hamcrest.Matchers.equalTo;
 
 public class EjistoMethodHandler implements MethodHandler {
-	
-	private Collection<MockedField> fields;
 
-	public EjistoMethodHandler(Collection<MockedField> fields) {
-		this.fields=fields;
-	}
+    private Collection<MockedField> fields;
 
-	@Override
-	public Object invoke(Object self, Method thisMethod, Method proceed,
-			Object[] args) throws Throwable {
-		return getFieldValue(thisMethod);
-	}
-	
-	private Object getFieldValue(Method method) throws Exception {
-		MockedField mockedField = retrieveFieldToMock(method.getName());
-		Assert.notNull(mockedField);
-		Assert.isTrue(isGetterForProperty(method.getName(), mockedField.getFieldName()), "error: undefined method ["+method.getName()+"]");
-		Class<?> returnType = method.getReturnType();
-		Constructor<?> constructor = returnType.getConstructor(String.class);
-		return constructor.newInstance(mockedField.getFieldValue());
-	}
-	
-	private MockedField retrieveFieldToMock(String methodName) {
-		return selectFirst(fields, having(on(MockedField.class).getFieldName(), equalTo(getFieldName(methodName))));
-	}
+    public EjistoMethodHandler(Collection<MockedField> fields) {
+        this.fields = fields;
+    }
+
+    @Override
+    public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
+        return getFieldValue(thisMethod);
+    }
+
+    private Object getFieldValue(Method method) throws Exception {
+        MockedField mockedField = retrieveFieldToMock(method.getName());
+        Assert.notNull(mockedField);
+        Assert.isTrue(isGetterForProperty(method.getName(), mockedField.getFieldName()),
+                      "error: undefined method [" + method.getName() + "]");
+        Class<?> returnType = method.getReturnType();
+        Constructor<?> constructor = returnType.getConstructor(String.class);
+        return constructor.newInstance(mockedField.getFieldValue());
+    }
+
+    private MockedField retrieveFieldToMock(String methodName) {
+        return selectFirst(fields, having(on(MockedField.class).getFieldName(), equalTo(getFieldName(methodName))));
+    }
 
 }

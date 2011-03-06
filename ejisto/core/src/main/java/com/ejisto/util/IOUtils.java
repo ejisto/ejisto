@@ -40,7 +40,8 @@ import static org.hamcrest.Matchers.equalTo;
 public class IOUtils {
 
     private static final FileExtensionFilter jarFilter = new FileExtensionFilter(FileExtensionFilter.ALL_JARS, true);
-    private static final FileExtensionFilter classesFilter = new FileExtensionFilter(FileExtensionFilter.ALL_CLASSES, true);
+    private static final FileExtensionFilter classesFilter = new FileExtensionFilter(FileExtensionFilter.ALL_CLASSES,
+                                                                                     true);
 
     public static String copyFile(String filePath, File destDir) {
         try {
@@ -116,14 +117,11 @@ public class IOUtils {
 
     public static List<File> getAllFiles(File dir, FileExtensionFilter fileExtensionFilter) {
         List<File> files = new ArrayList<File>();
-        if (!dir.exists() || !dir.isDirectory())
-            return files;
+        if (!dir.exists() || !dir.isDirectory()) return files;
         File[] children = dir.listFiles(fileExtensionFilter);
         for (File file : children) {
-            if (file.isDirectory())
-                files.addAll(getAllFiles(file, fileExtensionFilter));
-            else
-                files.add(file);
+            if (file.isDirectory()) files.addAll(getAllFiles(file, fileExtensionFilter));
+            else files.add(file);
         }
         return files;
     }
@@ -141,8 +139,7 @@ public class IOUtils {
     }
 
     public static List<WebApplicationDescriptorElement> toWebApplicationDescriptorElement(List<File> in) throws MalformedURLException {
-        if (in.isEmpty())
-            return emptyList();
+        if (in.isEmpty()) return emptyList();
         List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>(in.size());
         for (File file : in) {
             elements.add(new WebApplicationDescriptorElement(file.getName()));
@@ -159,7 +156,9 @@ public class IOUtils {
     }
 
     public static Collection<String> findAllClassNamesInDirectory(File directory) {
-        List<String> pathnames = extractProperty(select(getAllFiles(directory, classesFilter), having(on(File.class).isDirectory(), equalTo(false))), "path");
+        List<String> pathnames = extractProperty(
+                select(getAllFiles(directory, classesFilter), having(on(File.class).isDirectory(), equalTo(false))),
+                "path");
         HashSet<String> ret = new HashSet<String>();
         int index = directory.getAbsolutePath().length();
         for (String path : pathnames) {
@@ -172,8 +171,7 @@ public class IOUtils {
         List<File> jars = getAllFiles(directory, jarFilter);
         HashSet<String> ret = new HashSet<String>();
         for (File file : jars) {
-            if (!descriptor.isBlacklistedEntry(file.getName()))
-                ret.addAll(findAllClassesInJarFile(file));
+            if (!descriptor.isBlacklistedEntry(file.getName())) ret.addAll(findAllClassesInJarFile(file));
         }
         return ret;
     }
@@ -197,19 +195,17 @@ public class IOUtils {
     }
 
     public static boolean deleteFile(File file) {
-        if (!file.isDirectory())
-            return file.delete();
+        if (!file.isDirectory()) return file.delete();
         File[] children = file.listFiles();
         for (File child : children) {
-            if (!deleteFile(child))
-                return false;
+            if (!deleteFile(child)) return false;
         }
         return file.delete();
     }
 
     public static boolean zipDirectory(String path, String destFilePath) {
         try {
-            File src  = new File(path);
+            File src = new File(path);
             ZipOutputStream out = new ZipOutputStream(new FileOutputStream(destFilePath));
             zipDirectory(path, src, out);
             out.flush();
@@ -221,7 +217,7 @@ public class IOUtils {
     }
 
     public static void zipDirectory(String base, File src, ZipOutputStream out) throws IOException {
-        if(src.isDirectory()) {
+        if (src.isDirectory()) {
             for (File file : src.listFiles()) zipDirectory(base, file, out);
         } else {
             ZipEntry entry = new ZipEntry(src.getPath().substring(base.length()));

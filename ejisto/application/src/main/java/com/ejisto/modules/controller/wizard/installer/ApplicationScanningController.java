@@ -65,7 +65,6 @@ import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.IOUtils.*;
 import static com.ejisto.util.JndiUtils.isAlreadyBound;
 
-
 public class ApplicationScanningController extends AbstractApplicationInstallerController implements Callable<Void> {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
     private Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
@@ -161,8 +160,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
                 descriptor.addField(mockedField);
             }
             CtClass zuperclazz = clazz.getSuperclass();
-            if (!zuperclazz.getName().startsWith("java"))
-                fillMockedFields(zuperclazz, descriptor, loader);
+            if (!zuperclazz.getName().startsWith("java")) fillMockedFields(zuperclazz, descriptor, loader);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -173,13 +171,15 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
             Class<?> cl = loader.loadClass(clazz.getName());
             Field f = cl.getDeclaredField(field.getName());
             Type type = f.getGenericType();
-            if(ParameterizedType.class.isAssignableFrom(type.getClass())) {
-                mockedField.setFieldElementType(join(extractProperty(((ParameterizedType)type).getActualTypeArguments(),"name")));
+            if (ParameterizedType.class.isAssignableFrom(type.getClass())) {
+                mockedField.setFieldElementType(
+                        join(extractProperty(((ParameterizedType) type).getActualTypeArguments(), "name")));
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(),e);
+            logger.error(e.getMessage(), e);
         }
     }
+
     @SuppressWarnings("unchecked")
     private void processWebXmlDescriptor(WebApplicationDescriptor descriptor) {
         StringBuilder webXmlPath = new StringBuilder(descriptor.getInstallationPath()).append(File.separator);
@@ -218,30 +218,26 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         JndiDataSource entry = new JndiDataSource();
         entry.setName(node.getString("res-ref-name", false, true));
         entry.setType(type);
-        if (!isAlreadyBound(entry.getName()))
-            JndiDataSourcesRepository.store(entry);
+        if (!isAlreadyBound(entry.getName())) JndiDataSourcesRepository.store(entry);
     }
 
     private void packageWar(WebApplicationDescriptor session) {
-        String libDir = new StringBuilder(session.getInstallationPath())
-                        .append(File.separator)
-                        .append("WEB-INF")
-                        .append(File.separator)
-                        .append("lib")
-                        .append(File.separator).toString();
+        String libDir = new StringBuilder(session.getInstallationPath()).append(File.separator).append(
+                "WEB-INF").append(File.separator).append("lib").append(File.separator).toString();
         File dir = new File(libDir);
         List<CustomObjectFactory> jars = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
-        for (CustomObjectFactory jar : jars) copyFile(System.getProperty(EXTENSIONS_DIR.getValue())+File.separator+jar.getFileName(), dir);
-        copyFile(System.getProperty("user.dir")+File.separator+"ejisto-0.1-SNAPSHOT.jar", dir);
-        String deployablePath = System.getProperty(DEPLOYABLES_DIR.getValue())+File.separator+session.getWarFile().getName();
+        for (CustomObjectFactory jar : jars)
+            copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir);
+        copyFile(System.getProperty("user.dir") + File.separator + "ejisto-0.1-SNAPSHOT.jar", dir);
+        String deployablePath = System.getProperty(
+                DEPLOYABLES_DIR.getValue()) + File.separator + session.getWarFile().getName();
         zipDirectory(session.getInstallationPath(), deployablePath);
         session.setDeployablePath(deployablePath);
     }
 
     protected String getContextPath(String realPath) {
         Matcher matcher = contextExtractor.matcher(realPath.replaceAll(Pattern.quote("\\"), "/"));
-        if (matcher.matches())
-            return matcher.group(1);
+        if (matcher.matches()) return matcher.group(1);
         return null;
     }
 

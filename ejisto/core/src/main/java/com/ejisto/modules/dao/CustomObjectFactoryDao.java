@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2011  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,7 @@
 
 package com.ejisto.modules.dao;
 
-
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -36,11 +34,11 @@ import java.util.List;
  * Time: 9:39 AM
  */
 public class CustomObjectFactoryDao extends BaseDao {
-    private static final String CHECK    = "SELECT COUNT(*) FROM CUSTOMOBJECTFACTORY WHERE FILENAME=?";
+    private static final String CHECK = "SELECT COUNT(*) FROM CUSTOMOBJECTFACTORY WHERE FILENAME=?";
     private static final String LOAD_ALL = "SELECT * FROM CUSTOMOBJECTFACTORY";
     private static final String LOAD_ONE = "SELECT * FROM CUSTOMOBJECTFACTORY WHERE FILENAME=?";
-    private static final String INSERT   = "INSERT INTO CUSTOMOBJECTFACTORY(FILENAME,CHECKSUM,PROCESSED) VALUES(?,?,?)";
-    private static final String UPDATE   = "UPDATE CUSTOMOBJECTFACTORY SET CHECKSUM=?,DONE=? WHERE FILENAME=?";
+    private static final String INSERT = "INSERT INTO CUSTOMOBJECTFACTORY(FILENAME,CHECKSUM,PROCESSED) VALUES(?,?,?)";
+    private static final String UPDATE = "UPDATE CUSTOMOBJECTFACTORY SET CHECKSUM=?,DONE=? WHERE FILENAME=?";
 
     public List<CustomObjectFactory> loadAll() {
         return getJdbcTemplate().query(LOAD_ALL, ROW_MAPPER);
@@ -55,11 +53,14 @@ public class CustomObjectFactoryDao extends BaseDao {
     }
 
     public boolean insert(CustomObjectFactory customObjectFactory) {
-        return getJdbcTemplate().update(INSERT, customObjectFactory.getFileName(), customObjectFactory.getChecksum(), customObjectFactory.isProcessed() ? 1:0) == 1;
+        return getJdbcTemplate().update(INSERT, customObjectFactory.getFileName(), customObjectFactory.getChecksum(),
+                                        customObjectFactory.isProcessed() ? 1 : 0) == 1;
     }
 
     public boolean update(CustomObjectFactory customObjectFactory) {
-        return getJdbcTemplate().update(UPDATE, customObjectFactory.getChecksum(), customObjectFactory.isProcessed() ? 1:0, customObjectFactory.getFileName()) == 1;
+        return getJdbcTemplate().update(UPDATE, customObjectFactory.getChecksum(),
+                                        customObjectFactory.isProcessed() ? 1 : 0,
+                                        customObjectFactory.getFileName()) == 1;
     }
 
     public boolean exists(CustomObjectFactory customObjectFactory) {
@@ -67,19 +68,19 @@ public class CustomObjectFactoryDao extends BaseDao {
     }
 
     public boolean save(CustomObjectFactory customObjectFactory) {
-        if(exists(customObjectFactory)) return update(customObjectFactory);
+        if (exists(customObjectFactory)) return update(customObjectFactory);
         return insert(customObjectFactory);
     }
 
     private static final RowMapper<CustomObjectFactory> ROW_MAPPER = new RowMapper<CustomObjectFactory>() {
-            @Override
-            public CustomObjectFactory mapRow(ResultSet rs, int rowNum) throws SQLException {
-                CustomObjectFactory factory = new CustomObjectFactory();
-                factory.setFileName(rs.getString("FILENAME"));
-                factory.setChecksum(rs.getString("CHECKSUM"));
-                factory.setProcessed(rs.getBoolean("PROCESSED"));
-                return factory;
-            }
-     };
+        @Override
+        public CustomObjectFactory mapRow(ResultSet rs, int rowNum) throws SQLException {
+            CustomObjectFactory factory = new CustomObjectFactory();
+            factory.setFileName(rs.getString("FILENAME"));
+            factory.setChecksum(rs.getString("CHECKSUM"));
+            factory.setProcessed(rs.getBoolean("PROCESSED"));
+            return factory;
+        }
+    };
 
 }

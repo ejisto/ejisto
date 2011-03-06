@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2011  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,8 +86,10 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
      */
     private TreeNode mockedFields2Nodes(Collection<MockedField> in) {
         if (in.isEmpty()) return new EmptyTreeNode();
-        Group<MockedField> groupedFields = group(in, by(on(MockedField.class).getPackageName()), by(on(MockedField.class).getClassSimpleName()), by(on(MockedField.class).getFieldName()));
-        return group2Node(groupedFields,0);
+        Group<MockedField> groupedFields = group(in, by(on(MockedField.class).getPackageName()),
+                                                 by(on(MockedField.class).getClassSimpleName()),
+                                                 by(on(MockedField.class).getFieldName()));
+        return group2Node(groupedFields, 0);
     }
 
     private MockedFieldNode group2Node(Group<MockedField> group, int depth) {
@@ -97,7 +99,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
         } else {
             node = new MockedFieldNode(group.first(), depth < 2);
             for (Group<MockedField> child : group.subgroups())
-                node.add(group2Node(child, depth+1));
+                node.add(group2Node(child, depth + 1));
         }
         return node;
     }
@@ -129,7 +131,10 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
         if (errors.hasErrors()) {
             mf.setFieldValue(previousValue);
             mf.setFieldType(previousType);
-            publishApplicationEvent(new StatusBarMessage(this, getMessage("propertieseditor.invalid.input", String.valueOf(cellEditor.getCellEditorValue()), mf.getFieldName()), true));
+            publishApplicationEvent(new StatusBarMessage(this, getMessage("propertieseditor.invalid.input",
+                                                                          String.valueOf(
+                                                                                  cellEditor.getCellEditorValue()),
+                                                                          mf.getFieldName()), true));
         }
         ((DefaultTreeModel) getModel()).reload();
         setSelectionPath(editingPath);
@@ -214,8 +219,8 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
 
         public MockedFieldNode(MockedField userObject, boolean head) {
             super(userObject);
-            this.field=userObject;
-            this.head=head;
+            this.field = userObject;
+            this.head = head;
         }
 
         @Override

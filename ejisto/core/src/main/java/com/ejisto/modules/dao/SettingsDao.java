@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,38 +55,38 @@ public class SettingsDao extends BaseDao {
             }
         });
     }
-    
+
     public boolean insertSettings(final List<Setting> settings) {
-    	getJdbcTemplate().batchUpdate(INSERT, new BatchPreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				Setting setting = settings.get(i);
-				ps.setString(1, setting.getKey());
-				ps.setString(2, setting.getValue());
-			}
-			
-			@Override
-			public int getBatchSize() {
-				return settings.size();
-			}
-		});
-    	return true;
+        getJdbcTemplate().batchUpdate(INSERT, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                Setting setting = settings.get(i);
+                ps.setString(1, setting.getKey());
+                ps.setString(2, setting.getValue());
+            }
+
+            @Override
+            public int getBatchSize() {
+                return settings.size();
+            }
+        });
+        return true;
     }
-    
+
     public boolean clearSettings(final List<Setting> settings) {
-    	getJdbcTemplate().batchUpdate(DELETE, new BatchPreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				Setting setting = settings.get(i);
-				ps.setString(1, setting.getKey());
-			}
-			
-			@Override
-			public int getBatchSize() {
-				return settings.size();
-			}
-		});
-    	return true;
+        getJdbcTemplate().batchUpdate(DELETE, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                Setting setting = settings.get(i);
+                ps.setString(1, setting.getKey());
+            }
+
+            @Override
+            public int getBatchSize() {
+                return settings.size();
+            }
+        });
+        return true;
     }
 
     private Setting loadFromResultSet(ResultSet rs) throws SQLException {

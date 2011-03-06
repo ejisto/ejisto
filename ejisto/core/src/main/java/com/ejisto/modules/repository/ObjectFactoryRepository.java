@@ -49,13 +49,15 @@ public class ObjectFactoryRepository {
     }
 
     private ObjectFactoryRepository() {
-        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicIntegerFactory","java.util.concurrent.AtomicInteger", false);
-        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicLongFactory", "java.util.concurrent.atomic.AtomicLong", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicIntegerFactory",
+                              "java.util.concurrent.AtomicInteger", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicLongFactory",
+                              "java.util.concurrent.atomic.AtomicLong", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.NumberFactory", "java.lang.Number", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.StringFactory", "java.lang.String", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.DefaultObjectFactory", DEFAULT, false);
-        registerObjectFactory("com.ejisto.modules.factory.impl.CollectionFactory","java.util.Collection", false);
-        registerObjectFactory("com.ejisto.modules.factory.impl.MapFactory","java.util.Map", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.CollectionFactory", "java.util.Collection", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.MapFactory", "java.util.Map", false);
     }
 
     public void registerObjectFactory(String objectFactoryClassName, String targetClassName) {
@@ -73,7 +75,7 @@ public class ObjectFactoryRepository {
         }
         if (notify && eventManager != null) eventManager.publishEvent(new StatusBarMessage(this, message, error));
     }
-    
+
     public String getObjectFactory(String objectClassName, String contextPath) {
         try {
             return scanForObjectFactory(retrieveClassPool(contextPath).get(objectClassName));
@@ -115,6 +117,5 @@ public class ObjectFactoryRepository {
     private void debug(String message) {
         if (logger.isDebugEnabled()) logger.debug(message);
     }
-
 
 }

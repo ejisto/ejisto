@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,20 +23,20 @@ import com.ejisto.constants.StringConstants;
 
 public class ChangeWebAppContextStatus extends BaseApplicationEvent {
     private static final long serialVersionUID = 1350522622740164683L;
-    
+
     public enum WebAppContextStatusCommand {
         START(StringConstants.START_CONTEXT_COMMAND),
         STOP(StringConstants.STOP_CONTEXT_COMMAND),
         DELETE(StringConstants.DELETE_CONTEXT_COMMAND);
         private StringConstants command;
+
         private WebAppContextStatusCommand(StringConstants command) {
-            this.command=command;
+            this.command = command;
         }
-        
+
         public static WebAppContextStatusCommand fromString(String commandAsString) {
             for (WebAppContextStatusCommand statusCommand : values()) {
-                if(statusCommand.command.getValue().equals(commandAsString))
-                    return statusCommand;
+                if (statusCommand.command.getValue().equals(commandAsString)) return statusCommand;
             }
             return null;
         }
@@ -60,11 +60,11 @@ public class ChangeWebAppContextStatus extends BaseApplicationEvent {
     public String getKey() {
         return null;
     }
-    
+
     public WebAppContextStatusCommand getCommand() {
         return command;
     }
-    
+
     public String getContextPath() {
         return contextPath;
     }

@@ -34,7 +34,7 @@ import java.util.List;
 public class ClassTransformer implements ClassFileTransformer {
 
     private static final Logger logger = Logger.getLogger(ClassTransformer.class);
-//    private EjistoClassLoader classLoader;
+    //    private EjistoClassLoader classLoader;
     private ClassPool classPool;
     private String contextPath;
 
@@ -57,7 +57,7 @@ public class ClassTransformer implements ClassFileTransformer {
 
     private CtClass instrument(String className) throws Exception {
         CtClass clazz = classPool.get(className.replaceAll("/", "."));
-        if(clazz.isFrozen()) clazz.defrost();
+        if (clazz.isFrozen()) clazz.defrost();
         removeFinalModifier(clazz);
         addDefaultConstructor(clazz);
         clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, getFieldsFor(className))));
@@ -65,10 +65,8 @@ public class ClassTransformer implements ClassFileTransformer {
     }
 
     @Override
-    public byte[] transform(ClassLoader loader, String className,
-                            Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-                            byte[] classfileBuffer) throws IllegalClassFormatException {
-        if(!isInstrumentableClass(className)) return null;
+    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        if (!isInstrumentableClass(className)) return null;
         List<MockedField> fields = getFieldsFor(className);
         if (fields == null || fields.isEmpty()) return null;
         else return transform(className, fields);
@@ -85,12 +83,12 @@ public class ClassTransformer implements ClassFileTransformer {
     private void addDefaultConstructor(CtClass clazz) throws NotFoundException, CannotCompileException {
         boolean found = false;
         for (CtConstructor constructor : clazz.getConstructors()) {
-            if(constructor.getParameterTypes().length == 0) {
+            if (constructor.getParameterTypes().length == 0) {
                 found = true;
                 break;
             }
         }
-        if(!found) clazz.addConstructor(new CtConstructor(new CtClass[0], clazz));
+        if (!found) clazz.addConstructor(new CtConstructor(new CtClass[0], clazz));
     }
 
     private byte[] transform(String className, List<MockedField> mockedFields) throws IllegalClassFormatException {

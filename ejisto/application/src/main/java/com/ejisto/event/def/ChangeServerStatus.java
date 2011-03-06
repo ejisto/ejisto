@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,26 +21,25 @@ package com.ejisto.event.def;
 
 import com.ejisto.constants.StringConstants;
 
-
 public class ChangeServerStatus extends BaseApplicationEvent {
     private static final long serialVersionUID = 62223689929514687L;
     private Command command;
 
     public enum Command {
-        STARTUP("start.jetty.server", "jetty.start.icon"), 
+        STARTUP("start.jetty.server", "jetty.start.icon"),
         SHUTDOWN("stop.jetty.server", "jetty.stop.icon");
         private String description;
         private String icon;
 
         private Command(String description, String icon) {
             this.description = description;
-            this.icon=icon;
+            this.icon = icon;
         }
 
         public String getDescription() {
             return description;
         }
-        
+
         public String getIcon() {
             return icon;
         }
@@ -64,7 +63,7 @@ public class ChangeServerStatus extends BaseApplicationEvent {
     public String getDescription() {
         return command.getDescription();
     }
-    
+
     @Override
     public String getIconKey() {
         return command.getIcon();

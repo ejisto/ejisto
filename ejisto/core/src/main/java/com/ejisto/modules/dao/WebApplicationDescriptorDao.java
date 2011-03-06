@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,9 +37,9 @@ import java.util.List;
 
 import static ch.lambdaj.Lambda.forEach;
 
-public class WebApplicationDescriptorDao  extends BaseDao {
+public class WebApplicationDescriptorDao extends BaseDao {
 
-    private static final String SQL_LOAD     = "SELECT * FROM WEBAPPLICATIONDESCRIPTOR WHERE CONTEXTPATH = ?";
+    private static final String SQL_LOAD = "SELECT * FROM WEBAPPLICATIONDESCRIPTOR WHERE CONTEXTPATH = ?";
     private static final String SQL_LOAD_ALL = "SELECT * FROM WEBAPPLICATIONDESCRIPTOR";
     private static final String SQL_LOAD_ELEMENTS = "SELECT * FROM WEBAPPLICATIONDESCRIPTORELEMENT WHERE CONTEXTPATH = ?";
     private static final String SQL_DELETE = "DELETE FROM WEBAPPLICATIONDESCRIPTOR WHERE CONTEXTPATH = ?";
@@ -64,7 +64,7 @@ public class WebApplicationDescriptorDao  extends BaseDao {
     public void insert(final WebApplicationDescriptor descriptor) {
         delete(descriptor);
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
-        getJdbcTemplate().update(new PreparedStatementCreator(){
+        getJdbcTemplate().update(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                 PreparedStatement pstm = con.prepareStatement(SQL_INSERT, new String[]{"ID"});
@@ -88,6 +88,7 @@ public class WebApplicationDescriptorDao  extends BaseDao {
                 ps.setString(2, element.getPath());
                 ps.setString(3, element.getKind());
             }
+
             @Override
             public int getBatchSize() {
                 return elements.size();
@@ -99,7 +100,6 @@ public class WebApplicationDescriptorDao  extends BaseDao {
         getJdbcTemplate().update(SQL_DELETE_ELEMENTS, descriptor.getContextPath());
         getJdbcTemplate().update(SQL_DELETE, descriptor.getContextPath());
     }
-
 
     public List<WebApplicationDescriptorElement> getElements(String contextPath) {
         return getJdbcTemplate().query(SQL_LOAD_ELEMENTS, new Object[]{contextPath}, ROW_MAPPER);
@@ -122,7 +122,7 @@ public class WebApplicationDescriptorDao  extends BaseDao {
         @Override
         public List<WebApplicationDescriptor> extractData(ResultSet rs) throws SQLException, DataAccessException {
             List<WebApplicationDescriptor> ret = new ArrayList<WebApplicationDescriptor>();
-            while(rs.next()) ret.add(buildFromResultSet(rs));
+            while (rs.next()) ret.add(buildFromResultSet(rs));
             return ret;
         }
     };
@@ -130,17 +130,17 @@ public class WebApplicationDescriptorDao  extends BaseDao {
     private static final ResultSetExtractor<WebApplicationDescriptor> EXTRACTOR = new ResultSetExtractor<WebApplicationDescriptor>() {
         @Override
         public WebApplicationDescriptor extractData(ResultSet rs) throws SQLException, DataAccessException {
-            if(!rs.next()) return null;
+            if (!rs.next()) return null;
             return buildFromResultSet(rs);
         }
     };
 
     private static WebApplicationDescriptor buildFromResultSet(ResultSet rs) throws SQLException {
         WebApplicationDescriptor descriptor = new WebApplicationDescriptor();
-            descriptor.setId(rs.getInt("ID"));
-            descriptor.setContextPath(rs.getString("CONTEXTPATH"));
-            descriptor.setInstallationPath(rs.getString("INSTALLATIONPATH"));
-            return descriptor;
+        descriptor.setId(rs.getInt("ID"));
+        descriptor.setContextPath(rs.getString("CONTEXTPATH"));
+        descriptor.setInstallationPath(rs.getString("INSTALLATIONPATH"));
+        return descriptor;
     }
-    
+
 }

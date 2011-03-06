@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,6 @@ import static com.ejisto.util.GuiUtils.getMessage;
 
 public class ClassesFilteringController extends AbstractApplicationInstallerController {
 
-        
     private ResourcesFilter classesFilteringTab;
     private Closure1<ActionEvent> selectAllOrNone;
 
@@ -47,10 +46,14 @@ public class ClassesFilteringController extends AbstractApplicationInstallerCont
     @Override
     public ResourcesFilter getView() {
         if (classesFilteringTab != null) return classesFilteringTab;
-        selectAllOrNone = new Closure1<ActionEvent>() {{ of(ClassesFilteringController.this).actionPerformed(var(ActionEvent.class)); }};
-        CallbackAction c1 = new CallbackAction(getMessage("wizard.jarfilter.selectall.text"), SELECT_ALL.getValue(), selectAllOrNone);
-        CallbackAction c2 = new CallbackAction(getMessage("wizard.jarfilter.selectnone.text"), SELECT_NONE.getValue(), selectAllOrNone);
-        classesFilteringTab = new ResourcesFilter(c1,c2);
+        selectAllOrNone = new Closure1<ActionEvent>() {{
+            of(ClassesFilteringController.this).actionPerformed(var(ActionEvent.class));
+        }};
+        CallbackAction c1 = new CallbackAction(getMessage("wizard.jarfilter.selectall.text"), SELECT_ALL.getValue(),
+                                               selectAllOrNone);
+        CallbackAction c2 = new CallbackAction(getMessage("wizard.jarfilter.selectnone.text"), SELECT_NONE.getValue(),
+                                               selectAllOrNone);
+        classesFilteringTab = new ResourcesFilter(c1, c2);
         return classesFilteringTab;
     }
 
@@ -82,20 +85,20 @@ public class ClassesFilteringController extends AbstractApplicationInstallerCont
     public boolean executionCompleted() {
         return true;
     }
-    
+
     @Override
     public void beforeNext() {
         getSession().setBlacklist(getView().getBlacklistedObjects());
     }
 
-	@Override
-	public String getTitleKey() {
-		return "wizard.classesfiltering.title";
-	}
+    @Override
+    public String getTitleKey() {
+        return "wizard.classesfiltering.title";
+    }
 
-	@Override
-	public String getDescriptionKey() {
-		return "wizard.classesfiltering.description";
-	}
+    @Override
+    public String getDescriptionKey() {
+        return "wizard.classesfiltering.description";
+    }
 
 }

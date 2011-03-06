@@ -40,32 +40,36 @@ public abstract class ExternalizableService<T extends BaseDao> {
 
     protected void checkDao() {
         T dao = getDaoInstance();
-        if(dao != null) return;//value injected by Spring AOP or previously created
+        if (dao != null) return;//value injected by Spring AOP or previously created
         try {
             dao = getDaoClass().newInstance();
             dao.setDataSource(getRemoteDataSource());
             setDaoInstance(dao);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to load dao ["+this.getDaoClass()+"]", e);
+            throw new RuntimeException("Unable to load dao [" + this.getDaoClass() + "]", e);
         }
     }
 
     protected abstract T getDaoInstance();
+
     protected abstract void setDaoInstance(T daoInstance);
+
     protected abstract Class<T> getDaoClass();
 
     private static DataSource getRemoteDataSource() {
         boolean locked = false;
         try {
-            if(remoteDataSource != null) return remoteDataSource;
+            if (remoteDataSource != null) return remoteDataSource;
             locked = writeLock.tryLock(500, TimeUnit.MILLISECONDS);
-            if(!locked) throw new RuntimeException("Unable to lock");
-            remoteDataSource = new SimpleDriverDataSource(new ClientDriver(),"jdbc:derby://localhost:5555/memory:ejisto;create=true","ejisto","ejisto");
+            if (!locked) throw new RuntimeException("Unable to lock");
+            remoteDataSource = new SimpleDriverDataSource(new ClientDriver(),
+                                                          "jdbc:derby://localhost:5555/memory:ejisto;create=true",
+                                                          "ejisto", "ejisto");
             return remoteDataSource;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
-            if(locked) writeLock.unlock();
+            if (locked) writeLock.unlock();
         }
     }
 }

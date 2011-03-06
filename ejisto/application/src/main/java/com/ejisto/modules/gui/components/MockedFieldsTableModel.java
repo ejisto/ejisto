@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,8 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     }
 
     public MockedFieldsTableModel(List<MockedField> fields, boolean notifyChanges, boolean partial) {
-        columnHeaders = getMessage(partial ? "wizard.properties.editor.columns" : "main.tab.property.columns").split(",");
+        columnHeaders = getMessage(partial ? "wizard.properties.editor.columns" : "main.tab.property.columns").split(
+                ",");
         this.fields = new ArrayList<MockedField>(fields);
         this.fieldsAsString = stringify(this.fields, partial);
         addTableModelListener(this);
@@ -97,7 +98,6 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
         }
         fireTableCellUpdated(rowIndex, columnIndex);
     }
-
 
     @Override
     public void tableChanged(TableModelEvent e) {

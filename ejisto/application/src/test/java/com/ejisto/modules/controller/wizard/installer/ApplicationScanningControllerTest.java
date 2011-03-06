@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,15 +24,20 @@ import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 
 public class ApplicationScanningControllerTest {
-	
-	@Test
-	public void testGetContextPath() {
-		ApplicationScanningController applicationScanningController = new ApplicationScanningController(null);
-		assertEquals("/simpleWarProject",applicationScanningController.getContextPath("/tmp/ejisto/jetty/webapps/simpleWarProject/"));
-		assertEquals("/simpleWarProject",applicationScanningController.getContextPath("c:\\Windows\\Temp\\Space dir\\ejisto\\jetty\\webapps\\simpleWarProject\\"));
-		assertEquals("/simpleWarProject",applicationScanningController.getContextPath("/tmp/ejisto12 3/jetty/webapps/simpleWarProject/"));
-		assertEquals("/simpleWarProject",applicationScanningController.getContextPath("/tmp/(ejisto12 3)/jetty/webapps/simpleWarProject/"));
-		assertEquals("/simpleWarProject",applicationScanningController.getContextPath("/tmp/(ejisto12 3)/jetty/webapps/simpleWarProject"));
-	}
+
+    @Test
+    public void testGetContextPath() {
+        ApplicationScanningController applicationScanningController = new ApplicationScanningController(null);
+        assertEquals("/simpleWarProject",
+                     applicationScanningController.getContextPath("/tmp/ejisto/jetty/webapps/simpleWarProject/"));
+        assertEquals("/simpleWarProject", applicationScanningController.getContextPath(
+                "c:\\Windows\\Temp\\Space dir\\ejisto\\jetty\\webapps\\simpleWarProject\\"));
+        assertEquals("/simpleWarProject",
+                     applicationScanningController.getContextPath("/tmp/ejisto12 3/jetty/webapps/simpleWarProject/"));
+        assertEquals("/simpleWarProject",
+                     applicationScanningController.getContextPath("/tmp/(ejisto12 3)/jetty/webapps/simpleWarProject/"));
+        assertEquals("/simpleWarProject",
+                     applicationScanningController.getContextPath("/tmp/(ejisto12 3)/jetty/webapps/simpleWarProject"));
+    }
 
 }

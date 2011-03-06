@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@ import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
 import java.util.Collection;
-import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
@@ -44,13 +43,15 @@ public class ApplicationController implements InitializingBean, ApplicationListe
     }
 
     public void startup() {
-        if(logger.isDebugEnabled()) logger.debug("invoking startup services...");
-        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.STARTUP))), Service.class).execute();
+        if (logger.isDebugEnabled()) logger.debug("invoking startup services...");
+        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.STARTUP))),
+                Service.class).execute();
     }
 
     public void shutdown() {
-        if(logger.isDebugEnabled()) logger.debug("invoking startup services...");
-        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.SHUTDOWN))), Service.class).execute();
+        if (logger.isDebugEnabled()) logger.debug("invoking startup services...");
+        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.SHUTDOWN))),
+                Service.class).execute();
         logger.info("Application shutdown succesfully completed. Invoking shutdown hooks via System.exit(0)");
         System.exit(0);
     }

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,19 +19,19 @@
 
 package com.ejisto.modules.dao.entities;
 
-
 public class WebApplicationDescriptorElement {
     enum Kind {
         CLASSPATH,
         BLACKLISTED
     }
+
     private int id;
     private String contextPath;
     private String path;
     private Kind kind = Kind.CLASSPATH;
 
     public WebApplicationDescriptorElement() {
-        
+
     }
 
     public WebApplicationDescriptorElement(String path) {

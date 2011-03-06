@@ -30,13 +30,12 @@ import java.util.Collection;
 public class SummaryTab extends JXPanel {
     private static final long serialVersionUID = 3654712395222166373L;
     private static final String MOCKED_FIELD_TEMPLATE = "<li>%s=%s</li>";
-    private static final String CLASS_START           = "<div><b>%s</b>:<br/><ul>";
-    private static final String NEXT_CLASS            = "</ul></div><div><b>%s</b>:<br/><ul>";
-    private static final String FIELDS_END            = "</ul></div><br/></html>";
+    private static final String CLASS_START = "<div><b>%s</b>:<br/><ul>";
+    private static final String NEXT_CLASS = "</ul></div><div><b>%s</b>:<br/><ul>";
+    private static final String FIELDS_END = "</ul></div><br/></html>";
     private JXLabel summaryTextArea;
     private JScrollPane scrollPane;
-    
-    
+
     public SummaryTab() {
         super();
         initialize();
@@ -46,41 +45,43 @@ public class SummaryTab extends JXPanel {
         setLayout(new BorderLayout());
         add(getScrollPane(), BorderLayout.CENTER);
     }
-    
+
     private JScrollPane getScrollPane() {
-        if(this.scrollPane != null) return this.scrollPane;
-        scrollPane = new JScrollPane(getSummaryTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setPreferredSize(new Dimension(500,250));
-        scrollPane.setMinimumSize(new Dimension(500,250));
-        scrollPane.setMaximumSize(new Dimension(Short.MAX_VALUE,Short.MAX_VALUE));
+        if (this.scrollPane != null) return this.scrollPane;
+        scrollPane = new JScrollPane(getSummaryTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                                     JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setPreferredSize(new Dimension(500, 250));
+        scrollPane.setMinimumSize(new Dimension(500, 250));
+        scrollPane.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
         return scrollPane;
     }
-    
+
     private JXLabel getSummaryTextArea() {
-        if(this.summaryTextArea != null) return this.summaryTextArea;
+        if (this.summaryTextArea != null) return this.summaryTextArea;
         summaryTextArea = new JXLabel();
-        summaryTextArea.setMinimumSize(new Dimension(450,200));
-        summaryTextArea.setPreferredSize(new Dimension(450,200));
-        summaryTextArea.setMaximumSize(new Dimension(Short.MAX_VALUE,Short.MAX_VALUE));
+        summaryTextArea.setMinimumSize(new Dimension(450, 200));
+        summaryTextArea.setPreferredSize(new Dimension(450, 200));
+        summaryTextArea.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
         summaryTextArea.setVerticalAlignment(SwingConstants.TOP);
         return summaryTextArea;
     }
-    
+
     public void renderMockedFields(Collection<MockedField> fields) {
         String classname = null;
         StringBuffer buffer = new StringBuffer("<html>");
         for (MockedField mockedField : fields) {
-            if(classname == null || !classname.equals(mockedField.getClassName())) {
+            if (classname == null || !classname.equals(mockedField.getClassName())) {
                 buffer.append(String.format(classname == null ? CLASS_START : NEXT_CLASS, mockedField.getClassName()));
-                classname = mockedField.getClassName();                
+                classname = mockedField.getClassName();
             }
             renderMockedField(mockedField, buffer);
         }
         buffer.append(FIELDS_END);
         getSummaryTextArea().setText(buffer.toString());
     }
-    
+
     private void renderMockedField(MockedField field, StringBuffer buffer) {
-        buffer.append(String.format(MOCKED_FIELD_TEMPLATE, field.getFieldName(),field.isSimpleValue() ? field.getFieldValue() : "**expression**"));
+        buffer.append(String.format(MOCKED_FIELD_TEMPLATE, field.getFieldName(),
+                                    field.isSimpleValue() ? field.getFieldValue() : "**expression**"));
     }
 }

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2011  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,12 +37,12 @@ public class MockedFieldDumpConverter implements Converter<MockedField, String> 
     @Override
     public String convert(MockedField field) {
         return format(DUMP, field.getContextPath(), field.getClassName(), field.getFieldName(), field.getFieldType(),
-                escapeRaw(field.getFieldValue()), escapeRaw(field.getExpression()), escapeRaw(field.getFieldElementType()), field.isActive() ? "1" : "0");
+                      escapeRaw(field.getFieldValue()), escapeRaw(field.getExpression()),
+                      escapeRaw(field.getFieldElementType()), field.isActive() ? "1" : "0");
     }
 
     private String escapeRaw(String in) {
         return in == null ? null : "'" + in.replaceAll("'", "''") + "'";
     }
-
 
 }

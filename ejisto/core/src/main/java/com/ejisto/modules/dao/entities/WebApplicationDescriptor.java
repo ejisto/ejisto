@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.dao.entities;
 
-
 import com.ejisto.modules.dao.entities.helper.WebApplicationDescriptorHelper;
 import com.ejisto.util.JndiDataSourcesRepository;
 import org.apache.log4j.Logger;
@@ -28,7 +27,6 @@ import org.springframework.util.CollectionUtils;
 import java.io.File;
 import java.io.Serializable;
 import java.util.*;
-
 
 public class WebApplicationDescriptor implements Serializable {
     private static final long serialVersionUID = 2024622778793996648L;

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@ public class Header extends JXPanel implements ComponentListener {
 
     private static final long serialVersionUID = -8596340359045874928L;
 
-    private JLabel logo = null;
     private JLabel gradient = null;
 
     private JXHeader header;
@@ -44,33 +43,33 @@ public class Header extends JXPanel implements ComponentListener {
     private String description;
 
     public Header() {
-        this(null,null);
+        this(null, null);
     }
 
     public Header(String title) {
         this(title, null);
     }
-    
+
     public Header(String title, String description) {
         super();
-        this.title=title;
-        this.description=description;
+        this.title = title;
+        this.description = description;
         initialize();
     }
-    
+
     public void setTitle(String title) {
-        this.title=title;
+        this.title = title;
         getHeader().setTitle(title);
     }
-    
+
     public void setDescription(String description) {
-        this.description=description;
+        this.description = description;
         getHeader().setDescription(description);
     }
-    
+
     /**
      * This method initializes this
-     * 
+     *
      * @return void
      */
     private void initialize() {
@@ -78,7 +77,7 @@ public class Header extends JXPanel implements ComponentListener {
         gradient = new JLabel();
         gradient.setText("");
         gradient.setIcon(getGradient(false));
-        logo = new JLabel();
+        JLabel logo = new JLabel();
         logo.setText("");
         logo.setIcon(new ImageIcon(getClass().getResource("/images/logo_mini.png")));
         setLayout(new BorderLayout());
@@ -93,14 +92,14 @@ public class Header extends JXPanel implements ComponentListener {
         add(getHeader(), BorderLayout.CENTER);
         addComponentListener(this);
     }
-    
+
     private JXHeader getHeader() {
-        if(this.header != null) return this.header;
+        if (this.header != null) return this.header;
         header = new JXHeader();
-        header.setPreferredSize(new Dimension(350,60));
-        header.setMaximumSize(new Dimension(32767,60));
-        if(title != null) header.setTitle(title);
-        if(description != null) header.setDescription(description);
+        header.setPreferredSize(new Dimension(350, 60));
+        header.setMaximumSize(new Dimension(32767, 60));
+        if (title != null) header.setTitle(title);
+        if (description != null) header.setDescription(description);
         header.setBackground(Color.white);
         return header;
     }
@@ -114,7 +113,8 @@ public class Header extends JXPanel implements ComponentListener {
         }
         BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bi.createGraphics();
-        GradientPaint paint = new GradientPaint(new Point2D.Double(0, 0), Color.white, new Point2D.Double(width + 170, height), new Color(82, 139, 197));
+        GradientPaint paint = new GradientPaint(new Point2D.Double(0, 0), Color.white,
+                                                new Point2D.Double(width + 170, height), new Color(82, 139, 197));
         g.setPaint(paint);
         g.fill(new Rectangle2D.Double(0, 0, width, height));
         g.dispose();

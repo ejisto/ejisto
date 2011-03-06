@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,6 @@ public class JndiResourcesEditor extends JXPanel {
         this.fileSelectionListener = fileSelectionListener;
     }
 
-
     private JTabbedPane getResourcesTabbedPane() {
         if (this.tabbedPane != null) return this.tabbedPane;
         Closure1<ActionEvent> callActionPerformed = new Closure1<ActionEvent>() {{
@@ -72,12 +71,12 @@ public class JndiResourcesEditor extends JXPanel {
         int index = 0;
         for (JndiDataSource dataSource : dataSources) {
             editor = new BoundResourceEditor(dataSource, this, index++);
-            editor.getActionMap().put(SELECT_FILE_COMMAND.getValue(), new CallbackAction(SELECT_FILE_COMMAND.getValue(), callActionPerformed));
+            editor.getActionMap().put(SELECT_FILE_COMMAND.getValue(),
+                                      new CallbackAction(SELECT_FILE_COMMAND.getValue(), callActionPerformed));
             tabbedPane.add(editor.getBoundResourceEditor());
         }
         return tabbedPane;
     }
-
 
     private JXPanel getSummaryPane() {
         if (this.summaryPane != null) return this.summaryPane;

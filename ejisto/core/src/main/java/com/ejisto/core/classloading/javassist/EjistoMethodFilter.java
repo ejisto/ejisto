@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,26 +31,26 @@ import static com.ejisto.core.classloading.util.ReflectionUtils.isGetter;
 import static org.hamcrest.Matchers.equalTo;
 
 public class EjistoMethodFilter implements MethodFilter {
-	
-	private Collection<MockedField> fields;
-    private String contextPath;
-    
-	public EjistoMethodFilter(String contextPath, Collection<MockedField> fields) {
-	    this.contextPath = contextPath;
-		this.fields=fields;
-	}
 
-	@Override
-	public boolean isHandled(Method m) {
-		String methodName = m.getName();
-		return isGetter(methodName) && isFieldHandled(getFieldName(methodName));
-	}
-	
-	public boolean isFieldHandled(String fieldName) {
-		return selectFirst(fields, having(on(MockedField.class).getFieldName(),equalTo(fieldName))) != null;
-	}
-	
-	public String getContextPath() {
+    private Collection<MockedField> fields;
+    private String contextPath;
+
+    public EjistoMethodFilter(String contextPath, Collection<MockedField> fields) {
+        this.contextPath = contextPath;
+        this.fields = fields;
+    }
+
+    @Override
+    public boolean isHandled(Method m) {
+        String methodName = m.getName();
+        return isGetter(methodName) && isFieldHandled(getFieldName(methodName));
+    }
+
+    public boolean isFieldHandled(String fieldName) {
+        return selectFirst(fields, having(on(MockedField.class).getFieldName(), equalTo(fieldName))) != null;
+    }
+
+    public String getContextPath() {
         return contextPath;
     }
 

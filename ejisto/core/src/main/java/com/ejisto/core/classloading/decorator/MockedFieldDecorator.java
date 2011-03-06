@@ -29,9 +29,8 @@ import static com.ejisto.core.classloading.util.ReflectionUtils.detach;
 import static com.ejisto.modules.repository.ClassPoolRepository.getRegisteredClassPool;
 
 public class MockedFieldDecorator implements MockedField {
-    private static final String[] COMPLEX_TYPES = {"java.util.Collection","java.util.Map"};
+    private static final String[] COMPLEX_TYPES = {"java.util.Collection", "java.util.Map"};
     private MockedField target;
-
 
     public MockedFieldDecorator(MockedField target) {
         this.target = target;
@@ -43,14 +42,14 @@ public class MockedFieldDecorator implements MockedField {
 
     @Override
     public boolean isSimpleValue() {
-        CtClass clazz=null;
+        CtClass clazz = null;
         CtClass targetClazz = null;
         try {
             ClassPool cp = getRegisteredClassPool(target.getContextPath());
             targetClazz = cp.get(target.getFieldType());
             for (String complexType : COMPLEX_TYPES) {
                 clazz = cp.get(complexType);
-                if(targetClazz.subtypeOf(clazz)) return false;
+                if (targetClazz.subtypeOf(clazz)) return false;
                 clazz.detach();
             }
             return true;
@@ -174,8 +173,8 @@ public class MockedFieldDecorator implements MockedField {
 
     @Override
     public String getCompleteDescription() {
-        return new StringBuilder(getFieldName()).append(" [").append(getCompleteFieldType()).append("]: ").append(evaluateFieldValue())
-                .toString();
+        return new StringBuilder(getFieldName()).append(" [").append(getCompleteFieldType()).append("]: ").append(
+                evaluateFieldValue()).toString();
     }
 
     @Override
@@ -187,11 +186,11 @@ public class MockedFieldDecorator implements MockedField {
 
     private String cleanFieldElementType(String fieldElementType) {
         String[] path = fieldElementType.split("\\.");
-        return path[path.length -1];
+        return path[path.length - 1];
     }
 
     private String evaluateFieldValue() {
-        if(isSimpleValue()) return getFieldValue();
+        if (isSimpleValue()) return getFieldValue();
         return "**expression**";
     }
 

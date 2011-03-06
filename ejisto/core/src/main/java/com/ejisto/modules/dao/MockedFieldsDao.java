@@ -72,12 +72,13 @@ public class MockedFieldsDao extends BaseDao {
     }
 
     public List<MockedField> loadByContextPathAndClassName(String contextPath, String className) {
-        return getJdbcTemplate().query(LOAD_BY_CONTEXTPATH_CLASSNAME, new Object[]{contextPath, className}, new RowMapper<MockedField>() {
-            @Override
-            public MockedField mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return loadFromResultSet(rs);
-            }
-        });
+        return getJdbcTemplate().query(LOAD_BY_CONTEXTPATH_CLASSNAME, new Object[]{contextPath, className},
+                                       new RowMapper<MockedField>() {
+                                           @Override
+                                           public MockedField mapRow(ResultSet rs, int rowNum) throws SQLException {
+                                               return loadFromResultSet(rs);
+                                           }
+                                       });
     }
 
     public int countByContextPathAndClassName(String contextPath, String className) {
@@ -85,13 +86,14 @@ public class MockedFieldsDao extends BaseDao {
     }
 
     public MockedField getMockedField(String contextPath, String className, String fieldName) {
-        return getJdbcTemplate().query(LOAD_BY_CLASSNAME, new Object[]{contextPath, className, fieldName}, new ResultSetExtractor<MockedField>() {
-            @Override
-            public MockedField extractData(ResultSet rs) throws SQLException, DataAccessException {
-                if (rs.next()) return loadFromResultSet(rs);
-                else throw new RuntimeException("No mockedFields found.");
-            }
-        });
+        return getJdbcTemplate().query(LOAD_BY_CLASSNAME, new Object[]{contextPath, className, fieldName},
+                                       new ResultSetExtractor<MockedField>() {
+                                           @Override
+                                           public MockedField extractData(ResultSet rs) throws SQLException, DataAccessException {
+                                               if (rs.next()) return loadFromResultSet(rs);
+                                               else throw new RuntimeException("No mockedFields found.");
+                                           }
+                                       });
     }
 
     public boolean update(final MockedField field) {
@@ -161,6 +163,5 @@ public class MockedFieldsDao extends BaseDao {
         mockedField.setFieldElementType(rs.getString("FIELDELEMENTTYPE"));
         return mockedField;
     }
-
 
 }

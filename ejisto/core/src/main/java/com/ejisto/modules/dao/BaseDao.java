@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
-
 public abstract class BaseDao {
     private JdbcTemplate jdbcTemplate;
 
@@ -34,8 +33,7 @@ public abstract class BaseDao {
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate=new JdbcTemplate(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-
 
 }

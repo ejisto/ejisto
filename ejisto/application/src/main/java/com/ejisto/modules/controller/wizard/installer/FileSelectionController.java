@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,7 +95,6 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
         return executionCompleted;
     }
 
-
     private File openFileSelectionDialog() {
         String directoryPath = SettingsRepository.getInstance().getSettingValue(LAST_FILESELECTION_PATH);
         JFileChooser fileChooser = new JFileChooser(directoryPath);
@@ -111,10 +110,10 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
             }
         });
         if (fileChooser.showOpenDialog(getDialog()) == JFileChooser.APPROVE_OPTION) {
-            SettingsRepository.getInstance().putSettingValue(LAST_FILESELECTION_PATH, fileChooser.getCurrentDirectory().getAbsolutePath());
+            SettingsRepository.getInstance().putSettingValue(LAST_FILESELECTION_PATH,
+                                                             fileChooser.getCurrentDirectory().getAbsolutePath());
             return fileChooser.getSelectedFile();
-        } else
-            return null;
+        } else return null;
     }
 
     private JXPanel getFileSelectionTab() {

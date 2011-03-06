@@ -22,8 +22,7 @@ package com.ejisto.constants;
 public enum StringConstants {
     LIB_DIR("lib.dir"),
     SYSTEM_FOLDERS("system.folders"),
-    JETTY_HOME_DIR("jetty.home"),
-    JETTY_WEBAPPS_DIR("jetty.webapps.dir"),
+    CONTAINERS_HOME_DIR("containers.home"),
     MAIN_TITLE("main.title"),
     APPLICATION_WIDTH("application.dimension.width"),
     APPLICATION_HEIGHT("application.dimension.height"),
@@ -53,7 +52,6 @@ public enum StringConstants {
     DELETE_CONTEXT_PREFIX("delete!!registeredContext!!"),
     CONTEXT_PARAM_NAME("ejisto-target-context-path"),
     DEPLOYABLES_DIR("ejisto.deployables.dir");
-
 
     private String value;
 

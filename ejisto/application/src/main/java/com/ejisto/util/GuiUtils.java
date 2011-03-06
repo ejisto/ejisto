@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,8 @@ public class GuiUtils {
 
     public static void centerOnScreen(Window window) {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        window.setBounds((screen.width / 2 - window.getWidth() / 2), (screen.height / 2 - window.getHeight() / 2), window.getWidth(), window.getHeight());
+        window.setBounds((screen.width / 2 - window.getWidth() / 2), (screen.height / 2 - window.getHeight() / 2),
+                         window.getWidth(), window.getHeight());
     }
 
     public static String getMessage(String key, Object... values) {
@@ -56,8 +57,9 @@ public class GuiUtils {
     }
 
     public static boolean showWarning(Component owner, String text, Object... values) {
-        return JOptionPane.showConfirmDialog(owner, getMessage(text, values), getMessage("confirmation.title"), JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION;
+        return JOptionPane.showConfirmDialog(owner, getMessage(text, values), getMessage("confirmation.title"),
+                                             JOptionPane.YES_NO_OPTION,
+                                             JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION;
     }
 
     public static List<List<String>> stringify(List<MockedField> fields) {
@@ -103,11 +105,13 @@ public class GuiUtils {
     }
 
     public static synchronized Collection<Action> getActionsFor(String prefix) {
-        return select(actionMap, having(on(Action.class).getValue(Action.NAME).toString().startsWith(prefix), equalTo(true)));
+        return select(actionMap,
+                      having(on(Action.class).getValue(Action.NAME).toString().startsWith(prefix), equalTo(true)));
     }
 
     public static Collection<WebAppContext> getAllRegisteredContexts() {
-        return SpringBridge.getInstance().getBean("webAppContextRepository", WebAppContextRepository.class).getAllContexts();
+        return SpringBridge.getInstance().getBean("webAppContextRepository",
+                                                  WebAppContextRepository.class).getAllContexts();
     }
 
     public static void setDefaultFont(Font defaultFont) {

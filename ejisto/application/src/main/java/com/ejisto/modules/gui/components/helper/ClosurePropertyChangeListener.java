@@ -89,6 +89,6 @@ public class ClosurePropertyChangeListener implements PropertyChangeListener, Do
 
     private void firePropertyChange(String newValue) {
         actionMap.get(propertyName).apply(newValue);
-        if(callBackAction != null) callBackAction.apply();
+        if (callBackAction != null) callBackAction.apply();
     }
 }

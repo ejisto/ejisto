@@ -37,42 +37,50 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class EmbeddedDatabaseManager extends AbstractDataSource {
-	
-	private Logger logger = Logger.getLogger(EmbeddedDatabaseManager.class);
+
+    private Logger logger = Logger.getLogger(EmbeddedDatabaseManager.class);
     private SimpleDriverDataSource driverDataSource;
     private NetworkServerControl serverControl;
+    private boolean started;
 
-
-	public void initDb() throws Exception {
+    public void initDb() throws Exception {
         serverControl = new NetworkServerControl(InetAddress.getByName("localhost"), 5555, "ejisto", "ejisto");
         ResourceLoader loader = new DefaultResourceLoader() {
-			@Override
-			protected Resource getResourceByPath(String path) {
-				return new FileSystemResource(path);
-			}
-		};
+            @Override
+            protected Resource getResourceByPath(String path) {
+                return new FileSystemResource(path);
+            }
+        };
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(loader.getResource("classpath:sql/ejisto-schema.sql"));
-        if(!Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) populator.addScript(loader.getResource(System.getProperty(StringConstants.DERBY_SCRIPT.getValue())));
+        if (!Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue()))
+            populator.addScript(loader.getResource(System.getProperty(StringConstants.DERBY_SCRIPT.getValue())));
 //		EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder(loader);
 //		builder.setType(EmbeddedDatabaseType.DERBY).setName("ejisto").addScript("classpath:sql/ejisto-schema.sql");
 //		if(!Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) builder.addScript(System.getProperty(StringConstants.DERBY_SCRIPT.getValue()));
 //		dataSource = builder.build();
         serverControl.start(new PrintWriter(System.out));
         checkServerStartup();
-        driverDataSource = new SimpleDriverDataSource(new ClientDriver(),"jdbc:derby://localhost:5555/memory:ejisto;create=true","ejisto","ejisto");
+        started = true;
+        driverDataSource = new SimpleDriverDataSource(new ClientDriver(),
+                                                      "jdbc:derby://localhost:5555/memory:ejisto;create=true", "ejisto",
+                                                      "ejisto");
         populator.populate(getConnection());
         logger.info("done");
-	}
+    }
+
+    public boolean isStarted() {
+        return started;
+    }
 
     private void checkServerStartup() throws Exception {
         int tries = 0;
-        while(tries < 5) {
+        while (tries < 5) {
             try {
                 Thread.sleep(500);
                 pingServer();
                 return;
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 tries++;
             }
         }
@@ -82,17 +90,15 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
     private void pingServer() throws Exception {
         serverControl.ping();
     }
-	
-	@Override
-	public Connection getConnection() throws SQLException {
-		return driverDataSource.getConnection();
-	}
 
-	@Override
-	public Connection getConnection(String username, String password)
-			throws SQLException {
-		return driverDataSource.getConnection();
-	}
+    @Override
+    public Connection getConnection() throws SQLException {
+        return driverDataSource.getConnection();
+    }
 
+    @Override
+    public Connection getConnection(String username, String password) throws SQLException {
+        return driverDataSource.getConnection();
+    }
 
 }

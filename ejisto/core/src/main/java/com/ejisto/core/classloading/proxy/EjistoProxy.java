@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,18 +39,18 @@ public class EjistoProxy implements MethodInterceptor {
         this.mockedFields = mockedFields;
         this.methodHandler = new EjistoMethodHandler(mockedFields);
     }
-    
+
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
         String name = method.getName();
-        if(isGetter(name)) return handleGetter(obj, method, args, proxy);
-        else if(isSetter(name)) return handleSetter(obj, method, args, proxy);
+        if (isGetter(name)) return handleGetter(obj, method, args, proxy);
+        else if (isSetter(name)) return handleSetter(obj, method, args, proxy);
         return proxy.invokeSuper(obj, args);
     }
 
     private Object handleGetter(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
         MockedField mockedField = getMockedFieldFor(method.getName());
-        if(mockedField == null) return proxy.invokeSuper(obj, args);
+        if (mockedField == null) return proxy.invokeSuper(obj, args);
         return methodHandler.invoke(obj, method, null, args);
     }
 
@@ -59,7 +59,8 @@ public class EjistoProxy implements MethodInterceptor {
     }
 
     private MockedField getMockedFieldFor(String methodName) {
-        return selectFirst(mockedFields, having(on(MockedField.class).getFieldName(), equalTo(getFieldName(methodName))));
+        return selectFirst(mockedFields,
+                           having(on(MockedField.class).getFieldName(), equalTo(getFieldName(methodName))));
     }
 
 }

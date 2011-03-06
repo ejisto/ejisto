@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,18 +46,20 @@ public class MainRootPane extends JXRootPane {
         getContentPane().add(mainPanel, BorderLayout.CENTER);
         setStatusBar(initStatusBar());
     }
-    
+
     private void initMenuBar() {
         JMenuBar jMenuBar = new javax.swing.JMenuBar();
         JMenu jMenuFile = new javax.swing.JMenu("File");
         JMenu jMenuSystem = new javax.swing.JMenu("System");
         JMenuItem open = new JMenuItem(getAction(StringConstants.LOAD_WEB_APP.getValue()));
         open.setText("Open");
-        open.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        open.setAccelerator(
+                javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         jMenuFile.add(open);
 
         JMenuItem jMenuItemExit = new JMenuItem(getAction(StringConstants.SHUTDOWN.getValue()));
-        jMenuItemExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItemExit.setAccelerator(
+                javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItemExit.setText("Exit");
         jMenuFile.add(jMenuItemExit);
 
@@ -69,33 +71,29 @@ public class MainRootPane extends JXRootPane {
     public void log(String message) {
         mainPanel.log(message);
     }
-    
+
     public void toggleDisplayServerLog(boolean collapse) {
         mainPanel.toggleDisplayServerLog(collapse);
     }
-    
+
     public void onPropertyChange() {
-    	mainPanel.onJettyStatusChange();
+        mainPanel.onJettyStatusChange();
     }
 
     public void setStatusBarMessage(String messageText, boolean error) {
         statusLabel.setForeground(error ? Color.red : Color.black);
         statusLabel.setText(messageText);
     }
-    
+
     private JXStatusBar initStatusBar() {
-        if (statusBar != null)
-            return statusBar;
+        if (statusBar != null) return statusBar;
         statusBar = new JXStatusBar();
-        statusBar.setMinimumSize(new Dimension(400,20));
-        statusBar.setPreferredSize(new Dimension(400,20));
+        statusBar.setMinimumSize(new Dimension(400, 20));
+        statusBar.setPreferredSize(new Dimension(400, 20));
         statusBar.setMaximumSize(new Dimension(Short.MAX_VALUE, 20));
         statusLabel = new JXLabel("done");
         statusBar.add(statusLabel);
         return statusBar;
     }
-    
-    
-    
 
 }

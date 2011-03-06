@@ -28,9 +28,7 @@
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context-3.0.xsd
            http://www.springframework.org/schema/util
-           http://www.springframework.org/schema/util/spring-util.xsd
-           http://www.springframework.org/schema/jdbc
-           http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
+           http://www.springframework.org/schema/util/spring-util.xsd">
 
     <context:annotation-config/>
 
@@ -56,7 +54,7 @@
         </property>
     </bean>
 
-    <bean id="applicationController" class="com.ejisto.core.launcher.ApplicationController"/>
+    <bean id="applicationController" class="com.ejisto.core.launcher.ApplicationController" depends-on="dataSource"/>
     <bean id="eventManager" class="com.ejisto.event.EventManager"/>
     <bean id="application" class="com.ejisto.modules.gui.Application" depends-on="settingsManager"/>
     <bean id="settingsManager" class="com.ejisto.modules.conf.SettingsManager"/>
@@ -67,7 +65,8 @@
     <bean id="errorListener" class="com.ejisto.event.listener.ErrorListener"/>
     <bean id="statusBarLogger" class="com.ejisto.event.listener.StatusBarLogger"/>
     <bean id="fieldChangesListener" class="com.ejisto.event.listener.FieldsUpdateListener"/>
-    <bean id="cargoManager" class="com.ejisto.modules.cargo.CargoManager" />
+    <bean id="containerInstaller" class="com.ejisto.event.listener.ContainerInstaller"/>
+
 
     <util:list id="services" value-type="com.ejisto.services.Service">
         <bean class="com.ejisto.services.shutdown.JettyShutdown"/>

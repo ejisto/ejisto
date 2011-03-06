@@ -37,13 +37,17 @@ public class WebApplicationDescriptorHelper {
     }
 
     public boolean isBlacklistedEntry(String filename) {
-        WebApplicationDescriptorElement element = selectFirst(getElements(), having(on(WebApplicationDescriptorElement.class).getPath(), equalTo(filename)));
-	    return  element != null && element.isBlacklisted();
-	}
+        WebApplicationDescriptorElement element = selectFirst(getElements(), having(on(
+                WebApplicationDescriptorElement.class).getPath(), equalTo(filename)));
+        return element != null && element.isBlacklisted();
+    }
 
     public void setBlacklist(List<String> blacklist) {
-        forEach(select(getElements(), having(on(WebApplicationDescriptorElement.class).getPath(),isIn(blacklist))), WebApplicationDescriptorElement.class).blacklist();
-        forEach(select(getElements(), having(on(WebApplicationDescriptorElement.class).getPath(),not(isIn(blacklist)))), WebApplicationDescriptorElement.class).whitelist();
+        forEach(select(getElements(), having(on(WebApplicationDescriptorElement.class).getPath(), isIn(blacklist))),
+                WebApplicationDescriptorElement.class).blacklist();
+        forEach(select(getElements(),
+                       having(on(WebApplicationDescriptorElement.class).getPath(), not(isIn(blacklist)))),
+                WebApplicationDescriptorElement.class).whitelist();
     }
 
     public List<String> getIncludedJars() {
@@ -52,11 +56,12 @@ public class WebApplicationDescriptorHelper {
 
     @SuppressWarnings("unchecked")
     public Collection<MockedField> getModifiedFields() {
-        List<MockedField> fields = select(descriptor.getFields(), having(on(MockedField.class).getFieldValue(), notNullValue()));
+        List<MockedField> fields = select(descriptor.getFields(),
+                                          having(on(MockedField.class).getFieldValue(), notNullValue()));
         fields.addAll(select(descriptor.getFields(),
-                anyOf(having(on(MockedField.class).getFieldElementType(), notNullValue()),
-                      having(on(MockedField.class).getFieldValue(), notNullValue()),
-                      having(on(MockedField.class).getExpression(), notNullValue()))));
+                             anyOf(having(on(MockedField.class).getFieldElementType(), notNullValue()),
+                                   having(on(MockedField.class).getFieldValue(), notNullValue()),
+                                   having(on(MockedField.class).getExpression(), notNullValue()))));
         return selectDistinct(fields, "comparisonKey");
     }
 

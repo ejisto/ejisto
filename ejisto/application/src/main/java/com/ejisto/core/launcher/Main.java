@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,13 +31,14 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.logging.Level;
 
-
 public class Main {
 
     static {
         File baseDir = new File(System.getProperty("user.home"), ".ejisto");
         if (!baseDir.exists() && !baseDir.mkdir()) {
-            JOptionPane.showConfirmDialog(null, "Ejisto doesn't have permissions to create its homedir. Please check system configuration.", "error", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showConfirmDialog(null,
+                                          "Ejisto doesn't have permissions to create its homedir. Please check system configuration.",
+                                          "error", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
             throw new ExceptionInInitializerError("Cannot create home dir. Exiting.");
         }
         System.setProperty("ejisto.home", baseDir.getAbsolutePath());
@@ -61,11 +62,12 @@ public class Main {
             logger.info("starting application... enjoy ejisto!!");
             controller.startup();
         } catch (Exception e) {
-            JXErrorPane.showDialog(null, new ErrorInfo("Startup error", "Startup failed", e.getMessage(), "SEVERE", e, Level.SEVERE, null));
+            JXErrorPane.showDialog(null, new ErrorInfo("Startup error", "Startup failed", e.getMessage(), "SEVERE", e,
+                                                       Level.SEVERE, null));
         }
     }
 
     public static final OutputStream DEV_NULL = new OutputStream() {
-         public void write(int b) { }
-     };
+        public void write(int b) { }
+    };
 }

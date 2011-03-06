@@ -43,12 +43,9 @@ import static com.ejisto.util.GuiUtils.putAction;
 
 public class ResourcesInitializer extends BaseStartupService {
     private static final Logger logger = Logger.getLogger(ResourcesInitializer.class);
-    @Resource
-    private EventManager eventManager;
-    @Resource
-    private EmbeddedDatabaseManager dataSource;
-    @Resource
-    private SettingsManager settingsManager;
+    @Resource private EventManager eventManager;
+    @Resource private EmbeddedDatabaseManager dataSource;
+    @Resource private SettingsManager settingsManager;
 
     @Override
     public void execute() {
@@ -56,38 +53,34 @@ public class ResourcesInitializer extends BaseStartupService {
         File baseDir = new File(System.getProperty("user.home"), ".ejisto");
         if (!baseDir.exists()) initBaseDir(baseDir);
         initDirectories(baseDir);
-        try {
-            dataSource.initDb();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        initDb();
         initStoredWebApps();
         initFonts();
         initDefaultActions();
     }
 
     private void initDirectories(File baseDir) {
-        File jettyDir = new File(baseDir, "jetty");
+        File containersDir = new File(baseDir, "containers");
         File derbyDir = new File(baseDir, "derby");
         File derbyScript = new File(derbyDir, "ejisto.sql");
         File libDir = new File(baseDir, "lib");
         File libExtDir = new File(libDir, "ext");
-        File webappsDir = new File(jettyDir, "webapps");
         File deployables = new File(baseDir, "deployables");
-        initDirectories(derbyDir,
-                jettyDir,
-                webappsDir,
-                libDir,
-                libExtDir,
-                new File(baseDir, "log"),
-                deployables);
-        System.setProperty(JETTY_HOME_DIR.getValue(), jettyDir.getAbsolutePath() + File.separator);
-        System.setProperty(JETTY_WEBAPPS_DIR.getValue(), webappsDir.getAbsolutePath() + File.separator);
+        initDirectories(derbyDir, containersDir, libDir, libExtDir, new File(baseDir, "log"), deployables);
+        System.setProperty(CONTAINERS_HOME_DIR.getValue(), containersDir.getAbsolutePath() + File.separator);
         System.setProperty(DERBY_SCRIPT.getValue(), derbyScript.getAbsolutePath());
         System.setProperty(INITIALIZE_DATABASE.getValue(), String.valueOf(!derbyScript.exists()));
         System.setProperty(LIB_DIR.getValue(), libDir.getAbsolutePath() + File.separator);
         System.setProperty(EXTENSIONS_DIR.getValue(), libExtDir.getAbsolutePath());
         System.setProperty(DEPLOYABLES_DIR.getValue(), deployables.getAbsolutePath());
+    }
+
+    private void initDb() {
+        try {
+            dataSource.initDb();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void initDirectories(File... directories) {
@@ -131,9 +124,9 @@ public class ResourcesInitializer extends BaseStartupService {
 //            UIManager.put(property, new FontUIResource(systemFont));
 //        }
 
-        @SuppressWarnings("unused")
-        String a = JXHeader.uiClassID;//initialize JXHeader.class
-        LookAndFeelAddons.getAddon().loadDefaults(new Object[]{"JXHeader.descriptionFont", defaultFont, "JXHeader.titleFont", bold, "JXTitledPanel.titleFont", bold, "JXHeader.background", Color.white});
+        @SuppressWarnings("unused") String a = JXHeader.uiClassID;//initialize JXHeader.class
+        LookAndFeelAddons.getAddon().loadDefaults(
+                new Object[]{"JXHeader.descriptionFont", defaultFont, "JXHeader.titleFont", bold, "JXTitledPanel.titleFont", bold, "JXHeader.background", Color.white});
         GuiUtils.setDefaultFont(defaultFont);
     }
 

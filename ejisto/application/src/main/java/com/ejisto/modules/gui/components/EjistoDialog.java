@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
  */
 
 package com.ejisto.modules.gui.components;
-
 
 import org.apache.log4j.Logger;
 import org.springframework.util.Assert;
@@ -70,7 +69,8 @@ public class EjistoDialog extends JDialog {
     }
 
     public void registerAction(Action action) {
-        if (logger.isDebugEnabled()) logger.debug("registering action [" + action.getValue(Action.ACTION_COMMAND_KEY) + "]");
+        if (logger.isDebugEnabled())
+            logger.debug("registering action [" + action.getValue(Action.ACTION_COMMAND_KEY) + "]");
         putAction(action.getValue(Action.ACTION_COMMAND_KEY), action);
         this.actions.add(action);
     }
@@ -130,19 +130,19 @@ public class EjistoDialog extends JDialog {
     public Action getActionFor(String command) {
         return getAction(command);
     }
-    
+
     public void setHeaderTitle(String title) {
-    	getHeader().setTitle(title);
+        getHeader().setTitle(title);
     }
-    
+
     public void setHeaderDescription(String headerDescription) {
-    	getHeader().setDescription(headerDescription);
+        getHeader().setDescription(headerDescription);
     }
 
     protected JPanel getButtonsBar() {
         if (this.buttonsBar != null) return this.buttonsBar;
         buttonsBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        buttonsBar.setBorder(BorderFactory.createMatteBorder(1,0,0,0,Color.gray));
+        buttonsBar.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.gray));
         JButton button;
         Dimension buttonSize = new Dimension(120, 25);
         for (Action action : actions) {

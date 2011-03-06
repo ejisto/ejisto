@@ -26,9 +26,10 @@ import com.ejisto.modules.repository.ObjectFactoryRepository;
  * User: celestino
  * Date: 2/16/11
  * Time: 11:22 PM
- *
+ * <p/>
  * Base Class for all the implementations of <code>ObjectFactory&lt;C></code> where <code>C</code> is
  * a Container like <code>Collection&lt;E></code> or <code>Map&lt;K,E></code>
+ *
  * @param <C> the Container Type
  * @param <E> the Element Type
  */
@@ -37,10 +38,12 @@ public abstract class AbstractContainerFactory<C, E> implements ObjectFactory<C>
     @SuppressWarnings("unchecked")
     protected ObjectFactory<E> loadElementObjectFactory(String elementType, String contextPath) {
         try {
-            String objectFactoryClass = ObjectFactoryRepository.getInstance().getObjectFactory(elementType, contextPath);
-            return (ObjectFactory<E>)Thread.currentThread().getContextClassLoader().loadClass(objectFactoryClass).newInstance();
+            String objectFactoryClass = ObjectFactoryRepository.getInstance().getObjectFactory(elementType,
+                                                                                               contextPath);
+            return (ObjectFactory<E>) Thread.currentThread().getContextClassLoader().loadClass(
+                    objectFactoryClass).newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("Got exception during objectFactory loading",e);
+            throw new RuntimeException("Got exception during objectFactory loading", e);
         }
     }
 }

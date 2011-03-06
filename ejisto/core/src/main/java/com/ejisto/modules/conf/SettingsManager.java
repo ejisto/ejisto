@@ -35,8 +35,7 @@ import static org.hamcrest.Matchers.equalTo;
 public class SettingsManager extends ExternalizableService<SettingsDao> implements InitializingBean {
     @Resource(name = "settings")
     private Properties settings;
-    @Resource
-    private SettingsDao settingsDao;
+    @Resource private SettingsDao settingsDao;
     private List<Setting> settingsList;
 
     public int getIntValue(StringConstants key) {
@@ -61,8 +60,7 @@ public class SettingsManager extends ExternalizableService<SettingsDao> implemen
     }
 
     public void flush() throws Exception {
-        if (getSettingsDao().clearSettings(settingsList))
-            getSettingsDao().insertSettings(settingsList);
+        if (getSettingsDao().clearSettings(settingsList)) getSettingsDao().insertSettings(settingsList);
     }
 
     public void putValue(StringConstants key, Object value) {

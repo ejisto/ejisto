@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ package com.ejisto.event.def;
 
 import com.ejisto.constants.StringConstants;
 
-
 public class LoadWebApplication extends BaseApplicationEvent {
     private static final long serialVersionUID = 871817827988790201L;
     private boolean loadStored;
@@ -39,11 +38,11 @@ public class LoadWebApplication extends BaseApplicationEvent {
     public String getKey() {
         return StringConstants.LOAD_WEB_APP.getValue();
     }
-    
+
     public boolean loadStored() {
         return this.loadStored;
     }
-    
+
     public void setLoadStored(boolean loadStored) {
         this.loadStored = loadStored;
     }

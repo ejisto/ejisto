@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,12 +67,14 @@ public class RegisteredContextList extends JXPanel {
     private JXPanel buildContextControlPanel(WebAppContext context) {
         JXPanel panel = new JXPanel(new FlowLayout(FlowLayout.LEADING));
         panel.add(getLabelFor(context));
-        panel.add(getCommandButton(getAction(StringConstants.START_CONTEXT_PREFIX.getValue() + context.getContextPath()),
-                getMessage("jettycontrol.context.start.text")));
+        panel.add(
+                getCommandButton(getAction(StringConstants.START_CONTEXT_PREFIX.getValue() + context.getContextPath()),
+                                 getMessage("jettycontrol.context.start.text")));
         panel.add(getCommandButton(getAction(StringConstants.STOP_CONTEXT_PREFIX.getValue() + context.getContextPath()),
-                getMessage("jettycontrol.context.stop.text")));
-        panel.add(getCommandButton(getAction(StringConstants.DELETE_CONTEXT_PREFIX.getValue() + context.getContextPath()),
-                getMessage("jettycontrol.context.delete.text")));
+                                   getMessage("jettycontrol.context.stop.text")));
+        panel.add(
+                getCommandButton(getAction(StringConstants.DELETE_CONTEXT_PREFIX.getValue() + context.getContextPath()),
+                                 getMessage("jettycontrol.context.delete.text")));
         panel.setMinimumSize(new Dimension(210, 30));
         panel.setMaximumSize(new Dimension(210, 30));
         panel.setPreferredSize(new Dimension(210, 30));

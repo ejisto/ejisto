@@ -117,7 +117,9 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
     void editingStarted() {
         if (lock.isLocked()) return;
         lock.tryLock();
-        getView().initEditorPanel(selectMockedFieldTypes(), getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(), editedField.getClassSimpleName()));
+        getView().initEditorPanel(selectMockedFieldTypes(),
+                                  getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(),
+                                             editedField.getClassSimpleName()));
         getView().expandCollapseEditorPanel(true);
     }
 
@@ -130,7 +132,7 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
     }
 
     private String buildExpression() {
-        return "size="+getView().getFieldSize();
+        return "size=" + getView().getFieldSize();
     }
 
     void editingCanceled() {

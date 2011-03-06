@@ -32,13 +32,13 @@ import java.util.*;
  * <b>WARNING: This factory doesn't mind about keys, it actually handles only values</b>
  * If you want to handle keys, you could write your own factory for abstract implementations of <code>Map</code>, such as
  * <code>java.util.AbstractMap</code> or concrete ones such as <code>java.util.HashMap</code>
- *
+ * <p/>
  * Created by IntelliJ IDEA.
  * User: celestino
  * Date: 1/28/11
  * Time: 11:44 PM
  */
-public class MapFactory<K,V> extends AbstractContainerFactory<Map<K,V>, V> {
+public class MapFactory<K, V> extends AbstractContainerFactory<Map<K, V>, V> {
     @Override
     public String getTargetClassName() {
         return "java.util.Map";
@@ -46,21 +46,20 @@ public class MapFactory<K,V> extends AbstractContainerFactory<Map<K,V>, V> {
 
     @Override
     public Map<K, V> create(MockedField m, Map<K, V> actualValue) {
-        ObjectFactory<V> elementObjectFactory=loadElementObjectFactory(extractValueClass(m), m.getContextPath());
+        ObjectFactory<V> elementObjectFactory = loadElementObjectFactory(extractValueClass(m), m.getContextPath());
         int size = extractSize(m);
-        FakeMap<K,V> map = new FakeMap<K,V>(size);
+        FakeMap<K, V> map = new FakeMap<K, V>(size);
         fillMap(map, elementObjectFactory, m);
         return map;
     }
 
     private void fillMap(Map<K, V> map, ObjectFactory<V> elementObjectFactory, MockedField m) {
-        for(int i=0; i<map.size(); i++) map.put(null, elementObjectFactory.create(m, null));
+        for (int i = 0; i < map.size(); i++) map.put(null, elementObjectFactory.create(m, null));
     }
 
     private int extractSize(MockedField m) {
         for (String s : m.getExpression().split(";")) {
-            if(s.startsWith("size"))
-                return Integer.parseInt(s.split("=")[1]);
+            if (s.startsWith("size")) return Integer.parseInt(s.split("=")[1]);
         }
         return 10;
     }
@@ -70,15 +69,15 @@ public class MapFactory<K,V> extends AbstractContainerFactory<Map<K,V>, V> {
         return valueTypes.split(",")[0].trim();
     }
 
-    private static class FakeMap<K,V> implements Map<K,V> {
+    private static class FakeMap<K, V> implements Map<K, V> {
         private List<V> randomValues;
         private int size;
         private SecureRandom random;
 
         public FakeMap(int size) {
             randomValues = new AutoGrowingList<V>();
-            this.size=size;
-            this.random=new SecureRandom();
+            this.size = size;
+            this.random = new SecureRandom();
         }
 
         @Override
@@ -119,7 +118,7 @@ public class MapFactory<K,V> extends AbstractContainerFactory<Map<K,V>, V> {
 
         @Override
         public void putAll(Map<? extends K, ? extends V> m) {
-            
+
         }
 
         @Override

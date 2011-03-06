@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +71,8 @@ public class ResourcesFilter extends JXPanel {
 
     private JScrollPane getScrollPane() {
         if (this.scrollPane != null) return this.scrollPane;
-        scrollPane = new JScrollPane(getResourcesList(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane = new JScrollPane(getResourcesList(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                                     JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         return scrollPane;
     }
 
@@ -100,7 +101,7 @@ public class ResourcesFilter extends JXPanel {
         }
 
         JButton bSelectNone;
-        if(selectNone == null) {
+        if (selectNone == null) {
             bSelectNone = new JButton(new AbstractActionExt(getMessage("wizard.jarfilter.selectnone.text")) {
                 private static final long serialVersionUID = 1L;
 
@@ -108,7 +109,7 @@ public class ResourcesFilter extends JXPanel {
                 public void actionPerformed(ActionEvent e) {
                     select(false);
                 }
-            }); 
+            });
         } else {
             bSelectNone = new JButton(selectNone);
         }
@@ -116,12 +117,12 @@ public class ResourcesFilter extends JXPanel {
         buttonsPanel.add(bSelectNone);
         return buttonsPanel;
     }
-    
+
     public void select(boolean all) {
-        if(all) getResourcesList().addSelectionInterval(0, resourcesSize - 1);
+        if (all) getResourcesList().addSelectionInterval(0, resourcesSize - 1);
         else getResourcesList().clearSelection();
     }
-    
+
     public List<String> getBlacklistedObjects() {
         int[] indices = getResourcesList().getSelectedIndices();
         if (indices.length == resourcesSize) return emptyList();
@@ -132,5 +133,5 @@ public class ResourcesFilter extends JXPanel {
             if (binarySearch(indices, i++) < 0) ret.add(jar);
         return ret;
     }
-    
+
 }

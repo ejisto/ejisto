@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,17 +21,16 @@ package com.ejisto.event.def;
 
 import com.ejisto.modules.dao.entities.MockedField;
 
-
 public class MockedFieldChanged extends BaseApplicationEvent {
     private static final long serialVersionUID = -1695827582666783071L;
-    
+
     private MockedField mockedField;
 
     public MockedFieldChanged(Object source, MockedField mockedField) {
         super(source);
-        this.mockedField=mockedField;
+        this.mockedField = mockedField;
     }
-    
+
     public MockedField getMockedField() {
         return mockedField;
     }

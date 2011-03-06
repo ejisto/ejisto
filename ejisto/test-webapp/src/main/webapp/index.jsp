@@ -30,7 +30,8 @@
 <html>
 <head><title>Ejisto Test servlet</title></head>
 <body>
-<b><%= bean %></b><br>
+<b><%= bean %>
+</b><br>
 <b>Title: </b> <%= bean.getTitle() %>
 <br><b>Description: </b> <%= bean.getDescription() %>
 <br><b>Hit count: </b> <%= bean.getHits() %>

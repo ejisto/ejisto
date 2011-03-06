@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ package com.ejisto.core.jetty.logging;
 
 import org.apache.log4j.Logger;
 import org.springframework.util.StringUtils;
-
 
 public class JettyLogger implements org.eclipse.jetty.util.log.Logger {
 
@@ -99,6 +98,5 @@ public class JettyLogger implements org.eclipse.jetty.util.log.Logger {
     private String concatMessage(Object... args) {
         return StringUtils.arrayToDelimitedString(args, SPACE);
     }
-
 
 }

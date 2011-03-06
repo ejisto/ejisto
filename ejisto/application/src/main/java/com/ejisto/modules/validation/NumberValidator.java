@@ -53,7 +53,7 @@ public class NumberValidator extends InputVerifier {
     }
 
     private boolean internalVerify(String text) {
-        switch(validationType) {
+        switch (validationType) {
             case DOUBLE:
                 return new Double(text).compareTo(0.0D) >= 0;
             case UNSIGNED_INTEGER:
@@ -67,6 +67,5 @@ public class NumberValidator extends InputVerifier {
             return Integer.parseInt(text) >= 0;
         }
     }
-
 
 }

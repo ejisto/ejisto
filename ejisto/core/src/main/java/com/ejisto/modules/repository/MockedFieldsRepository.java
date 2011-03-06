@@ -44,7 +44,6 @@ public class MockedFieldsRepository extends ExternalizableService<MockedFieldsDa
     private MockedFieldsDao mockedFieldsDao;
     private MockedFieldConverter mockedFieldConverter;
 
-
     public static MockedFieldsRepository getInstance() {
         return INSTANCE;
     }
@@ -62,7 +61,8 @@ public class MockedFieldsRepository extends ExternalizableService<MockedFieldsDa
     }
 
     public List<MockedField> load(String contextPath, String className) {
-        return convert(getMockedFieldsDao().loadByContextPathAndClassName(contextPath, className), mockedFieldConverter);
+        return convert(getMockedFieldsDao().loadByContextPathAndClassName(contextPath, className),
+                       mockedFieldConverter);
     }
 
     public boolean update(MockedField mockedField) {

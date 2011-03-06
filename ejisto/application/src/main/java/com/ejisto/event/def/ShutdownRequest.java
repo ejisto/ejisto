@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,11 @@ package com.ejisto.event.def;
 
 import com.ejisto.constants.StringConstants;
 
-
 public class ShutdownRequest extends BaseApplicationEvent {
 
-	private static final long serialVersionUID = 5574899567022807174L;
+    private static final long serialVersionUID = 5574899567022807174L;
 
-	public ShutdownRequest(Object source) {
+    public ShutdownRequest(Object source) {
         super(source);
     }
 

@@ -37,8 +37,8 @@ public class TextComponentFocusListener extends FocusAdapter {
             @Override
             public void run() {
                 Object o = e.getSource();
-                if(o != null && JTextComponent.class.isAssignableFrom(o.getClass()))
-                ((JTextComponent) e.getSource()).selectAll();
+                if (o != null && JTextComponent.class.isAssignableFrom(o.getClass()))
+                    ((JTextComponent) e.getSource()).selectAll();
             }
         });
     }

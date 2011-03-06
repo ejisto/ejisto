@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,23 +33,21 @@ public class ProgressPanel extends JXPanel {
     private String defaultMessage;
     private JProgressBar progress = null;
     private JXLabel title = null;
-    private int jobsCompleted=0;
+    private int jobsCompleted = 0;
 
     /**
-     * This method initializes 
-     * 
+     * This method initializes
      */
     public ProgressPanel() {
-    	super();
-    	initialize();
+        super();
+        initialize();
     }
 
     /**
      * This method initializes this
-     * 
      */
     private void initialize() {
-        this.defaultMessage=getMessage("progress.start");
+        this.defaultMessage = getMessage("progress.start");
         this.title = new JXLabel(defaultMessage, JXLabel.CENTER);
         this.title.setLineWrap(true);
         this.setLayout(new BorderLayout());
@@ -61,9 +59,9 @@ public class ProgressPanel extends JXPanel {
     }
 
     /**
-     * This method initializes progress	
-     * 	
-     * @return javax.swing.JProgressBar	
+     * This method initializes progress
+     *
+     * @return javax.swing.JProgressBar
      */
     private JProgressBar getProgress() {
         if (progress == null) {
@@ -72,25 +70,24 @@ public class ProgressPanel extends JXPanel {
         }
         return progress;
     }
-    
+
     public void initProgress(int jobs, String text) {
-        jobsCompleted=0;
+        jobsCompleted = 0;
         title.setText(text);
         progress.setMaximum(jobs);
         progress.setValue(0);
         progress.setIndeterminate(false);
     }
-    
-    
+
     public void jobCompleted(String newText) {
-        if(!progress.isIndeterminate())progress.setValue(++jobsCompleted);
-        if(newText != null) title.setText(newText);
+        if (!progress.isIndeterminate()) progress.setValue(++jobsCompleted);
+        if (newText != null) title.setText(newText);
     }
-    
+
     public void jobCompleted() {
         jobCompleted(null);
     }
-    
+
     public void reset() {
         getProgress().setIndeterminate(true);
         title.setText(defaultMessage);

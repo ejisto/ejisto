@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,78 +38,78 @@ import static com.ejisto.util.GuiUtils.getMessage;
 
 public class Application extends javax.swing.JFrame {
 
-	private static final long serialVersionUID = -3746366232127903518L;
-	@Resource
-	private EventManager eventManager;
-	@Resource
-	private SettingsManager settingsManager;
-	private MainRootPane rootPane;
+    private static final long serialVersionUID = -3746366232127903518L;
+    @Resource
+    private EventManager eventManager;
+    @Resource
+    private SettingsManager settingsManager;
+    private MainRootPane rootPane;
     private boolean ready;
     private ArrayList<String> pendingMessages = new ArrayList<String>();
 
-	public Application() {
-	}
+    public Application() {
+    }
 
-	public void init() {
-		setTitle(settingsManager.getValue(MAIN_TITLE));
-		rootPane = new MainRootPane();
-		setRootPane(rootPane);
-		setMinimumSize(new Dimension(700,350));
-		Dimension size = new Dimension(settingsManager.getIntValue(APPLICATION_WIDTH), settingsManager.getIntValue(APPLICATION_HEIGHT));
-		setSize(size);
-		setPreferredSize(size);
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				saveSettings();
-				setVisible(false);
-				eventManager.publishEvent(new ShutdownRequest(this));
-			}
-		});
-		pack();
-		ready=true;
-	}
-	
-	public void log(String message) {
-		if(ready) {
-		    for (String oldMessage : pendingMessages) rootPane.log(oldMessage);
-		    if(!pendingMessages.isEmpty())pendingMessages.clear();
-		    rootPane.log(message);
-		} else {
-		    pendingMessages.add(message);
-		}
-	}
+    public void init() {
+        setTitle(settingsManager.getValue(MAIN_TITLE));
+        rootPane = new MainRootPane();
+        setRootPane(rootPane);
+        setMinimumSize(new Dimension(700, 350));
+        Dimension size = new Dimension(settingsManager.getIntValue(APPLICATION_WIDTH),
+                                       settingsManager.getIntValue(APPLICATION_HEIGHT));
+        setSize(size);
+        setPreferredSize(size);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                saveSettings();
+                setVisible(false);
+                eventManager.publishEvent(new ShutdownRequest(this));
+            }
+        });
+        pack();
+        ready = true;
+    }
+
+    public void log(String message) {
+        if (ready) {
+            for (String oldMessage : pendingMessages) rootPane.log(oldMessage);
+            if (!pendingMessages.isEmpty()) pendingMessages.clear();
+            rootPane.log(message);
+        } else {
+            pendingMessages.add(message);
+        }
+    }
 
     public void setStatusBarMessage(String messageKey, boolean error) {
-        if(ready) {
+        if (ready) {
             rootPane.setStatusBarMessage(messageKey, error);
         }
     }
 
-	public void onServerStatusChange(ChangeServerStatus event) {
-		boolean shutdown = event.getCommand() == Command.SHUTDOWN;
-		if (shutdown)
-			rootPane.log(getMessage("jetty.shutdown.log", new Date()));
-		getAction(START_JETTY.getValue()).setEnabled(shutdown);
-		getAction(STOP_JETTY.getValue()).setEnabled(!shutdown);
-		rootPane.toggleDisplayServerLog(shutdown);
-	}
-	
-	public void onApplicationDeploy() {
-		rootPane.onPropertyChange();
-	}
-	
-	public void onWebAppContextStatusChange() {
+    public void onServerStatusChange(ChangeServerStatus event) {
+        boolean shutdown = event.getCommand() == Command.SHUTDOWN;
+        if (shutdown) rootPane.log(getMessage("jetty.shutdown.log", new Date()));
+        getAction(START_JETTY.getValue()).setEnabled(shutdown);
+        getAction(STOP_JETTY.getValue()).setEnabled(!shutdown);
+        rootPane.toggleDisplayServerLog(shutdown);
+    }
+
+    public void onApplicationDeploy() {
         rootPane.onPropertyChange();
     }
-	
-	public boolean isReady() {
-	    return this.ready;
-	}
-	
-	private void saveSettings() {
-		settingsManager.putValue(APPLICATION_WIDTH, getWidth());
-		settingsManager.putValue(APPLICATION_HEIGHT, getHeight());
-	}
+
+    public void onWebAppContextStatusChange() {
+        rootPane.onPropertyChange();
+    }
+
+    public boolean isReady() {
+        return this.ready;
+    }
+
+    private void saveSettings() {
+        settingsManager.putValue(APPLICATION_WIDTH, getWidth());
+        settingsManager.putValue(APPLICATION_HEIGHT, getHeight());
+    }
 
 }

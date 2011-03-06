@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,13 +28,13 @@ public abstract class BaseApplicationEvent extends ApplicationEvent {
     public BaseApplicationEvent(Object source) {
         super(source);
     }
-    
+
     public abstract String getDescription();
-    
+
     public String getIconKey() {
         return "";
     }
-    
+
     public abstract String getKey();
-    
+
 }

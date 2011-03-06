@@ -50,15 +50,13 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
     private void applyExpressions(Collection<Y> in, String expression, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Y actualValue) {
         try {
             int size = 10;
-            if(expression != null) {
+            if (expression != null) {
                 String[] expressions = expression.split(";");
                 String[] keyValue;
                 for (String exp : expressions) {
                     keyValue = exp.split("=");
-                    if (keyValue[0].equals("size"))
-                        size = Integer.parseInt(keyValue[1]);
-                    else
-                        Ognl.setValue(keyValue[0], in, keyValue[1]);
+                    if (keyValue[0].equals("size")) size = Integer.parseInt(keyValue[1]);
+                    else Ognl.setValue(keyValue[0], in, keyValue[1]);
                 }
             }
             fillCollection(in, size, elementObjectFactory, mockedField, actualValue);

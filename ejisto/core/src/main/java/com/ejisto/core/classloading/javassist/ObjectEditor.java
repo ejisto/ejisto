@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,70 +24,70 @@ import javassist.NotFoundException;
 import javassist.expr.*;
 
 public class ObjectEditor extends ExprEditor {
-	
-	private EjistoMethodFilter filter;
 
-	public ObjectEditor(EjistoMethodFilter filter) {
-		super();
-		this.filter = filter;
-	}
+    private EjistoMethodFilter filter;
 
-	@Override
-	public void edit(NewExpr e) throws CannotCompileException {
-		super.edit(e);
-	}
+    public ObjectEditor(EjistoMethodFilter filter) {
+        super();
+        this.filter = filter;
+    }
 
-	@Override
-	public void edit(NewArray a) throws CannotCompileException {
-		super.edit(a);
-	}
+    @Override
+    public void edit(NewExpr e) throws CannotCompileException {
+        super.edit(e);
+    }
 
-	@Override
-	public void edit(MethodCall m) throws CannotCompileException {
-		super.edit(m);
-	}
+    @Override
+    public void edit(NewArray a) throws CannotCompileException {
+        super.edit(a);
+    }
 
-	@Override
-	public void edit(ConstructorCall c) throws CannotCompileException {
-		super.edit(c);
-	}
+    @Override
+    public void edit(MethodCall m) throws CannotCompileException {
+        super.edit(m);
+    }
 
-	/**
-	 * Calls <code>public static T mockField(String contextPath, String fieldName, String className, T actual)</code> where <code>T</code> is field type
-	 */
-	@Override
-	public void edit(FieldAccess f) throws CannotCompileException {
-		if(f.isReader() && filter.isFieldHandled(f.getFieldName())) {
-			StringBuilder instruction = new StringBuilder("{ $_ = ($r) com.ejisto.core.classloading.javassist.PropertyManager.mockField(");
-			instruction.append("\"").append(filter.getContextPath()).append("\",");
-			try {
-				if(f.getField().getType().isPrimitive())
-					instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(f.getClassName()).append("\", $_); return $_; }");
-				else
-					instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(f.getClassName()).append("\", $type, $_); return $_; }");
-				f.replace(instruction.toString());
-			} catch (NotFoundException e) {
-				e.printStackTrace();
-			}
-			
-		}
-	}
+    @Override
+    public void edit(ConstructorCall c) throws CannotCompileException {
+        super.edit(c);
+    }
 
-	@Override
-	public void edit(Instanceof i) throws CannotCompileException {
-		super.edit(i);
-	}
+    /**
+     * Calls <code>public static T mockField(String contextPath, String fieldName, String className, T actual)</code> where <code>T</code> is field type
+     */
+    @Override
+    public void edit(FieldAccess f) throws CannotCompileException {
+        if (f.isReader() && filter.isFieldHandled(f.getFieldName())) {
+            StringBuilder instruction = new StringBuilder(
+                    "{ $_ = ($r) com.ejisto.core.classloading.javassist.PropertyManager.mockField(");
+            instruction.append("\"").append(filter.getContextPath()).append("\",");
+            try {
+                if (f.getField().getType().isPrimitive())
+                    instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(
+                            f.getClassName()).append("\", $_); return $_; }");
+                else instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(
+                        f.getClassName()).append("\", $type, $_); return $_; }");
+                f.replace(instruction.toString());
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+            }
 
-	@Override
-	public void edit(Cast c) throws CannotCompileException {
-		super.edit(c);
-	}
+        }
+    }
 
-	@Override
-	public void edit(Handler h) throws CannotCompileException {
-		super.edit(h);
-	}
-	
-	
+    @Override
+    public void edit(Instanceof i) throws CannotCompileException {
+        super.edit(i);
+    }
+
+    @Override
+    public void edit(Cast c) throws CannotCompileException {
+        super.edit(c);
+    }
+
+    @Override
+    public void edit(Handler h) throws CannotCompileException {
+        super.edit(h);
+    }
 
 }

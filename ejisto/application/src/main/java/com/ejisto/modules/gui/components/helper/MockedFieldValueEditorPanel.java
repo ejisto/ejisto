@@ -38,7 +38,6 @@ import static com.ejisto.modules.controller.MockedFieldsEditorController.CANCEL_
 import static com.ejisto.modules.controller.MockedFieldsEditorController.STOP_EDITING;
 import static com.ejisto.util.GuiUtils.getMessage;
 
-
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -68,7 +67,7 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
         for (String s : types) {
             this.genericType.addItem(s);
         }
-        this.fieldType=String.valueOf(this.genericType.getSelectedItem());
+        this.fieldType = String.valueOf(this.genericType.getSelectedItem());
     }
 
     public void setTitle(String title) {
@@ -109,9 +108,10 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
         cancel.addActionListener(this);
         size = new JXLabel(getMessage("wizard.properties.editor.complex.size"));
         collectionSize = new JFormattedTextField();
-        collectionSize.addPropertyChangeListener("value", new ClosurePropertyChangeListener("", new Closure1<String>() {{
-            of(MockedFieldValueEditorPanel.this).setSize(var(String.class));
-        }}, null));
+        collectionSize.addPropertyChangeListener("value",
+                                                 new ClosurePropertyChangeListener("", new Closure1<String>() {{
+                                                     of(MockedFieldValueEditorPanel.this).setSize(var(String.class));
+                                                 }}, null));
         collectionSize.setInputVerifier(new NumberValidator(NumberValidator.ValidationType.SIGNED_INTEGER));
         collectionSize.addFocusListener(new TextComponentFocusListener());
         collectionSize.setValue("10");
@@ -123,7 +123,7 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
     }
 
     void setSize(String fieldSize) {
-        this.fieldSize=fieldSize;
+        this.fieldSize = fieldSize;
     }
 
     @Override
@@ -141,7 +141,9 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
      */
     private void $$$setupUI$$$() {
         createUIComponents();
-        editor.setLayout(new FormLayout("fill:max(d;4px):grow,left:4dlu:noGrow,fill:max(p;60px):grow,left:4dlu:noGrow,fill:216px:noGrow,left:9px:grow,fill:max(d;4px):noGrow", "center:d:noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
+        editor.setLayout(new FormLayout(
+                "fill:max(d;4px):grow,left:4dlu:noGrow,fill:max(p;60px):grow,left:4dlu:noGrow,fill:216px:noGrow,left:9px:grow,fill:max(d;4px):noGrow",
+                "center:d:noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
         CellConstraints cc = new CellConstraints();
         editor.add(type, cc.xy(3, 3));
         editor.add(genericType, cc.xy(5, 3));

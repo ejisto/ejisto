@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,22 +21,21 @@ package com.ejisto.modules.dao.entities;
 
 import com.ejisto.constants.StringConstants;
 
-
 public class Setting {
 
     private String key;
     private String value;
     private transient StringConstants humanReadableKey;
-    
+
     public Setting() {
     }
-    
-    public Setting(String key, String value) {
-		this.key = key;
-		this.value = value;
-	}
 
-	public String getKey() {
+    public Setting(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public String getKey() {
         return key;
     }
 
@@ -52,11 +51,11 @@ public class Setting {
         this.value = value;
     }
 
-	public void setHumanReadableKey(StringConstants humanReadableKey) {
-		this.humanReadableKey = humanReadableKey;
-	}
+    public void setHumanReadableKey(StringConstants humanReadableKey) {
+        this.humanReadableKey = humanReadableKey;
+    }
 
-	public StringConstants getHumanReadableKey() {
-		return humanReadableKey;
-	}
+    public StringConstants getHumanReadableKey() {
+        return humanReadableKey;
+    }
 }

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2011  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@ public class MockedFieldImpl implements MockedField {
     private String expression;
     private String fieldElementType;
     private boolean active;
-
 
     @Override
     public long getId() {
@@ -118,9 +117,10 @@ public class MockedFieldImpl implements MockedField {
 
     @Override
     public String toString() {
-        return new StringBuilder("MockedField [id=").append(id).append(", contextPath=").append(contextPath).append(", className=")
-                .append(className).append(", fieldName=").append(fieldName).append(", fieldType=")
-                .append(fieldType).append(", fieldValue=").append(fieldValue).append(", active=").append(active).append("]").toString();
+        return new StringBuilder("MockedField [id=").append(id).append(", contextPath=").append(contextPath).append(
+                ", className=").append(className).append(", fieldName=").append(fieldName).append(
+                ", fieldType=").append(fieldType).append(", fieldValue=").append(fieldValue).append(", active=").append(
+                active).append("]").toString();
     }
 
     @Override

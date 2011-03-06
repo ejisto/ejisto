@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,24 +30,24 @@ public class LogViewer extends JXPanel {
     private static final long serialVersionUID = 2849704565034218976L;
     private JTextArea log;
     private JScrollPane logPanel;
-    
 
-    public LogViewer() { 
-    	super();
+    public LogViewer() {
+        super();
         init();
     }
-    
+
     private void init() {
         setName(getMessage("main.tab.log.text"));
-    	setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
         add(getLogPanel(), BorderLayout.CENTER);
         setBorder(BorderFactory.createEmptyBorder());
     }
-    
+
     private JScrollPane getLogPanel() {
-        if(this.logPanel != null) return this.logPanel;
+        if (this.logPanel != null) return this.logPanel;
         log = new JTextArea();
-        logPanel = new JScrollPane(log, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        logPanel = new JScrollPane(log, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+                                   ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         logPanel.setMinimumSize(new Dimension(500, 100));
 //        logPanel.setPreferredSize(new Dimension(500, 100));
 //        logPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 300));
@@ -55,9 +55,9 @@ public class LogViewer extends JXPanel {
         log.setFont(new java.awt.Font("Monospaced", 0, 9));
         return logPanel;
     }
-    
+
     public void log(String message) {
         log.append(message);
     }
-    
+
 }

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010  Celestino Bellone
+ * Copyright (C) 2010-2011  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,18 +30,20 @@ import java.util.logging.Level;
 
 import static com.ejisto.util.GuiUtils.getMessage;
 
-
 public class ErrorListener implements ApplicationListener<ApplicationError> {
 
     @Resource
     private Application application;
-    
+
     @Override
     public void onApplicationEvent(ApplicationError event) {
         JXErrorPane.showDialog(application, getErrorInfo(event));
     }
 
     private ErrorInfo getErrorInfo(ApplicationError event) {
-        return new ErrorInfo(getMessage("error.dialog.title"),getMessage("error.dialog.message", event.getError().getClass().getName()), event.getError().getMessage(), event.getPriority().name(),event.getError(), Level.SEVERE, null);
+        return new ErrorInfo(getMessage("error.dialog.title"),
+                             getMessage("error.dialog.message", event.getError().getClass().getName()),
+                             event.getError().getMessage(), event.getPriority().name(), event.getError(), Level.SEVERE,
+                             null);
     }
 }
