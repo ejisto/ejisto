@@ -22,7 +22,6 @@ package com.ejisto.modules.controller.wizard.installer;
 import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
-import com.ejisto.modules.dao.entities.JndiDataSource;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.components.EjistoDialog;
@@ -30,16 +29,12 @@ import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.web.ContextListener;
-import com.ejisto.util.JndiDataSourcesRepository;
 import javassist.*;
 import org.apache.log4j.Logger;
 import org.codehaus.cargo.module.webapp.WebXml;
 import org.codehaus.cargo.module.webapp.WebXmlIo;
 import org.codehaus.cargo.module.webapp.WebXmlType;
 import org.codehaus.cargo.module.webapp.WebXmlUtils;
-import org.eclipse.jetty.util.resource.FileResource;
-import org.eclipse.jetty.webapp.WebDescriptor;
-import org.eclipse.jetty.xml.XmlParser;
 import org.jdom.Element;
 import org.springframework.util.Assert;
 
@@ -48,9 +43,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -63,16 +58,17 @@ import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.modules.repository.ClassPoolRepository.registerClassPool;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.IOUtils.*;
-import static com.ejisto.util.JndiUtils.isAlreadyBound;
 
 public class ApplicationScanningController extends AbstractApplicationInstallerController implements Callable<Void> {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
     private Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
     private Future<Void> task;
     private ProgressPanel applicationScanningTab;
+    private String containerHome;
 
-    public ApplicationScanningController(EjistoDialog dialog) {
+    public ApplicationScanningController(EjistoDialog dialog, String containerHome) {
         super(dialog);
+        this.containerHome = containerHome;
     }
 
     @Override
@@ -133,7 +129,9 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     private void loadAllClasses(Collection<String> classnames, WebApplicationDescriptor descriptor) throws NotFoundException, MalformedURLException {
         notifyStart(classnames.size());
         descriptor.deleteAllFields();
-        ClassLoader loader = new URLClassLoader(toUrlArray(descriptor));
+        URL[] descriptorEntries = toUrlArray(descriptor);
+        ClassLoader loader = new URLClassLoader(
+                addServerLibs(descriptorEntries, containerHome + File.separator + "lib"));
         ClassPool cp = new ClassPool(ClassPool.getDefault());
         cp.appendClassPath(new LoaderClassPath(loader));
         CtClass clazz;
@@ -191,13 +189,13 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
             WebXmlUtils.addContextParam(xml, CONTEXT_PARAM_NAME.getValue(), descriptor.getContextPath());
             xml.getRootElement().getChildren().add(0, buildListener(xml.getRootElement().getNamespace().getURI()));
             //TODO to be completed
-            WebDescriptor webDescriptor = new WebDescriptor(new FileResource(webXml.toURI().toURL()));
-            webDescriptor.parse();
-            XmlParser.Node root = webDescriptor.getRoot();
-            Iterator<XmlParser.Node> it = root.iterator("resource-ref");
-            while (it.hasNext()) {
-                buildEnvEntry(it.next());
-            }
+//            WebDescriptor webDescriptor = new WebDescriptor(new FileResource(webXml.toURI().toURL()));
+//            webDescriptor.parse();
+//            XmlParser.Node root = webDescriptor.getRoot();
+//            Iterator<XmlParser.Node> it = root.iterator("resource-ref");
+//            while (it.hasNext()) {
+//                buildEnvEntry(it.next());
+//            }
             WebXmlIo.writeDescriptor(xml, webXml);
         } catch (Exception e) {
             e.printStackTrace();
@@ -212,14 +210,14 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         return listener;
     }
 
-    private void buildEnvEntry(XmlParser.Node node) {
-        String type = node.getString("res-type", false, true);
-        if (!"javax.sql.DataSource".equals(type)) return;
-        JndiDataSource entry = new JndiDataSource();
-        entry.setName(node.getString("res-ref-name", false, true));
-        entry.setType(type);
-        if (!isAlreadyBound(entry.getName())) JndiDataSourcesRepository.store(entry);
-    }
+//    private void buildEnvEntry(XmlParser.Node node) {
+//        String type = node.getString("res-type", false, true);
+//        if (!"javax.sql.DataSource".equals(type)) return;
+//        JndiDataSource entry = new JndiDataSource();
+//        entry.setName(node.getString("res-ref-name", false, true));
+//        entry.setType(type);
+//        if (!isAlreadyBound(entry.getName())) JndiDataSourcesRepository.store(entry);
+//    }
 
     private void packageWar(WebApplicationDescriptor session) {
         String libDir = new StringBuilder(session.getInstallationPath()).append(File.separator).append(

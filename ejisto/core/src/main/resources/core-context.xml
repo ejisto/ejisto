@@ -34,30 +34,6 @@
 
     <bean id="springBridge" class="com.ejisto.util.SpringBridge" factory-method="getInstance"/>
     <util:properties id="settings" location="classpath:settings.properties"/>
-    <bean id="jettyServer" class="org.eclipse.jetty.server.Server" lazy-init="true">
-        <property name="threadPool">
-            <bean id="threadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
-                <property name="minThreads" value="10"/>
-                <property name="maxThreads" value="50"/>
-            </bean>
-        </property>
-        <property name="connectors">
-            <list>
-                <bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                    <property name="port" value="1706"/>
-                </bean>
-            </list>
-        </property>
-        <property name="handler">
-            <bean id="handlers" class="org.eclipse.jetty.server.handler.HandlerCollection">
-                <property name="handlers">
-                    <list>
-                        <ref bean="contexts"/>
-                    </list>
-                </property>
-            </bean>
-        </property>
-    </bean>
     <bean id="cargoManager" class="com.ejisto.modules.cargo.CargoManager"/>
     <bean id="ognlContext" class="ognl.OgnlContext"/>
     <bean id="propertyManager" class="com.ejisto.core.classloading.javassist.PropertyManager"
@@ -65,7 +41,6 @@
     <bean id="ognlAdapter" class="com.ejisto.core.classloading.ognl.OgnlAdapter"/>
     <bean id="ejistoProxyFactory" class="com.ejisto.core.classloading.proxy.EjistoProxyFactory"
           factory-method="getInstance"/>
-    <bean id="webAppContextRepository" class="com.ejisto.core.jetty.WebAppContextRepository"/>
     <bean id="sharedClassLoader" class="com.ejisto.core.classloading.SharedClassLoader" factory-method="getInstance"/>
     <bean id="jndiResourcesRepository" class="com.ejisto.util.JndiDataSourcesRepository" factory-method="getInstance"/>
     <bean abstract="true" id="baseDao" class="com.ejisto.modules.dao.BaseDao" lazy-init="true"/>

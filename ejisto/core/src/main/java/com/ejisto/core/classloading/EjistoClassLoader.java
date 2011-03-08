@@ -22,15 +22,14 @@ package com.ejisto.core.classloading;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.webapp.WebAppClassLoader;
-import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URLClassLoader;
 import java.util.Collection;
 
-public class EjistoClassLoader extends WebAppClassLoader {
+public class EjistoClassLoader extends URLClassLoader {
 
     private static final Logger logger = Logger.getLogger(EjistoClassLoader.class);
     private ClassTransformer transformer;
@@ -38,12 +37,12 @@ public class EjistoClassLoader extends WebAppClassLoader {
     private String installationPath;
     private MockedFieldsRepository mockedFieldsRepository;
 
-    public EjistoClassLoader(String installationPath, WebAppContext context) throws IOException {
-        super(SharedClassLoader.getInstance(), context);
+    public EjistoClassLoader(String installationPath/*, WebAppContext context*/) throws IOException {
+        super(SharedClassLoader.getInstance().getURLs());
 //        InstrumentationHolder.getInstrumentation().addTransformer(new ClassTransformer(this, mockedFields), true);
         this.installationPath = installationPath;
-        this.contextPath = context.getContextPath();
-        this.transformer = new ClassTransformer(context.getContextPath());
+//        this.contextPath = context.getContextPath();
+//        this.transformer = new ClassTransformer(context.getContextPath());
         this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
         addLibExt();
     }

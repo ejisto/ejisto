@@ -43,17 +43,6 @@
         </property>
     </bean>
 
-    <bean id="contexts"
-          class="org.eclipse.jetty.server.handler.ContextHandlerCollection"
-          lazy-init="true">
-
-        <property name="handlers">
-            <list>
-                <bean id="defaultHandler" class="com.ejisto.core.jetty.handlers.EmptyHandler"/>
-            </list>
-        </property>
-    </bean>
-
     <bean id="applicationController" class="com.ejisto.core.launcher.ApplicationController" depends-on="dataSource"/>
     <bean id="eventManager" class="com.ejisto.event.EventManager"/>
     <bean id="application" class="com.ejisto.modules.gui.Application" depends-on="settingsManager"/>

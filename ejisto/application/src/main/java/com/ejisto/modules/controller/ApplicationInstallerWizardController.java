@@ -55,9 +55,11 @@ public class ApplicationInstallerWizardController {
     private int currentIndex = -1;
     private StepController<WebApplicationDescriptor> currentController;
     private boolean success;
+    private String containerHome;
 
-    public ApplicationInstallerWizardController(Frame application) {
+    public ApplicationInstallerWizardController(Frame application, String containerHome) {
         this.application = application;
+        this.containerHome = containerHome;
     }
 
     private void initAndSortControllers(EjistoDialog dialog) {
@@ -65,7 +67,7 @@ public class ApplicationInstallerWizardController {
         controllers.add(new FileSelectionController(dialog));
         controllers.add(new FileExtractionController(dialog));
         controllers.add(new ClassesFilteringController(dialog));
-        controllers.add(new ApplicationScanningController(dialog));
+        controllers.add(new ApplicationScanningController(dialog, containerHome));
         controllers.add(new JndiResourcesEditorController(dialog));
         controllers.add(new PropertiesEditingController(dialog));
         controllers.add(new SummaryController(dialog));

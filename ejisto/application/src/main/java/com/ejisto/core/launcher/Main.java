@@ -54,7 +54,6 @@ public class Main {
             logger.info("Starting Ejisto...");
             logger.info("setting dynamic ClassLoader");
             Thread.currentThread().setContextClassLoader(SharedClassLoader.getInstance());
-            System.setProperty("org.eclipse.jetty.util.log.class", "com.ejisto.core.jetty.logging.JettyLogger");
             logger.info("initializing Spring framework");
             AbstractApplicationContext context = new ClassPathXmlApplicationContext("/spring-context.xml");
             context.registerShutdownHook();

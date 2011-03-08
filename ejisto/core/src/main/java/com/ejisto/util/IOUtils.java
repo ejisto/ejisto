@@ -115,6 +115,15 @@ public class IOUtils {
         return urls;
     }
 
+    public static URL[] addServerLibs(URL[] entries, String serverLibDir) throws MalformedURLException {
+        List<File> jars = getAllFiles(new File(serverLibDir), jarFilter);
+        URL[] ret = new URL[entries.length + jars.size()];
+        System.arraycopy(entries, 0, ret, 0, entries.length);
+        int pos = entries.length;
+        for (File jar : jars) ret[pos++] = jar.toURI().toURL();
+        return ret;
+    }
+
     public static List<File> getAllFiles(File dir, FileExtensionFilter fileExtensionFilter) {
         List<File> files = new ArrayList<File>();
         if (!dir.exists() || !dir.isDirectory()) return files;

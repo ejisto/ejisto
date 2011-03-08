@@ -19,10 +19,10 @@
 
 package com.ejisto.modules.controller;
 
-import org.jdesktop.swingx.JXDialog;
-
 import javax.swing.*;
 import java.awt.*;
+
+import static com.ejisto.util.GuiUtils.centerOnScreen;
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,25 +32,24 @@ import java.awt.*;
  */
 public class DialogManager {
 
-    private JXDialog dialog;
+    private JDialog dialog;
+    private JPanel view;
 
     public DialogManager(Frame parent, JPanel view) {
-        this.dialog = new JXDialog(parent, view);
+        this.dialog = new JDialog(parent);
+        this.view = view;
     }
 
     public void show(boolean modal) {
+        dialog.setUndecorated(true);
+        dialog.getContentPane().setLayout(new BorderLayout(0, 0));
+        dialog.getContentPane().add(view, BorderLayout.CENTER);
         dialog.setModal(modal);
+        dialog.setPreferredSize(new Dimension(500, 150));
+        dialog.setSize(new Dimension(500, 150));
+        centerOnScreen(dialog);
+        dialog.doLayout();
         dialog.setVisible(true);
-    }
-
-    public void showInSeparateThread(boolean modal) {
-        dialog.setModal(modal);
-        new Thread() {
-            @Override
-            public void run() {
-                dialog.setVisible(true);
-            }
-        }.start();
     }
 
     public void hide() {

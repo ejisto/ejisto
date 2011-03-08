@@ -27,7 +27,7 @@ public class ApplicationScanningControllerTest {
 
     @Test
     public void testGetContextPath() {
-        ApplicationScanningController applicationScanningController = new ApplicationScanningController(null);
+        ApplicationScanningController applicationScanningController = new ApplicationScanningController(null, null);
         assertEquals("/simpleWarProject",
                      applicationScanningController.getContextPath("/tmp/ejisto/jetty/webapps/simpleWarProject/"));
         assertEquals("/simpleWarProject", applicationScanningController.getContextPath(

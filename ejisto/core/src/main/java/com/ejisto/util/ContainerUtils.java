@@ -17,13 +17,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.core.jetty.logging;
+package com.ejisto.util;
 
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.WriterAppender;
+import java.io.File;
+import java.util.regex.Pattern;
 
-public class JettyAppender extends WriterAppender {
-    public JettyAppender() {
-        super(new PatternLayout("%-4r [%t] %-5p %c %x - %m%n"), new EventOutputStream());
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 3/8/11
+ * Time: 9:31 PM
+ */
+public class ContainerUtils {
+
+    private static final Pattern AGENT_JAR = Pattern.compile("^ejisto-agent.*?\\.jar$");
+
+    public static String extractAgentJar(String classPath) {
+        String[] entries = classPath.split(Pattern.quote(File.pathSeparator));
+        for (String entry : entries) {
+            if (AGENT_JAR.matcher(entry).matches()) return entry;
+        }
+        return null;
     }
 }

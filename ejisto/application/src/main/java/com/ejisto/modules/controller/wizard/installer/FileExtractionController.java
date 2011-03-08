@@ -101,7 +101,8 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
     }
 
     private String openWar(File file) throws IOException {
-        File baseDir = new File(System.getProperty("java.io.tmpdir") + UUID.randomUUID().toString() + File.separator);
+        File baseDir = new File(
+                System.getProperty("java.io.tmpdir") + File.separator + UUID.randomUUID().toString() + File.separator);
         if (!overwriteDir(baseDir)) return null;
         getSession().clearElements();
         ZipFile war = new ZipFile(file);

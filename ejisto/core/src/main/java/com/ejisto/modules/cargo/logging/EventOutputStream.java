@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.core.jetty.logging;
+package com.ejisto.modules.cargo.logging;
 
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.LogMessage;

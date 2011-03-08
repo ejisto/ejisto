@@ -21,10 +21,12 @@ package com.ejisto.util;
 
 import com.ejisto.modules.dao.entities.JndiDataSource;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.eclipse.jetty.jndi.NamingContext;
 import org.springframework.jndi.JndiTemplate;
 
-import javax.naming.*;
+import javax.naming.CompoundName;
+import javax.naming.Name;
+import javax.naming.NameParser;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.util.Hashtable;
 import java.util.List;
@@ -58,8 +60,9 @@ public class JndiUtils {
     }
 
     public static void bindResource(String name, Object value) throws NamingException {
+        //TODO implement container configuration
         JndiTemplate template = new JndiTemplate(environment);
-        checkParentResources(name, template);
+        //checkParentResources(name, template);
         if (isAlreadyBound(name)) template.rebind(name, value);
         else template.bind(name, value);
     }
@@ -75,24 +78,6 @@ public class JndiUtils {
 
     public static boolean isAlreadyBound(String resourceName) {
         return getBoundDataSource(resourceName) != null;
-    }
-
-    private static void checkParentResources(String resourceName, JndiTemplate template) throws NamingException {
-        String[] elements = resourceName.split("/");
-        if (elements.length == 1) return;
-        Context parent = template.getContext();
-        NamingContext nc;
-        String element;
-        for (int i = 0; i < elements.length - 1; i++) {
-            element = elements[i];
-            try {
-                template.lookup(element);
-            } catch (NamingException ex) {
-                nc = new NamingContext(envTable, element, parent, new DefaultParser());
-                template.bind(element, nc);
-                parent = nc;
-            }
-        }
     }
 
     private static DataSource createDataSource(JndiDataSource dataSourceEnvEntry) {

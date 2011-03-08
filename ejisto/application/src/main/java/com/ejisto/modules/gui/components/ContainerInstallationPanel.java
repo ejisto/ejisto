@@ -46,6 +46,10 @@ public class ContainerInstallationPanel extends JXPanel {
         getProgressPanel().jobCompleted(nextJobDescription);
     }
 
+    public void initProgress(int jobs, String text) {
+        getProgressPanel().initProgress(jobs, text);
+    }
+
     private void init() {
         setLayout(new BorderLayout());
         add(getHeader(), BorderLayout.NORTH);

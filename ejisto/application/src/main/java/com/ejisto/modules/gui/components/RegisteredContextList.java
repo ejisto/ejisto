@@ -19,18 +19,13 @@
 
 package com.ejisto.modules.gui.components;
 
-import com.ejisto.constants.StringConstants;
-import com.ejisto.util.GuiUtils;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.jdesktop.swingx.JXButton;
-import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collection;
 
-import static com.ejisto.util.GuiUtils.*;
+import static com.ejisto.util.GuiUtils.getMessage;
 
 public class RegisteredContextList extends JXPanel {
     private static final long serialVersionUID = 7817710546838911106L;
@@ -46,10 +41,6 @@ public class RegisteredContextList extends JXPanel {
 
     private void internalReloadAllContexts(boolean removeAll) {
         if (removeAll) removeAll();
-        Collection<WebAppContext> contexts = getAllRegisteredContexts();
-        for (WebAppContext context : contexts) {
-            add(buildContextControlPanel(context));
-        }
         revalidate();
         repaint();
     }
@@ -64,33 +55,33 @@ public class RegisteredContextList extends JXPanel {
         internalReloadAllContexts(false);
     }
 
-    private JXPanel buildContextControlPanel(WebAppContext context) {
-        JXPanel panel = new JXPanel(new FlowLayout(FlowLayout.LEADING));
-        panel.add(getLabelFor(context));
-        panel.add(
-                getCommandButton(getAction(StringConstants.START_CONTEXT_PREFIX.getValue() + context.getContextPath()),
-                                 getMessage("jettycontrol.context.start.text")));
-        panel.add(getCommandButton(getAction(StringConstants.STOP_CONTEXT_PREFIX.getValue() + context.getContextPath()),
-                                   getMessage("jettycontrol.context.stop.text")));
-        panel.add(
-                getCommandButton(getAction(StringConstants.DELETE_CONTEXT_PREFIX.getValue() + context.getContextPath()),
-                                 getMessage("jettycontrol.context.delete.text")));
-        panel.setMinimumSize(new Dimension(210, 30));
-        panel.setMaximumSize(new Dimension(210, 30));
-        panel.setPreferredSize(new Dimension(210, 30));
-        panel.setBorder(BorderFactory.createLineBorder(Color.black, 1));
-        return panel;
-    }
-
-    private JXLabel getLabelFor(WebAppContext context) {
-        boolean active = context.isRunning();
-        String color = getMessage(active ? "jettycontrol.context.active.color" : "jettycontrol.context.inactive.color");
-        String status = getMessage(active ? "jettycontrol.context.active" : "jettycontrol.context.inactive");
-        String message = getMessage("jettycontrol.context.template", context.getContextPath(), color, status);
-        JXLabel label = new JXLabel(message);
-        label.setFont(GuiUtils.getDefaultFont());
-        return label;
-    }
+//    private JXPanel buildContextControlPanel(WebAppContext context) {
+//        JXPanel panel = new JXPanel(new FlowLayout(FlowLayout.LEADING));
+//        panel.add(getLabelFor(context));
+//        panel.add(
+//                getCommandButton(getAction(StringConstants.START_CONTEXT_PREFIX.getValue() + context.getContextPath()),
+//                                 getMessage("jettycontrol.context.start.text")));
+//        panel.add(getCommandButton(getAction(StringConstants.STOP_CONTEXT_PREFIX.getValue() + context.getContextPath()),
+//                                   getMessage("jettycontrol.context.stop.text")));
+//        panel.add(
+//                getCommandButton(getAction(StringConstants.DELETE_CONTEXT_PREFIX.getValue() + context.getContextPath()),
+//                                 getMessage("jettycontrol.context.delete.text")));
+//        panel.setMinimumSize(new Dimension(210, 30));
+//        panel.setMaximumSize(new Dimension(210, 30));
+//        panel.setPreferredSize(new Dimension(210, 30));
+//        panel.setBorder(BorderFactory.createLineBorder(Color.black, 1));
+//        return panel;
+//    }
+//
+//    private JXLabel getLabelFor(WebAppContext context) {
+//        boolean active = context.isRunning();
+//        String color = getMessage(active ? "jettycontrol.context.active.color" : "jettycontrol.context.inactive.color");
+//        String status = getMessage(active ? "jettycontrol.context.active" : "jettycontrol.context.inactive");
+//        String message = getMessage("jettycontrol.context.template", context.getContextPath(), color, status);
+//        JXLabel label = new JXLabel(message);
+//        label.setFont(GuiUtils.getDefaultFont());
+//        return label;
+//    }
 
     private JXButton getCommandButton(Action action, String toolTipText) {
         JXButton button = new JXButton(action);

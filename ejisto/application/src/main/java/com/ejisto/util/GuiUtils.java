@@ -19,11 +19,9 @@
 
 package com.ejisto.util;
 
-import com.ejisto.core.jetty.WebAppContextRepository;
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.EjistoAction;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.util.StringUtils;
 
 import javax.swing.*;
@@ -107,11 +105,6 @@ public class GuiUtils {
     public static synchronized Collection<Action> getActionsFor(String prefix) {
         return select(actionMap,
                       having(on(Action.class).getValue(Action.NAME).toString().startsWith(prefix), equalTo(true)));
-    }
-
-    public static Collection<WebAppContext> getAllRegisteredContexts() {
-        return SpringBridge.getInstance().getBean("webAppContextRepository",
-                                                  WebAppContextRepository.class).getAllContexts();
     }
 
     public static void setDefaultFont(Font defaultFont) {

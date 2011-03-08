@@ -19,9 +19,11 @@
 
 package com.ejisto.modules.cargo;
 
+import com.ejisto.modules.cargo.logging.ServerLogger;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.repository.ContainersRepository;
+import com.ejisto.util.ContainerUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.cargo.container.ContainerType;
 import org.codehaus.cargo.container.LocalContainer;
@@ -31,8 +33,8 @@ import org.codehaus.cargo.container.deployable.Deployable;
 import org.codehaus.cargo.container.deployable.DeployableType;
 import org.codehaus.cargo.container.deployer.Deployer;
 import org.codehaus.cargo.container.deployer.URLDeployableMonitor;
-import org.codehaus.cargo.container.installer.Installer;
 import org.codehaus.cargo.container.installer.ZipURLInstaller;
+import org.codehaus.cargo.container.spi.AbstractInstalledLocalContainer;
 import org.codehaus.cargo.generic.DefaultContainerFactory;
 import org.codehaus.cargo.generic.configuration.ConfigurationFactory;
 import org.codehaus.cargo.generic.configuration.DefaultConfigurationFactory;
@@ -42,8 +44,16 @@ import org.codehaus.cargo.generic.deployer.DefaultDeployerFactory;
 import org.codehaus.cargo.generic.deployer.DeployerFactory;
 
 import javax.annotation.Resource;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.ejisto.util.IOUtils.guessWebApplicationUri;
 
@@ -61,8 +71,37 @@ public class CargoManager {
     @Resource
     private ContainersRepository containersRepository;
 
-    public String downloadAndInstall(String url, String folder) throws IOException {
-        Installer installer = new ZipURLInstaller(new URL(url), folder);
+    public String downloadAndInstall(String urlToString, String folder) throws IOException {
+        final URL url = new URL(urlToString.trim());
+        ZipURLInstaller installer = new ZipURLInstaller(url, folder) {
+            @Override
+            protected void download() {
+                try {
+                    URLConnection connection = url.openConnection();
+//                    connection.setDoInput(true);
+//                    connection.setDoOutput(false);
+                    connection.connect();
+                    int total = connection.getContentLength();
+                    BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
+                    FileOutputStream out = new FileOutputStream(new File(getDestinationDir(), getSourceFileName()));
+                    FileChannel ch = out.getChannel();
+                    byte[] buffer = new byte[512000];
+                    int readed;
+                    int totalReaded = 0;
+                    while ((readed = bis.read(buffer)) != -1) {
+                        totalReaded += readed;
+                        logger.debug("readed " + totalReaded + " of " + total);
+                        ch.write(ByteBuffer.wrap(buffer, 0, readed));
+                    }
+                    ch.close();
+                    out.close();
+
+                } catch (IOException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+        };
+
         installer.install();
         containersRepository.registerDefaultContainer(DEFAULT, installer.getHome(), DEFAULT);
         return installer.getHome();
@@ -106,17 +145,27 @@ public class CargoManager {
         return true;
     }
 
-    public LocalContainer loadDefault() throws NotInstalledException {
+    public AbstractInstalledLocalContainer loadDefault() throws NotInstalledException {
         Container container = containersRepository.loadDefault();
         return loadContainer(container.getCargoId(), container.getHomeDir());
     }
 
-    public LocalContainer loadContainer(String containerId, String serverHome) {
+    public AbstractInstalledLocalContainer loadContainer(String containerId, String serverHome) {
         ConfigurationFactory configurationFactory = new DefaultConfigurationFactory();
         Configuration configuration = configurationFactory.createConfiguration(containerId, ContainerType.INSTALLED,
                                                                                ConfigurationType.EXISTING, serverHome);
         DefaultContainerFactory containerFactory = new DefaultContainerFactory();
-        return (LocalContainer) containerFactory.createContainer(containerId, ContainerType.INSTALLED, configuration);
+        AbstractInstalledLocalContainer container = (AbstractInstalledLocalContainer) containerFactory.createContainer(
+                containerId, ContainerType.INSTALLED, configuration);
+        container.setHome(serverHome);
+        container.setLogger(new ServerLogger());
+        String agentPath = ContainerUtils.extractAgentJar(System.getProperty("java.class.path"));
+        container.addExtraClasspath(agentPath);
+        Map<String, String> systemProperties = container.getSystemProperties();
+        if (systemProperties == null) systemProperties = new HashMap<String, String>();
+        systemProperties.put("cargo.jvmargs", "-javaagent:" + agentPath + " -Xmx512m -Xms128m -XX:MaxPermSize=128m ");
+        container.setSystemProperties(systemProperties);
+        return container;
     }
 
     public boolean deployToDefaultContainer(WebApplicationDescriptor webApplicationDescriptor) throws NotInstalledException {

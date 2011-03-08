@@ -31,7 +31,7 @@ import static java.lang.String.format;
  * Time: 8:55 AM
  */
 public class ContainerDumpConverter implements Converter<Container, String> {
-    private static final String DUMP = "INSERT INTO CONTAINER (ID, CARGOID, HOMEDIR, DESCRIPTION) VALUES('%s','%s','%s','%s');";
+    private static final String DUMP = "INSERT INTO CONTAINER (ID, CARGOID, HOMEDIR, DESCRIPTION) VALUES(%s,%s,%s,%s);";
 
     @Override
     public String convert(Container from) {

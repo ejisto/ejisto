@@ -67,7 +67,7 @@ public class ResourcesInitializer extends BaseStartupService {
         File libExtDir = new File(libDir, "ext");
         File deployables = new File(baseDir, "deployables");
         initDirectories(derbyDir, containersDir, libDir, libExtDir, new File(baseDir, "log"), deployables);
-        System.setProperty(CONTAINERS_HOME_DIR.getValue(), containersDir.getAbsolutePath() + File.separator);
+        System.setProperty(CONTAINERS_HOME_DIR.getValue(), containersDir.getAbsolutePath());
         System.setProperty(DERBY_SCRIPT.getValue(), derbyScript.getAbsolutePath());
         System.setProperty(INITIALIZE_DATABASE.getValue(), String.valueOf(!derbyScript.exists()));
         System.setProperty(LIB_DIR.getValue(), libDir.getAbsolutePath() + File.separator);
