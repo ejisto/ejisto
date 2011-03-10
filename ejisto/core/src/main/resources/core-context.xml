@@ -34,7 +34,7 @@
 
     <bean id="springBridge" class="com.ejisto.util.SpringBridge" factory-method="getInstance"/>
     <util:properties id="settings" location="classpath:settings.properties"/>
-    <bean id="cargoManager" class="com.ejisto.modules.cargo.CargoManager"/>
+    <bean id="containerManager" class="com.ejisto.modules.cargo.CargoManager"/>
     <bean id="ognlContext" class="ognl.OgnlContext"/>
     <bean id="propertyManager" class="com.ejisto.core.classloading.javassist.PropertyManager"
           factory-method="getInstance"/>

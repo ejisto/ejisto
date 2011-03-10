@@ -20,13 +20,13 @@
 package com.ejisto.event.listener;
 
 import ch.lambdaj.function.closure.Closure1;
+import com.ejisto.core.container.ContainerManager;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.ChangeWebAppContextStatus.WebAppContextStatusCommand;
 import com.ejisto.event.def.InstallContainer;
 import com.ejisto.event.def.LoadWebApplication;
 import com.ejisto.event.def.StatusBarMessage;
-import com.ejisto.modules.cargo.CargoManager;
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.controller.ApplicationInstallerWizardController;
 import com.ejisto.modules.dao.WebApplicationDescriptorDao;
@@ -36,7 +36,6 @@ import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import org.apache.log4j.Logger;
-import org.codehaus.cargo.container.spi.AbstractInstalledLocalContainer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.Assert;
 
@@ -63,27 +62,26 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     @Resource private EventManager eventManager;
     @Resource private MockedFieldsRepository mockedFieldsRepository;
     @Resource private WebApplicationDescriptorDao webApplicationDescriptorDao;
-    @Resource private CargoManager cargoManager;
+    @Resource private ContainerManager containerManager;
 
     private Closure1<ActionEvent> callNotifyCommand;
 
     @Override
     public void onApplicationEvent(LoadWebApplication event) {
-        if (event.loadStored()) loadExistingWebApplications();
-        else installNewWebApplication();
+        try {
+            if (event.loadStored()) loadExistingWebApplications();
+            else installNewWebApplication();
+        } catch (NotInstalledException e) {
+            showErrorMessage(application, getMessage("container.installation.required"));
+            eventManager.publishEvent(new InstallContainer(this, e.getId(), true));
+        } catch (Exception e) {
+            eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));
+            logger.error(e.getMessage(), e);
+        }
     }
 
-    private void installNewWebApplication() {
-        AbstractInstalledLocalContainer container;
-        try {
-            container = cargoManager.loadDefault();
-        } catch (NotInstalledException e) {
-            logger.error("server " + e.getId() + " is not installed.", e);
-            eventManager.publishEvent(new InstallContainer(this, e.getId(), false));
-            return;
-        }
-        ApplicationInstallerWizardController controller = new ApplicationInstallerWizardController(application,
-                                                                                                   container.getHome());
+    private void installNewWebApplication() throws NotInstalledException {
+        ApplicationInstallerWizardController controller = new ApplicationInstallerWizardController(application, containerManager.getDefaultHome());
         if (!controller.showWizard()) return;
         WebApplicationDescriptor webApplicationDescriptor = controller.getWebApplicationDescriptor();
         List<MockedField> fields = new ArrayList<MockedField>(webApplicationDescriptor.getModifiedFields());
@@ -95,31 +93,23 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         saveWebAppDescriptor(webApplicationDescriptor);
         startBrowser(webApplicationDescriptor);
         application.onApplicationDeploy();
-        eventManager.publishEvent(new StatusBarMessage(this, getMessage("statusbar.installation.successful.message",
-                                                                        webApplicationDescriptor.getContextPath()),
-                                                       false));
+        eventManager.publishEvent(
+                new StatusBarMessage(this, getMessage("statusbar.installation.successful.message", webApplicationDescriptor.getContextPath()),
+                                     false));
     }
 
     private void loadExistingWebApplications() {
         loadWebAppDescriptors();
     }
 
-    private void deployWebApp(WebApplicationDescriptor webApplicationDescriptor) {
+    private void deployWebApp(WebApplicationDescriptor webApplicationDescriptor) throws NotInstalledException {
         if (webApplicationDescriptor == null) return;
-        try {
-            cargoManager.deployToDefaultContainer(webApplicationDescriptor);
-            //undeployExistingWebapp(webApplicationDescriptor.getContextPath(), false);
-            //bindAllDataSources(classLoader, webApplicationDescriptor);
+        containerManager.deployToDefaultContainer(webApplicationDescriptor);
+        //undeployExistingWebapp(webApplicationDescriptor.getContextPath(), false);
+        //bindAllDataSources(classLoader, webApplicationDescriptor);
 //            webAppContextRepository.registerWebAppContext(context);
 //            registerActions(context);
 
-        } catch (NotInstalledException e) {
-            logger.error("server " + e.getId() + " is not installed.", e);
-            eventManager.publishEvent(new InstallContainer(this, e.getId(), false));
-        } catch (Exception e) {
-            eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));
-            logger.error(e.getMessage(), e);
-        }
     }
 //TODO implement DataSources binding
 //    private void bindAllDataSources(EjistoClassLoader context, WebApplicationDescriptor descriptor) throws Exception {
@@ -167,8 +157,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
                     stopWebapp(command[1]);
                     break;
                 case DELETE:
-                    if (showWarning(application, "jettycontrol.context.delete.warning", command[1]))
-                        undeployExistingWebapp(command[1], true);
+                    if (showWarning(application, "jettycontrol.context.delete.warning", command[1])) undeployExistingWebapp(command[1], true);
                     break;
                 default:
                     break;
@@ -249,7 +238,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
 
     private void startBrowser(WebApplicationDescriptor descriptor) {
         //thanks to sun, browser is not available on kde http://bugs.sun.com/view_bug.do?bug_id=6486393
-        if (!Desktop.isDesktopSupported() || !cargoManager.isServerRunning()) return;
+        if (!Desktop.isDesktopSupported() || !containerManager.isServerRunning()) return;
         try {
             Desktop.getDesktop().browse(URI.create(guessWebApplicationUri(descriptor)));
         } catch (IOException e) {
