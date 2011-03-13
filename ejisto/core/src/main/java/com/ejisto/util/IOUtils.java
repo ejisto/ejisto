@@ -23,7 +23,9 @@ import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 
 import java.io.*;
+import java.net.DatagramSocket;
 import java.net.MalformedURLException;
+import java.net.ServerSocket;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -40,8 +42,7 @@ import static org.hamcrest.Matchers.equalTo;
 public class IOUtils {
 
     private static final FileExtensionFilter jarFilter = new FileExtensionFilter(FileExtensionFilter.ALL_JARS, true);
-    private static final FileExtensionFilter classesFilter = new FileExtensionFilter(FileExtensionFilter.ALL_CLASSES,
-                                                                                     true);
+    private static final FileExtensionFilter classesFilter = new FileExtensionFilter(FileExtensionFilter.ALL_CLASSES, true);
 
     public static String copyFile(String filePath, File destDir) {
         try {
@@ -57,8 +58,7 @@ public class IOUtils {
 
     public static void writeFile(InputStream inputStream, File baseDir, String filename) throws IOException {
         File dest = new File(baseDir, filename);
-        if (!dest.getParentFile().exists() && !dest.getParentFile().mkdirs())
-            throw new IOException("Unable to write file " + dest.getAbsolutePath());
+        if (!dest.getParentFile().exists() && !dest.getParentFile().mkdirs()) throw new IOException("Unable to write file " + dest.getAbsolutePath());
         byte[] data = new byte[1024];
         BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(dest));
         int readed;
@@ -135,6 +135,14 @@ public class IOUtils {
         return files;
     }
 
+    public static List<String> listJarFiles(String dir) {
+        List<String> files = new ArrayList<String>();
+        for (File file : getAllFiles(new File(dir), jarFilter)) {
+            files.add(file.getAbsolutePath());
+        }
+        return files;
+    }
+
     public static URL[] toUrlArray(WebApplicationDescriptor descriptor) throws MalformedURLException {
         List<URL> urls = new ArrayList<URL>();
         File base = new File(descriptor.getInstallationPath(), "WEB-INF");
@@ -165,9 +173,8 @@ public class IOUtils {
     }
 
     public static Collection<String> findAllClassNamesInDirectory(File directory) {
-        List<String> pathnames = extractProperty(
-                select(getAllFiles(directory, classesFilter), having(on(File.class).isDirectory(), equalTo(false))),
-                "path");
+        List<String> pathnames = extractProperty(select(getAllFiles(directory, classesFilter), having(on(File.class).isDirectory(), equalTo(false))),
+                                                 "path");
         HashSet<String> ret = new HashSet<String>();
         int index = directory.getAbsolutePath().length();
         for (String path : pathnames) {
@@ -244,7 +251,35 @@ public class IOUtils {
     }
 
     public static String guessWebApplicationUri(WebApplicationDescriptor descriptor) {
+        //TODO find server actual port
         return new StringBuilder("http://localhost:1706").append(descriptor.getContextPath()).append("/").toString();
+    }
+
+    public static int findFirstAvailablePort(int startPort) {
+        for (int port = startPort, max = port + 100; port < max; port++)
+            if (isPortAvailable(port)) return port;
+        throw new RuntimeException("Unable to find a port");
+    }
+
+    public static boolean isPortAvailable(int port) {
+        ServerSocket tcp = null;
+        DatagramSocket udp = null;
+        try {
+            tcp = new ServerSocket(port);
+            tcp.setReuseAddress(true);
+            udp = new DatagramSocket(port);
+            udp.setReuseAddress(true);
+            return true;
+        } catch (IOException ex) {
+            return false;
+        } finally {
+            try {
+                if (tcp != null) tcp.close();
+            } catch (IOException e) {
+                //nothing to do
+            }
+            if (udp != null) udp.close();
+        }
     }
 
 }

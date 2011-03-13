@@ -66,13 +66,15 @@ public class ResourcesInitializer extends BaseStartupService {
         File libDir = new File(baseDir, "lib");
         File libExtDir = new File(libDir, "ext");
         File deployables = new File(baseDir, "deployables");
-        initDirectories(derbyDir, containersDir, libDir, libExtDir, new File(baseDir, "log"), deployables);
+        File runtime = new File(baseDir, "runtime");
+        initDirectories(derbyDir, containersDir, libDir, libExtDir, new File(baseDir, "log"), deployables, runtime);
         System.setProperty(CONTAINERS_HOME_DIR.getValue(), containersDir.getAbsolutePath());
         System.setProperty(DERBY_SCRIPT.getValue(), derbyScript.getAbsolutePath());
         System.setProperty(INITIALIZE_DATABASE.getValue(), String.valueOf(!derbyScript.exists()));
         System.setProperty(LIB_DIR.getValue(), libDir.getAbsolutePath() + File.separator);
         System.setProperty(EXTENSIONS_DIR.getValue(), libExtDir.getAbsolutePath());
         System.setProperty(DEPLOYABLES_DIR.getValue(), deployables.getAbsolutePath());
+        System.setProperty(RUNTIME_DIR.getValue(), runtime.getAbsolutePath());
     }
 
     private void initDb() {
@@ -91,8 +93,7 @@ public class ResourcesInitializer extends BaseStartupService {
     }
 
     private void initBaseDir(File baseDir) {
-        if (!baseDir.mkdirs())
-            eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
+        if (!baseDir.mkdirs()) eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
     }
 
     private void initStoredWebApps() {

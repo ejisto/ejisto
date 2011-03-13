@@ -19,6 +19,8 @@
 
 package com.ejisto.util;
 
+import org.springframework.util.StringUtils;
+
 import java.io.File;
 import java.util.regex.Pattern;
 
@@ -33,6 +35,8 @@ public class ContainerUtils {
     private static final Pattern AGENT_JAR = Pattern.compile("^ejisto-agent.*?\\.jar$");
 
     public static String extractAgentJar(String classPath) {
+        String systemProperty = System.getProperty("ejisto.agent.jar.path");
+        if (StringUtils.hasText(systemProperty)) return systemProperty;
         String[] entries = classPath.split(Pattern.quote(File.pathSeparator));
         for (String entry : entries) {
             if (AGENT_JAR.matcher(entry).matches()) return entry;

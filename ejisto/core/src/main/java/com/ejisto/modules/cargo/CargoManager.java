@@ -35,7 +35,10 @@ import org.codehaus.cargo.container.deployable.Deployable;
 import org.codehaus.cargo.container.deployable.DeployableType;
 import org.codehaus.cargo.container.deployer.Deployer;
 import org.codehaus.cargo.container.deployer.URLDeployableMonitor;
+import org.codehaus.cargo.container.property.GeneralPropertySet;
+import org.codehaus.cargo.container.property.ServletPropertySet;
 import org.codehaus.cargo.container.spi.AbstractInstalledLocalContainer;
+import org.codehaus.cargo.container.tomcat.TomcatPropertySet;
 import org.codehaus.cargo.generic.DefaultContainerFactory;
 import org.codehaus.cargo.generic.configuration.ConfigurationFactory;
 import org.codehaus.cargo.generic.configuration.DefaultConfigurationFactory;
@@ -45,11 +48,14 @@ import org.codehaus.cargo.generic.deployer.DefaultDeployerFactory;
 import org.codehaus.cargo.generic.deployer.DeployerFactory;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.UUID;
 
+import static com.ejisto.constants.StringConstants.RUNTIME_DIR;
+import static com.ejisto.util.IOUtils.findFirstAvailablePort;
 import static com.ejisto.util.IOUtils.guessWebApplicationUri;
 
 /**
@@ -121,20 +127,30 @@ public class CargoManager implements ContainerManager {
     private synchronized AbstractInstalledLocalContainer loadContainer(String containerId, String serverHome) {
         if (installedContainers.containsKey(containerId)) return installedContainers.get(containerId);
         ConfigurationFactory configurationFactory = new DefaultConfigurationFactory();
-        Configuration configuration = configurationFactory.createConfiguration(containerId, ContainerType.INSTALLED, ConfigurationType.EXISTING,
-                                                                               serverHome);
+        File configurationDir = new File(System.getProperty(RUNTIME_DIR.getValue()), UUID.randomUUID().toString());
+        Configuration configuration = configurationFactory.createConfiguration(containerId, ContainerType.INSTALLED, ConfigurationType.STANDALONE,
+                                                                               configurationDir.getAbsolutePath());
+        String agentPath = ContainerUtils.extractAgentJar(System.getProperty("java.class.path"));
+        int serverPort = findFirstAvailablePort(8080);
+        if (logger.isDebugEnabled()) logger.debug("Server listening port is: " + serverPort);
+        int shutdownPort = findFirstAvailablePort(8009);
+        if (logger.isDebugEnabled()) logger.debug("Server shutdown port is: " + shutdownPort);
+        configuration.setProperty(GeneralPropertySet.JVMARGS, "-javaagent:" + agentPath);
+        configuration.setProperty(ServletPropertySet.PORT, String.valueOf(serverPort));
+        configuration.setProperty(ServletPropertySet.USERS, "ejisto:ejisto:manager");
+        configuration.setProperty(GeneralPropertySet.RMI_PORT, String.valueOf(shutdownPort));
+        configuration.setProperty(TomcatPropertySet.AJP_PORT, String.valueOf(shutdownPort));
+
         DefaultContainerFactory containerFactory = new DefaultContainerFactory();
         AbstractInstalledLocalContainer container = (AbstractInstalledLocalContainer) containerFactory.createContainer(containerId,
                                                                                                                        ContainerType.INSTALLED,
                                                                                                                        configuration);
         container.setHome(serverHome);
         container.setLogger(new ServerLogger());
-        String agentPath = ContainerUtils.extractAgentJar(System.getProperty("java.class.path"));
         container.addExtraClasspath(agentPath);
-        Map<String, String> systemProperties = container.getSystemProperties();
-        if (systemProperties == null) systemProperties = new HashMap<String, String>();
-        systemProperties.put("cargo.jvmargs", "-javaagent:" + agentPath + " -Xmx512m -Xms128m -XX:MaxPermSize=128m ");
-        container.setSystemProperties(systemProperties);
+//        for (String entry : listJarFiles(serverHome+File.separator+"lib")) {
+//            container.addExtraClasspath(entry);
+//        }
         installedContainers.put(containerId, container);
         return container;
     }

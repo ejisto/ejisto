@@ -36,9 +36,8 @@ public class Main {
     static {
         File baseDir = new File(System.getProperty("user.home"), ".ejisto");
         if (!baseDir.exists() && !baseDir.mkdir()) {
-            JOptionPane.showConfirmDialog(null,
-                                          "Ejisto doesn't have permissions to create its homedir. Please check system configuration.",
-                                          "error", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showConfirmDialog(null, "Ejisto doesn't have permissions to create its homedir. Please check system configuration.", "error",
+                                          JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
             throw new ExceptionInInitializerError("Cannot create home dir. Exiting.");
         }
         System.setProperty("ejisto.home", baseDir.getAbsolutePath());
@@ -51,6 +50,7 @@ public class Main {
             //tanks to David Van Couvering for tip to disable this annoying "feature"
             //http://davidvancouvering.blogspot.com/2007/10/quiet-time-and-how-to-suppress-derbylog.html
             System.setProperty("derby.stream.error.field", "com.ejisto.core.launcher.Main.DEV_NULL");
+            System.getProperties().list(System.out);
             logger.info("Starting Ejisto...");
             logger.info("setting dynamic ClassLoader");
             Thread.currentThread().setContextClassLoader(SharedClassLoader.getInstance());
@@ -61,8 +61,7 @@ public class Main {
             logger.info("starting application... enjoy ejisto!!");
             controller.startup();
         } catch (Exception e) {
-            JXErrorPane.showDialog(null, new ErrorInfo("Startup error", "Startup failed", e.getMessage(), "SEVERE", e,
-                                                       Level.SEVERE, null));
+            JXErrorPane.showDialog(null, new ErrorInfo("Startup error", "Startup failed", e.getMessage(), "SEVERE", e, Level.SEVERE, null));
         }
     }
 

@@ -51,7 +51,8 @@ public enum StringConstants {
     DELETE_CONTEXT_COMMAND("delete"),
     DELETE_CONTEXT_PREFIX("delete!!registeredContext!!"),
     CONTEXT_PARAM_NAME("ejisto-target-context-path"),
-    DEPLOYABLES_DIR("ejisto.deployables.dir");
+    DEPLOYABLES_DIR("ejisto.deployables.dir"),
+    RUNTIME_DIR("ejisto.runtime.dir");
 
     private String value;
 
