@@ -25,6 +25,7 @@ import com.ejisto.modules.cargo.util.ContainerInstaller;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.repository.ContainersRepository;
+import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.util.ContainerUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.cargo.container.ContainerType;
@@ -38,9 +39,7 @@ import org.codehaus.cargo.container.deployer.URLDeployableMonitor;
 import org.codehaus.cargo.container.property.GeneralPropertySet;
 import org.codehaus.cargo.container.property.ServletPropertySet;
 import org.codehaus.cargo.container.spi.AbstractInstalledLocalContainer;
-import org.codehaus.cargo.container.tomcat.TomcatPropertySet;
 import org.codehaus.cargo.generic.DefaultContainerFactory;
-import org.codehaus.cargo.generic.configuration.ConfigurationFactory;
 import org.codehaus.cargo.generic.configuration.DefaultConfigurationFactory;
 import org.codehaus.cargo.generic.deployable.DefaultDeployableFactory;
 import org.codehaus.cargo.generic.deployable.DeployableFactory;
@@ -52,8 +51,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.UUID;
 
+import static com.ejisto.constants.StringConstants.DEFAULT_SERVER_PORT;
 import static com.ejisto.constants.StringConstants.RUNTIME_DIR;
 import static com.ejisto.util.IOUtils.findFirstAvailablePort;
 import static com.ejisto.util.IOUtils.guessWebApplicationUri;
@@ -70,6 +69,7 @@ public class CargoManager implements ContainerManager {
     private static final String DEFAULT = "tomcat7x";
     private boolean serverStarted = false;
     @Resource private ContainersRepository containersRepository;
+    @Resource private SettingsRepository settingsRepository;
     private HashMap<String, AbstractInstalledLocalContainer> installedContainers = new HashMap<String, AbstractInstalledLocalContainer>();
 
     @Override
@@ -126,21 +126,12 @@ public class CargoManager implements ContainerManager {
     @SuppressWarnings("unchecked")
     private synchronized AbstractInstalledLocalContainer loadContainer(String containerId, String serverHome) {
         if (installedContainers.containsKey(containerId)) return installedContainers.get(containerId);
-        ConfigurationFactory configurationFactory = new DefaultConfigurationFactory();
-        File configurationDir = new File(System.getProperty(RUNTIME_DIR.getValue()), UUID.randomUUID().toString());
-        Configuration configuration = configurationFactory.createConfiguration(containerId, ContainerType.INSTALLED, ConfigurationType.STANDALONE,
-                                                                               configurationDir.getAbsolutePath());
+        File configurationDir = new File(System.getProperty(RUNTIME_DIR.getValue()), containerId);
+        Configuration configuration;
+        if (configurationDir.exists()) configuration = loadExistingConfiguration(containerId, configurationDir);
+        else configuration = createNewStandaloneConfiguration(containerId, configurationDir);
         String agentPath = ContainerUtils.extractAgentJar(System.getProperty("java.class.path"));
-        int serverPort = findFirstAvailablePort(8080);
-        if (logger.isDebugEnabled()) logger.debug("Server listening port is: " + serverPort);
-        int shutdownPort = findFirstAvailablePort(8009);
-        if (logger.isDebugEnabled()) logger.debug("Server shutdown port is: " + shutdownPort);
         configuration.setProperty(GeneralPropertySet.JVMARGS, "-javaagent:" + agentPath);
-        configuration.setProperty(ServletPropertySet.PORT, String.valueOf(serverPort));
-        configuration.setProperty(ServletPropertySet.USERS, "ejisto:ejisto:manager");
-        configuration.setProperty(GeneralPropertySet.RMI_PORT, String.valueOf(shutdownPort));
-        configuration.setProperty(TomcatPropertySet.AJP_PORT, String.valueOf(shutdownPort));
-
         DefaultContainerFactory containerFactory = new DefaultContainerFactory();
         AbstractInstalledLocalContainer container = (AbstractInstalledLocalContainer) containerFactory.createContainer(containerId,
                                                                                                                        ContainerType.INSTALLED,
@@ -148,9 +139,7 @@ public class CargoManager implements ContainerManager {
         container.setHome(serverHome);
         container.setLogger(new ServerLogger());
         container.addExtraClasspath(agentPath);
-//        for (String entry : listJarFiles(serverHome+File.separator+"lib")) {
-//            container.addExtraClasspath(entry);
-//        }
+        container.setTimeout(30000);
         installedContainers.put(containerId, container);
         return container;
     }
@@ -173,6 +162,28 @@ public class CargoManager implements ContainerManager {
     @Override
     public String getHome(Container container) {
         return loadContainer(container.getCargoId(), container.getHomeDir()).getHome();
+    }
+
+    private Configuration loadExistingConfiguration(String containerId, File configurationDir) {
+        if (logger.isDebugEnabled()) logger.debug("loading existing configuration for container " + containerId);
+        Configuration configuration = new DefaultConfigurationFactory().createConfiguration(containerId, ContainerType.INSTALLED,
+                                                                                            ConfigurationType.EXISTING,
+                                                                                            configurationDir.getAbsolutePath());
+        configuration.setProperty(ServletPropertySet.PORT, settingsRepository.getSettingValue(DEFAULT_SERVER_PORT));
+        return configuration;
+    }
+
+    private Configuration createNewStandaloneConfiguration(String containerId, File configurationDir) {
+        Configuration configuration = new DefaultConfigurationFactory().createConfiguration(containerId, ContainerType.INSTALLED,
+                                                                                            ConfigurationType.STANDALONE,
+                                                                                            configurationDir.getAbsolutePath());
+        if (logger.isDebugEnabled()) logger.debug("creating new standalone configuration for container " + containerId);
+        int serverPort = findFirstAvailablePort(1706);
+        configuration.setProperty(ServletPropertySet.PORT, String.valueOf(serverPort));
+        configuration.setProperty(ServletPropertySet.USERS, "ejisto:ejisto:manager");
+        if (logger.isDebugEnabled()) logger.debug("Server will listen on port: " + serverPort);
+        settingsRepository.putSettingValue(DEFAULT_SERVER_PORT, String.valueOf(serverPort));
+        return configuration;
     }
 
     private boolean deploy(WebApplicationDescriptor webApplicationDescriptor, LocalContainer container) {

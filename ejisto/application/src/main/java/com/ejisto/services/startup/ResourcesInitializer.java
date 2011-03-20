@@ -67,7 +67,8 @@ public class ResourcesInitializer extends BaseStartupService {
         File libExtDir = new File(libDir, "ext");
         File deployables = new File(baseDir, "deployables");
         File runtime = new File(baseDir, "runtime");
-        initDirectories(derbyDir, containersDir, libDir, libExtDir, new File(baseDir, "log"), deployables, runtime);
+        File temp = new File(baseDir, "temp");
+        initDirectories(derbyDir, containersDir, libDir, libExtDir, new File(baseDir, "log"), deployables, runtime, temp);
         System.setProperty(CONTAINERS_HOME_DIR.getValue(), containersDir.getAbsolutePath());
         System.setProperty(DERBY_SCRIPT.getValue(), derbyScript.getAbsolutePath());
         System.setProperty(INITIALIZE_DATABASE.getValue(), String.valueOf(!derbyScript.exists()));
@@ -75,6 +76,7 @@ public class ResourcesInitializer extends BaseStartupService {
         System.setProperty(EXTENSIONS_DIR.getValue(), libExtDir.getAbsolutePath());
         System.setProperty(DEPLOYABLES_DIR.getValue(), deployables.getAbsolutePath());
         System.setProperty(RUNTIME_DIR.getValue(), runtime.getAbsolutePath());
+        System.setProperty("java.io.tmpdir", temp.getAbsolutePath());
     }
 
     private void initDb() {

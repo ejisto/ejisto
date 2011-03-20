@@ -41,6 +41,7 @@ public class Main {
             throw new ExceptionInInitializerError("Cannot create home dir. Exiting.");
         }
         System.setProperty("ejisto.home", baseDir.getAbsolutePath());
+        System.setProperty("java.net.preferIPv4Stack", "true");
     }
 
     private static Logger logger = Logger.getLogger(Main.class);

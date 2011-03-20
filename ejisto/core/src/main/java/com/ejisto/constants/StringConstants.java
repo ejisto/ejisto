@@ -39,8 +39,8 @@ public enum StringConstants {
     SELECT_NONE("selectNone"),
     CLOSE("close"),
     CONFIRM("confirm"),
-    START_JETTY("startJetty"),
-    STOP_JETTY("stopJetty"),
+    START_CONTAINER("startContainer"),
+    STOP_CONTAINER("stopContainer"),
     SHUTDOWN("shutdown"),
     LOAD_WEB_APP("loadwebapp"),
     CONTEXT_PREFIX_SEPARATOR("!!registeredContext!!"),
@@ -52,7 +52,9 @@ public enum StringConstants {
     DELETE_CONTEXT_PREFIX("delete!!registeredContext!!"),
     CONTEXT_PARAM_NAME("ejisto-target-context-path"),
     DEPLOYABLES_DIR("ejisto.deployables.dir"),
-    RUNTIME_DIR("ejisto.runtime.dir");
+    RUNTIME_DIR("ejisto.runtime.dir"),
+    DEFAULT_SERVER_PORT("ejisto.default.server.port"),
+    EJISTO_VERSION("ejisto.version");
 
     private String value;
 

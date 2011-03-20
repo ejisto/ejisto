@@ -44,7 +44,7 @@ public class WebApplicationDescriptorDao extends BaseDao {
     private static final String SQL_LOAD_ELEMENTS = "SELECT * FROM WEBAPPLICATIONDESCRIPTORELEMENT WHERE CONTEXTPATH = ?";
     private static final String SQL_DELETE = "DELETE FROM WEBAPPLICATIONDESCRIPTOR WHERE CONTEXTPATH = ?";
     private static final String SQL_DELETE_ELEMENTS = "DELETE FROM WEBAPPLICATIONDESCRIPTORELEMENT WHERE CONTEXTPATH = ?";
-    private static final String SQL_INSERT = "INSERT INTO WEBAPPLICATIONDESCRIPTOR (CONTEXTPATH, INSTALLATIONPATH) VALUES(?,?)";
+    private static final String SQL_INSERT = "INSERT INTO WEBAPPLICATIONDESCRIPTOR(CONTEXTPATH,INSTALLATIONPATH,DEPLOYABLEPATH) VALUES(?,?,?)";
     private static final String SQL_INSERT_ELEMENTS = "INSERT INTO WEBAPPLICATIONDESCRIPTORELEMENT (CONTEXTPATH, PATH, KIND) VALUES(?,?,?)";
 
     public WebApplicationDescriptor load(String contextPath) {
@@ -70,10 +70,11 @@ public class WebApplicationDescriptorDao extends BaseDao {
                 PreparedStatement pstm = con.prepareStatement(SQL_INSERT, new String[]{"ID"});
                 pstm.setString(1, descriptor.getContextPath());
                 pstm.setString(2, descriptor.getInstallationPath());
+                pstm.setString(3, descriptor.getDeployablePath());
                 return pstm;
             }
         }, holder);
-        int id = holder.getKey().intValue();
+        descriptor.setId(holder.getKey().intValue());
         forEach(descriptor.getElements()).setContextPath(descriptor.getContextPath());
         insertElements(descriptor);
     }
@@ -140,6 +141,7 @@ public class WebApplicationDescriptorDao extends BaseDao {
         descriptor.setId(rs.getInt("ID"));
         descriptor.setContextPath(rs.getString("CONTEXTPATH"));
         descriptor.setInstallationPath(rs.getString("INSTALLATIONPATH"));
+        descriptor.setDeployablePath(rs.getString("DEPLOYABLEPATH"));
         return descriptor;
     }
 

@@ -28,7 +28,6 @@ import com.ejisto.modules.gui.components.helper.Step;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -101,9 +100,9 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
     }
 
     private String openWar(File file) throws IOException {
-        File baseDir = new File(
-                System.getProperty("java.io.tmpdir") + File.separator + UUID.randomUUID().toString() + File.separator);
+        File baseDir = new File(System.getProperty("java.io.tmpdir") + File.separator + getFilenameWithoutExt(file));
         if (!overwriteDir(baseDir)) return null;
+        if (!initTempDir(baseDir)) throw new IOException("Path " + baseDir.getAbsolutePath() + " is not writable. Cannot continue.");
         getSession().clearElements();
         ZipFile war = new ZipFile(file);
         Enumeration<? extends ZipEntry> entries = war.entries();
@@ -113,16 +112,27 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
             entry = entries.nextElement();
             getView().jobCompleted(getMessage("progress.file.extraction", entry.getName()));
             if (!entry.isDirectory()) writeFile(war.getInputStream(entry), baseDir, entry.getName());
-            if (entry.getName().endsWith(".jar")) getSession().addElement(
-                    new WebApplicationDescriptorElement(retrieveFilenameFromZipEntryPath(entry.getName())));
+            if (entry.getName().endsWith(".jar"))
+                getSession().addElement(new WebApplicationDescriptorElement(retrieveFilenameFromZipEntryPath(entry.getName())));
         }
         return baseDir.getAbsolutePath();
     }
 
     private boolean overwriteDir(File dir) {
-        if (dir.exists() && showWarning(getDialog(), "wizard.overwrite.dir.message", dir.getAbsolutePath()))
-            return deleteFile(dir);
+        if (dir.exists() && showWarning(getDialog(), "wizard.overwrite.dir.message", dir.getAbsolutePath())) {
+            boolean success = true;
+            for (File f : dir.listFiles()) success &= deleteFile(f);
+            return success;
+        }
         return !dir.exists();
+    }
+
+    private boolean initTempDir(File dir) throws IOException {
+        if (dir.exists()) return true;
+        boolean success = dir.mkdir();
+        if (!success) return success;
+        dir.deleteOnExit();
+        return success;
     }
 
     @Override

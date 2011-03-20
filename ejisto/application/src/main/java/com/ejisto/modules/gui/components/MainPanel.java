@@ -35,7 +35,7 @@ public class MainPanel extends JXPanel {
     private Header header;
     private JXTitledPanel editorContainer;
     private JXPanel widgetsPane;
-    private JettyControl jettyControl;
+    private ServerControl serverControl;
 
     public MainPanel() {
         super();
@@ -67,7 +67,7 @@ public class MainPanel extends JXPanel {
         if (this.widgetsPane != null) return this.widgetsPane;
         widgetsPane = new JXPanel(new BorderLayout());
         widgetsPane.add(getEditorContainer(), BorderLayout.CENTER);
-        widgetsPane.add(getJettyControl(), BorderLayout.SOUTH);
+        widgetsPane.add(getServerControl(), BorderLayout.SOUTH);
         return widgetsPane;
     }
 
@@ -85,23 +85,23 @@ public class MainPanel extends JXPanel {
         return editorContainer;
     }
 
-    private JettyControl getJettyControl() {
-        if (this.jettyControl != null) return this.jettyControl;
-        jettyControl = new JettyControl();
-        return jettyControl;
+    private ServerControl getServerControl() {
+        if (this.serverControl != null) return this.serverControl;
+        serverControl = new ServerControl();
+        return serverControl;
     }
 
     public void log(String message) {
-        getJettyControl().log(message);
+        getServerControl().log(message);
     }
 
     public void toggleDisplayServerLog(boolean collapse) {
-        getJettyControl().toggleDisplayServerLog(collapse);
+        getServerControl().toggleDisplayServerLog(collapse);
     }
 
     public void onJettyStatusChange() {
         getPropertiesEditor().setFields(MockedFieldsRepository.getInstance().loadAll());
-        getJettyControl().reloadContextList();
+        getServerControl().reloadContextList();
     }
 
 }

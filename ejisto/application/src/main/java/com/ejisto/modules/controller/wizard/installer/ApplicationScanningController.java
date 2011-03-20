@@ -28,7 +28,6 @@ import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
-import com.ejisto.modules.web.ContextListener;
 import javassist.*;
 import org.apache.log4j.Logger;
 import org.codehaus.cargo.module.webapp.WebXml;
@@ -45,6 +44,7 @@ import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -52,7 +52,6 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static ch.lambdaj.Lambda.extractProperty;
 import static ch.lambdaj.Lambda.join;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.modules.repository.ClassPoolRepository.registerClassPool;
@@ -130,8 +129,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         notifyStart(classnames.size());
         descriptor.deleteAllFields();
         URL[] descriptorEntries = toUrlArray(descriptor);
-        ClassLoader loader = new URLClassLoader(
-                addServerLibs(descriptorEntries, containerHome + File.separator + "lib"));
+        ClassLoader loader = new URLClassLoader(addServerLibs(descriptorEntries, containerHome + File.separator + "lib"));
         ClassPool cp = new ClassPool(ClassPool.getDefault());
         cp.appendClassPath(new LoaderClassPath(loader));
         CtClass clazz;
@@ -170,11 +168,25 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
             Field f = cl.getDeclaredField(field.getName());
             Type type = f.getGenericType();
             if (ParameterizedType.class.isAssignableFrom(type.getClass())) {
-                mockedField.setFieldElementType(
-                        join(extractProperty(((ParameterizedType) type).getActualTypeArguments(), "name")));
+                List<String> generics = new ArrayList<String>();
+                deepParseGenerics((ParameterizedType) type, generics);
+                mockedField.setFieldElementType(join(generics));
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    private void deepParseGenerics(ParameterizedType type, List<String> target) {
+        Type[] types = type.getActualTypeArguments();
+        for (Type generic : types) {
+            if (ParameterizedType.class.isAssignableFrom(generic.getClass())) {
+                //TODO implement deep inspection
+                target.add(((ParameterizedType) generic).getRawType().getClass().getName());
+            } else {
+                target.add(((Class<?>) generic).getName());
+            }
+
         }
     }
 
@@ -205,7 +217,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     private Element buildListener(String namespaceURI) {
         Element listener = new Element(WebXmlType.LISTENER, namespaceURI);
         Element listenerClass = new Element("listener-class", namespaceURI);
-        listenerClass.setText(ContextListener.class.getName());
+        listenerClass.setText("javax.servlet.ServletContextListener");
         listener.addContent(listenerClass);
         return listener;
     }
@@ -220,15 +232,14 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
 //    }
 
     private void packageWar(WebApplicationDescriptor session) {
-        String libDir = new StringBuilder(session.getInstallationPath()).append(File.separator).append(
-                "WEB-INF").append(File.separator).append("lib").append(File.separator).toString();
+        String libDir = new StringBuilder(session.getInstallationPath()).append(File.separator).append("WEB-INF").append(File.separator).append(
+                "lib").append(File.separator).toString();
         File dir = new File(libDir);
         List<CustomObjectFactory> jars = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
         for (CustomObjectFactory jar : jars)
             copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir);
-        copyFile(System.getProperty("user.dir") + File.separator + "ejisto-0.1-SNAPSHOT.jar", dir);
-        String deployablePath = System.getProperty(
-                DEPLOYABLES_DIR.getValue()) + File.separator + session.getWarFile().getName();
+        copyFile(getEjistoCoreClasspathEntry(), dir);
+        String deployablePath = System.getProperty(DEPLOYABLES_DIR.getValue()) + File.separator + session.getWarFile().getName();
         zipDirectory(session.getInstallationPath(), deployablePath);
         session.setDeployablePath(deployablePath);
     }

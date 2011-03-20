@@ -26,8 +26,8 @@ public class ChangeServerStatus extends BaseApplicationEvent {
     private Command command;
 
     public enum Command {
-        STARTUP("start.jetty.server", "jetty.start.icon"),
-        SHUTDOWN("stop.jetty.server", "jetty.stop.icon");
+        STARTUP("start.default.server", "server.start.icon"),
+        SHUTDOWN("stop.default.server", "server.stop.icon");
         private String description;
         private String icon;
 
@@ -71,6 +71,6 @@ public class ChangeServerStatus extends BaseApplicationEvent {
 
     @Override
     public String getKey() {
-        return command == Command.STARTUP ? StringConstants.START_JETTY.getValue() : StringConstants.STOP_JETTY.getValue();
+        return command == Command.STARTUP ? StringConstants.START_CONTAINER.getValue() : StringConstants.STOP_CONTAINER.getValue();
     }
 }

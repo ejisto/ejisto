@@ -30,18 +30,18 @@ import java.awt.*;
 import static com.ejisto.util.GuiUtils.getAction;
 import static com.ejisto.util.GuiUtils.getMessage;
 
-public class JettyControl extends JXTitledPanel {
+public class ServerControl extends JXTitledPanel {
     private static final long serialVersionUID = 4414922964189248078L;
     private JXPanel toolbarPanel;
     private JButton expandCollapseButton;
     private JXCollapsiblePane collapsibleLogPane;
     private LogViewer logViewer;
-    private JTabbedPane jettyControlTab;
+    private JTabbedPane serverControlTab;
     private RegisteredContextList contextList;
     private JScrollPane scrollableContextList;
 
-    public JettyControl() {
-        super(getMessage("main.jettycontrol.title.text"));
+    public ServerControl() {
+        super(getMessage("main.server.control.title.text"));
         init();
     }
 
@@ -55,10 +55,10 @@ public class JettyControl extends JXTitledPanel {
     private JXPanel getToolbarPanel() {
         if (this.toolbarPanel != null) return this.toolbarPanel;
         toolbarPanel = new JXPanel(new FlowLayout());
-        toolbarPanel.add(createButton(getAction(StringConstants.START_JETTY.getValue())));
-        Action stopJetty = getAction(StringConstants.STOP_JETTY.getValue());
-        stopJetty.setEnabled(false);
-        toolbarPanel.add(createButton(stopJetty));
+        toolbarPanel.add(createButton(getAction(StringConstants.START_CONTAINER.getValue())));
+        Action stop = getAction(StringConstants.STOP_CONTAINER.getValue());
+        stop.setEnabled(false);
+        toolbarPanel.add(createButton(stop));
         toolbarPanel.add(getExpandCollapseButton());
         toolbarPanel.setBackground(new Color(255, 255, 255, 0));
         return toolbarPanel;
@@ -82,15 +82,15 @@ public class JettyControl extends JXTitledPanel {
         return expandCollapseButton;
     }
 
-    private JTabbedPane getJettyControlTab() {
-        if (this.jettyControlTab != null) return this.jettyControlTab;
-        jettyControlTab = new JTabbedPane(JTabbedPane.BOTTOM);
-        jettyControlTab.setMinimumSize(new Dimension(500, 100));
-        jettyControlTab.setPreferredSize(new Dimension(500, 250));
-        jettyControlTab.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
-        jettyControlTab.add(getLogViewer());
-        jettyControlTab.add(getScrollableContextList());
-        return jettyControlTab;
+    private JTabbedPane getServerControlTab() {
+        if (this.serverControlTab != null) return this.serverControlTab;
+        serverControlTab = new JTabbedPane(JTabbedPane.BOTTOM);
+        serverControlTab.setMinimumSize(new Dimension(500, 100));
+        serverControlTab.setPreferredSize(new Dimension(500, 250));
+        serverControlTab.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
+        serverControlTab.add(getLogViewer());
+        serverControlTab.add(getScrollableContextList());
+        return serverControlTab;
     }
 
     private JScrollPane getScrollableContextList() {
@@ -119,14 +119,12 @@ public class JettyControl extends JXTitledPanel {
     private JXCollapsiblePane getCollapsibleLogPane() {
         if (this.collapsibleLogPane != null) return this.collapsibleLogPane;
         collapsibleLogPane = new JXCollapsiblePane(new BorderLayout());
-        collapsibleLogPane.add(getJettyControlTab(), BorderLayout.CENTER);
+        collapsibleLogPane.add(getServerControlTab(), BorderLayout.CENTER);
         collapsibleLogPane.setCollapsed(true);
         collapsibleLogPane.setPreferredSize(new Dimension(500, 250));
         Action toggleAction = collapsibleLogPane.getActionMap().get(JXCollapsiblePane.TOGGLE_ACTION);
-        toggleAction.putValue(JXCollapsiblePane.EXPAND_ICON,
-                              new ImageIcon(getClass().getResource("/icons/expand.png")));
-        toggleAction.putValue(JXCollapsiblePane.COLLAPSE_ICON,
-                              new ImageIcon(getClass().getResource("/icons/collapse.png")));
+        toggleAction.putValue(JXCollapsiblePane.EXPAND_ICON, new ImageIcon(getClass().getResource("/icons/expand.png")));
+        toggleAction.putValue(JXCollapsiblePane.COLLAPSE_ICON, new ImageIcon(getClass().getResource("/icons/collapse.png")));
         toggleAction.putValue(Action.NAME, "");
         return collapsibleLogPane;
     }

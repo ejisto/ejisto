@@ -21,6 +21,7 @@ package com.ejisto.util;
 
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
+import com.ejisto.modules.repository.SettingsRepository;
 
 import java.io.*;
 import java.net.DatagramSocket;
@@ -36,6 +37,8 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import static ch.lambdaj.Lambda.*;
+import static com.ejisto.constants.StringConstants.DEFAULT_SERVER_PORT;
+import static com.ejisto.constants.StringConstants.EJISTO_VERSION;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -251,8 +254,8 @@ public class IOUtils {
     }
 
     public static String guessWebApplicationUri(WebApplicationDescriptor descriptor) {
-        //TODO find server actual port
-        return new StringBuilder("http://localhost:1706").append(descriptor.getContextPath()).append("/").toString();
+        return new StringBuilder("http://localhost:").append(SettingsRepository.getInstance().getSettingValue(DEFAULT_SERVER_PORT)).append(
+                descriptor.getContextPath()).append("/").toString();
     }
 
     public static int findFirstAvailablePort(int startPort) {
@@ -280,6 +283,17 @@ public class IOUtils {
             }
             if (udp != null) udp.close();
         }
+    }
+
+    public static String getEjistoCoreClasspathEntry() {
+        StringBuilder path = new StringBuilder(System.getProperty("user.dir"));
+        path.append(File.separator);
+        path.append("lib");
+        path.append(File.separator);
+        path.append("ejisto-core-");
+        path.append(SettingsRepository.getInstance().getSettingValue(EJISTO_VERSION));
+        path.append(".jar");
+        return path.toString();
     }
 
 }

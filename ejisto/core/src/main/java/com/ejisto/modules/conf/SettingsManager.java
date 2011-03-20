@@ -33,9 +33,9 @@ import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
 
 public class SettingsManager extends ExternalizableService<SettingsDao> implements InitializingBean {
-    @Resource(name = "settings")
-    private Properties settings;
+    @Resource(name = "settings") private Properties settings;
     @Resource private SettingsDao settingsDao;
+
     private List<Setting> settingsList;
 
     public int getIntValue(StringConstants key) {
@@ -67,7 +67,7 @@ public class SettingsManager extends ExternalizableService<SettingsDao> implemen
         putValue(key.getValue(), String.valueOf(value));
     }
 
-    public void putValue(String key, String value) {
+    private void putValue(String key, String value) {
         Setting setting = find(key);
         if (setting != null) {
             setting.setValue(value);

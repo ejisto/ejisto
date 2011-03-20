@@ -23,25 +23,22 @@ import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.dao.*;
 import com.ejisto.modules.dao.entities.*;
-import com.ejisto.util.converter.ContainerDumpConverter;
-import com.ejisto.util.converter.MockedFieldDumpConverter;
+import com.ejisto.util.converter.*;
 import org.apache.log4j.Logger;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
 
 import static ch.lambdaj.Lambda.convert;
+import static ch.lambdaj.Lambda.forEach;
 import static com.ejisto.util.IOUtils.writeFile;
-import static java.lang.String.format;
 
 public class DatabaseDump extends BaseShutdownService {
 
     private static final Logger logger = Logger.getLogger(DatabaseDump.class);
-    private static final String INSERT_SETTING = "INSERT INTO SETTINGS VALUES ('%s','%s');";
-    private static final String INSERT_CONTEXT = "INSERT INTO WEBAPPLICATIONDESCRIPTOR(CONTEXTPATH,INSTALLATIONPATH) VALUES('%s','%s');";
-    private static final String INSERT_ELEMENT = "INSERT INTO WEBAPPLICATIONDESCRIPTORELEMENT(CONTEXTPATH,PATH,KIND) VALUES('%s','%s','%s');";
-    private static final String INSERT_DATASOURCE = "INSERT INTO JNDI_DATASOURCE (RESOURCENAME,RESOURCETYPE,DRIVERCLASSNAME,CONNECTIONURL,DRIVERJAR,USERNAME,PASSWORD,MAXACTIVE,MAXWAIT,MAXIDLE) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);";
+
     private static final String NEWLINE = "\n";
 
     @Resource private MockedFieldsDao mockedFieldsDao;
@@ -70,9 +67,7 @@ public class DatabaseDump extends BaseShutdownService {
 
     private void dumpSettings(StringBuilder file) {
         Collection<Setting> settings = settingsDao.loadAll();
-        for (Setting setting : settings) {
-            append(file, format(INSERT_SETTING, setting.getKey(), escape(setting.getValue())));
-        }
+        append(file, convert(settings, new SettingDumpConverter()));
     }
 
     private void dumpMockedFields(StringBuilder file) {
@@ -87,29 +82,17 @@ public class DatabaseDump extends BaseShutdownService {
 
     private void dumpDescriptors(StringBuilder file) {
         List<WebApplicationDescriptor> descriptors = webApplicationDescriptorDao.loadAll();
-        for (WebApplicationDescriptor descriptor : descriptors) {
-            file.append(format(INSERT_CONTEXT, descriptor.getContextPath(), descriptor.getInstallationPath())).append(
-                    NEWLINE);
-            for (WebApplicationDescriptorElement element : descriptor.getElements())
-                file.append(
-                        format(INSERT_ELEMENT, element.getContextPath(), element.getPath(), element.getKind())).append(
-                        NEWLINE);
-        }
+        append(file, convert(descriptors, new DescriptorDumpConverter()));
+        append(file, convert(forEach(descriptors, WebApplicationDescriptor.class).getElements(), new DescriptorElementDumpConverter()));
     }
 
     private void dumpDataSources(StringBuilder file) {
         List<JndiDataSource> dataSources = jndiDataSourcesDao.loadAll();
-        for (JndiDataSource dataSource : dataSources) {
-            append(file, format(INSERT_DATASOURCE, escapeRaw(dataSource.getName()), escapeRaw(dataSource.getType()),
-                                escapeRaw(dataSource.getDriverClassName()), escapeRaw(dataSource.getUrl()),
-                                escapeRaw(dataSource.getDriverJarPath()), escapeRaw(dataSource.getUsername()),
-                                escapeRaw(dataSource.getPassword()), dataSource.getMaxActive(), dataSource.getMaxWait(),
-                                dataSource.getMaxIdle()));
-        }
+        append(file, convert(dataSources, new JndiDataSourceDumpConverter()));
     }
 
     private void append(StringBuilder file, String text) {
-        file.append(text).append(NEWLINE);
+        if (StringUtils.hasText(text.trim())) file.append(text).append(NEWLINE);
     }
 
     private void append(StringBuilder file, List<String> rows) {
@@ -117,13 +100,4 @@ public class DatabaseDump extends BaseShutdownService {
             append(file, s);
         }
     }
-
-    private String escapeRaw(String in) {
-        return in == null ? null : "'" + in.replaceAll("'", "''") + "'";
-    }
-
-    private String escape(String in) {
-        return in == null ? null : in.replaceAll("'", "''");
-    }
-
 }

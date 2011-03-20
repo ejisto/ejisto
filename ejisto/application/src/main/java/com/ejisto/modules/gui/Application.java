@@ -55,8 +55,7 @@ public class Application extends javax.swing.JFrame {
         rootPane = new MainRootPane();
         setRootPane(rootPane);
         setMinimumSize(new Dimension(700, 350));
-        Dimension size = new Dimension(settingsManager.getIntValue(APPLICATION_WIDTH),
-                                       settingsManager.getIntValue(APPLICATION_HEIGHT));
+        Dimension size = new Dimension(settingsManager.getIntValue(APPLICATION_WIDTH), settingsManager.getIntValue(APPLICATION_HEIGHT));
         setSize(size);
         setPreferredSize(size);
         addWindowListener(new WindowAdapter() {
@@ -89,9 +88,9 @@ public class Application extends javax.swing.JFrame {
 
     public void onServerStatusChange(ChangeServerStatus event) {
         boolean shutdown = event.getCommand() == Command.SHUTDOWN;
-        if (shutdown) rootPane.log(getMessage("jetty.shutdown.log", new Date()));
-        getAction(START_JETTY.getValue()).setEnabled(shutdown);
-        getAction(STOP_JETTY.getValue()).setEnabled(!shutdown);
+        if (shutdown) rootPane.log(getMessage("default.server.shutdown.log", new Date()));
+        getAction(START_CONTAINER.getValue()).setEnabled(shutdown);
+        getAction(STOP_CONTAINER.getValue()).setEnabled(!shutdown);
         rootPane.toggleDisplayServerLog(shutdown);
     }
 
