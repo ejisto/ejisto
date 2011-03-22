@@ -37,6 +37,7 @@ public class ContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext context = sce.getServletContext();
+        context.log("Ejisto initializing...");
         String targetContextPath = context.getInitParameter(StringConstants.CONTEXT_PARAM_NAME.getValue());
         InstrumentationHolder.getInstrumentation().addTransformer(new ClassTransformer(targetContextPath));
         context.log("Ejisto successfully initialized!");

@@ -48,14 +48,26 @@ public class IOUtils {
     private static final FileExtensionFilter classesFilter = new FileExtensionFilter(FileExtensionFilter.ALL_CLASSES, true);
 
     public static String copyFile(String filePath, File destDir) {
+        File original = new File(filePath);
+        return copyFile(original, destDir);
+    }
+
+    public static String copyFile(File original, File destDir) {
         try {
-            File original = new File(filePath);
             File newFile = new File(destDir, original.getName());
             if (newFile.exists()) return newFile.getName();
-            writeFile(new FileInputStream(original), destDir, original.getName());
+            FileInputStream is = new FileInputStream(original);
+            writeFile(is, destDir, original.getName());
+            is.close();
             return original.getName();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void copyDirContent(File srcDir, File targetDir, String[] prefixes) {
+        for (File file : srcDir.listFiles(new FilePrefixFilter(prefixes))) {
+            copyFile(file, targetDir);
         }
     }
 
@@ -283,6 +295,13 @@ public class IOUtils {
             }
             if (udp != null) udp.close();
         }
+    }
+
+    public static void copyEjistoLibs(String[] prefixes, File targetDir) {
+        StringBuilder path = new StringBuilder(System.getProperty("user.dir"));
+        path.append(File.separator);
+        path.append("lib");
+        copyDirContent(new File(path.toString()), targetDir, prefixes);
     }
 
     public static String getEjistoCoreClasspathEntry() {

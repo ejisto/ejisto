@@ -60,6 +60,7 @@ import static com.ejisto.util.IOUtils.*;
 
 public class ApplicationScanningController extends AbstractApplicationInstallerController implements Callable<Void> {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
+    private static String[] entries = {"derbyclient", "derbynet", "ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "spring"};
     private Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
     private Future<Void> task;
     private ProgressPanel applicationScanningTab;
@@ -217,7 +218,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     private Element buildListener(String namespaceURI) {
         Element listener = new Element(WebXmlType.LISTENER, namespaceURI);
         Element listenerClass = new Element("listener-class", namespaceURI);
-        listenerClass.setText("javax.servlet.ServletContextListener");
+        listenerClass.setText("com.ejisto.modules.web.ContextListener");
         listener.addContent(listenerClass);
         return listener;
     }
@@ -238,7 +239,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         List<CustomObjectFactory> jars = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
         for (CustomObjectFactory jar : jars)
             copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir);
-        copyFile(getEjistoCoreClasspathEntry(), dir);
+        copyEjistoLibs(entries, dir);
         String deployablePath = System.getProperty(DEPLOYABLES_DIR.getValue()) + File.separator + session.getWarFile().getName();
         zipDirectory(session.getInstallationPath(), deployablePath);
         session.setDeployablePath(deployablePath);

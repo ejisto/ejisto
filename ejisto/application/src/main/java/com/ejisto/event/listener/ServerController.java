@@ -27,11 +27,12 @@ import com.ejisto.modules.cargo.CargoManager;
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.gui.Application;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
 
-public class ServerController implements ApplicationListener<ChangeServerStatus> {
+public class ServerController implements ApplicationListener<ChangeServerStatus>, DisposableBean {
 
     private static final Logger logger = Logger.getLogger(ServerController.class);
 
@@ -40,8 +41,17 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
     @Resource private Application application;
 
     @Override
-    public void onApplicationEvent(ChangeServerStatus event) {
+    public void onApplicationEvent(final ChangeServerStatus event) {
         logger.info("handling event: " + event);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                handleEvent(event);
+            }
+        }).start();
+    }
+
+    private void handleEvent(ChangeServerStatus event) {
         try {
             if (event.getCommand() == ChangeServerStatus.Command.STARTUP) {
                 logger.info("Starting server:");
@@ -60,6 +70,10 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
             logger.error("event handling failed", e);
             eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));
         }
+    }
 
+    @Override
+    public void destroy() throws Exception {
+        cargoManager.stopDefault();
     }
 }
