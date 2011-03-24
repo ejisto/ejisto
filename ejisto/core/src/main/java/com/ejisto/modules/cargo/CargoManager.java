@@ -66,7 +66,7 @@ public class CargoManager implements ContainerManager {
 
     private static final Logger logger = Logger.getLogger(CargoManager.class);
     private static final String DEFAULT = "tomcat7x";
-    private boolean serverStarted = false;
+    private volatile boolean serverStarted = false;
     @Resource private ContainersRepository containersRepository;
     @Resource private SettingsRepository settingsRepository;
     private HashMap<String, AbstractInstalledLocalContainer> installedContainers = new HashMap<String, AbstractInstalledLocalContainer>();
@@ -105,15 +105,15 @@ public class CargoManager implements ContainerManager {
         return false;
     }
 
-    private boolean start(LocalContainer localContainer) {
+    private synchronized boolean start(LocalContainer localContainer) {
         localContainer.start();
         serverStarted = true;
         return true;
     }
 
-    private boolean stop(LocalContainer localContainer) {
+    private synchronized boolean stop(LocalContainer localContainer) {
         localContainer.stop();
-        serverStarted = true;
+        serverStarted = false;
         return true;
     }
 
@@ -133,15 +133,19 @@ public class CargoManager implements ContainerManager {
         configuration = loadExistingConfiguration(containerId, configurationDir);
         //else configuration = createNewStandaloneConfiguration(installedContainer, configurationDir);
         String agentPath = ContainerUtils.extractAgentJar(System.getProperty("java.class.path"));
-        configuration.setProperty(GeneralPropertySet.JVMARGS, "-javaagent:" + agentPath + " -Djava.net.preferIPv4Stack=true");
+        StringBuilder jvmArgs = new StringBuilder("-javaagent:");
+        jvmArgs.append(agentPath);
+        jvmArgs.append(" -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005");
+        jvmArgs.append(" -Djava.net.preferIPv4Stack=true");
+        configuration.setProperty(GeneralPropertySet.JVMARGS, jvmArgs.toString());
         DefaultContainerFactory containerFactory = new DefaultContainerFactory();
         AbstractInstalledLocalContainer container = (AbstractInstalledLocalContainer) containerFactory.createContainer(containerId,
                                                                                                                        ContainerType.INSTALLED,
                                                                                                                        configuration);
+        //for (String entry : listJarFiles(System.getProperty("user.dir")+File.separator+"lib")) container.addSharedClasspath(entry);
         container.setHome(installedContainer.getHomeDir());
         container.setLogger(new ServerLogger());
         container.addExtraClasspath(agentPath);
-        container.setTimeout(30000);
         installedContainers.put(containerId, container);
         return container;
     }

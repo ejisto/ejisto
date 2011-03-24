@@ -62,9 +62,7 @@ public abstract class ExternalizableService<T extends BaseDao> {
             if (remoteDataSource != null) return remoteDataSource;
             locked = writeLock.tryLock(500, TimeUnit.MILLISECONDS);
             if (!locked) throw new RuntimeException("Unable to lock");
-            remoteDataSource = new SimpleDriverDataSource(new ClientDriver(),
-                                                          "jdbc:derby://localhost:5555/memory:ejisto;create=true",
-                                                          "ejisto", "ejisto");
+            remoteDataSource = new SimpleDriverDataSource(new ClientDriver(), "jdbc:derby://localhost:5555/memory:ejisto", "ejisto", "ejisto");
             return remoteDataSource;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

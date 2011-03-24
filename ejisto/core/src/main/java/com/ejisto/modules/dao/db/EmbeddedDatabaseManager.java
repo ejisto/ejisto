@@ -34,6 +34,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class EmbeddedDatabaseManager extends AbstractDataSource {
@@ -62,9 +63,8 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
         serverControl.start(new PrintWriter(System.out));
         checkServerStartup();
         started = true;
-        driverDataSource = new SimpleDriverDataSource(new ClientDriver(),
-                                                      "jdbc:derby://localhost:5555/memory:ejisto;create=true", "ejisto",
-                                                      "ejisto");
+        initDatabase();
+        driverDataSource = new SimpleDriverDataSource(new ClientDriver(), "jdbc:derby://localhost:5555/memory:ejisto", "ejisto", "ejisto");
         populator.populate(getConnection());
         logger.info("done");
     }
@@ -89,6 +89,12 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
 
     private void pingServer() throws Exception {
         serverControl.ping();
+    }
+
+    private void initDatabase() throws Exception {
+        DriverManager.registerDriver(new ClientDriver());
+        Connection con = DriverManager.getConnection("jdbc:derby://localhost:5555/memory:ejisto;create=true", "ejisto", "ejisto");
+        con.close();
     }
 
     @Override

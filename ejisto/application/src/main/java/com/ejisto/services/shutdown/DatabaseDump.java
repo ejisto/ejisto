@@ -31,8 +31,7 @@ import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
 
-import static ch.lambdaj.Lambda.convert;
-import static ch.lambdaj.Lambda.forEach;
+import static ch.lambdaj.Lambda.*;
 import static com.ejisto.util.IOUtils.writeFile;
 
 public class DatabaseDump extends BaseShutdownService {
@@ -83,7 +82,7 @@ public class DatabaseDump extends BaseShutdownService {
     private void dumpDescriptors(StringBuilder file) {
         List<WebApplicationDescriptor> descriptors = webApplicationDescriptorDao.loadAll();
         append(file, convert(descriptors, new DescriptorDumpConverter()));
-        append(file, convert(forEach(descriptors, WebApplicationDescriptor.class).getElements(), new DescriptorElementDumpConverter()));
+        append(file, convert(collect(forEach(descriptors, WebApplicationDescriptor.class).getElements()), new DescriptorElementDumpConverter()));
     }
 
     private void dumpDataSources(StringBuilder file) {

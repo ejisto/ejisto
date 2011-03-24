@@ -26,7 +26,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.ejisto.hello.beans.SimplePropertyValue" %>
 <jsp:useBean id="bean" class="com.ejisto.hello.beans.HelloWorldBean" scope="request"/>
-<jsp:useBean id="dao" class="com.ejisto.hello.dao.TestDao" scope="request"/>
+<%--jsp:useBean id="dao" class="com.ejisto.hello.dao.TestDao" scope="request"/--%>
 <html>
 <head><title>Ejisto Test servlet</title></head>
 <body>
@@ -36,7 +36,7 @@
 <br><b>Description: </b> <%= bean.getDescription() %>
 <br><b>Hit count: </b> <%= bean.getHits() %>
 <br><b>Time stamp: </b> <%= bean.getTimestamp() %>
-<br><b>what time is it?:</b><%= dao.whatTimeIsIt() %>
+<%--<br><b>what time is it?:</b><%= dao.whatTimeIsIt() %>--%>
 <br><b>Property values:</b><br>
 <%
     for (SimplePropertyValue propertyValue : bean.getPropertyValues()) {

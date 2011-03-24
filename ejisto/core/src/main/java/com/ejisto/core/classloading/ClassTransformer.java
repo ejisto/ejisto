@@ -31,6 +31,8 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import static java.lang.Thread.currentThread;
+
 public class ClassTransformer implements ClassFileTransformer {
 
     private static final Logger logger = Logger.getLogger(ClassTransformer.class);
@@ -45,7 +47,7 @@ public class ClassTransformer implements ClassFileTransformer {
 
     private void initClassPool() {
         classPool = new ClassPool();
-//        classPool.appendClassPath(new LoaderClassPath(classLoader));
+        classPool.appendClassPath(new LoaderClassPath(currentThread().getContextClassLoader()));
     }
 
     public Class<?> transform(String className) throws Exception {
@@ -67,7 +69,7 @@ public class ClassTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         if (!isInstrumentableClass(className)) return null;
-        List<MockedField> fields = getFieldsFor(className);
+        List<MockedField> fields = getFieldsFor(getCanonicalClassName(className));
         if (fields == null || fields.isEmpty()) return null;
         else return transform(className, fields);
     }
@@ -93,7 +95,7 @@ public class ClassTransformer implements ClassFileTransformer {
 
     private byte[] transform(String className, List<MockedField> mockedFields) throws IllegalClassFormatException {
         try {
-            CtClass clazz = classPool.get(className.replaceAll("/", "."));
+            CtClass clazz = classPool.get(getCanonicalClassName(className));
             clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, mockedFields)));
             removeFinalModifier(clazz);
             addDefaultConstructor(clazz);
@@ -107,7 +109,11 @@ public class ClassTransformer implements ClassFileTransformer {
         return MockedFieldsRepository.getInstance().load(contextPath, className);
     }
 
+    private String getCanonicalClassName(String path) {
+        return path.replaceAll("/", ".");
+    }
+
     public boolean isInstrumentableClass(String name) {
-        return MockedFieldsRepository.getInstance().isMockableClass(contextPath, name.replaceAll("/", "."));
+        return MockedFieldsRepository.getInstance().isMockableClass(contextPath, getCanonicalClassName(name));
     }
 }

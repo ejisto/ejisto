@@ -60,7 +60,7 @@ import static com.ejisto.util.IOUtils.*;
 
 public class ApplicationScanningController extends AbstractApplicationInstallerController implements Callable<Void> {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
-    private static String[] entries = {"derbyclient", "derbynet", "ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "spring"};
+    private static String[] entries = {"derbyclient", "derbynet", "ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "spring", "cglib", "commons"};
     private Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
     private Future<Void> task;
     private ProgressPanel applicationScanningTab;

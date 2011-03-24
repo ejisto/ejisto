@@ -20,7 +20,6 @@
 package com.ejisto.hello.servlets;
 
 import com.ejisto.hello.beans.HelloWorldBean;
-import com.ejisto.hello.dao.TestDao;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -28,7 +27,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 public class HelloServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -46,12 +44,12 @@ public class HelloServlet extends HttpServlet {
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html");
         HelloWorldBean bean = new HelloWorldBean();
-        TestDao dao = new TestDao();
+        //TestDao dao = new TestDao();
         request.setAttribute("bean", bean);
-        request.setAttribute("dao", dao);
+        //request.setAttribute("dao", dao);
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/index.jsp");
         dispatcher.forward(request, response);
-        PrintWriter pw = response.getWriter();
+//        PrintWriter pw = response.getWriter();
 //        pw.write("<html><head><title>Ejisto Test servlet</title></head><body><b>Title: </b>");
 //        pw.write(bean.getTitle());
 //        pw.write("<br><b>Description: </b>");
