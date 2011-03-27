@@ -20,12 +20,9 @@
 package com.ejisto.util;
 
 import com.ejisto.modules.dao.BaseDao;
-import org.apache.derby.jdbc.ClientDriver;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import com.ejisto.modules.web.DataSourceHolder;
 
 import javax.sql.DataSource;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by IntelliJ IDEA.
@@ -34,9 +31,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * Time: 6:38 PM
  */
 public abstract class ExternalizableService<T extends BaseDao> {
-
-    private static DataSource remoteDataSource;
-    private static ReentrantLock writeLock = new ReentrantLock();
 
     protected void checkDao() {
         T dao = getDaoInstance();
@@ -57,17 +51,6 @@ public abstract class ExternalizableService<T extends BaseDao> {
     protected abstract Class<T> getDaoClass();
 
     private static DataSource getRemoteDataSource() {
-        boolean locked = false;
-        try {
-            if (remoteDataSource != null) return remoteDataSource;
-            locked = writeLock.tryLock(500, TimeUnit.MILLISECONDS);
-            if (!locked) throw new RuntimeException("Unable to lock");
-            remoteDataSource = new SimpleDriverDataSource(new ClientDriver(), "jdbc:derby://localhost:5555/memory:ejisto", "ejisto", "ejisto");
-            return remoteDataSource;
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (locked) writeLock.unlock();
-        }
+        return DataSourceHolder.getDataSource();
     }
 }

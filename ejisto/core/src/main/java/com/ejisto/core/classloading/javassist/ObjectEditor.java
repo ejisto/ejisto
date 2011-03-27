@@ -22,9 +22,10 @@ package com.ejisto.core.classloading.javassist;
 import javassist.CannotCompileException;
 import javassist.NotFoundException;
 import javassist.expr.*;
+import org.apache.log4j.Logger;
 
 public class ObjectEditor extends ExprEditor {
-
+    private static final Logger logger = Logger.getLogger(ObjectEditor.class);
     private EjistoMethodFilter filter;
 
     public ObjectEditor(EjistoMethodFilter filter) {
@@ -57,17 +58,20 @@ public class ObjectEditor extends ExprEditor {
      */
     @Override
     public void edit(FieldAccess f) throws CannotCompileException {
+        if (logger.isTraceEnabled()) logger.trace("checking field [" + f.getFieldName() + "] of class [" + f.getClassName() + "]");
         if (f.isReader() && filter.isFieldHandled(f.getFieldName())) {
-            StringBuilder instruction = new StringBuilder(
-                    "{ $_ = ($r) com.ejisto.core.classloading.javassist.PropertyManager.mockField(");
+            if (logger.isTraceEnabled()) logger.trace("editing field [" + f.getFieldName() + "]");
+            StringBuilder instruction = new StringBuilder("{ $_ = ($r) com.ejisto.core.classloading.javassist.PropertyManager.mockField(");
             instruction.append("\"").append(filter.getContextPath()).append("\",");
             try {
                 if (f.getField().getType().isPrimitive())
-                    instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(
-                            f.getClassName()).append("\", $_); return $_; }");
-                else instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(
-                        f.getClassName()).append("\", $type, $_); return $_; }");
+                    instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(f.getClassName()).append(
+                            "\", $_); return $_; }");
+                else instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(f.getClassName()).append(
+                        "\", $type, $_); return $_; }");
+                if (logger.isTraceEnabled()) logger.trace("modifying field access with expression [" + instruction.toString() + "]");
                 f.replace(instruction.toString());
+                if (logger.isTraceEnabled()) logger.trace("done");
             } catch (NotFoundException e) {
                 e.printStackTrace();
             }
