@@ -25,17 +25,19 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import javassist.*;
 import org.apache.log4j.Logger;
+import org.springframework.util.CollectionUtils;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
 import static java.lang.Thread.currentThread;
 
 public class ClassTransformer implements ClassFileTransformer {
 
-    private static final Logger logger = Logger.getLogger(ClassTransformer.class);
+    private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     //    private EjistoClassLoader classLoader;
     private ClassPool classPool;
     private String contextPath;
@@ -69,8 +71,10 @@ public class ClassTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         if (!isInstrumentableClass(className)) return null;
+        trace(className + " is instrumentable. Loading fields...");
         List<MockedField> fields = getFieldsFor(getCanonicalClassName(className));
-        if (fields == null || fields.isEmpty()) return null;
+        trace(className + " has registered fields: " + !CollectionUtils.isEmpty(fields));
+        if (CollectionUtils.isEmpty(fields)) return null;
         else return transform(className, fields);
     }
 
@@ -95,12 +99,19 @@ public class ClassTransformer implements ClassFileTransformer {
 
     private byte[] transform(String className, List<MockedField> mockedFields) throws IllegalClassFormatException {
         try {
+            trace("retrieving " + className + " from pool");
             CtClass clazz = classPool.get(getCanonicalClassName(className));
+            trace("instrumenting " + className);
             clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, mockedFields)));
+            trace("removing final modifier (if present)");
             removeFinalModifier(clazz);
+            trace("adding default constructor ");
             addDefaultConstructor(clazz);
+            trace("done. Returning bytecode");
+            clazz.rebuildClassFile();
             return clazz.toBytecode();
         } catch (Exception e) {
+            logger.error("error during transformation of class " + className, e);
             throw new IllegalClassFormatException(e.getMessage());
         }
     }
@@ -115,5 +126,9 @@ public class ClassTransformer implements ClassFileTransformer {
 
     public boolean isInstrumentableClass(String name) {
         return MockedFieldsRepository.getInstance().isMockableClass(contextPath, getCanonicalClassName(name));
+    }
+
+    private void trace(String s) {
+        if (logger.isTraceEnabled()) logger.trace(s);
     }
 }

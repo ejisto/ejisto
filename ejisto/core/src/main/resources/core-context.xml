@@ -36,11 +36,6 @@
     <util:properties id="settings" location="classpath:settings.properties"/>
     <bean id="containerManager" class="com.ejisto.modules.cargo.CargoManager"/>
     <bean id="ognlContext" class="ognl.OgnlContext"/>
-    <bean id="propertyManager" class="com.ejisto.core.classloading.javassist.PropertyManager"
-          factory-method="getInstance"/>
-    <bean id="ognlAdapter" class="com.ejisto.core.classloading.ognl.OgnlAdapter"/>
-    <bean id="ejistoProxyFactory" class="com.ejisto.core.classloading.proxy.EjistoProxyFactory"
-          factory-method="getInstance"/>
     <bean id="sharedClassLoader" class="com.ejisto.core.classloading.SharedClassLoader" factory-method="getInstance"/>
     <bean id="jndiResourcesRepository" class="com.ejisto.util.JndiDataSourcesRepository" factory-method="getInstance"/>
     <bean abstract="true" id="baseDao" class="com.ejisto.modules.dao.BaseDao" lazy-init="true"/>

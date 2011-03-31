@@ -29,6 +29,8 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -36,7 +38,7 @@ import java.util.Map;
  * Time: 4:41 PM
  */
 public class ObjectFactoryRepository {
-    private static final Logger logger = Logger.getLogger(ObjectFactoryRepository.class);
+    private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private static final String DEFAULT = "java.lang.Object";
     private static final ObjectFactoryRepository INSTANCE = new ObjectFactoryRepository();
     private Map<String, String> factories = new HashMap<String, String>();
@@ -49,10 +51,8 @@ public class ObjectFactoryRepository {
     }
 
     private ObjectFactoryRepository() {
-        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicIntegerFactory",
-                              "java.util.concurrent.AtomicInteger", false);
-        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicLongFactory",
-                              "java.util.concurrent.atomic.AtomicLong", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicIntegerFactory", "java.util.concurrent.AtomicInteger", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicLongFactory", "java.util.concurrent.atomic.AtomicLong", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.NumberFactory", "java.lang.Number", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.StringFactory", "java.lang.String", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.DefaultObjectFactory", DEFAULT, false);
@@ -91,19 +91,19 @@ public class ObjectFactoryRepository {
 
     private String scanForObjectFactory(CtClass objectClass) throws Exception {
         try {
-            debug("Hey! Could someone create an instance of [" + objectClass.getName() + "]?");
+            trace("Hey! Could someone create an instance of [" + objectClass.getName() + "]?");
             if (factories.containsKey(objectClass.getName())) {
-                debug("yep!");
+                trace("yep!");
                 return factories.get(objectClass.getName());
             }
             String factory;
-            debug("nope. Trying interfaces...");
+            trace("nope. Trying interfaces...");
             for (CtClass c : objectClass.getInterfaces()) {
                 factory = scanForObjectFactory(c);
                 if (factory != null) return factory;
             }
             if (!objectClass.isInterface()) {
-                debug("nope. Trying super class...");
+                trace("nope. Trying super class...");
                 factory = scanForObjectFactory(objectClass.getSuperclass());
                 if (factory != null) return factory;
                 return factories.get(DEFAULT);
@@ -114,8 +114,8 @@ public class ObjectFactoryRepository {
         }
     }
 
-    private void debug(String message) {
-        if (logger.isDebugEnabled()) logger.debug(message);
+    private void trace(String message) {
+        if (logger.isTraceEnabled()) logger.trace(message);
     }
 
 }

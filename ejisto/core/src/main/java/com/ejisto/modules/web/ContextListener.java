@@ -22,6 +22,9 @@ package com.ejisto.modules.web;
 import com.ejisto.InstrumentationHolder;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.core.classloading.ClassTransformer;
+import com.ejisto.modules.repository.ClassPoolRepository;
+import javassist.ClassPool;
+import javassist.LoaderClassPath;
 import org.apache.derby.jdbc.ClientDriver;
 import org.apache.log4j.*;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -45,19 +48,28 @@ public class ContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        initLog();
+        context = sce.getServletContext();
+        context.log("Ejisto initialization...");
+        String targetContextPath = context.getInitParameter(StringConstants.CONTEXT_PARAM_NAME.getValue());
+        InstrumentationHolder.getInstrumentation().addTransformer(new ClassTransformer(targetContextPath));
+        driver = new ClientDriver();
+        initDataSource();
+        ClassPool cp = new ClassPool();
+        cp.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
+        ClassPoolRepository.registerClassPool(targetContextPath, cp);
+        context.log("Ejisto successfully initialized!");
+    }
+
+    private void initLog() {
         Logger logger = Logger.getLogger("EjistoClassTransformer");
         if (!logger.getAllAppenders().hasMoreElements()) {
             Appender appender = new ConsoleAppender(new TTCCLayout());
             logger.addAppender(appender);
             logger.setLevel(Level.TRACE);
+            logger.info("ejisto class transformer logger initialized");
+            logger.trace("this is only a test");
         }
-        context = sce.getServletContext();
-        context.log("Ejisto initializing...");
-        String targetContextPath = context.getInitParameter(StringConstants.CONTEXT_PARAM_NAME.getValue());
-        InstrumentationHolder.getInstrumentation().addTransformer(new ClassTransformer(targetContextPath));
-        driver = new ClientDriver();
-        initDataSource();
-        context.log("Ejisto successfully initialized!");
     }
 
     private void initDataSource() {

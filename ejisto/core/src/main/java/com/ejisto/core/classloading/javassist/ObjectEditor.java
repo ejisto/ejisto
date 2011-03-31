@@ -24,8 +24,10 @@ import javassist.NotFoundException;
 import javassist.expr.*;
 import org.apache.log4j.Logger;
 
+import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
+
 public class ObjectEditor extends ExprEditor {
-    private static final Logger logger = Logger.getLogger(ObjectEditor.class);
+    private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private EjistoMethodFilter filter;
 
     public ObjectEditor(EjistoMethodFilter filter) {
@@ -58,9 +60,9 @@ public class ObjectEditor extends ExprEditor {
      */
     @Override
     public void edit(FieldAccess f) throws CannotCompileException {
-        if (logger.isTraceEnabled()) logger.trace("checking field [" + f.getFieldName() + "] of class [" + f.getClassName() + "]");
+        trace("checking field [" + f.getFieldName() + "] of class [" + f.getClassName() + "]");
         if (f.isReader() && filter.isFieldHandled(f.getFieldName())) {
-            if (logger.isTraceEnabled()) logger.trace("editing field [" + f.getFieldName() + "]");
+            trace("editing field [" + f.getFieldName() + "]");
             StringBuilder instruction = new StringBuilder("{ $_ = ($r) com.ejisto.core.classloading.javassist.PropertyManager.mockField(");
             instruction.append("\"").append(filter.getContextPath()).append("\",");
             try {
@@ -69,9 +71,9 @@ public class ObjectEditor extends ExprEditor {
                             "\", $_); return $_; }");
                 else instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(f.getClassName()).append(
                         "\", $type, $_); return $_; }");
-                if (logger.isTraceEnabled()) logger.trace("modifying field access with expression [" + instruction.toString() + "]");
+                trace("modifying field access with expression [" + instruction.toString() + "]");
                 f.replace(instruction.toString());
-                if (logger.isTraceEnabled()) logger.trace("done");
+                trace("done");
             } catch (NotFoundException e) {
                 e.printStackTrace();
             }
@@ -92,6 +94,10 @@ public class ObjectEditor extends ExprEditor {
     @Override
     public void edit(Handler h) throws CannotCompileException {
         super.edit(h);
+    }
+
+    private void trace(String s) {
+        if (logger.isTraceEnabled()) logger.trace(s);
     }
 
 }

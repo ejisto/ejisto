@@ -54,7 +54,8 @@ public enum StringConstants {
     DEPLOYABLES_DIR("ejisto.deployables.dir"),
     RUNTIME_DIR("ejisto.runtime.dir"),
     DEFAULT_SERVER_PORT("ejisto.default.server.port"),
-    EJISTO_VERSION("ejisto.version");
+    EJISTO_VERSION("ejisto.version"),
+    EJISTO_CLASS_TRANSFORMER_CATEGORY("EjistoClassTransformer");
 
     private String value;
 

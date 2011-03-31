@@ -25,17 +25,19 @@ import ognl.OgnlContext;
 import ognl.OgnlRuntime;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 import static ognl.Ognl.compileExpression;
 import static ognl.Ognl.setValue;
 
 public class OgnlAdapter implements InitializingBean {
-    @Resource
     private OgnlContext ognlContext;
-    @Resource
     private EjistoProxyFactory ejistoProxyFactory;
+
+    public OgnlAdapter(OgnlContext ognlContext, EjistoProxyFactory ejistoProxyFactory) {
+        this.ognlContext = ognlContext;
+        this.ejistoProxyFactory = ejistoProxyFactory;
+    }
 
     public boolean canHandle(MockedField mockedField) {
         return !mockedField.isSimpleValue();

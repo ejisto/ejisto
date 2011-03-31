@@ -25,22 +25,26 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
+import ognl.OgnlContext;
 import org.apache.log4j.Logger;
 
-import javax.annotation.Resource;
+import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
 
 public class PropertyManager {
 
     private static final PropertyManager INSTANCE = new PropertyManager();
-    private static final Logger logger = Logger.getLogger(PropertyManager.class);
-    @Resource
+    private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private MockedFieldsRepository mockedFieldsRepository;
-    @Resource
     private EjistoProxyFactory ejistoProxyFactory;
-    @Resource
     private OgnlAdapter ognlAdapter;
-    @Resource
     private ObjectFactoryRepository objectFactoryRepository;
+
+    private PropertyManager() {
+        this.ejistoProxyFactory = EjistoProxyFactory.getInstance();
+        this.ognlAdapter = new OgnlAdapter(new OgnlContext(), ejistoProxyFactory);
+        this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
+        this.objectFactoryRepository = ObjectFactoryRepository.getInstance();
+    }
 
     public static PropertyManager getInstance() {
         return INSTANCE;
@@ -48,23 +52,23 @@ public class PropertyManager {
 
     private <T> T getFieldValue(String contextPath, String className, String fieldName, Class<T> type, T actualValue) {
         try {
+            trace(String.format("loading fields for %s@%s - %s", fieldName, className, contextPath));
             MockedField mockedField = mockedFieldsRepository.load(contextPath, className, fieldName);
+            trace("found " + mockedField);
             if (mockedField != null && mockedField.isActive()) {
                 return evaluateResult(mockedField, type, actualValue);
             } else {
                 return actualValue;
             }
         } catch (Exception e) {
-            logger.error("Property " + fieldName + " of class " + className + " not found. Returning " + actualValue,
-                         e);
+            logger.error("Property " + fieldName + " of class " + className + " not found. Returning " + actualValue, e);
             return actualValue;
         }
     }
 
     @SuppressWarnings("unchecked")
     private <T> T evaluateResult(MockedField mockedField, Class<T> type, T actualValue) throws Exception {
-        String objectFactoryClass = objectFactoryRepository.getObjectFactory(mockedField.getFieldType(),
-                                                                             mockedField.getContextPath());
+        String objectFactoryClass = objectFactoryRepository.getObjectFactory(mockedField.getFieldType(), mockedField.getContextPath());
         ObjectFactory<T> objectFactory = (ObjectFactory<T>) Thread.currentThread().getContextClassLoader().loadClass(
                 objectFactoryClass).newInstance();
         return objectFactory.create(mockedField, actualValue);
@@ -77,38 +81,51 @@ public class PropertyManager {
     }
 
     public static <T> T mockField(String contextPath, String fieldName, String className, Class<T> type, T actual) {
+        trace("calling mockField with " + type + " value");
         return INSTANCE.getFieldValue(contextPath, className, fieldName, type, actual);
     }
 
     public static byte mockField(String contextPath, String fieldName, String className, byte actual) {
+        trace("calling mockField with byte value");
         return INSTANCE.getFieldValue(contextPath, className, fieldName, Byte.class, actual);
     }
 
     public static short mockField(String contextPath, String fieldName, String className, short actual) {
+        trace("calling mockField with short value");
         return INSTANCE.getFieldValue(contextPath, className, fieldName, Short.class, actual);
     }
 
     public static int mockField(String contextPath, String fieldName, String className, int actual) {
+        trace("calling mockField with int value");
         return INSTANCE.getFieldValue(contextPath, className, fieldName, Integer.class, actual);
     }
 
     public static long mockField(String contextPath, String fieldName, String className, long actual) {
+        trace("calling mockField with long value");
         return INSTANCE.getFieldValue(contextPath, className, fieldName, Long.class, actual);
     }
 
     public static float mockField(String contextPath, String fieldName, String className, float actual) {
+        trace("calling mockField with float value");
         return INSTANCE.getFieldValue(contextPath, className, fieldName, Float.class, actual);
     }
 
     public static double mockField(String contextPath, String fieldName, String className, double actual) {
+        trace("calling mockField with double value");
         return INSTANCE.getFieldValue(contextPath, className, fieldName, Double.class, actual);
     }
 
     public static char mockField(String contextPath, String fieldName, String className, char actual) {
+        trace("calling mockField with char value");
         return INSTANCE.getFieldValue(contextPath, className, fieldName, Character.class, actual);
     }
 
     public static boolean mockField(String contextPath, String fieldName, String className, boolean actual) {
+        trace("calling mockField with boolean value");
         return INSTANCE.getFieldValue(contextPath, className, fieldName, Boolean.class, actual);
+    }
+
+    private static void trace(String s) {
+        if (logger.isTraceEnabled()) logger.trace(s);
     }
 }

@@ -24,21 +24,23 @@ import com.ejisto.modules.repository.MockedFieldsRepository;
 import net.sf.cglib.proxy.Enhancer;
 import ognl.ObjectNullHandler;
 
-import javax.annotation.Resource;
 import java.util.Map;
 
 public class EjistoProxyFactory extends ObjectNullHandler {
     private static final EjistoProxyFactory INSTANCE = new EjistoProxyFactory();
-
-    @Resource
     private MockedFieldsRepository mockedFieldsRepository;
 
     public static EjistoProxyFactory getInstance() {
         return INSTANCE;
     }
 
+    private EjistoProxyFactory() {
+        this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T proxyClass(Class<T> target, String contextPath) {
+        init();
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(target);
         enhancer.setCallback(new EjistoProxy(mockedFieldsRepository.load(contextPath, target.getName())));
@@ -52,5 +54,9 @@ public class EjistoProxyFactory extends ObjectNullHandler {
     @Override
     public Object nullPropertyValue(Map context, Object target, Object property) {
         return super.nullPropertyValue(context, target, property);
+    }
+
+    private synchronized void init() {
+        if (mockedFieldsRepository == null) mockedFieldsRepository = MockedFieldsRepository.getInstance();
     }
 }

@@ -46,6 +46,13 @@ public class Main {
 
     private static Logger logger = Logger.getLogger(Main.class);
 
+    /*
+     * to start application from an IDE (like Intellij Idea)
+     * add -Dejisto.agent.jar.path=/path/to/agent.jar to vm parameters
+     * in launch configuration panel
+     * and set working directory to:
+     * /path/to/ejisto/application/target
+     */
     public static void main(String[] args) {
         try {
             //tanks to David Van Couvering for tip to disable this annoying "feature"
@@ -63,6 +70,7 @@ public class Main {
             controller.startup();
         } catch (Exception e) {
             JXErrorPane.showDialog(null, new ErrorInfo("Startup error", "Startup failed", e.getMessage(), "SEVERE", e, Level.SEVERE, null));
+            System.exit(-1);
         }
     }
 
