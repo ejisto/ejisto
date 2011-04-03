@@ -26,6 +26,8 @@ import com.ejisto.event.def.LogMessage;
 import com.ejisto.modules.cargo.CargoManager;
 import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.controller.DialogManager;
+import com.ejisto.modules.executor.Task;
+import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.ContainerInstallationPanel;
 import org.apache.log4j.Logger;
@@ -34,7 +36,6 @@ import org.springframework.context.ApplicationListener;
 import javax.annotation.Resource;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static com.ejisto.constants.StringConstants.CONTAINERS_HOME_DIR;
@@ -57,9 +58,9 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
     public void onApplicationEvent(final InstallContainer event) {
         logger.info("about to install " + event.getDescription() + " container");
         final String containerDescription = settingsManager.getValue("container.default.description");
-        final ContainerInstallationPanel panel = new ContainerInstallationPanel(
-                getMessage("container.installation.panel.title"),
-                getMessage("container.installation.panel.description", containerDescription));
+        final ContainerInstallationPanel panel = new ContainerInstallationPanel(getMessage("container.installation.panel.title"),
+                                                                                getMessage("container.installation.panel.description",
+                                                                                           containerDescription));
         final DialogManager manager = new DialogManager(application, panel);
         Callable<Void> task = new Callable<Void>() {
             @Override
@@ -72,13 +73,12 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                 panel.notifyJobCompleted(getMessage("container.installation.panel.status.2", containerDescription));
                 if (logger.isDebugEnabled()) logger.debug("notifying installation success");
                 eventManager.publishEvent(new LogMessage(this, getMessage("container.installation.ok")));
-                if (event.isStart())
-                    eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
+                if (event.isStart()) eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
                 manager.hide();
                 return null;
             }
         };
-        Future<Void> future = Executors.newSingleThreadExecutor().submit(task);
+        Future<Void> future = TaskManager.getInstance().addTask(new Task<Void>(task, "download server"));
         manager.show(true);
         try {
             future.get();

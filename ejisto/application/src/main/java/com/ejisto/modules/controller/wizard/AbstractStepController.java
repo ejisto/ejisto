@@ -19,21 +19,20 @@
 
 package com.ejisto.modules.controller.wizard;
 
+import com.ejisto.modules.executor.Task;
+import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.EjistoDialog;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public abstract class AbstractStepController<K> implements StepController<K> {
     private EjistoDialog dialog;
     private K session;
-    private ExecutorService executor;
+    private TaskManager taskManager = TaskManager.getInstance();
 
     public AbstractStepController(EjistoDialog dialog) {
         this.dialog = dialog;
-        this.executor = Executors.newCachedThreadPool();
     }
 
     public void setSession(K session) {
@@ -49,15 +48,15 @@ public abstract class AbstractStepController<K> implements StepController<K> {
     }
 
     protected Future<?> addJob(Runnable task) {
-        return executor.submit(task);
+        return taskManager.addTask(task, "wizard task");
     }
 
     protected <T> Future<T> addJob(Callable<T> task) {
-        return executor.submit(task);
+        return taskManager.addTask(new Task<T>(task, "wizard task"));
     }
 
     protected void execute(Runnable task) {
-        executor.execute(task);
+        addJob(task);
     }
 
 }

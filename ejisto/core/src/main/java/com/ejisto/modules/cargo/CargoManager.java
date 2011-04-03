@@ -51,6 +51,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.ejisto.constants.StringConstants.DEFAULT_SERVER_PORT;
 import static com.ejisto.util.IOUtils.findFirstAvailablePort;
@@ -73,7 +74,7 @@ public class CargoManager implements ContainerManager {
 
     @Override
     public String downloadAndInstall(String urlToString, String folder) throws IOException {
-        final URL url = new URL(urlToString.trim());
+        URL url = new URL(urlToString.trim());
         ContainerInstaller installer = new ContainerInstaller(url, folder);
         installer.install();
         containersRepository.registerDefaultContainer(DEFAULT, installer.getHome(), DEFAULT);
@@ -111,7 +112,14 @@ public class CargoManager implements ContainerManager {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     private synchronized boolean stop(LocalContainer localContainer) {
+        DeployerFactory deployerFactory = new DefaultDeployerFactory();
+        Deployer deployer = deployerFactory.createDeployer(localContainer);
+        List<Deployable> deployables = localContainer.getConfiguration().getDeployables();
+        for (Deployable deployable : deployables) {
+            deployer.undeploy(deployable);
+        }
         localContainer.stop();
         serverStarted = false;
         return true;
@@ -135,7 +143,6 @@ public class CargoManager implements ContainerManager {
         String agentPath = ContainerUtils.extractAgentJar(System.getProperty("java.class.path"));
         StringBuilder jvmArgs = new StringBuilder("-javaagent:");
         jvmArgs.append(agentPath);
-        jvmArgs.append(" -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005");
         jvmArgs.append(" -Djava.net.preferIPv4Stack=true");
         configuration.setProperty(GeneralPropertySet.JVMARGS, jvmArgs.toString());
         DefaultContainerFactory containerFactory = new DefaultContainerFactory();

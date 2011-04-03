@@ -24,6 +24,6 @@ import org.apache.log4j.WriterAppender;
 
 public class LogAppender extends WriterAppender {
     public LogAppender() {
-        super(new PatternLayout("%-4r [%t] %-5p %c %x - %m%n"), new EventOutputStream());
+        super(new PatternLayout("%m%n"), new EventOutputStream());
     }
 }

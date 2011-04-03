@@ -19,11 +19,11 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.core.container.ContainerManager;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.event.def.InstallContainer;
-import com.ejisto.modules.cargo.CargoManager;
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.gui.Application;
 import org.apache.log4j.Logger;
@@ -36,7 +36,7 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
 
     private static final Logger logger = Logger.getLogger(ServerController.class);
 
-    @Resource private CargoManager cargoManager;
+    @Resource(name = "containerManager") private ContainerManager containerManager;
     @Resource private EventManager eventManager;
     @Resource private Application application;
 
@@ -55,11 +55,11 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
         try {
             if (event.getCommand() == ChangeServerStatus.Command.STARTUP) {
                 logger.info("Starting server:");
-                cargoManager.startDefault();
+                containerManager.startDefault();
                 logger.info("done");
             } else {
                 logger.info("Stopping server:");
-                cargoManager.stopDefault();
+                containerManager.stopDefault();
                 logger.info("done");
             }
             application.onServerStatusChange(event);
@@ -74,6 +74,6 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
 
     @Override
     public void destroy() throws Exception {
-        cargoManager.stopDefault();
+        containerManager.stopDefault();
     }
 }

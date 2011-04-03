@@ -17,28 +17,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.event.def;
+package com.ejisto.modules.executor;
 
-import org.springframework.context.ApplicationEvent;
+import java.util.concurrent.Callable;
 
-public abstract class BaseApplicationEvent extends ApplicationEvent {
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 4/2/11
+ * Time: 6:57 PM
+ */
+public class Task<T> implements Callable<T> {
 
-    private static final long serialVersionUID = -2616190172593844455L;
+    private Callable<T> target;
+    private String description;
 
-    public BaseApplicationEvent(Object source) {
-        super(source);
+    public Task(Callable<T> target, String description) {
+        this.target = target;
+        this.description = description;
     }
-
-    public abstract String getDescription();
-
-    public String getIconKey() {
-        return "";
-    }
-
-    public abstract String getKey();
 
     @Override
-    public String toString() {
-        return getDescription();
+    public T call() throws Exception {
+        return target.call();
     }
+
+    public String getDescription() {
+        return description;
+    }
+
 }

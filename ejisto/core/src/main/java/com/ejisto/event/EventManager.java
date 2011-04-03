@@ -19,13 +19,12 @@
 
 package com.ejisto.event;
 
+import com.ejisto.modules.executor.TaskManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
-
-import javax.swing.*;
 
 public class EventManager implements ApplicationContextAware {
     private static final Logger logger = Logger.getLogger(EventManager.class);
@@ -36,12 +35,12 @@ public class EventManager implements ApplicationContextAware {
         if (!initialized) {
             logger.warn("discarded event from " + event.getSource() + " " + event);
         }
-        SwingUtilities.invokeLater(new Runnable() {
+        TaskManager.getInstance().addTask(new Runnable() {
             @Override
             public void run() {
                 publishEventAndWait(event);
             }
-        });
+        }, event.toString());
     }
 
     public void publishEventAndWait(ApplicationEvent event) {

@@ -17,28 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.event.def;
+package com.ejisto.modules.executor;
 
-import org.springframework.context.ApplicationEvent;
-
-public abstract class BaseApplicationEvent extends ApplicationEvent {
-
-    private static final long serialVersionUID = -2616190172593844455L;
-
-    public BaseApplicationEvent(Object source) {
-        super(source);
-    }
-
-    public abstract String getDescription();
-
-    public String getIconKey() {
-        return "";
-    }
-
-    public abstract String getKey();
-
-    @Override
-    public String toString() {
-        return getDescription();
-    }
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 4/2/11
+ * Time: 7:45 PM
+ */
+public enum ExecutionState {
+    NOT_RUNNING,
+    RUNNING,
+    SLEEPING,
+    DONE,
+    CANCELED
 }

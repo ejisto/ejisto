@@ -17,28 +17,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.event.def;
+package com.ejisto.modules.executor;
 
-import org.springframework.context.ApplicationEvent;
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 4/2/11
+ * Time: 7:47 PM
+ */
+public class TaskDescriptor {
+    private String uuid;
+    private String description;
+    private ExecutionState executionState;
 
-public abstract class BaseApplicationEvent extends ApplicationEvent {
-
-    private static final long serialVersionUID = -2616190172593844455L;
-
-    public BaseApplicationEvent(Object source) {
-        super(source);
+    public TaskDescriptor(String uuid, String description, ExecutionState executionState) {
+        this.description = description;
+        this.executionState = executionState;
+        this.uuid = uuid;
     }
 
-    public abstract String getDescription();
-
-    public String getIconKey() {
-        return "";
+    public String getDescription() {
+        return description;
     }
 
-    public abstract String getKey();
+    public ExecutionState getExecutionState() {
+        return executionState;
+    }
 
-    @Override
-    public String toString() {
-        return getDescription();
+    public String getUuid() {
+        return uuid;
     }
 }
