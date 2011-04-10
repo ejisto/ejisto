@@ -114,6 +114,7 @@ public class CargoManager implements ContainerManager {
 
     @SuppressWarnings("unchecked")
     private synchronized boolean stop(LocalContainer localContainer) {
+        if (!serverStarted) return true;
         DeployerFactory deployerFactory = new DefaultDeployerFactory();
         Deployer deployer = deployerFactory.createDeployer(localContainer);
         List<Deployable> deployables = localContainer.getConfiguration().getDeployables();
