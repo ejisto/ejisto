@@ -28,6 +28,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static ch.lambdaj.Lambda.collect;
 import static ch.lambdaj.Lambda.forEach;
+import static java.util.Collections.emptyList;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * Created by IntelliJ IDEA.
@@ -108,6 +110,7 @@ public class TaskManager {
 
     @SuppressWarnings("unchecked")
     public List<TaskDescriptor> getRegisteredTasks() {
+        if (isEmpty(registry)) return emptyList();
         return (List<TaskDescriptor>) collect(forEach(registry.values()).getDescriptor());
     }
 

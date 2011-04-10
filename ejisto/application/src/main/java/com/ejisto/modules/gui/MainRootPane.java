@@ -20,10 +20,13 @@
 package com.ejisto.modules.gui;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.modules.controller.TaskController;
 import com.ejisto.modules.gui.components.MainPanel;
+import com.ejisto.modules.gui.components.TaskView;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXRootPane;
 import org.jdesktop.swingx.JXStatusBar;
+import org.jdesktop.swingx.plaf.basic.BasicStatusBarUI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,6 +37,7 @@ public class MainRootPane extends JXRootPane {
     private static final long serialVersionUID = -3265545519465961578L;
     private MainPanel mainPanel;
     private JXLabel statusLabel;
+    private TaskController taskController;
 
     public MainRootPane() {
         super();
@@ -53,13 +57,11 @@ public class MainRootPane extends JXRootPane {
         JMenu jMenuSystem = new javax.swing.JMenu("System");
         JMenuItem open = new JMenuItem(getAction(StringConstants.LOAD_WEB_APP.getValue()));
         open.setText("Open");
-        open.setAccelerator(
-                javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        open.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         jMenuFile.add(open);
 
         JMenuItem jMenuItemExit = new JMenuItem(getAction(StringConstants.SHUTDOWN.getValue()));
-        jMenuItemExit.setAccelerator(
-                javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItemExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItemExit.setText("Exit");
         jMenuFile.add(jMenuItemExit);
 
@@ -77,7 +79,7 @@ public class MainRootPane extends JXRootPane {
     }
 
     public void onPropertyChange() {
-        mainPanel.onJettyStatusChange();
+        mainPanel.onServerStatusChange();
     }
 
     public void setStatusBarMessage(String messageText, boolean error) {
@@ -88,12 +90,25 @@ public class MainRootPane extends JXRootPane {
     private JXStatusBar initStatusBar() {
         if (statusBar != null) return statusBar;
         statusBar = new JXStatusBar();
+
+        statusBar.putClientProperty(BasicStatusBarUI.AUTO_ADD_SEPARATOR, true);
         statusBar.setMinimumSize(new Dimension(400, 20));
         statusBar.setPreferredSize(new Dimension(400, 20));
         statusBar.setMaximumSize(new Dimension(Short.MAX_VALUE, 20));
         statusLabel = new JXLabel("done");
-        statusBar.add(statusLabel);
+        Insets insets = new Insets(1, 1, 1, 1);
+        JXStatusBar.Constraint c1 = new JXStatusBar.Constraint(JXStatusBar.Constraint.ResizeBehavior.FILL, insets);
+
+        statusBar.add(statusLabel, c1);
+        JXStatusBar.Constraint c2 = new JXStatusBar.Constraint(JXStatusBar.Constraint.ResizeBehavior.FIXED, insets);
+        c2.setFixedWidth(50);
+        statusBar.add(initTaskView(), c2);
         return statusBar;
+    }
+
+    private TaskView initTaskView() {
+        if (this.taskController == null) this.taskController = new TaskController();
+        return taskController.getView();
     }
 
 }

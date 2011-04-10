@@ -99,7 +99,7 @@ public class MainPanel extends JXPanel {
         getServerControl().toggleDisplayServerLog(collapse);
     }
 
-    public void onJettyStatusChange() {
+    public void onServerStatusChange() {
         getPropertiesEditor().setFields(MockedFieldsRepository.getInstance().loadAll());
         getServerControl().reloadContextList();
     }
