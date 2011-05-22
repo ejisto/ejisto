@@ -29,11 +29,12 @@ import java.io.Serializable;
 import java.util.*;
 
 public class WebApplicationDescriptor implements Serializable {
-    private static final long serialVersionUID = 2024622778793996648L;
     private static final Logger logger = Logger.getLogger(WebApplicationDescriptor.class);
+    private static final long serialVersionUID = 7454195671017831484L;
     private List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>();
     private int id = -1;
     private String installationPath;
+    private String containerId;
     private String contextPath;
     private Collection<MockedField> fields;
     private String deployablePath;
@@ -151,5 +152,13 @@ public class WebApplicationDescriptor implements Serializable {
 
     public void setDeployablePath(String deployablePath) {
         this.deployablePath = deployablePath;
+    }
+
+    public String getContainerId() {
+        return containerId;
+    }
+
+    public void setContainerId(String containerId) {
+        this.containerId = containerId;
     }
 }

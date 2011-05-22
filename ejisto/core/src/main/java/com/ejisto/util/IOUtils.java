@@ -211,7 +211,7 @@ public class IOUtils {
         ZipFile jar = new ZipFile(jarFile);
         ZipEntry entry;
         ArrayList<String> ret = new ArrayList<String>();
-        for (Enumeration<? extends ZipEntry> entries = jar.entries(); entries.hasMoreElements();) {
+        for (Enumeration<? extends ZipEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
             entry = entries.nextElement();
             if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
                 ret.add(translatePath(entry.getName().substring(0, entry.getName().length() - 6)));
@@ -266,8 +266,12 @@ public class IOUtils {
     }
 
     public static String guessWebApplicationUri(WebApplicationDescriptor descriptor) {
+        return guessWebApplicationUri(descriptor.getContextPath());
+    }
+
+    public static String guessWebApplicationUri(String contextPath) {
         return new StringBuilder("http://localhost:").append(SettingsRepository.getInstance().getSettingValue(DEFAULT_SERVER_PORT)).append(
-                descriptor.getContextPath()).append("/").toString();
+                contextPath).append("/").toString();
     }
 
     public static int findFirstAvailablePort(int startPort) {

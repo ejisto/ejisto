@@ -74,6 +74,7 @@ public class ApplicationInstallerWizardController {
         sort(controllers, new StepControllerComparator());
         //setTypes session object
         WebApplicationDescriptor session = new WebApplicationDescriptor();
+        session.setContainerId(DEFAULT_CONTAINER_ID.getValue());//todo choose server instance
         forEach(controllers).setSession(session);
     }
 
@@ -88,15 +89,12 @@ public class ApplicationInstallerWizardController {
         dialog = new EjistoDialog(application, getMessage("wizard.title"), createWizard(), false);
         initAndSortControllers(dialog);
         initContainer();
-        dialog.registerAction(new CallbackAction(getMessage("buttons.previous.text"), PREVIOUS_STEP_COMMAND.getValue(),
-                                                 callActionPerformed));
-        dialog.registerAction(
-                new CallbackAction(getMessage("buttons.next.text"), NEXT_STEP_COMMAND.getValue(), callActionPerformed));
+        dialog.registerAction(new CallbackAction(getMessage("buttons.previous.text"), PREVIOUS_STEP_COMMAND.getValue(), callActionPerformed));
+        dialog.registerAction(new CallbackAction(getMessage("buttons.next.text"), NEXT_STEP_COMMAND.getValue(), callActionPerformed));
         Action act = new CallbackAction(getMessage("wizard.ok.text"), CONFIRM.getValue(), confirm);
         act.setEnabled(isSummaryStep());
         dialog.registerAction(act);
-        dialog.registerAction(
-                new CallbackAction(getMessage("wizard.close.text"), EjistoDialog.CLOSE_ACTION_COMMAND, closeDialog));
+        dialog.registerAction(new CallbackAction(getMessage("wizard.close.text"), EjistoDialog.CLOSE_ACTION_COMMAND, closeDialog));
         dialog.setModalityType(ModalityType.APPLICATION_MODAL);
         dialog.setSize(600, 500);
         centerOnScreen(dialog);

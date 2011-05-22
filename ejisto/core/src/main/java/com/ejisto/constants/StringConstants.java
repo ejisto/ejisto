@@ -45,17 +45,18 @@ public enum StringConstants {
     LOAD_WEB_APP("loadwebapp"),
     CONTEXT_PREFIX_SEPARATOR("!!registeredContext!!"),
     START_CONTEXT_COMMAND("start"),
-    START_CONTEXT_PREFIX("start!!registeredContext!!"),
+    START_CONTEXT_PREFIX("!!registeredContext!!start!!registeredContext!!"),
     STOP_CONTEXT_COMMAND("stop"),
-    STOP_CONTEXT_PREFIX("stop!!registeredContext!!"),
+    STOP_CONTEXT_PREFIX("!!registeredContext!!stop!!registeredContext!!"),
     DELETE_CONTEXT_COMMAND("delete"),
-    DELETE_CONTEXT_PREFIX("delete!!registeredContext!!"),
+    DELETE_CONTEXT_PREFIX("!!registeredContext!!delete!!registeredContext!!"),
     CONTEXT_PARAM_NAME("ejisto-target-context-path"),
     DEPLOYABLES_DIR("ejisto.deployables.dir"),
     RUNTIME_DIR("ejisto.runtime.dir"),
     DEFAULT_SERVER_PORT("ejisto.default.server.port"),
     EJISTO_VERSION("ejisto.version"),
-    EJISTO_CLASS_TRANSFORMER_CATEGORY("EjistoClassTransformer");
+    EJISTO_CLASS_TRANSFORMER_CATEGORY("EjistoClassTransformer"),
+    DEFAULT_CONTAINER_ID("tomcat7x");
 
     private String value;
 

@@ -17,22 +17,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.util.converter;
-
-import ch.lambdaj.function.convert.Converter;
-import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
+package com.ejisto.core.container;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/20/11
- * Time: 9:34 AM
+ * Date: 5/22/11
+ * Time: 2:45 PM
  */
-public class DescriptorDumpConverter implements Converter<WebApplicationDescriptor, String> {
-    private static final String INSERT = "INSERT INTO WEBAPPLICATIONDESCRIPTOR(CONTEXTPATH,INSTALLATIONPATH,DEPLOYABLEPATH, CONTAINERID) VALUES('%s','%s','%s','%s');";
-
-    @Override
-    public String convert(WebApplicationDescriptor from) {
-        return String.format(INSERT, from.getContextPath(), from.getInstallationPath(), from.getDeployablePath(), from.getContainerId());
+public interface WebApplication<T> {
+    enum Status {
+        STARTED,
+        STOPPED,
+        PAUSED
     }
+
+    T getContainerWebApplicationDescriptor();
+
+    String getWebApplicationContextPath();
+
+    Status getStatus();
+
+    void setStatus(Status status);
+
+    boolean isRunning();
+
+    String getContainerId();
 }

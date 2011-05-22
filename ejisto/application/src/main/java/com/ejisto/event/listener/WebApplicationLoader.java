@@ -35,6 +35,7 @@ import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.modules.repository.WebApplicationRepository;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.Assert;
@@ -50,6 +51,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static ch.lambdaj.Lambda.forEach;
+import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.*;
 import static com.ejisto.util.IOUtils.guessWebApplicationUri;
@@ -63,6 +65,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     @Resource private MockedFieldsRepository mockedFieldsRepository;
     @Resource private WebApplicationDescriptorDao webApplicationDescriptorDao;
     @Resource private ContainerManager containerManager;
+    @Resource private WebApplicationRepository webApplicationRepository;
 
     private Closure1<ActionEvent> callNotifyCommand;
 
@@ -107,9 +110,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         containerManager.deployToDefaultContainer(webApplicationDescriptor);
         //undeployExistingWebapp(webApplicationDescriptor.getContextPath(), false);
         //bindAllDataSources(classLoader, webApplicationDescriptor);
-//            webAppContextRepository.registerWebAppContext(context);
-//            registerActions(context);
-
+        registerActions(webApplicationDescriptor);
     }
 //TODO implement DataSources binding
 //    private void bindAllDataSources(EjistoClassLoader context, WebApplicationDescriptor descriptor) throws Exception {
@@ -122,20 +123,20 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
 //        context.addExtraEntries(extraClasspath);
 //        JndiUtils.bindResources(descriptor.getDataSources());
 //    }
-//TODO implement context control
-//    private void registerActions(WebAppContext context) {
-//        if (callNotifyCommand == null) {
-//            callNotifyCommand = new Closure1<ActionEvent>() {{
-//                of(WebApplicationLoader.this).notifyCommand(var(ActionEvent.class));
-//            }};
-//        }
-//        String command = new StringBuilder(START_CONTEXT_PREFIX.getValue()).append(context.getContextPath()).toString();
-//        putAction(createAction(command, callNotifyCommand, getMessage("jettycontrol.context.start.icon"), false));
-//        command = new StringBuilder(STOP_CONTEXT_PREFIX.getValue()).append(context.getContextPath()).toString();
-//        putAction(createAction(command, callNotifyCommand, getMessage("jettycontrol.context.stop.icon"), true));
-//        command = new StringBuilder(DELETE_CONTEXT_PREFIX.getValue()).append(context.getContextPath()).toString();
-//        putAction(createAction(command, callNotifyCommand, getMessage("jettycontrol.context.delete.icon"), true));
-//    }
+
+    private void registerActions(WebApplicationDescriptor descriptor) {
+        if (callNotifyCommand == null) {
+            callNotifyCommand = new Closure1<ActionEvent>() {{
+                of(WebApplicationLoader.this).notifyCommand(var(ActionEvent.class));
+            }};
+        }
+        putAction(createAction(buildCommand(START_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()), callNotifyCommand,
+                               getMessage("webapp.context.start.icon"), false));
+        putAction(createAction(buildCommand(STOP_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()), callNotifyCommand,
+                               getMessage("webapp.context.stop.icon"), true));
+        putAction(createAction(buildCommand(DELETE_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()), callNotifyCommand,
+                               getMessage("webapp.context.delete.icon"), true));
+    }
 
     private CallbackAction createAction(String command, Closure1<ActionEvent> callback, String iconKey, boolean enabled) {
         CallbackAction action = new CallbackAction(command, command, callback);
@@ -147,17 +148,17 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     void notifyCommand(ActionEvent event) {
         try {
             String[] command = SPLIT_PATTERN.split(event.getActionCommand());
-            Assert.state(command.length == 2);
-            WebAppContextStatusCommand statusCommand = WebAppContextStatusCommand.fromString(command[0]);
+            Assert.state(command.length == 3);
+            WebAppContextStatusCommand statusCommand = WebAppContextStatusCommand.fromString(command[1]);
             switch (statusCommand) {
                 case START:
-                    startWebapp(command[1]);
+                    startWebapp(command[0], command[2]);
                     break;
                 case STOP:
-                    stopWebapp(command[1]);
+                    stopWebapp(command[0], command[2]);
                     break;
                 case DELETE:
-                    if (showWarning(application, "jettycontrol.context.delete.warning", command[1])) undeployExistingWebapp(command[1], true);
+                    if (showWarning(application, "webapp.context.delete.warning", command[2])) undeployExistingWebapp(command[0], command[2]);
                     break;
                 default:
                     break;
@@ -173,43 +174,19 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         }
     }
 
-    private void undeployExistingWebapp(String contextPath, boolean deleteDescriptor) throws Exception {
-        //TODO to be implemented (undeploy and redeploy)
-//        if (webAppContextRepository.containsWebAppContext(contextPath)) {
-//            logger.info("undeploying webapp " + contextPath);
-//            WebAppContext webAppContext = webAppContextRepository.getWebAppContext(contextPath);
-//            webAppContext.stop();
-//            webAppContext.destroy();
-//            webAppContextRepository.unregisterWebAppContext(webAppContext);
-//            if (deleteDescriptor) {
-//                File f = new File(System.getProperty(DESCRIPTOR_DIR.getValue()) + contextPath + ".xml");
-//                if (f.exists()) f.delete();
-//            }
-//            logger.info("webapp " + contextPath + " undeployed");
-//        }
+    private void undeployExistingWebapp(String serverId, String contextPath) throws Exception {
+        logger.info("undeploying webapp " + contextPath);
+        if (containerManager.undeployFromDefaultContainer(contextPath)) logger.info("webapp " + contextPath + " undeployed");
     }
 
-    private void startWebapp(String contextPath) throws Exception {
-        //TODO to be implemented
-//        if (webAppContextRepository.containsWebAppContext(contextPath)) {
-//            logger.info("starting webapp " + contextPath);
-//            WebAppContext webAppContext = webAppContextRepository.getWebAppContext(contextPath);
-//            webAppContext.start();
-//            logger.info("started webapp " + contextPath);
-//            modifyActionState(contextPath, true);
-//            eventManager.publishEvent(new StatusBarMessage(this, "", false));
-//        }
+    private void startWebapp(String serverId, String contextPath) throws Exception {
+        logger.info("starting webapp " + contextPath);
+        if (containerManager.startWebApplicationOnDefaultServer(contextPath)) logger.info("started webapp " + contextPath);
     }
 
-    private void stopWebapp(String contextPath) throws Exception {
-        //TODO to be implemented
-//        if (webAppContextRepository.containsWebAppContext(contextPath)) {
-//            logger.info("stopping webapp " + contextPath);
-//            WebAppContext webAppContext = webAppContextRepository.getWebAppContext(contextPath);
-//            webAppContext.stop();
-//            logger.info("stopped webapp " + contextPath);
-//            modifyActionState(contextPath, false);
-//        }
+    private void stopWebapp(String serverId, String contextPath) throws Exception {
+        logger.info("stopping webapp " + contextPath);
+        if (containerManager.stopWebApplicationOnDefaultServer(contextPath)) logger.info("stopped webapp " + contextPath);
     }
 
     private void modifyActionState(String contextPath, boolean start) {

@@ -58,6 +58,7 @@
           factory-method="getInstance"/>
     <bean id="customObjectFactoryRepository" class="com.ejisto.modules.repository.CustomObjectFactoryRepository"
           factory-method="getInstance"/>
+    <bean id="webApplicationRepository" class="com.ejisto.modules.repository.WebApplicationRepository"/>
     <bean id="taskManager" class="com.ejisto.modules.executor.TaskManager" factory-method="getInstance"/>
     <bean id="objectFactoryLoader" class="com.ejisto.modules.conf.ObjectFactoryLoader"/>
     <bean id="objectFactoryLoaderTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">

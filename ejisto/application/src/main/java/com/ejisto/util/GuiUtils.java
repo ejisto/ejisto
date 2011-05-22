@@ -19,9 +19,12 @@
 
 package com.ejisto.util;
 
+import com.ejisto.constants.StringConstants;
+import com.ejisto.core.container.WebApplication;
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.EjistoAction;
+import com.ejisto.modules.repository.WebApplicationRepository;
 import org.springframework.util.StringUtils;
 
 import javax.swing.*;
@@ -29,6 +32,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
@@ -115,5 +119,13 @@ public class GuiUtils {
 
     public static Font getDefaultFont() {
         return defaultFont;
+    }
+
+    public static Map<String, List<WebApplication<?>>> getAllRegisteredContexts() {
+        return SpringBridge.getInstance().getBean("webApplicationRepository", WebApplicationRepository.class).getInstalledWebApplications();
+    }
+
+    public static String buildCommand(StringConstants commandPrefix, String containerId, String contextPath) {
+        return new StringBuilder(containerId).append(commandPrefix.getValue()).append(contextPath).toString();
     }
 }

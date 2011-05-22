@@ -58,7 +58,7 @@
 
 
     <util:list id="services" value-type="com.ejisto.services.Service">
-        <bean class="com.ejisto.services.shutdown.JettyShutdown"/>
+        <bean class="com.ejisto.services.shutdown.ContainerShutdown"/>
         <bean class="com.ejisto.services.startup.ResourcesInitializer"/>
         <bean class="com.ejisto.services.startup.ApplicationStartup"/>
         <bean class="com.ejisto.services.shutdown.DatabaseDump"/>

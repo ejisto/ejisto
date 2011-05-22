@@ -19,16 +19,24 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.core.container.WebApplication;
+import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXButton;
+import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+import java.util.Map;
 
-import static com.ejisto.util.GuiUtils.getMessage;
+import static ch.lambdaj.Lambda.flatten;
+import static com.ejisto.constants.StringConstants.*;
+import static com.ejisto.util.GuiUtils.*;
 
 public class RegisteredContextList extends JXPanel {
-    private static final long serialVersionUID = 7817710546838911106L;
+
+    private static final long serialVersionUID = -157871898009911909L;
 
     public RegisteredContextList() {
         super();
@@ -41,6 +49,11 @@ public class RegisteredContextList extends JXPanel {
 
     private void internalReloadAllContexts(boolean removeAll) {
         if (removeAll) removeAll();
+        Map<String, java.util.List<WebApplication<?>>> contexts = getAllRegisteredContexts();
+        List<WebApplication<?>> contextsAsList = flatten(contexts);
+        for (WebApplication<?> context : contextsAsList) {
+            add(buildContextControlPanel(context));
+        }
         revalidate();
         repaint();
     }
@@ -55,33 +68,31 @@ public class RegisteredContextList extends JXPanel {
         internalReloadAllContexts(false);
     }
 
-//    private JXPanel buildContextControlPanel(WebAppContext context) {
-//        JXPanel panel = new JXPanel(new FlowLayout(FlowLayout.LEADING));
-//        panel.add(getLabelFor(context));
-//        panel.add(
-//                getCommandButton(getAction(StringConstants.START_CONTEXT_PREFIX.getValue() + context.getContextPath()),
-//                                 getMessage("jettycontrol.context.start.text")));
-//        panel.add(getCommandButton(getAction(StringConstants.STOP_CONTEXT_PREFIX.getValue() + context.getContextPath()),
-//                                   getMessage("jettycontrol.context.stop.text")));
-//        panel.add(
-//                getCommandButton(getAction(StringConstants.DELETE_CONTEXT_PREFIX.getValue() + context.getContextPath()),
-//                                 getMessage("jettycontrol.context.delete.text")));
-//        panel.setMinimumSize(new Dimension(210, 30));
-//        panel.setMaximumSize(new Dimension(210, 30));
-//        panel.setPreferredSize(new Dimension(210, 30));
-//        panel.setBorder(BorderFactory.createLineBorder(Color.black, 1));
-//        return panel;
-//    }
-//
-//    private JXLabel getLabelFor(WebAppContext context) {
-//        boolean active = context.isRunning();
-//        String color = getMessage(active ? "jettycontrol.context.active.color" : "jettycontrol.context.inactive.color");
-//        String status = getMessage(active ? "jettycontrol.context.active" : "jettycontrol.context.inactive");
-//        String message = getMessage("jettycontrol.context.template", context.getContextPath(), color, status);
-//        JXLabel label = new JXLabel(message);
-//        label.setFont(GuiUtils.getDefaultFont());
-//        return label;
-//    }
+    private JXPanel buildContextControlPanel(WebApplication<?> context) {
+        String contextPath = context.getWebApplicationContextPath();
+        String containerId = context.getContainerId();
+        JXPanel panel = new JXPanel(new FlowLayout(FlowLayout.LEADING));
+        panel.add(getLabelFor(context));
+        panel.add(getCommandButton(getAction(buildCommand(START_CONTEXT_PREFIX, containerId, contextPath)), getMessage("webapp.context.start.text")));
+        panel.add(getCommandButton(getAction(buildCommand(STOP_CONTEXT_PREFIX, containerId, contextPath)), getMessage("webapp.context.stop.text")));
+        panel.add(
+                getCommandButton(getAction(buildCommand(DELETE_CONTEXT_PREFIX, containerId, contextPath)), getMessage("webapp.context.delete.text")));
+        panel.setMinimumSize(new Dimension(210, 30));
+        panel.setMaximumSize(new Dimension(210, 30));
+        panel.setPreferredSize(new Dimension(210, 30));
+        panel.setBorder(BorderFactory.createLineBorder(Color.black, 1));
+        return panel;
+    }
+
+    private JXLabel getLabelFor(WebApplication<?> context) {
+        boolean active = context.isRunning();
+        String color = getMessage(active ? "webapp.context.active.color" : "webapp.context.inactive.color");
+        String status = getMessage(active ? "webapp.context.active" : "webapp.context.inactive");
+        String message = getMessage("webapp.context.template", context.getWebApplicationContextPath(), color, status);
+        JXLabel label = new JXLabel(message);
+        label.setFont(GuiUtils.getDefaultFont());
+        return label;
+    }
 
     private JXButton getCommandButton(Action action, String toolTipText) {
         JXButton button = new JXButton(action);
