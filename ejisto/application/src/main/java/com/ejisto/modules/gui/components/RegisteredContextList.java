@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.gui.components;
 
+import ch.lambdaj.Lambda;
 import com.ejisto.core.container.WebApplication;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXButton;
@@ -27,10 +28,7 @@ import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
-import java.util.Map;
 
-import static ch.lambdaj.Lambda.flatten;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.*;
 
@@ -49,9 +47,7 @@ public class RegisteredContextList extends JXPanel {
 
     private void internalReloadAllContexts(boolean removeAll) {
         if (removeAll) removeAll();
-        Map<String, java.util.List<WebApplication<?>>> contexts = getAllRegisteredContexts();
-        List<WebApplication<?>> contextsAsList = flatten(contexts);
-        for (WebApplication<?> context : contextsAsList) {
+        for (WebApplication<?> context : Lambda.<WebApplication<?>>flatten(getAllRegisteredContexts())) {
             add(buildContextControlPanel(context));
         }
         revalidate();
@@ -61,9 +57,7 @@ public class RegisteredContextList extends JXPanel {
     private void init() {
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setName(getMessage("main.tab.webappcontext.text"));
-        setMinimumSize(new Dimension(500, 200));
-//        setPreferredSize(new Dimension(500, 200));
-//        setMaximumSize(new Dimension(Short.MAX_VALUE, 300));
+        setMinimumSize(new Dimension(250, 200));
         setLayout(new FlowLayout(FlowLayout.LEADING));
         internalReloadAllContexts(false);
     }

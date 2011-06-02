@@ -20,7 +20,6 @@
 package com.ejisto.modules.conf;
 
 import com.ejisto.constants.StringConstants;
-import com.ejisto.core.classloading.SharedClassLoader;
 import com.ejisto.modules.dao.CustomObjectFactoryDao;
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.factory.ObjectFactory;
@@ -36,7 +35,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.TimerTask;
 
 import static com.ejisto.util.IOUtils.findAllClassesInJarFile;
 
@@ -46,15 +44,11 @@ import static com.ejisto.util.IOUtils.findAllClassesInJarFile;
  * Date: 12/11/10
  * Time: 4:57 PM
  */
-public class ObjectFactoryLoader extends TimerTask {
+public class ObjectFactoryLoader implements Runnable {
     private static final Logger logger = Logger.getLogger(ObjectFactoryLoader.class);
     private boolean initialized = false;
-    @Resource
-    private ObjectFactoryRepository objectFactoryRepository;
-    @Resource
-    private SharedClassLoader sharedClassLoader;
-    @Resource
-    private CustomObjectFactoryDao customObjectFactoryDao;
+    @Resource private ObjectFactoryRepository objectFactoryRepository;
+    @Resource private CustomObjectFactoryDao customObjectFactoryDao;
     private File directory;
     private ClassPool cp;
     private CtClass bazeClazz;

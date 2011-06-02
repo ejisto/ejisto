@@ -19,16 +19,17 @@
 
 package com.ejisto.modules.executor;
 
+import ch.lambdaj.Lambda;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static ch.lambdaj.Lambda.collect;
 import static ch.lambdaj.Lambda.forEach;
 import static java.util.Collections.emptyList;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
@@ -37,9 +38,10 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * Date: 4/2/11
  * Time: 6:48 PM
  */
-public class TaskManager {
+public class TaskManager implements InitializingBean, DisposableBean {
     private static final TaskManager INSTANCE = new TaskManager();
     private ExecutorService executorService;
+    private ScheduledExecutorService scheduler;
     private final ReentrantLock lock = new ReentrantLock();
     private final Map<String, TaskEntry> registry;
 
@@ -50,13 +52,13 @@ public class TaskManager {
     private TaskManager() {
         this.registry = Collections.synchronizedMap(new LinkedHashMap<String, TaskEntry>());
         this.executorService = Executors.newCachedThreadPool();
-        TimerTask refreshTask = new TimerTask() {
-            @Override
-            public void run() {
-                refreshTasksList();
-            }
-        };
-        new Timer("refreshTask").scheduleAtFixedRate(refreshTask, 500L, 500L);
+        this.scheduler = Executors.newScheduledThreadPool(5);
+        this.scheduler.scheduleAtFixedRate(new Runnable() {
+                                               @Override
+                                               public void run() {
+                                                   refreshTasksList();
+                                               }
+                                           }, 500L, 500L, SECONDS);
     }
 
     private void refreshTasksList() {
@@ -81,7 +83,7 @@ public class TaskManager {
     public <T> Future<T> addTask(Task<T> task) {
         boolean locked = false;
         try {
-            locked = lock.tryLock(1, TimeUnit.SECONDS);
+            locked = lock.tryLock(1, SECONDS);
             if (!locked) return null;
             Future<T> future = executorService.submit(task);
             String uuid = UUID.randomUUID().toString();
@@ -98,6 +100,10 @@ public class TaskManager {
         return addTask(new Task<Void>(Executors.callable(target, (Void) null), description));
     }
 
+    public void scheduleTaskAtFixedRate(Runnable task, long delay, long period, TimeUnit timeUnit) {
+        scheduler.scheduleAtFixedRate(task, delay, period, timeUnit);
+    }
+
     public void cancelTask(String uuid) {
         if (!lock.tryLock()) return;
         try {
@@ -108,10 +114,9 @@ public class TaskManager {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public List<TaskDescriptor> getRegisteredTasks() {
         if (isEmpty(registry)) return emptyList();
-        return (List<TaskDescriptor>) collect(forEach(registry.values()).getDescriptor());
+        return new ArrayList<TaskDescriptor>(Lambda.<TaskDescriptor>collect(forEach(registry.values()).getDescriptor()));
     }
 
     private TaskDescriptor buildTaskDescriptor(String uuid, Task task, Future<?> future) {
@@ -122,6 +127,27 @@ public class TaskManager {
         if (future.isCancelled()) return ExecutionState.CANCELED;
         if (future.isDone()) return ExecutionState.DONE;
         return ExecutionState.RUNNING;
+    }
+
+    private void shutdownExecutorService(ExecutorService service) {
+        try {
+            service.shutdown();
+            if (!service.awaitTermination(5L, SECONDS)) service.shutdownNow();
+        } catch (InterruptedException e) {
+            service.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        shutdownExecutorService(this.executorService);
+        shutdownExecutorService(this.scheduler);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+
     }
 
     private class TaskEntry {

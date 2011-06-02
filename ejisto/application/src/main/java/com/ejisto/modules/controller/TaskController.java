@@ -25,10 +25,9 @@ import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.TaskView;
 
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static ch.lambdaj.Lambda.*;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
@@ -43,13 +42,12 @@ public class TaskController {
 
     public TaskController() {
         taskManager = TaskManager.getInstance();
-        Timer t = new Timer("taskControllerTimer");
-        t.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                updateTasks();
-            }
-        }, 500, 500);
+        taskManager.scheduleTaskAtFixedRate(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    updateTasks();
+                                                }
+                                            }, 500, 500, SECONDS);
     }
 
     public TaskView getView() {

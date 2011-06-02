@@ -20,26 +20,34 @@
 package com.ejisto.modules.gui.components;
 
 import com.ejisto.modules.controller.MockedFieldsEditorController;
-import com.ejisto.modules.repository.MockedFieldsRepository;
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.JXTitledPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.getRegisteredContainers;
 
 public class MainPanel extends JXPanel {
     private static final long serialVersionUID = -28148619997853619L;
     private MockedFieldsEditorController propertiesEditor;
     private Header header;
-    private JXTitledPanel editorContainer;
-    private JXPanel widgetsPane;
-    private ServerControl serverControl;
+    private JTabbedPane mainTabbedPane;
+    private List<ContainerTab> containerTabs;
 
     public MainPanel() {
         super();
         init();
+    }
+
+    public void log(String message) {
+        getContainerTabs().get(0).log(message);
+    }
+
+    public void logStatusMessage(String message, boolean error) {
+        if (error) getHeader().logErrorMessage(message);
+        else getHeader().logInfoMessage(message);
     }
 
     private void init() {
@@ -54,7 +62,7 @@ public class MainPanel extends JXPanel {
     private void initComponents() {
         setBackground(SystemColor.control);
         add(getHeader(), BorderLayout.NORTH);
-        add(getWidgetsPane(), BorderLayout.CENTER);
+        add(getMainTabbedPane(), BorderLayout.CENTER);
     }
 
     private Header getHeader() {
@@ -63,12 +71,20 @@ public class MainPanel extends JXPanel {
         return header;
     }
 
-    private JXPanel getWidgetsPane() {
-        if (this.widgetsPane != null) return this.widgetsPane;
-        widgetsPane = new JXPanel(new BorderLayout());
-        widgetsPane.add(getEditorContainer(), BorderLayout.CENTER);
-        widgetsPane.add(getServerControl(), BorderLayout.SOUTH);
-        return widgetsPane;
+    private JTabbedPane getMainTabbedPane() {
+        if (this.mainTabbedPane != null) return this.mainTabbedPane;
+        mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+        mainTabbedPane.add(getPropertiesEditor());
+        for (ContainerTab containerTab : getContainerTabs()) {
+            mainTabbedPane.add(containerTab);
+        }
+        return mainTabbedPane;
+    }
+
+    private List<ContainerTab> getContainerTabs() {
+        if (containerTabs != null) return containerTabs;
+        containerTabs = getRegisteredContainers();
+        return containerTabs;
     }
 
     private MockedFieldsEditor getPropertiesEditor() {
@@ -76,32 +92,4 @@ public class MainPanel extends JXPanel {
         propertiesEditor = new MockedFieldsEditorController(true);
         return propertiesEditor.getView();
     }
-
-    private JXTitledPanel getEditorContainer() {
-        if (this.editorContainer != null) return this.editorContainer;
-        editorContainer = new JXTitledPanel(getMessage("main.propertieseditor.title.text"));
-        editorContainer.setBorder(BorderFactory.createEmptyBorder());
-        editorContainer.setContentContainer(getPropertiesEditor());
-        return editorContainer;
-    }
-
-    private ServerControl getServerControl() {
-        if (this.serverControl != null) return this.serverControl;
-        serverControl = new ServerControl();
-        return serverControl;
-    }
-
-    public void log(String message) {
-        getServerControl().log(message);
-    }
-
-    public void toggleDisplayServerLog(boolean collapse) {
-        getServerControl().toggleDisplayServerLog(collapse);
-    }
-
-    public void onServerStatusChange() {
-        getPropertiesEditor().setFields(MockedFieldsRepository.getInstance().loadAll());
-        getServerControl().reloadContextList();
-    }
-
 }

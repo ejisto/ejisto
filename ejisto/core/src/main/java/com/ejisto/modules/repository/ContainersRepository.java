@@ -36,8 +36,7 @@ import java.util.List;
 public class ContainersRepository {
     private static final ContainersRepository INSTANCE = new ContainersRepository();
     private static final String DEFAULT_ID = "__DEFAULT__";
-    @Resource
-    private ContainersDao containersDao;
+    @Resource private ContainersDao containersDao;
 
     public static ContainersRepository getInstance() {
         return INSTANCE;

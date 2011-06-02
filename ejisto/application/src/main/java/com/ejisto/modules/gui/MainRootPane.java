@@ -23,10 +23,7 @@ import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.controller.TaskController;
 import com.ejisto.modules.gui.components.MainPanel;
 import com.ejisto.modules.gui.components.TaskView;
-import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXRootPane;
-import org.jdesktop.swingx.JXStatusBar;
-import org.jdesktop.swingx.plaf.basic.BasicStatusBarUI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,7 +33,6 @@ import static com.ejisto.util.GuiUtils.getAction;
 public class MainRootPane extends JXRootPane {
     private static final long serialVersionUID = -3265545519465961578L;
     private MainPanel mainPanel;
-    private JXLabel statusLabel;
     private TaskController taskController;
 
     public MainRootPane() {
@@ -48,7 +44,7 @@ public class MainRootPane extends JXRootPane {
         initMenuBar();
         mainPanel = new MainPanel();
         getContentPane().add(mainPanel, BorderLayout.CENTER);
-        setStatusBar(initStatusBar());
+        //   setStatusBar(initStatusBar());
     }
 
     private void initMenuBar() {
@@ -74,36 +70,12 @@ public class MainRootPane extends JXRootPane {
         mainPanel.log(message);
     }
 
-    public void toggleDisplayServerLog(boolean collapse) {
-        mainPanel.toggleDisplayServerLog(collapse);
-    }
-
-    public void onPropertyChange() {
-        mainPanel.onServerStatusChange();
-    }
+//    public void onPropertyChange() {
+//        mainPanel.onServerStatusChange();
+//    }
 
     public void setStatusBarMessage(String messageText, boolean error) {
-        statusLabel.setForeground(error ? Color.red : Color.black);
-        statusLabel.setText(messageText);
-    }
-
-    private JXStatusBar initStatusBar() {
-        if (statusBar != null) return statusBar;
-        statusBar = new JXStatusBar();
-
-        statusBar.putClientProperty(BasicStatusBarUI.AUTO_ADD_SEPARATOR, true);
-        statusBar.setMinimumSize(new Dimension(400, 20));
-        statusBar.setPreferredSize(new Dimension(400, 20));
-        statusBar.setMaximumSize(new Dimension(Short.MAX_VALUE, 20));
-        statusLabel = new JXLabel("done");
-        Insets insets = new Insets(1, 1, 1, 1);
-        JXStatusBar.Constraint c1 = new JXStatusBar.Constraint(JXStatusBar.Constraint.ResizeBehavior.FILL, insets);
-
-        statusBar.add(statusLabel, c1);
-        JXStatusBar.Constraint c2 = new JXStatusBar.Constraint(JXStatusBar.Constraint.ResizeBehavior.FIXED, insets);
-        c2.setFixedWidth(50);
-        statusBar.add(initTaskView(), c2);
-        return statusBar;
+        mainPanel.logStatusMessage(messageText, error);
     }
 
     private TaskView initTaskView() {

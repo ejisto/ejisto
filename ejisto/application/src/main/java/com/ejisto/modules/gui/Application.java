@@ -91,15 +91,15 @@ public class Application extends javax.swing.JFrame {
         if (shutdown) rootPane.log(getMessage("default.server.shutdown.log", new Date()));
         getAction(START_CONTAINER.getValue()).setEnabled(shutdown);
         getAction(STOP_CONTAINER.getValue()).setEnabled(!shutdown);
-        rootPane.toggleDisplayServerLog(shutdown);
+        //rootPane.toggleDisplayServerLog(shutdown);
     }
 
     public void onApplicationDeploy() {
-        rootPane.onPropertyChange();
+//        rootPane.onPropertyChange();
     }
 
     public void onWebAppContextStatusChange() {
-        rootPane.onPropertyChange();
+//        rootPane.onPropertyChange();
     }
 
     public boolean isReady() {

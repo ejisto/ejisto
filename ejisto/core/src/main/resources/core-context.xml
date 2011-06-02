@@ -54,23 +54,18 @@
           factory-method="getInstance"/>
     <bean id="objectFactoryRepository" class="com.ejisto.modules.repository.ObjectFactoryRepository"
           factory-method="getInstance"/>
-    <bean id="containerRepository" class="com.ejisto.modules.repository.ContainersRepository"
+    <bean id="containersRepository" class="com.ejisto.modules.repository.ContainersRepository"
           factory-method="getInstance"/>
     <bean id="customObjectFactoryRepository" class="com.ejisto.modules.repository.CustomObjectFactoryRepository"
           factory-method="getInstance"/>
     <bean id="webApplicationRepository" class="com.ejisto.modules.repository.WebApplicationRepository"/>
     <bean id="taskManager" class="com.ejisto.modules.executor.TaskManager" factory-method="getInstance"/>
     <bean id="objectFactoryLoader" class="com.ejisto.modules.conf.ObjectFactoryLoader"/>
-    <bean id="objectFactoryLoaderTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
-        <property name="delay" value="5000"/>
-        <property name="period" value="5000"/>
-        <property name="timerTask" ref="objectFactoryLoader"/>
-    </bean>
-    <bean id="timerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
-            <list>
-                <ref bean="objectFactoryLoaderTask"/>
-            </list>
-        </property>
-    </bean>
+    <util:list id="taskDescriptors" value-type="com.ejisto.modules.executor.TaskDescriptor">
+        <bean class="com.ejisto.modules.executor.TaskDescriptor">
+            <property name="initialDelay" value="5"/>
+            <property name="period" value="1"/>
+            <property name="task" ref="objectFactoryLoader"/>
+        </bean>
+    </util:list>
 </beans>

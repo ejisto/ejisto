@@ -29,6 +29,13 @@ public class TaskDescriptor {
     private String uuid;
     private String description;
     private ExecutionState executionState;
+    private long initialDelay;
+    private long period;
+    private Runnable task;
+
+    public TaskDescriptor() {
+
+    }
 
     public TaskDescriptor(String uuid, String description, ExecutionState executionState) {
         this.description = description;
@@ -46,5 +53,29 @@ public class TaskDescriptor {
 
     public String getUuid() {
         return uuid;
+    }
+
+    public long getInitialDelay() {
+        return initialDelay;
+    }
+
+    public void setInitialDelay(long initialDelay) {
+        this.initialDelay = initialDelay;
+    }
+
+    public long getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(long period) {
+        this.period = period;
+    }
+
+    public Runnable getTask() {
+        return task;
+    }
+
+    public void setTask(Runnable task) {
+        this.task = task;
     }
 }

@@ -95,13 +95,13 @@ public class MockedFieldsEditor extends JXPanel {
 
     public void initEditorPanel(Collection<String> types, String title) {
         MockedField field = getTree().getSelectedField();
-        if (field.getFieldElementType() != null)
-            getValueEditorPanel().setTypes(Arrays.asList(field.getFieldElementType()));
+        if (field.getFieldElementType() != null) getValueEditorPanel().setTypes(Arrays.asList(field.getFieldElementType()));
         else getValueEditorPanel().setTypes(types);
         getValueEditorPanel().setTitle(title);
     }
 
     private void init() {
+        setName(getMessage("main.propertieseditor.title.text"));
         setLayout(new BorderLayout());
         add(getEditorContainer(), BorderLayout.CENTER);
     }
@@ -132,8 +132,7 @@ public class MockedFieldsEditor extends JXPanel {
 
     private JScrollPane getTreeContainer() {
         if (treeContainer != null) return treeContainer;
-        treeContainer = new JScrollPane(getTree(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                                        JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        treeContainer = new JScrollPane(getTree(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         return treeContainer;
     }
 
@@ -148,8 +147,7 @@ public class MockedFieldsEditor extends JXPanel {
 
     private JScrollPane getFlattenTableContainer() {
         if (flattenTableContainer != null) return flattenTableContainer;
-        flattenTableContainer = new JScrollPane(getFlattenTable(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                                                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        flattenTableContainer = new JScrollPane(getFlattenTable(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         return flattenTableContainer;
     }
 

@@ -62,6 +62,16 @@ public class Header extends JXPanel implements ComponentListener {
         getHeader().setTitle(title);
     }
 
+    public void logInfoMessage(String message) {
+        getHeader().setDescriptionForeground(Color.black);
+        getHeader().setDescription(message);
+    }
+
+    public void logErrorMessage(String message) {
+        getHeader().setDescriptionForeground(Color.red);
+        getHeader().setDescription(message);
+    }
+
     public void setDescription(String description) {
         this.description = description;
         getHeader().setDescription(description);
@@ -113,8 +123,8 @@ public class Header extends JXPanel implements ComponentListener {
         }
         BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bi.createGraphics();
-        GradientPaint paint = new GradientPaint(new Point2D.Double(0, 0), Color.white,
-                                                new Point2D.Double(width + 170, height), new Color(82, 139, 197));
+        GradientPaint paint = new GradientPaint(new Point2D.Double(0, 0), Color.white, new Point2D.Double(width + 170, height),
+                                                new Color(82, 139, 197));
         g.setPaint(paint);
         g.fill(new Rectangle2D.Double(0, 0, width, height));
         g.dispose();
