@@ -36,10 +36,13 @@ public class ContainerTab extends JSplitPane {
     private LogViewer logViewer;
     private JScrollPane scrollableContextList;
     private RegisteredContextList contextList;
+    private JPanel serverSummaryPane;
+    private String serverName;
 
     public ContainerTab(String serverName, String containerId) {
         super();
         this.containerId = containerId;
+        this.serverName = serverName;
         setName(serverName);
         init();
     }
@@ -52,17 +55,25 @@ public class ContainerTab extends JSplitPane {
         return containerId;
     }
 
+    public void reloadApplications() {
+        getContextList().reloadAllContexts();
+    }
+
     private void init() {
         setOrientation(HORIZONTAL_SPLIT);
         initLeftComponent();
         initRightComponent();
+        setDividerSize(2);
+        setResizeWeight(1.0D);
     }
 
     private void initLeftComponent() {
         JXPanel leftComponent = new JXPanel(new BorderLayout());
-        leftComponent.add(getSummaryPane(), BorderLayout.NORTH);
+        leftComponent.add(getServerSummaryPane(), BorderLayout.NORTH);
         leftComponent.add(getLogViewer(), BorderLayout.CENTER);
         leftComponent.setPreferredSize(new Dimension(500, 250));
+        leftComponent.setMinimumSize(new Dimension(500, 250));
+        leftComponent.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
         setLeftComponent(leftComponent);
     }
 
@@ -70,8 +81,10 @@ public class ContainerTab extends JSplitPane {
         setRightComponent(getScrollableContextList());
     }
 
-    private JPanel getSummaryPane() {
-        return new JPanel();
+    private JPanel getServerSummaryPane() {
+        if (this.serverSummaryPane != null) return serverSummaryPane;
+        serverSummaryPane = new ServerSummary(containerId, serverName);
+        return serverSummaryPane;
     }
 
     private LogViewer getLogViewer() {
@@ -86,8 +99,9 @@ public class ContainerTab extends JSplitPane {
                                                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollableContextList.setMinimumSize(new Dimension(250, 100));
         scrollableContextList.setPreferredSize(new Dimension(250, 300));
-        scrollableContextList.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
+        scrollableContextList.setMaximumSize(new Dimension(250, Short.MAX_VALUE));
         scrollableContextList.setName(getContextList().getName());
+
         return scrollableContextList;
     }
 

@@ -70,9 +70,9 @@ public class MainRootPane extends JXRootPane {
         mainPanel.log(message);
     }
 
-//    public void onPropertyChange() {
-//        mainPanel.onServerStatusChange();
-//    }
+    public void applicationDeployed() {
+        mainPanel.applicationDeployed();
+    }
 
     public void setStatusBarMessage(String messageText, boolean error) {
         mainPanel.logStatusMessage(messageText, error);

@@ -39,10 +39,8 @@ import static com.ejisto.util.GuiUtils.getMessage;
 public class Application extends javax.swing.JFrame {
 
     private static final long serialVersionUID = -3746366232127903518L;
-    @Resource
-    private EventManager eventManager;
-    @Resource
-    private SettingsManager settingsManager;
+    @Resource private EventManager eventManager;
+    @Resource private SettingsManager settingsManager;
     private MainRootPane rootPane;
     private boolean ready;
     private ArrayList<String> pendingMessages = new ArrayList<String>();
@@ -95,11 +93,11 @@ public class Application extends javax.swing.JFrame {
     }
 
     public void onApplicationDeploy() {
-//        rootPane.onPropertyChange();
+        rootPane.applicationDeployed();
     }
 
     public void onWebAppContextStatusChange() {
-//        rootPane.onPropertyChange();
+//        rootPane.applicationDeployed();
     }
 
     public boolean isReady() {

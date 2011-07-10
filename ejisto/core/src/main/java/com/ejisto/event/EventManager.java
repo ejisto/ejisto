@@ -26,16 +26,20 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 
+import javax.annotation.Resource;
+
 public class EventManager implements ApplicationContextAware {
     private static final Logger logger = Logger.getLogger(EventManager.class);
     private boolean initialized = false;
     private ApplicationContext applicationContext;
+    @Resource private TaskManager taskManager;
 
     public void publishEvent(final ApplicationEvent event) {
         if (!initialized) {
             logger.warn("discarded event from " + event.getSource() + " " + event);
+            return;
         }
-        TaskManager.getInstance().addTask(new Runnable() {
+        taskManager.addTask(new Runnable() {
             @Override
             public void run() {
                 publishEventAndWait(event);

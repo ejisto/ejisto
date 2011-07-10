@@ -56,6 +56,7 @@ public class RegisteredContextList extends JXPanel {
 
     private void init() {
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        setBackground(Color.WHITE);
         setName(getMessage("main.tab.webappcontext.text"));
         setMinimumSize(new Dimension(250, 200));
         setLayout(new FlowLayout(FlowLayout.LEADING));

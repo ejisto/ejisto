@@ -21,7 +21,6 @@ package com.ejisto.modules.executor;
 
 import ch.lambdaj.Lambda;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -38,7 +37,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * Date: 4/2/11
  * Time: 6:48 PM
  */
-public class TaskManager implements InitializingBean, DisposableBean {
+public class TaskManager implements DisposableBean {
     private static final TaskManager INSTANCE = new TaskManager();
     private ExecutorService executorService;
     private ScheduledExecutorService scheduler;
@@ -54,11 +53,11 @@ public class TaskManager implements InitializingBean, DisposableBean {
         this.executorService = Executors.newCachedThreadPool();
         this.scheduler = Executors.newScheduledThreadPool(5);
         this.scheduler.scheduleAtFixedRate(new Runnable() {
-                                               @Override
-                                               public void run() {
-                                                   refreshTasksList();
-                                               }
-                                           }, 500L, 500L, SECONDS);
+            @Override
+            public void run() {
+                refreshTasksList();
+            }
+        }, 500L, 500L, SECONDS);
     }
 
     private void refreshTasksList() {
@@ -143,11 +142,6 @@ public class TaskManager implements InitializingBean, DisposableBean {
     public void destroy() throws Exception {
         shutdownExecutorService(this.executorService);
         shutdownExecutorService(this.scheduler);
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
     }
 
     private class TaskEntry {

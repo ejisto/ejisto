@@ -19,6 +19,7 @@
 
 package com.ejisto.event.listener;
 
+import ch.lambdaj.function.closure.Closure;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.event.def.InstallContainer;
@@ -38,8 +39,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static ch.lambdaj.Lambda.closure;
+import static ch.lambdaj.Lambda.of;
 import static com.ejisto.constants.StringConstants.CONTAINERS_HOME_DIR;
 import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.runInEDT;
 
 /**
  * Created by IntelliJ IDEA.
@@ -65,12 +69,12 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         Callable<Void> task = new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                panel.notifyJobCompleted(getMessage("container.installation.panel.status.1", containerDescription));
+                notifyToPanel(panel, getMessage("container.installation.panel.status.1", containerDescription));
                 if (logger.isDebugEnabled()) logger.debug("downloading container");
                 cargoManager.downloadAndInstall(settingsManager.getValue("container.default.url"),
                                                 System.getProperty(CONTAINERS_HOME_DIR.getValue()));
                 if (logger.isDebugEnabled()) logger.debug("download completed");
-                panel.notifyJobCompleted(getMessage("container.installation.panel.status.2", containerDescription));
+                notifyToPanel(panel, getMessage("container.installation.panel.status.2", containerDescription));
                 if (logger.isDebugEnabled()) logger.debug("notifying installation success");
                 eventManager.publishEvent(new LogMessage(this, getMessage("container.installation.ok")));
                 if (event.isStart()) eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
@@ -87,6 +91,12 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+    }
+
+    private void notifyToPanel(ContainerInstallationPanel panel, String message) {
+        Closure c = closure();
+        {of(panel).notifyJobCompleted(message); }
+        runInEDT(c);
     }
 
 }

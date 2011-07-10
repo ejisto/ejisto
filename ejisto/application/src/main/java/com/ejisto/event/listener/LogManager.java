@@ -24,6 +24,7 @@ import com.ejisto.modules.gui.Application;
 import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
+import javax.swing.*;
 
 public class LogManager implements ApplicationListener<LogMessage> {
 
@@ -31,7 +32,13 @@ public class LogManager implements ApplicationListener<LogMessage> {
     private Application application;
 
     @Override
-    public void onApplicationEvent(LogMessage event) {
-        application.log(event.getMessage());
+    public void onApplicationEvent(final LogMessage event) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                application.log(event.getMessage());
+            }
+        });
+
     }
 }

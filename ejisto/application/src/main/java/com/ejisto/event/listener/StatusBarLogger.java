@@ -25,12 +25,20 @@ import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
 
+import static com.ejisto.util.GuiUtils.runInEDT;
+
 public class StatusBarLogger implements ApplicationListener<StatusBarMessage> {
     @Resource
     private Application application;
 
     @Override
-    public void onApplicationEvent(StatusBarMessage event) {
-        application.setStatusBarMessage(event.getMessage(), event.isError());
+    public void onApplicationEvent(final StatusBarMessage event) {
+        runInEDT(new Runnable() {
+            @Override
+            public void run() {
+                application.setStatusBarMessage(event.getMessage(), event.isError());
+            }
+        });
+
     }
 }

@@ -95,7 +95,12 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         deployWebApp(webApplicationDescriptor);
         saveWebAppDescriptor(webApplicationDescriptor);
         startBrowser(webApplicationDescriptor);
-        application.onApplicationDeploy();
+        runInEDT(new Runnable() {
+            @Override
+            public void run() {
+                application.onApplicationDeploy();
+            }
+        });
         eventManager.publishEvent(
                 new StatusBarMessage(this, getMessage("statusbar.installation.successful.message", webApplicationDescriptor.getContextPath()),
                                      false));
@@ -163,7 +168,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
                 default:
                     break;
             }
-            SwingUtilities.invokeLater(new Runnable() {
+            runInEDT(new Runnable() {
                 @Override
                 public void run() {
                     application.onApplicationDeploy();

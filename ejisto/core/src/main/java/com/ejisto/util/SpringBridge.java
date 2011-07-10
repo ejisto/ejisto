@@ -21,10 +21,13 @@ package com.ejisto.util;
 
 import com.ejisto.core.classloading.SharedClassLoader;
 import com.ejisto.event.EventManager;
+import com.ejisto.modules.dao.entities.Container;
+import com.ejisto.modules.repository.ContainersRepository;
 import org.springframework.context.*;
 
 import javax.annotation.Resource;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 public class SpringBridge implements ApplicationContextAware {
@@ -57,6 +60,10 @@ public class SpringBridge implements ApplicationContextAware {
 
     public static void addExtraPathsToSharedClassLoader(Collection<String> paths) {
         getInstance().addExtraPaths(paths);
+    }
+
+    public static List<Container> loadExistingContainers() {
+        return getInstance().getBean("containersRepository", ContainersRepository.class).loadContainers();
     }
 
     public static SpringBridge getInstance() {
@@ -99,5 +106,4 @@ public class SpringBridge implements ApplicationContextAware {
     private void addExtraPaths(Collection<String> paths) {
         sharedClassLoader.addEntries(paths);
     }
-
 }

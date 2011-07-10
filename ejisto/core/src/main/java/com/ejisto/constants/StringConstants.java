@@ -56,7 +56,8 @@ public enum StringConstants {
     DEFAULT_SERVER_PORT("ejisto.default.server.port"),
     EJISTO_VERSION("ejisto.version"),
     EJISTO_CLASS_TRANSFORMER_CATEGORY("EjistoClassTransformer"),
-    DEFAULT_CONTAINER_ID("tomcat7x");
+    DEFAULT_CONTAINER_ID("tomcat7x"),
+    DEFAULT_CONTAINER_DESCRIPTION("container.default.description");
 
     private String value;
 

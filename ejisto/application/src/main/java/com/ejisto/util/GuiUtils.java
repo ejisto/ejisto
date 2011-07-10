@@ -19,6 +19,7 @@
 
 package com.ejisto.util;
 
+import ch.lambdaj.function.closure.Closure;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.core.container.WebApplication;
 import com.ejisto.event.def.BaseApplicationEvent;
@@ -26,12 +27,13 @@ import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.ContainerTab;
-import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
+import org.apache.log4j.Logger;
 import org.springframework.util.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,6 +46,7 @@ public class GuiUtils {
 
     private static ActionMap actionMap = new ActionMap();
     private static Font defaultFont;
+    private static final Logger logger = Logger.getLogger(GuiUtils.class);
 
     public static void centerOnScreen(Window window) {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -66,8 +69,18 @@ public class GuiUtils {
                                              JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION;
     }
 
-    public static void showErrorMessage(Component owner, String text) {
-        JOptionPane.showMessageDialog(owner, text, "error", JOptionPane.ERROR_MESSAGE);
+    public static void showErrorMessage(final Component owner, final String text) {
+        try {
+            synchronousRunInEDT(new Runnable() {
+                @Override
+                public void run() {
+                    JOptionPane.showMessageDialog(owner, text, "error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+        } catch (InvocationTargetException e) {
+            logger.error("exception during error message notification", e);
+        }
+
     }
 
     public static List<List<String>> stringify(List<MockedField> fields) {
@@ -132,9 +145,30 @@ public class GuiUtils {
         return new StringBuilder(containerId).append(commandPrefix.getValue()).append(contextPath).toString();
     }
 
+    public static void synchronousRunInEDT(Runnable action) throws InvocationTargetException {
+        try {
+            SwingUtilities.invokeAndWait(action);
+        } catch (InterruptedException e) {
+            logger.error("", e);
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public static void runInEDT(Runnable action) {
+        SwingUtilities.invokeLater(action);
+    }
+
+    public static void runInEDT(final Closure closure) {
+        runInEDT(new Runnable() {
+            @Override
+            public void run() {
+                closure.apply();
+            }
+        });
+    }
+
     public static List<ContainerTab> getRegisteredContainers() {
-        List<com.ejisto.modules.dao.entities.Container> containers = SpringBridge.getInstance().getBean("containersRepository",
-                                                                                                        ContainersRepository.class).loadContainers();
+        List<com.ejisto.modules.dao.entities.Container> containers = SpringBridge.loadExistingContainers();
         List<ContainerTab> containerTabs = new ArrayList<ContainerTab>();
         for (Container container : containers) {
             containerTabs.add(buildContainerTab(container));

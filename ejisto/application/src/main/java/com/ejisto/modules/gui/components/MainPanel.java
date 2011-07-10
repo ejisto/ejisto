@@ -50,6 +50,10 @@ public class MainPanel extends JXPanel {
         else getHeader().logInfoMessage(message);
     }
 
+    public void applicationDeployed() {
+        getContainerTabs().get(0).reloadApplications();
+    }
+
     private void init() {
         initLayout();
         initComponents();

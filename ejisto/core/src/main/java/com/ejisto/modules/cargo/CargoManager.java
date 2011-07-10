@@ -58,8 +58,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static ch.lambdaj.Lambda.*;
-import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
-import static com.ejisto.constants.StringConstants.DEFAULT_SERVER_PORT;
+import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.IOUtils.findFirstAvailablePort;
 import static com.ejisto.util.IOUtils.guessWebApplicationUri;
 import static org.hamcrest.Matchers.equalTo;
@@ -85,7 +84,8 @@ public class CargoManager implements ContainerManager {
         URL url = new URL(urlToString.trim());
         ContainerInstaller installer = new ContainerInstaller(url, folder);
         installer.install();
-        containersRepository.registerDefaultContainer(DEFAULT, installer.getHome(), DEFAULT);
+        containersRepository.registerDefaultContainer(DEFAULT, installer.getHome(),
+                                                      settingsRepository.getSettingValue(DEFAULT_CONTAINER_DESCRIPTION));
         return installer.getHome();
     }
 

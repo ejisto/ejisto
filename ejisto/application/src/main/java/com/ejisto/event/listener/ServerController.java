@@ -25,12 +25,17 @@ import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.event.def.InstallContainer;
 import com.ejisto.modules.cargo.NotInstalledException;
+import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
+
+import static ch.lambdaj.Lambda.closure;
+import static ch.lambdaj.Lambda.of;
+import static com.ejisto.util.GuiUtils.runInEDT;
 
 public class ServerController implements ApplicationListener<ChangeServerStatus>, DisposableBean {
 
@@ -39,16 +44,17 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
     @Resource(name = "containerManager") private ContainerManager containerManager;
     @Resource private EventManager eventManager;
     @Resource private Application application;
+    @Resource private TaskManager taskManager;
 
     @Override
     public void onApplicationEvent(final ChangeServerStatus event) {
         logger.info("handling event: " + event);
-        new Thread(new Runnable() {
+        taskManager.addTask(new Runnable() {
             @Override
             public void run() {
                 handleEvent(event);
             }
-        }).start();
+        }, event.getDescription());
     }
 
     private void handleEvent(ChangeServerStatus event) {
@@ -62,7 +68,8 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
                 containerManager.stopDefault();
                 logger.info("done");
             }
-            application.onServerStatusChange(event);
+            runInEDT(closure());
+            {of(application).onServerStatusChange(event);}
         } catch (NotInstalledException e) {
             logger.error("server " + e.getId() + " is not installed.", e);
             eventManager.publishEvent(new InstallContainer(this, e.getId(), true));
