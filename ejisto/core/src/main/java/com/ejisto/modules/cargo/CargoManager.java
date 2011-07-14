@@ -73,11 +73,11 @@ public class CargoManager implements ContainerManager {
 
     private static final Logger logger = Logger.getLogger(CargoManager.class);
     private static final String DEFAULT = DEFAULT_CONTAINER_ID.getValue();
-    private volatile AtomicBoolean serverStarted = new AtomicBoolean(false);
+    private final AtomicBoolean serverStarted = new AtomicBoolean(false);
     @Resource private ContainersRepository containersRepository;
     @Resource private SettingsRepository settingsRepository;
     @Resource private WebApplicationRepository webApplicationRepository;
-    private HashMap<String, AbstractInstalledLocalContainer> installedContainers = new HashMap<String, AbstractInstalledLocalContainer>();
+    private final HashMap<String, AbstractInstalledLocalContainer> installedContainers = new HashMap<String, AbstractInstalledLocalContainer>();
 
     @Override
     public String downloadAndInstall(String urlToString, String folder) throws IOException {

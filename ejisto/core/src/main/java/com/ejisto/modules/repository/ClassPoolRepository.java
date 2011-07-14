@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class ClassPoolRepository {
     private static final ClassPoolRepository INSTANCE = new ClassPoolRepository();
-    private Map<String, ClassPool> dictionary;
+    private final Map<String, ClassPool> dictionary;
 
     public static void registerClassPool(String context, ClassPool cp) {
         INSTANCE.putValue(context, cp);

@@ -19,6 +19,7 @@
 
 package com.ejisto.event.listener;
 
+import ch.lambdaj.function.closure.Closure;
 import com.ejisto.core.container.ContainerManager;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
@@ -68,8 +69,10 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
                 containerManager.stopDefault();
                 logger.info("done");
             }
-            runInEDT(closure());
+            Closure c = closure();
             {of(application).onServerStatusChange(event);}
+            runInEDT(c);
+
         } catch (NotInstalledException e) {
             logger.error("server " + e.getId() + " is not installed.", e);
             eventManager.publishEvent(new InstallContainer(this, e.getId(), true));

@@ -25,7 +25,7 @@ public abstract class BaseApplicationEvent extends ApplicationEvent {
 
     private static final long serialVersionUID = -2616190172593844455L;
 
-    public BaseApplicationEvent(Object source) {
+    BaseApplicationEvent(Object source) {
         super(source);
     }
 

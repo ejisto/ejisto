@@ -28,6 +28,7 @@ import java.awt.*;
 import static com.ejisto.constants.StringConstants.START_CONTAINER;
 import static com.ejisto.constants.StringConstants.STOP_CONTAINER;
 import static com.ejisto.util.GuiUtils.getAction;
+import static com.ejisto.util.GuiUtils.getMessage;
 
 /**
  * Created by IntelliJ IDEA.
@@ -48,6 +49,10 @@ public class ServerSummary extends JXPanel {
         init();
     }
 
+    public String getContainerId() {
+        return containerId;
+    }
+
     private void init() {
         setBackground(Color.WHITE);
         setLayout(new BorderLayout());
@@ -57,7 +62,8 @@ public class ServerSummary extends JXPanel {
 
     private JXHeader getHeader() {
         if (header != null) return header;
-        header = new JXHeader(serverName, "active or not", new ImageIcon(getClass().getResource("/icons/tomcat.gif")));
+        header = new JXHeader(serverName, getMessage("server.summary.status", getServerStatus()),
+                              new ImageIcon(getClass().getResource("/icons/tomcat.gif")));
         return header;
     }
 
@@ -70,6 +76,10 @@ public class ServerSummary extends JXPanel {
         buttonsPanel.add(createButton(stop));
         buttonsPanel.setBackground(Color.WHITE);
         return buttonsPanel;
+    }
+
+    private String getServerStatus() {
+        return getMessage(getAction(START_CONTAINER.getValue()).isEnabled() ? "server.status.shutdown" : "server.status.running");
     }
 
     private JButton createButton(Action action) {

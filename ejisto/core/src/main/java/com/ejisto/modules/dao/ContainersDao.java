@@ -47,15 +47,14 @@ public class ContainersDao extends BaseDao {
     }
 
     public boolean insert(Container container) {
-        return getJdbcTemplate().update(INSERT, container.getId(), container.getCargoId(), container.getHomeDir(),
-                                        container.getDescription()) == 1;
+        return getJdbcTemplate().update(INSERT, container.getId(), container.getCargoId(), container.getHomeDir(), container.getDescription()) == 1;
     }
 
     public boolean delete(Container container) {
         return getJdbcTemplate().update(DELETE, container.getId()) == 1;
     }
 
-    private static RowMapper<Container> rowMapper = new RowMapper<Container>() {
+    private static final RowMapper<Container> rowMapper = new RowMapper<Container>() {
         @Override
         public Container mapRow(ResultSet rs, int rowNum) throws SQLException {
             Container container = new Container();

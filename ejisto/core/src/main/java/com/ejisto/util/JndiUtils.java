@@ -32,6 +32,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 
+@Deprecated
 public class JndiUtils {
 
     private static Properties environment;
@@ -42,11 +43,9 @@ public class JndiUtils {
 
     static {
         environment = new Properties();
-        environment.put(javax.naming.InitialContext.INITIAL_CONTEXT_FACTORY,
-                        "org.eclipse.jetty.jndi.InitialContextFactory");
+        environment.put(javax.naming.InitialContext.INITIAL_CONTEXT_FACTORY, "org.eclipse.jetty.jndi.InitialContextFactory");
         envTable = new Hashtable<String, String>();
-        envTable.put(javax.naming.InitialContext.INITIAL_CONTEXT_FACTORY,
-                     "org.eclipse.jetty.jndi.InitialContextFactory");
+        envTable.put(javax.naming.InitialContext.INITIAL_CONTEXT_FACTORY, "org.eclipse.jetty.jndi.InitialContextFactory");
     }
 
     public static void bindResources(List<JndiDataSource> entries) throws Exception {

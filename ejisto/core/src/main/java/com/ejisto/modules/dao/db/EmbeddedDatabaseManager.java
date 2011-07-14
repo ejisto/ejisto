@@ -39,7 +39,7 @@ import java.sql.SQLException;
 
 public class EmbeddedDatabaseManager extends AbstractDataSource {
 
-    private Logger logger = Logger.getLogger(EmbeddedDatabaseManager.class);
+    private static final Logger logger = Logger.getLogger(EmbeddedDatabaseManager.class);
     private SimpleDriverDataSource driverDataSource;
     private NetworkServerControl serverControl;
     private boolean started;

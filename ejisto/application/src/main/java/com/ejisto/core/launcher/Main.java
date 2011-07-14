@@ -44,7 +44,7 @@ public class Main {
         System.setProperty("java.net.preferIPv4Stack", "true");
     }
 
-    private static Logger logger = Logger.getLogger(Main.class);
+    private static final Logger logger = Logger.getLogger(Main.class);
 
     /*
      * to start application from an IDE (like Intellij Idea)

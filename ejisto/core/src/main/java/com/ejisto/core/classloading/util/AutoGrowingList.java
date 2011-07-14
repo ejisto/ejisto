@@ -22,6 +22,8 @@ package com.ejisto.core.classloading.util;
 import java.util.ArrayList;
 
 public class AutoGrowingList<T> extends ArrayList<T> {
+    private static final long serialVersionUID = -2813154819230798444L;
+
     @Override
     public T get(int index) {
         ensureCapacity(index + 1);

@@ -40,7 +40,7 @@ public class ClassTransformer implements ClassFileTransformer {
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     //    private EjistoClassLoader classLoader;
     private ClassPool classPool;
-    private String contextPath;
+    private final String contextPath;
 
     public ClassTransformer(String contextPath) {
         this.contextPath = contextPath;

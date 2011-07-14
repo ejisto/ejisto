@@ -21,8 +21,8 @@ package com.ejisto.event.def;
 
 public class ApplicationError extends BaseApplicationEvent {
     private static final long serialVersionUID = -451087873117261043L;
-    private Priority priority;
-    private Throwable error;
+    private final Priority priority;
+    private final Throwable error;
 
     public enum Priority {
         FATAL,

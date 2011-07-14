@@ -31,9 +31,9 @@ import javax.swing.text.Element;
  * Date: 3/30/11
  * Time: 7:50 PM
  */
-public class BufferedTextArea extends JTextArea implements DocumentListener {
+class BufferedTextArea extends JTextArea implements DocumentListener {
 
-    private int bufferSize;
+    private final int bufferSize;
 
     public BufferedTextArea(int bufferSize) {
         super();

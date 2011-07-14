@@ -60,11 +60,11 @@ import static com.ejisto.util.IOUtils.*;
 
 public class ApplicationScanningController extends AbstractApplicationInstallerController implements Callable<Void> {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
-    private static String[] entries = {"derbyclient", "derbynet", "ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "spring", "cglib", "commons", "asm"};
-    private Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
+    private static final String[] entries = {"derbyclient", "derbynet", "ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "spring", "cglib", "commons", "asm"};
+    private static final Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
     private Future<Void> task;
     private ProgressPanel applicationScanningTab;
-    private String containerHome;
+    private final String containerHome;
 
     public ApplicationScanningController(EjistoDialog dialog, String containerHome) {
         super(dialog);
@@ -159,6 +159,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
             CtClass zuperclazz = clazz.getSuperclass();
             if (!zuperclazz.getName().startsWith("java")) fillMockedFields(zuperclazz, descriptor, loader);
         } catch (Exception e) {
+            //TODO check whether or not an exception should be thrown
             e.printStackTrace();
         }
     }
@@ -245,7 +246,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         session.setDeployablePath(deployablePath);
     }
 
-    protected String getContextPath(String realPath) {
+    String getContextPath(String realPath) {
         Matcher matcher = contextExtractor.matcher(realPath.replaceAll(Pattern.quote("\\"), "/"));
         if (matcher.matches()) return matcher.group(1);
         return null;

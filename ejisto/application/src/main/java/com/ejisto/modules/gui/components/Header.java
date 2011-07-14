@@ -79,8 +79,6 @@ public class Header extends JXPanel implements ComponentListener {
 
     /**
      * This method initializes this
-     *
-     * @return void
      */
     private void initialize() {
         setBackground(Color.white);

@@ -23,13 +23,13 @@ import com.ejisto.constants.StringConstants;
 
 public class ChangeServerStatus extends BaseApplicationEvent {
     private static final long serialVersionUID = 62223689929514687L;
-    private Command command;
+    private final Command command;
 
     public enum Command {
         STARTUP("start.default.server", "server.start.icon"),
         SHUTDOWN("stop.default.server", "server.stop.icon");
-        private String description;
-        private String icon;
+        private final String description;
+        private final String icon;
 
         private Command(String description, String icon) {
             this.description = description;

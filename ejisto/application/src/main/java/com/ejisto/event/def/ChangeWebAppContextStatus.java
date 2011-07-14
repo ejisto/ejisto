@@ -28,7 +28,7 @@ public class ChangeWebAppContextStatus extends BaseApplicationEvent {
         START(StringConstants.START_CONTEXT_COMMAND),
         STOP(StringConstants.STOP_CONTEXT_COMMAND),
         DELETE(StringConstants.DELETE_CONTEXT_COMMAND);
-        private StringConstants command;
+        private final StringConstants command;
 
         private WebAppContextStatusCommand(StringConstants command) {
             this.command = command;
@@ -42,8 +42,8 @@ public class ChangeWebAppContextStatus extends BaseApplicationEvent {
         }
     }
 
-    private WebAppContextStatusCommand command;
-    private String contextPath;
+    private final WebAppContextStatusCommand command;
+    private final String contextPath;
 
     public ChangeWebAppContextStatus(Object source, WebAppContextStatusCommand command, String contextPath) {
         super(source);

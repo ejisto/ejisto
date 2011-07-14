@@ -27,6 +27,7 @@ package com.ejisto.event.def;
  */
 public class InstallContainer extends BaseApplicationEvent {
 
+    private static final long serialVersionUID = -601943909012071220L;
     private String containerId;
     private boolean start;
 

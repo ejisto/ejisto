@@ -59,7 +59,7 @@ public class SettingsManager extends ExternalizableService<SettingsDao> implemen
         return setting.getValue();
     }
 
-    public void flush() throws Exception {
+    public void flush() {
         if (getSettingsDao().clearSettings(settingsList)) getSettingsDao().insertSettings(settingsList);
     }
 

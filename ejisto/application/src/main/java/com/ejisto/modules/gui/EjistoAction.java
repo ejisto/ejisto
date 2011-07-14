@@ -31,7 +31,7 @@ import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
 public class EjistoAction<T extends BaseApplicationEvent> extends AbstractActionExt {
     private static final long serialVersionUID = 4999338415439543233L;
-    private T applicationEvent;
+    private final T applicationEvent;
 
     public EjistoAction(T applicationEvent) {
         super();

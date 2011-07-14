@@ -33,7 +33,6 @@ import org.apache.log4j.Logger;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Collection;
 
 import static com.ejisto.util.IOUtils.findAllClassesInJarFile;
@@ -91,7 +90,7 @@ public class ObjectFactoryLoader implements Runnable {
         saveCustomObjectFactory(factory, file, checksum);
     }
 
-    private void saveCustomObjectFactory(CustomObjectFactory factory, File file, String checksum) throws IOException {
+    private void saveCustomObjectFactory(CustomObjectFactory factory, File file, String checksum) {
         if (factory == null) factory = new CustomObjectFactory();
         factory.setFileName(file.getName());
         factory.setProcessed(true);

@@ -170,7 +170,7 @@ public class IOUtils {
         return urls.toArray(new URL[urls.size()]);
     }
 
-    public static List<WebApplicationDescriptorElement> toWebApplicationDescriptorElement(List<File> in) throws MalformedURLException {
+    public static List<WebApplicationDescriptorElement> toWebApplicationDescriptorElement(List<File> in) {
         if (in.isEmpty()) return emptyList();
         List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>(in.size());
         for (File file : in) {

@@ -32,10 +32,10 @@ import static com.ejisto.core.container.WebApplication.Status.STARTED;
  */
 public class CargoWebApplication implements WebApplication<Deployable> {
 
-    private String context;
-    private Deployable webApplication;
+    private final String context;
+    private final Deployable webApplication;
     private Status status;
-    private String containerId;
+    private final String containerId;
 
     public CargoWebApplication(String context, String containerId, Deployable webApplication) {
         this.context = context;

@@ -28,6 +28,7 @@ import javax.swing.tree.TreePath;
 import java.util.List;
 
 public class JndiResourcesTreeModel extends DefaultTreeModel {
+    private static final long serialVersionUID = -240915564140399391L;
     private List<JndiDataSource> entries;
 
     public JndiResourcesTreeModel(List<JndiDataSource> entries) {
@@ -53,6 +54,7 @@ public class JndiResourcesTreeModel extends DefaultTreeModel {
     }
 
     public static class JndiResourceNode extends DefaultMutableTreeNode {
+        private static final long serialVersionUID = -6456522775751905433L;
         private JndiDataSource element;
 
         public JndiResourceNode(JndiDataSource element) {

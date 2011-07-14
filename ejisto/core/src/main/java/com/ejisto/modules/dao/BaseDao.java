@@ -27,7 +27,7 @@ import javax.sql.DataSource;
 public abstract class BaseDao {
     private JdbcTemplate jdbcTemplate;
 
-    protected JdbcTemplate getJdbcTemplate() {
+    JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
     }
 

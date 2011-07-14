@@ -27,11 +27,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 public abstract class AbstractStepController<K> implements StepController<K> {
-    private EjistoDialog dialog;
+    private final EjistoDialog dialog;
     private K session;
-    private TaskManager taskManager = TaskManager.getInstance();
+    private final TaskManager taskManager = TaskManager.getInstance();
 
-    public AbstractStepController(EjistoDialog dialog) {
+    protected AbstractStepController(EjistoDialog dialog) {
         this.dialog = dialog;
     }
 

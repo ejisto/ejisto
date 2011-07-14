@@ -27,6 +27,7 @@ package com.ejisto.modules.cargo;
  */
 public class NotInstalledException extends Exception {
 
+    private static final long serialVersionUID = -5951107157019492003L;
     private String id;
 
     public NotInstalledException(String id, Throwable cause) {

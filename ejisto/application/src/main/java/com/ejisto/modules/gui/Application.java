@@ -43,7 +43,7 @@ public class Application extends javax.swing.JFrame {
     @Resource private SettingsManager settingsManager;
     private MainRootPane rootPane;
     private boolean ready;
-    private ArrayList<String> pendingMessages = new ArrayList<String>();
+    private final ArrayList<String> pendingMessages = new ArrayList<String>();
 
     public Application() {
     }

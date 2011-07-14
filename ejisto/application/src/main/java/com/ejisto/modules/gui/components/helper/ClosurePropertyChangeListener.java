@@ -38,9 +38,9 @@ import java.util.Map;
  */
 public class ClosurePropertyChangeListener implements PropertyChangeListener, DocumentListener {
 
-    private String propertyName;
-    private Map<String, Closure1<String>> actionMap;
-    private Closure0 callBackAction;
+    private final String propertyName;
+    private final Map<String, Closure1<String>> actionMap;
+    private final Closure0 callBackAction;
 
     public ClosurePropertyChangeListener(String propertyName, Map<String, Closure1<String>> actionMap, Closure0 callBackAction) {
         this.propertyName = propertyName;

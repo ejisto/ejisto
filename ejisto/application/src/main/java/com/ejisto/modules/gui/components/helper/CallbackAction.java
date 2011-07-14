@@ -32,9 +32,9 @@ public class CallbackAction extends AbstractActionExt {
 
     private static final long serialVersionUID = -7329435808055315105L;
 
-    private Closure1<ActionEvent> callback2;
-    private Closure0 checkEnabled;
-    private Closure0 callback1;
+    private final Closure1<ActionEvent> callback2;
+    private final Closure0 checkEnabled;
+    private final Closure0 callback1;
 
     public CallbackAction(String name, Closure1<ActionEvent> callback) {
         this(name, null, callback, null);

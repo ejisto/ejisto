@@ -34,7 +34,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class ApplicationController implements InitializingBean, ApplicationListener<ShutdownRequest> {
 
-    private static Logger logger = Logger.getLogger(ApplicationController.class);
+    private static final Logger logger = Logger.getLogger(ApplicationController.class);
 
     @Resource
     private Collection<Service> services;
@@ -44,14 +44,12 @@ public class ApplicationController implements InitializingBean, ApplicationListe
 
     public void startup() {
         if (logger.isDebugEnabled()) logger.debug("invoking startup services...");
-        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.STARTUP))),
-                Service.class).execute();
+        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.STARTUP))), Service.class).execute();
     }
 
-    public void shutdown() {
+    private void shutdown() {
         if (logger.isDebugEnabled()) logger.debug("invoking startup services...");
-        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.SHUTDOWN))),
-                Service.class).execute();
+        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.SHUTDOWN))), Service.class).execute();
         logger.info("Application shutdown succesfully completed. Invoking shutdown hooks via System.exit(0)");
         System.exit(0);
     }

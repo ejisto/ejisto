@@ -50,12 +50,12 @@ public class ApplicationInstallerWizardController {
     private Closure1<ActionEvent> callActionPerformed;
     private Closure0 closeDialog;
     private Closure0 confirm;
-    private Frame application;
+    private final Frame application;
     private EjistoDialog dialog;
     private int currentIndex = -1;
     private StepController<WebApplicationDescriptor> currentController;
     private boolean success;
-    private String containerHome;
+    private final String containerHome;
 
     public ApplicationInstallerWizardController(Frame application, String containerHome) {
         this.application = application;

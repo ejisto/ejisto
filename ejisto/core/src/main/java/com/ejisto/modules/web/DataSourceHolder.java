@@ -29,14 +29,14 @@ import java.util.concurrent.atomic.AtomicReference;
  * Time: 8:51 AM
  */
 public class DataSourceHolder {
-    public static AtomicReference<DataSource> dataSource = new AtomicReference<DataSource>();
+    public static final AtomicReference<DataSource> dataSource = new AtomicReference<DataSource>();
 
     public static DataSource getDataSource() {
         return dataSource.get();
     }
 
-    public static synchronized void setDataSource(DataSource ds) {
-        if (dataSource.get() == null) dataSource.set(ds);
+    public static void setDataSource(DataSource ds) {
+        if (dataSource.get() == null) dataSource.compareAndSet(null, ds);
     }
 
 }

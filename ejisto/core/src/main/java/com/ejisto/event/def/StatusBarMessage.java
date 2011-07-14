@@ -20,6 +20,7 @@
 package com.ejisto.event.def;
 
 public class StatusBarMessage extends BaseApplicationEvent {
+    private static final long serialVersionUID = -8894492901808590505L;
     private String message;
     private boolean error;
 

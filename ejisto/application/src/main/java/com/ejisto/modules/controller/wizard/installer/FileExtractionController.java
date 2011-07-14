@@ -127,7 +127,7 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
         return !dir.exists();
     }
 
-    private boolean initTempDir(File dir) throws IOException {
+    private boolean initTempDir(File dir) {
         if (dir.exists()) return true;
         boolean success = dir.mkdir();
         if (!success) return success;
