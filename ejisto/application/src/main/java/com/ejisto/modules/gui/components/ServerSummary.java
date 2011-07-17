@@ -24,6 +24,8 @@ import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import static com.ejisto.constants.StringConstants.START_CONTAINER;
 import static com.ejisto.constants.StringConstants.STOP_CONTAINER;
@@ -36,7 +38,7 @@ import static com.ejisto.util.GuiUtils.getMessage;
  * Date: 7/10/11
  * Time: 6:06 PM
  */
-public class ServerSummary extends JXPanel {
+public class ServerSummary extends JXPanel implements PropertyChangeListener {
 
     private JXHeader header;
     private String containerId;
@@ -58,6 +60,7 @@ public class ServerSummary extends JXPanel {
         setLayout(new BorderLayout());
         add(getHeader(), BorderLayout.NORTH);
         add(getButtonsPanel(), BorderLayout.CENTER);
+        getAction(START_CONTAINER.getValue()).addPropertyChangeListener(this);
     }
 
     private JXHeader getHeader() {
@@ -78,6 +81,10 @@ public class ServerSummary extends JXPanel {
         return buttonsPanel;
     }
 
+    private void updateServerStatus() {
+        getHeader().setDescription(getMessage("server.summary.status", getServerStatus()));
+    }
+
     private String getServerStatus() {
         return getMessage(getAction(START_CONTAINER.getValue()).isEnabled() ? "server.status.shutdown" : "server.status.running");
     }
@@ -89,5 +96,10 @@ public class ServerSummary extends JXPanel {
         button.setBackground(new Color(255, 255, 255, 0));
         button.setHideActionText(true);
         return button;
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals("enabled")) updateServerStatus();
     }
 }

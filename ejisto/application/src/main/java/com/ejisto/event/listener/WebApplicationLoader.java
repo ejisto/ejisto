@@ -136,9 +136,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             }};
         }
         putAction(createAction(buildCommand(START_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()), callNotifyCommand,
-                               getMessage("webapp.context.start.icon"), false));
+                               getMessage("webapp.context.start.icon"), true));
         putAction(createAction(buildCommand(STOP_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()), callNotifyCommand,
-                               getMessage("webapp.context.stop.icon"), true));
+                               getMessage("webapp.context.stop.icon"), false));
         putAction(createAction(buildCommand(DELETE_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()), callNotifyCommand,
                                getMessage("webapp.context.delete.icon"), true));
     }

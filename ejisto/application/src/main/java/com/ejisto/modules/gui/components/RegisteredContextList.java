@@ -67,6 +67,7 @@ public class RegisteredContextList extends JXPanel {
         String contextPath = context.getWebApplicationContextPath();
         String containerId = context.getContainerId();
         JXPanel panel = new JXPanel(new FlowLayout(FlowLayout.LEADING));
+        panel.setBackground(Color.WHITE);
         panel.add(getLabelFor(context));
         panel.add(getCommandButton(getAction(buildCommand(START_CONTEXT_PREFIX, containerId, contextPath)), getMessage("webapp.context.start.text")));
         panel.add(getCommandButton(getAction(buildCommand(STOP_CONTEXT_PREFIX, containerId, contextPath)), getMessage("webapp.context.stop.text")));
