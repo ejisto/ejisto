@@ -36,9 +36,9 @@ public class Main {
     static {
         File baseDir = new File(System.getProperty("user.home"), ".ejisto");
         if (!baseDir.exists() && !baseDir.mkdir()) {
-            JOptionPane.showConfirmDialog(null, "Ejisto doesn't have permissions to create its homedir. Please check system configuration.", "error",
-                                          JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
-            throw new ExceptionInInitializerError("Cannot create home dir. Exiting.");
+            JOptionPane.showConfirmDialog(null, "Ejisto doesn't have permissions to create its home directory. Please check system configuration.",
+                                          "error", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+            throw new RuntimeException("Cannot create home dir. Exiting.");
         }
         System.setProperty("ejisto.home", baseDir.getAbsolutePath());
         System.setProperty("java.net.preferIPv4Stack", "true");
@@ -69,7 +69,8 @@ public class Main {
             logger.info("starting application... enjoy ejisto!!");
             controller.startup();
         } catch (Exception e) {
-            JXErrorPane.showDialog(null, new ErrorInfo("Startup error", "Startup failed", e.getMessage(), "SEVERE", e, Level.SEVERE, null));
+            JXErrorPane.showDialog(null, new ErrorInfo("Startup error", "Startup failed", null, "SEVERE", e, Level.SEVERE, null));
+            logger.error("startup failed", e);
             System.exit(-1);
         }
     }

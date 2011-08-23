@@ -22,11 +22,8 @@ package com.ejisto.event.listener;
 import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.core.container.ContainerManager;
 import com.ejisto.event.EventManager;
-import com.ejisto.event.def.ApplicationError;
+import com.ejisto.event.def.*;
 import com.ejisto.event.def.ChangeWebAppContextStatus.WebAppContextStatusCommand;
-import com.ejisto.event.def.InstallContainer;
-import com.ejisto.event.def.LoadWebApplication;
-import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.controller.ApplicationInstallerWizardController;
 import com.ejisto.modules.dao.WebApplicationDescriptorDao;
@@ -76,7 +73,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             else installNewWebApplication();
         } catch (NotInstalledException e) {
             showErrorMessage(application, getMessage("container.installation.required"));
-            eventManager.publishEvent(new InstallContainer(this, e.getId(), true));
+            eventManager.publishEvent(new InstallContainer(this, e.getId(), false));
         } catch (Exception e) {
             eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));
             logger.error(e.getMessage(), e);
@@ -95,12 +92,8 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         deployWebApp(webApplicationDescriptor);
         saveWebAppDescriptor(webApplicationDescriptor);
         startBrowser(webApplicationDescriptor);
-        runInEDT(new Runnable() {
-            @Override
-            public void run() {
-                application.onApplicationDeploy();
-            }
-        });
+        eventManager.publishEvent(
+                new ApplicationDeployed(this, webApplicationDescriptor.getContextPath(), webApplicationDescriptor.getContainerId()));
         eventManager.publishEvent(
                 new StatusBarMessage(this, getMessage("statusbar.installation.successful.message", webApplicationDescriptor.getContextPath()),
                                      false));
@@ -168,12 +161,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
                 default:
                     break;
             }
-            runInEDT(new Runnable() {
-                @Override
-                public void run() {
-                    application.onApplicationDeploy();
-                }
-            });
+            eventManager.publishEvent(new ApplicationDeployed(this, command[2], command[0]));
         } catch (Exception e) {
             eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));
         }

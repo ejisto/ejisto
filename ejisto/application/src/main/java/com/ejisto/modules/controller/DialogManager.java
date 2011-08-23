@@ -32,8 +32,8 @@ import static com.ejisto.util.GuiUtils.centerOnScreen;
  */
 public class DialogManager {
 
-    private JDialog dialog;
-    private JPanel view;
+    private final JDialog dialog;
+    private final JPanel view;
 
     public DialogManager(Frame parent, JPanel view) {
         this.dialog = new JDialog(parent);

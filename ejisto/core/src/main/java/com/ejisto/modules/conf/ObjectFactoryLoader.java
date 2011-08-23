@@ -57,7 +57,7 @@ public class ObjectFactoryLoader implements Runnable {
         if (!initialized) init();
         if (!initialized) return; //workaround to avoid startup failures.
         if (!directory.exists()) {
-            logger.warn("directory " + directory.getAbsolutePath() + " does not exists. Exiting");
+            logger.warn("directory " + directory.getAbsolutePath() + " does not exist. Exiting");
             return;
         }
         for (File file : directory.listFiles(new FileExtensionFilter(FileExtensionFilter.ALL_JARS, false))) {
@@ -75,7 +75,6 @@ public class ObjectFactoryLoader implements Runnable {
         if (factory != null && factory.getChecksum().equals(checksum)) return;
         logger.info("processing file: " + file.getAbsolutePath());
         cp.appendClassPath(file.getAbsolutePath());
-//        sharedClassLoader.addEntry(file.getAbsolutePath());
         CtClass clazz;
         Collection<String> clazzNames = findAllClassesInJarFile(file);
         ObjectFactory<?> factoryInstance;

@@ -21,13 +21,18 @@ package com.ejisto.modules.repository;
 
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.StatusBarMessage;
+import com.ejisto.modules.dao.ObjectFactoryDao;
+import com.ejisto.modules.dao.entities.ObjectFactory;
+import com.ejisto.util.ExternalizableService;
 import javassist.ClassPool;
 import javassist.CtClass;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
 
@@ -37,14 +42,15 @@ import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATE
  * Date: 12/11/10
  * Time: 4:41 PM
  */
-public class ObjectFactoryRepository {
+public class ObjectFactoryRepository extends ExternalizableService<ObjectFactoryDao> implements InitializingBean {
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private static final String DEFAULT = "java.lang.Object";
     private static final ObjectFactoryRepository INSTANCE = new ObjectFactoryRepository();
-    private Map<String, String> factories = new HashMap<String, String>();
+    private final Map<String, String> factories = new HashMap<String, String>();
+    private final AtomicBoolean initialized = new AtomicBoolean(false);
 
-    @Resource
-    private EventManager eventManager;
+    @Resource private EventManager eventManager;
+    @Resource private ObjectFactoryDao objectFactoryDao;
 
     public static ObjectFactoryRepository getInstance() {
         return INSTANCE;
@@ -69,6 +75,7 @@ public class ObjectFactoryRepository {
         boolean error = factories.containsKey(targetClassName);
         if (!error) {
             factories.put(targetClassName, objectFactoryClassName);
+            insertObjectFactory(objectFactoryClassName, targetClassName);
             message = "registered ObjectFactory [" + objectFactoryClassName + "] for class " + targetClassName;
         } else {
             message = "rejected ObjectFactory [" + objectFactoryClassName + "]";
@@ -78,10 +85,25 @@ public class ObjectFactoryRepository {
 
     public String getObjectFactory(String objectClassName, String contextPath) {
         try {
+            syncObjectFactories();
             return scanForObjectFactory(retrieveClassPool(contextPath).get(objectClassName));
         } catch (Exception e) {
             logger.error("getObjectFactory failed with exception, returning default one", e);
             return factories.get(DEFAULT);
+        }
+    }
+
+    private void insertObjectFactory(String objectFactoryClassName, String targetClassName) {
+        if (initialized.get()) objectFactoryDao.insert(new ObjectFactory(objectFactoryClassName, targetClassName));
+    }
+
+    private synchronized void syncObjectFactories() {
+        if (!initialized.get()) {
+            checkDao();
+            for (ObjectFactory objectFactory : objectFactoryDao.loadAll()) {
+                factories.put(objectFactory.getTargetClassName(), objectFactory.getClassName());
+            }
+            initialized.compareAndSet(false, true);
         }
     }
 
@@ -118,4 +140,23 @@ public class ObjectFactoryRepository {
         if (logger.isTraceEnabled()) logger.trace(message);
     }
 
+    @Override
+    protected ObjectFactoryDao getDaoInstance() {
+        return objectFactoryDao;
+    }
+
+    @Override
+    protected void setDaoInstance(ObjectFactoryDao daoInstance) {
+        this.objectFactoryDao = daoInstance;
+    }
+
+    @Override
+    protected Class<ObjectFactoryDao> getDaoClass() {
+        return ObjectFactoryDao.class;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        initialized.compareAndSet(false, true);
+    }
 }

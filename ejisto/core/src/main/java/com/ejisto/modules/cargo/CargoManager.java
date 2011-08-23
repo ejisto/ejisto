@@ -48,18 +48,21 @@ import org.codehaus.cargo.generic.deployable.DefaultDeployableFactory;
 import org.codehaus.cargo.generic.deployable.DeployableFactory;
 import org.codehaus.cargo.generic.deployer.DefaultDeployerFactory;
 import org.codehaus.cargo.generic.deployer.DeployerFactory;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.util.IOUtils.findFirstAvailablePort;
 import static com.ejisto.util.IOUtils.guessWebApplicationUri;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -77,7 +80,8 @@ public class CargoManager implements ContainerManager {
     @Resource private ContainersRepository containersRepository;
     @Resource private SettingsRepository settingsRepository;
     @Resource private WebApplicationRepository webApplicationRepository;
-    private final HashMap<String, AbstractInstalledLocalContainer> installedContainers = new HashMap<String, AbstractInstalledLocalContainer>();
+    private final ConcurrentMap<String, AbstractInstalledLocalContainer> installedContainers = new ConcurrentHashMap<String, AbstractInstalledLocalContainer>();
+    private final ReentrantLock lifeCycleOperationLock = new ReentrantLock();
 
     @Override
     public String downloadAndInstall(String urlToString, String folder) throws IOException {
@@ -114,25 +118,49 @@ public class CargoManager implements ContainerManager {
         return false;
     }
 
-    private synchronized boolean start(LocalContainer localContainer) {
-        localContainer.start();
-        serverStarted.set(true);
-        return true;
+    private boolean start(LocalContainer localContainer) {
+        boolean owned = false;
+        try {
+            if (lifeCycleOperationLock.tryLock(30, TimeUnit.SECONDS)) {
+                owned = true;
+                localContainer.start();
+                serverStarted.set(true);
+                return true;
+            }
+        } catch (InterruptedException e) {
+            logger.error("caught InterruptedException", e);
+            Thread.currentThread().interrupt();
+        } finally {
+            if (owned) lifeCycleOperationLock.unlock();
+        }
+        return false;
     }
 
     @SuppressWarnings("unchecked")
-    private synchronized boolean stop(String id, LocalContainer localContainer) {
+    private boolean stop(String id, LocalContainer localContainer) {
         if (!serverStarted.get()) return true;
-        DeployerFactory deployerFactory = new DefaultDeployerFactory();
-        Deployer deployer = deployerFactory.createDeployer(localContainer);
-        List<Deployable> deployables = localContainer.getConfiguration().getDeployables();
-        for (Deployable deployable : deployables) {
-            deployer.undeploy(deployable);
+        boolean owned = false;
+        try {
+            if (lifeCycleOperationLock.tryLock(30, TimeUnit.SECONDS)) {
+                owned = true;
+                DeployerFactory deployerFactory = new DefaultDeployerFactory();
+                Deployer deployer = deployerFactory.createDeployer(localContainer);
+                List<Deployable> deployables = localContainer.getConfiguration().getDeployables();
+                for (Deployable deployable : deployables) {
+                    deployer.undeploy(deployable);
+                }
+                localContainer.stop();
+                webApplicationRepository.containerShutdown(id);
+                serverStarted.set(false);
+                return true;
+            }
+        } catch (InterruptedException e) {
+            logger.error("caught InterruptedException", e);
+            Thread.currentThread().interrupt();
+        } finally {
+            if (owned) lifeCycleOperationLock.unlock();
         }
-        localContainer.stop();
-        webApplicationRepository.containerShutdown(id);
-        serverStarted.set(false);
-        return true;
+        return false;
     }
 
     private AbstractInstalledLocalContainer loadDefault() throws NotInstalledException {
@@ -141,30 +169,29 @@ public class CargoManager implements ContainerManager {
     }
 
     @SuppressWarnings("unchecked")
-    private synchronized AbstractInstalledLocalContainer loadContainer(Container installedContainer) {
+    private AbstractInstalledLocalContainer loadContainer(Container installedContainer) {
         String containerId = installedContainer.getCargoId();
         if (installedContainers.containsKey(containerId)) return installedContainers.get(containerId);
-        File configurationDir = new File(installedContainer.getHomeDir());//new File(System.getProperty(RUNTIME_DIR.getValue()), containerId);
+        //container creation
+        File configurationDir = new File(installedContainer.getHomeDir());
         Configuration configuration;
-        boolean existing = configurationDir.exists();
-        /*if (existing)*/
         configuration = loadExistingConfiguration(containerId, configurationDir);
-        //else configuration = createNewStandaloneConfiguration(installedContainer, configurationDir);
         String agentPath = ContainerUtils.extractAgentJar(System.getProperty("java.class.path"));
         StringBuilder jvmArgs = new StringBuilder("-javaagent:");
         jvmArgs.append(agentPath);
         jvmArgs.append(" -Djava.net.preferIPv4Stack=true");
-        configuration.setProperty(GeneralPropertySet.JVMARGS, jvmArgs.toString());
+        String existingConfiguration = configuration.getPropertyValue(GeneralPropertySet.JVMARGS);
+        if (StringUtils.hasText(existingConfiguration)) jvmArgs.append(" ").append(existingConfiguration);
+        configuration.setProperty(GeneralPropertySet.JVMARGS, jvmArgs.append(" ").toString());
         DefaultContainerFactory containerFactory = new DefaultContainerFactory();
         AbstractInstalledLocalContainer container = (AbstractInstalledLocalContainer) containerFactory.createContainer(containerId,
                                                                                                                        ContainerType.INSTALLED,
                                                                                                                        configuration);
-        //for (String entry : listJarFiles(System.getProperty("user.dir")+File.separator+"lib")) container.addSharedClasspath(entry);
         container.setHome(installedContainer.getHomeDir());
         container.setLogger(new ServerLogger());
         container.addExtraClasspath(agentPath);
-        installedContainers.put(containerId, container);
-        return container;
+        AbstractInstalledLocalContainer existing = installedContainers.putIfAbsent(containerId, container);
+        return existing == null ? container : existing;
     }
 
     @Override
@@ -229,19 +256,6 @@ public class CargoManager implements ContainerManager {
         return configuration;
     }
 
-    private Configuration createNewStandaloneConfiguration(Container container, File configurationDir) {
-        Configuration configuration = new DefaultConfigurationFactory().createConfiguration(container.getCargoId(), ContainerType.INSTALLED,
-                                                                                            ConfigurationType.STANDALONE,
-                                                                                            configurationDir.getAbsolutePath());
-        if (logger.isDebugEnabled()) logger.debug("creating new standalone configuration for container " + container.getCargoId());
-        int serverPort = findFirstAvailablePort(1706);
-        configuration.setProperty(ServletPropertySet.PORT, String.valueOf(serverPort));
-        configuration.setProperty(ServletPropertySet.USERS, "ejisto:ejisto:manager");
-        if (logger.isDebugEnabled()) logger.debug("Server will listen on port: " + serverPort);
-        settingsRepository.putSettingValue(DEFAULT_SERVER_PORT, String.valueOf(serverPort));
-        return configuration;
-    }
-
     private boolean deploy(WebApplicationDescriptor descriptor, LocalContainer container, String containerId) {
         Deployable deployable = serverStarted.get() ? hotDeploy(descriptor, container) : staticDeploy(descriptor, container);
         if (deployable == null) return false;
@@ -286,7 +300,7 @@ public class CargoManager implements ContainerManager {
             webApplicationRepository.unregisterWebApplication(containerId, contextPath);
             return true;
         } catch (Exception ex) {
-            logger.error("error during undeploy");
+            logger.error("error during undeploy", ex);
             return false;
         }
     }

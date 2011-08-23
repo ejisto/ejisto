@@ -41,9 +41,7 @@ public class ErrorListener implements ApplicationListener<ApplicationError> {
     }
 
     private ErrorInfo getErrorInfo(ApplicationError event) {
-        return new ErrorInfo(getMessage("error.dialog.title"),
-                             getMessage("error.dialog.message", event.getError().getClass().getName()),
-                             event.getError().getMessage(), event.getPriority().name(), event.getError(), Level.SEVERE,
-                             null);
+        return new ErrorInfo(getMessage("error.dialog.title"), getMessage("error.dialog.message", event.getError().getClass().getName()), null,
+                             event.getPriority().name(), event.getError(), Level.SEVERE, null);
     }
 }

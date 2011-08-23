@@ -21,9 +21,7 @@ package com.ejisto.event.listener;
 
 import ch.lambdaj.function.closure.Closure;
 import com.ejisto.event.EventManager;
-import com.ejisto.event.def.ChangeServerStatus;
-import com.ejisto.event.def.InstallContainer;
-import com.ejisto.event.def.LogMessage;
+import com.ejisto.event.def.*;
 import com.ejisto.modules.cargo.CargoManager;
 import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.controller.DialogManager;
@@ -31,6 +29,7 @@ import com.ejisto.modules.executor.Task;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.ContainerInstallationPanel;
+import com.ejisto.util.GuiUtils;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationListener;
 
@@ -76,20 +75,23 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                 if (logger.isDebugEnabled()) logger.debug("download completed");
                 notifyToPanel(panel, getMessage("container.installation.panel.status.2", containerDescription));
                 if (logger.isDebugEnabled()) logger.debug("notifying installation success");
+                eventManager.publishEvent(new ContainerInstalled(this, event.getContainerId(), event.getDescription()));
                 eventManager.publishEvent(new LogMessage(this, getMessage("container.installation.ok")));
                 if (event.isStart()) eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
-                manager.hide();
+                showHideProgressPanel(false, manager);
                 return null;
             }
         };
         Future<Void> future = TaskManager.getInstance().addTask(new Task<Void>(task, "download server"));
-        manager.show(true);
+        showHideProgressPanel(true, manager);
         try {
             future.get();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("got interrupted exception", e);
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            showHideProgressPanel(false, manager);
+            logger.error("got execution exception", e);
+            eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e.getCause()));
         }
     }
 
@@ -97,6 +99,17 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         Closure c = closure();
         {of(panel).notifyJobCompleted(message); }
         runInEDT(c);
+    }
+
+    void showHideProgressPanel(final boolean show, final DialogManager manager) {
+        GuiUtils.runOnEDT(new Runnable() {
+            @Override
+            public void run() {
+                if (show) manager.show(true);
+                else manager.hide();
+            }
+        });
+
     }
 
 }

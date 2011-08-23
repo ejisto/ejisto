@@ -17,27 +17,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.event.listener;
+package com.ejisto.event.def;
 
-import com.ejisto.event.def.StatusBarMessage;
-import com.ejisto.modules.gui.Application;
-import com.ejisto.util.GuiUtils;
-import org.springframework.context.ApplicationListener;
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 8/8/11
+ * Time: 9:40 PM
+ */
+public class ContainerInstalled extends BaseApplicationEvent {
+    private static final long serialVersionUID = 1670481880287700224L;
+    private String id;
+    private String description;
 
-import javax.annotation.Resource;
-
-public class StatusBarLogger implements ApplicationListener<StatusBarMessage> {
-    @Resource
-    private Application application;
+    public ContainerInstalled(Object source, String id, String description) {
+        super(source);
+        this.id = id;
+        this.description = description;
+    }
 
     @Override
-    public void onApplicationEvent(final StatusBarMessage event) {
-        GuiUtils.runOnEDT(new Runnable() {
-            @Override
-            public void run() {
-                application.setStatusBarMessage(event.getMessage(), event.isError());
-            }
-        });
+    public String getDescription() {
+        return description;
+    }
 
+    @Override
+    public String getKey() {
+        return id;
+    }
+
+    @Override
+    public boolean isRunOnEDT() {
+        return false;
     }
 }

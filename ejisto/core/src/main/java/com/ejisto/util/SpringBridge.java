@@ -33,10 +33,8 @@ import java.util.Locale;
 public class SpringBridge implements ApplicationContextAware {
     private static SpringBridge instance = new SpringBridge();
     private ApplicationContext applicationContext;
-    @Resource
-    private MessageSource messageSource;
-    @Resource
-    private SharedClassLoader sharedClassLoader;
+    @Resource private MessageSource messageSource;
+    @Resource private SharedClassLoader sharedClassLoader;
 
     public static boolean publishApplicationEvent(ApplicationEvent e) {
         boolean ret = isApplicationInitialized();
@@ -106,4 +104,5 @@ public class SpringBridge implements ApplicationContextAware {
     private void addExtraPaths(Collection<String> paths) {
         sharedClassLoader.addEntries(paths);
     }
+
 }

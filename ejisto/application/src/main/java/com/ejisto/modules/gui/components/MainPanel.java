@@ -19,15 +19,18 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.def.ApplicationDeployed;
+import com.ejisto.event.def.ContainerInstalled;
+import com.ejisto.event.def.LogMessage;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import org.jdesktop.swingx.JXPanel;
+import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.GuiUtils.getRegisteredContainers;
+import static com.ejisto.util.GuiUtils.*;
 
 public class MainPanel extends JXPanel {
     private static final long serialVersionUID = -28148619997853619L;
@@ -35,6 +38,25 @@ public class MainPanel extends JXPanel {
     private Header header;
     private JTabbedPane mainTabbedPane;
     private List<ContainerTab> containerTabs;
+    private final ApplicationListener<ContainerInstalled> containerInstalledListener = new ApplicationListener<ContainerInstalled>() {
+        @Override
+        public void onApplicationEvent(ContainerInstalled event) {
+            refreshContainerTabs();
+        }
+    };
+
+    private final ApplicationListener<LogMessage> logMessageListener = new ApplicationListener<LogMessage>() {
+        @Override
+        public void onApplicationEvent(LogMessage event) {
+            log(event.getMessage());
+        }
+    };
+    private final ApplicationListener<ApplicationDeployed> deployListener = new ApplicationListener<ApplicationDeployed>() {
+        @Override
+        public void onApplicationEvent(ApplicationDeployed event) {
+            applicationDeployed();
+        }
+    };
 
     public MainPanel() {
         super();
@@ -57,6 +79,14 @@ public class MainPanel extends JXPanel {
     private void init() {
         initLayout();
         initComponents();
+        runOnEDT(new Runnable() {
+            @Override
+            public void run() {
+                registerEventListener(ContainerInstalled.class, containerInstalledListener);
+                registerEventListener(LogMessage.class, logMessageListener);
+                registerEventListener(ApplicationDeployed.class, deployListener);
+            }
+        });
     }
 
     private void initLayout() {
@@ -79,16 +109,22 @@ public class MainPanel extends JXPanel {
         if (this.mainTabbedPane != null) return this.mainTabbedPane;
         mainTabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
         mainTabbedPane.add(getPropertiesEditor());
-        for (ContainerTab containerTab : getContainerTabs()) {
-            mainTabbedPane.add(containerTab);
-        }
+        refreshContainerTabs();
         return mainTabbedPane;
     }
 
     private List<ContainerTab> getContainerTabs() {
         if (containerTabs != null) return containerTabs;
         containerTabs = getRegisteredContainers();
+        refreshContainerTabs();
         return containerTabs;
+    }
+
+    private void refreshContainerTabs() {
+        containerTabs = getRegisteredContainers();
+        for (ContainerTab containerTab : getContainerTabs()) {
+            mainTabbedPane.add(containerTab);
+        }
     }
 
     private MockedFieldsEditor getPropertiesEditor() {

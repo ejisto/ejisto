@@ -17,28 +17,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.event.listener;
+package com.ejisto.modules.dao.entities;
 
-import com.ejisto.event.def.LogMessage;
-import com.ejisto.modules.gui.Application;
-import org.springframework.context.ApplicationListener;
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 7/31/11
+ * Time: 7:02 PM
+ */
+public class ObjectFactory {
+    private final String className;
+    private final String targetClassName;
 
-import javax.annotation.Resource;
-import javax.swing.*;
+    public ObjectFactory(String className, String targetClassName) {
+        this.className = className;
+        this.targetClassName = targetClassName;
+    }
 
-public class LogManager implements ApplicationListener<LogMessage> {
+    public String getClassName() {
+        return className;
+    }
 
-    @Resource
-    private Application application;
-
-    @Override
-    public void onApplicationEvent(final LogMessage event) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                application.log(event.getMessage());
-            }
-        });
-
+    public String getTargetClassName() {
+        return targetClassName;
     }
 }

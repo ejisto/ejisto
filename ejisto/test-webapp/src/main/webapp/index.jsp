@@ -1,3 +1,4 @@
+<%@ page import="com.ejisto.hello.beans.SimplePropertyValue" %>
 <%--
   ~ Ejisto, a powerful developer assistant
   ~
@@ -35,7 +36,7 @@
 <br><b>Description: </b> <%= bean.getDescription() %>
 <br><b>Hit count: </b> <%= bean.getHits() %>
 <br><b>Time stamp: </b> <%= bean.getTimestamp() %>
-<%--<br><b>what time is it?:</b><%= dao.whatTimeIsIt() %>
+<%--<br><b>what time is it?:</b><%= dao.whatTimeIsIt() --%>
 <br><b>Property values:</b><br>
 <%
     for (SimplePropertyValue propertyValue : bean.getPropertyValues()) {
@@ -44,6 +45,5 @@
 <%
     }
 %>
---%>
 </body>
 </html>

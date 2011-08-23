@@ -94,7 +94,11 @@ public class ClassTransformer implements ClassFileTransformer {
                 break;
             }
         }
-        if (!found) clazz.addConstructor(new CtConstructor(new CtClass[0], clazz));
+        if (!found) {
+            CtConstructor defaultConstructor = new CtConstructor(new CtClass[0], clazz);
+            defaultConstructor.setBody(null);//default constructor only calls "super()"
+            clazz.addConstructor(defaultConstructor);
+        }
     }
 
     private byte[] transform(String className, List<MockedField> mockedFields) throws IllegalClassFormatException {
@@ -105,7 +109,7 @@ public class ClassTransformer implements ClassFileTransformer {
             clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, mockedFields)));
             trace("removing final modifier (if present)");
             removeFinalModifier(clazz);
-            trace("adding default constructor ");
+            trace("adding default constructor, if none present ");
             addDefaultConstructor(clazz);
             trace("done. Returning bytecode");
             clazz.rebuildClassFile();

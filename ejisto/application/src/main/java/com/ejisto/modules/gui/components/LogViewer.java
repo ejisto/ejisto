@@ -45,8 +45,8 @@ public class LogViewer extends JXPanel {
 
     private JScrollPane getLogPanel() {
         if (this.logPanel != null) return this.logPanel;
-        log = new BufferedTextArea(1000);
-        logPanel = new JScrollPane(log, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        log = new JTextArea();
+        logPanel = new JScrollPane(log);
         logPanel.setMinimumSize(new Dimension(500, 100));
 //        logPanel.setPreferredSize(new Dimension(500, 100));
 //        logPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 300));
@@ -57,6 +57,11 @@ public class LogViewer extends JXPanel {
 
     public void log(String message) {
         log.append(message);
+//        try {
+//            log.setCaretPosition(log.getLineEndOffset(log.getLineCount() -1));
+//        } catch (BadLocationException e) {
+//            e.printStackTrace();
+//        }
     }
 
 }

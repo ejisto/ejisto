@@ -41,6 +41,7 @@
     <bean abstract="true" id="baseDao" class="com.ejisto.modules.dao.BaseDao" lazy-init="true"/>
     <bean id="settingsDao" class="com.ejisto.modules.dao.SettingsDao" parent="baseDao" lazy-init="true"/>
     <bean id="mockedFieldsDao" class="com.ejisto.modules.dao.MockedFieldsDao" parent="baseDao" lazy-init="true"/>
+    <bean id="objectFactoryDao" class="com.ejisto.modules.dao.ObjectFactoryDao" parent="baseDao" lazy-init="true"/>
     <bean id="customObjectFactoryDao" class="com.ejisto.modules.dao.CustomObjectFactoryDao" parent="baseDao"
           lazy-init="true"/>
     <bean id="webApplicationDescriptorDao" class="com.ejisto.modules.dao.WebApplicationDescriptorDao"

@@ -42,7 +42,7 @@ public class ContainerInstaller extends ZipURLInstaller {
     private URL url;
 
     public ContainerInstaller(URL remoteLocation, String installDir) {
-        super(remoteLocation, installDir);
+        super(remoteLocation, System.getProperty("java.io.tmpdir"), installDir);
         this.url = remoteLocation;
     }
 
@@ -53,7 +53,7 @@ public class ContainerInstaller extends ZipURLInstaller {
             connection.connect();
             int total = connection.getContentLength();
             BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
-            FileOutputStream out = new FileOutputStream(new File(getDestinationDir(), getSourceFileName()));
+            FileOutputStream out = new FileOutputStream(new File(getDownloadDir(), getSourceFileName()));
             FileChannel ch = out.getChannel();
             byte[] buffer = new byte[512000];
             int readed;
@@ -67,7 +67,8 @@ public class ContainerInstaller extends ZipURLInstaller {
             out.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("cannot download container", e);
+            throw new RuntimeException("cannot download from " + url.toString(), e);
         }
     }
 }

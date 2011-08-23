@@ -19,30 +19,43 @@
 
 package com.ejisto.event.def;
 
-import org.springframework.context.ApplicationEvent;
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 8/9/11
+ * Time: 10:47 PM
+ */
+public class ApplicationDeployed extends BaseApplicationEvent {
+    private static final long serialVersionUID = -1430019877487367259L;
+    private String context;
+    private String containerId;
 
-public abstract class BaseApplicationEvent extends ApplicationEvent {
-
-    private static final long serialVersionUID = -2616190172593844455L;
-
-    BaseApplicationEvent(Object source) {
+    public ApplicationDeployed(Object source, String context, String containerId) {
         super(source);
+        this.context = context;
+        this.containerId = containerId;
     }
-
-    public abstract String getDescription();
-
-    public String getIconKey() {
-        return "";
-    }
-
-    public abstract String getKey();
 
     @Override
-    public String toString() {
-        return getDescription();
+    public String getDescription() {
+        return "deployed " + context + " on " + containerId;
     }
 
+    @Override
+    public String getKey() {
+        return context;
+    }
+
+    public String getContext() {
+        return context;
+    }
+
+    public String getContainerId() {
+        return containerId;
+    }
+
+    @Override
     public boolean isRunOnEDT() {
-        return false;
+        return true;
     }
 }

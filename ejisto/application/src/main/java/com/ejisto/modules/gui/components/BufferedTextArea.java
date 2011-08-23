@@ -42,17 +42,12 @@ class BufferedTextArea extends JTextArea implements DocumentListener {
     }
 
     @Override
-    public void insertUpdate(DocumentEvent e) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    checkBufferSize();
-                } catch (BadLocationException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+    public void insertUpdate(DocumentEvent event) {
+        try {
+            checkBufferSize();
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

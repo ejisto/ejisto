@@ -29,7 +29,6 @@ import javax.annotation.Resource;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.Date;
 
 import static com.ejisto.constants.StringConstants.*;
@@ -43,7 +42,6 @@ public class Application extends javax.swing.JFrame {
     @Resource private SettingsManager settingsManager;
     private MainRootPane rootPane;
     private boolean ready;
-    private final ArrayList<String> pendingMessages = new ArrayList<String>();
 
     public Application() {
     }
@@ -68,16 +66,6 @@ public class Application extends javax.swing.JFrame {
         ready = true;
     }
 
-    public void log(String message) {
-        if (ready) {
-            for (String oldMessage : pendingMessages) rootPane.log(oldMessage);
-            if (!pendingMessages.isEmpty()) pendingMessages.clear();
-            rootPane.log(message);
-        } else {
-            pendingMessages.add(message);
-        }
-    }
-
     public void setStatusBarMessage(String messageKey, boolean error) {
         if (ready) {
             rootPane.setStatusBarMessage(messageKey, error);
@@ -90,10 +78,6 @@ public class Application extends javax.swing.JFrame {
         getAction(START_CONTAINER.getValue()).setEnabled(shutdown);
         getAction(STOP_CONTAINER.getValue()).setEnabled(!shutdown);
 
-    }
-
-    public void onApplicationDeploy() {
-        rootPane.applicationDeployed();
     }
 
     public void onWebAppContextStatusChange() {

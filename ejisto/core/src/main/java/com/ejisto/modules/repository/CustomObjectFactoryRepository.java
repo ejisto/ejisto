@@ -34,8 +34,7 @@ import java.util.List;
  */
 public class CustomObjectFactoryRepository extends ExternalizableService<CustomObjectFactoryDao> {
     private static final CustomObjectFactoryRepository INSTANCE = new CustomObjectFactoryRepository();
-    @Resource
-    private CustomObjectFactoryDao customObjectFactoryDao;
+    @Resource private CustomObjectFactoryDao customObjectFactoryDao;
 
     public static CustomObjectFactoryRepository getInstance() {
         return INSTANCE;

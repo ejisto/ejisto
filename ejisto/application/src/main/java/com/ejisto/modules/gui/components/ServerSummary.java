@@ -66,7 +66,7 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     private JXHeader getHeader() {
         if (header != null) return header;
         header = new JXHeader(serverName, getMessage("server.summary.status", getServerStatus()),
-                              new ImageIcon(getClass().getResource("/icons/tomcat.gif")));
+                              new ImageIcon(getClass().getResource("/icons/containers/tomcat.gif")));
         return header;
     }
 

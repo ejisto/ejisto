@@ -59,7 +59,7 @@ public enum StringConstants {
     DEFAULT_CONTAINER_ID("tomcat7x"),
     DEFAULT_CONTAINER_DESCRIPTION("container.default.description");
 
-    private String value;
+    private final String value;
 
     private StringConstants(String value) {
         this.value = value;

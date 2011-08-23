@@ -23,12 +23,15 @@ import ch.lambdaj.function.closure.Closure;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.core.container.WebApplication;
 import com.ejisto.event.def.BaseApplicationEvent;
+import com.ejisto.event.listener.ApplicationEventDispatcher;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.ContainerTab;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import org.apache.log4j.Logger;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.util.StringUtils;
 
 import javax.swing.*;
@@ -154,17 +157,24 @@ public class GuiUtils {
         }
     }
 
-    public static void runInEDT(Runnable action) {
+    public static void runOnEDT(Runnable action) {
         SwingUtilities.invokeLater(action);
     }
 
     public static void runInEDT(final Closure closure) {
-        runInEDT(new Runnable() {
+        runOnEDT(new Runnable() {
             @Override
             public void run() {
                 closure.apply();
             }
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends ApplicationEvent> void registerEventListener(Class<T> eventClass, ApplicationListener<T> listener) {
+        ApplicationEventDispatcher applicationEventDispatcher = SpringBridge.getInstance().getBean("applicationEventDispatcher",
+                                                                                                   ApplicationEventDispatcher.class);
+        applicationEventDispatcher.registerApplicationEventListener(eventClass, (ApplicationListener<ApplicationEvent>) listener);
     }
 
     public static List<ContainerTab> getRegisteredContainers() {

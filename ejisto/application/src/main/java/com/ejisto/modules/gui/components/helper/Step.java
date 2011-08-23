@@ -20,15 +20,21 @@
 package com.ejisto.modules.gui.components.helper;
 
 public enum Step {
-    FILE_SELECTION,
-    FILE_EXTRACTION,
-    CLASSES_FILTERING,
-    APPLICATION_SCANNING,
-    JNDI_RESOURCES_EDITOR,
-    PROPERTIES_EDITING,
-    SUMMARY;
+    FILE_SELECTION(0),
+    FILE_EXTRACTION(1),
+    CLASSES_FILTERING(2),
+    APPLICATION_SCANNING(3),
+    JNDI_RESOURCES_EDITOR(4),
+    PROPERTIES_EDITING(5),
+    SUMMARY(6);
+
+    private final int index;
+
+    private Step(int index) {
+        this.index = index;
+    }
 
     public int getIndex() {
-        return ordinal();
+        return index;
     }
 }
