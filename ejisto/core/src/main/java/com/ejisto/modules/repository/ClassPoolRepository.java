@@ -21,9 +21,8 @@ package com.ejisto.modules.repository;
 
 import javassist.ClassPool;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,7 +32,7 @@ import java.util.Map;
  */
 public class ClassPoolRepository {
     private static final ClassPoolRepository INSTANCE = new ClassPoolRepository();
-    private final Map<String, ClassPool> dictionary;
+    private final ConcurrentMap<String, ClassPool> dictionary;
 
     public static void registerClassPool(String context, ClassPool cp) {
         INSTANCE.putValue(context, cp);
@@ -48,11 +47,11 @@ public class ClassPoolRepository {
     }
 
     private ClassPoolRepository() {
-        dictionary = Collections.synchronizedMap(new HashMap<String, ClassPool>());
+        dictionary = new ConcurrentHashMap<String, ClassPool>();
     }
 
     private void putValue(String context, ClassPool cp) {
-        dictionary.put(context, cp);
+        if (dictionary.putIfAbsent(context, cp) != null) throw new IllegalArgumentException("ClassPool for context " + context + " already defined");
     }
 
     private ClassPool getValue(String context) {

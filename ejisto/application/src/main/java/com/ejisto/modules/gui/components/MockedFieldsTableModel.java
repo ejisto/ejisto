@@ -21,6 +21,7 @@ package com.ejisto.modules.gui.components;
 
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.util.GuiUtils;
 import org.springframework.util.Assert;
 
 import javax.swing.event.TableModelEvent;
@@ -30,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.GuiUtils.stringify;
 import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
 public class MockedFieldsTableModel extends AbstractTableModel implements TableModelListener {
@@ -50,10 +50,9 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     }
 
     public MockedFieldsTableModel(List<MockedField> fields, boolean notifyChanges, boolean partial) {
-        columnHeaders = getMessage(partial ? "wizard.properties.editor.columns" : "main.tab.property.columns").split(
-                ",");
+        columnHeaders = getMessage(partial ? "wizard.properties.editor.columns" : "main.tab.property.columns").split(",");
         this.fields = new ArrayList<MockedField>(fields);
-        this.fieldsAsString = stringify(this.fields, partial);
+        this.fieldsAsString = GuiUtils.asStringList(this.fields, partial);
         addTableModelListener(this);
         this.notifyChanges = notifyChanges;
         this.partial = partial;
@@ -102,7 +101,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     @Override
     public void tableChanged(TableModelEvent e) {
         if (notifyChanges) notifyTableChanged(e);
-        fieldsAsString = stringify(fields, partial);
+        fieldsAsString = GuiUtils.asStringList(fields, partial);
     }
 
     private void notifyTableChanged(TableModelEvent e) {
@@ -122,7 +121,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     }
 
     public void refresh() {
-        fieldsAsString = stringify(fields, partial);
+        fieldsAsString = GuiUtils.asStringList(fields, partial);
     }
 
 }

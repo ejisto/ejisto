@@ -80,6 +80,7 @@ public class ContextListener implements ServletContextListener {
     public void contextDestroyed(ServletContextEvent sce) {
         try {
             DriverManager.deregisterDriver(driver);
+            driver = null;
         } catch (SQLException e) {
             context.log("error during driver deregistration", e);
         }

@@ -28,6 +28,10 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 
+import static ch.lambdaj.Lambda.*;
+import static com.ejisto.modules.dao.entities.WebApplicationDescriptorElement.Kind.CLASSPATH;
+import static org.hamcrest.Matchers.equalTo;
+
 public class WebApplicationDescriptor implements Serializable {
     private static final Logger logger = Logger.getLogger(WebApplicationDescriptor.class);
     private static final long serialVersionUID = 7454195671017831484L;
@@ -81,7 +85,7 @@ public class WebApplicationDescriptor implements Serializable {
     }
 
     public void setBlacklist(List<String> blacklist) {
-        logger.debug("blacklisting: " + blacklist);
+        if (logger.isDebugEnabled()) logger.debug("blacklisting: " + blacklist);
         helper.setBlacklist(blacklist);
     }
 
@@ -135,7 +139,8 @@ public class WebApplicationDescriptor implements Serializable {
     }
 
     public List<WebApplicationDescriptorElement> getClassPathElements() {
-        return classpathEntries;
+        if (classpathEntries != null) return classpathEntries;
+        return select(elements, having(on(WebApplicationDescriptorElement.class).getKind(), equalTo(CLASSPATH)));
     }
 
     public List<JndiDataSource> getDataSources() {

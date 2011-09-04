@@ -87,10 +87,10 @@ public class GuiUtils {
     }
 
     public static List<List<String>> stringify(List<MockedField> fields) {
-        return stringify(fields, false);
+        return asStringList(fields, false);
     }
 
-    public static List<List<String>> stringify(List<MockedField> fields, boolean partial) {
+    public static List<List<String>> asStringList(List<MockedField> fields, boolean partial) {
         List<List<String>> fieldsAsString = new ArrayList<List<String>>();
         ArrayList<String> property;
         for (MockedField mockedField : fields) {
@@ -175,6 +175,24 @@ public class GuiUtils {
         ApplicationEventDispatcher applicationEventDispatcher = SpringBridge.getInstance().getBean("applicationEventDispatcher",
                                                                                                    ApplicationEventDispatcher.class);
         applicationEventDispatcher.registerApplicationEventListener(eventClass, (ApplicationListener<ApplicationEvent>) listener);
+    }
+
+    public static void setActionMap(ActionMap actionMap, JComponent component) {
+        ActionMap original = component.getActionMap();
+        ActionMap parent = actionMap;
+        if (original.getParent() != null) {
+            parent = cloneActionMap(actionMap);
+            parent.setParent(original.getParent());
+        }
+        original.setParent(parent);
+    }
+
+    private static ActionMap cloneActionMap(ActionMap original) {
+        ActionMap map = new ActionMap();
+        for (Object key : original.keys()) {
+            map.put(key, original.get(key));
+        }
+        return map;
     }
 
     public static List<ContainerTab> getRegisteredContainers() {

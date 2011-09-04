@@ -48,7 +48,7 @@ import static com.ejisto.util.GuiUtils.getMessage;
  * Date: 12/28/10
  * Time: 5:22 PM
  */
-public class MockedFieldsEditorController extends MouseAdapter implements ChangeListener, ActionListener {
+public class MockedFieldsEditorController implements ChangeListener, ActionListener {
     public static final String START_EDITING = "START_EDITING";
     public static final String STOP_EDITING = "STOP_EDITING";
     public static final String CANCEL_EDITING = "CANCEL_EDITING";
@@ -69,6 +69,20 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
         initActions();
         view = new MockedFieldsEditor(main);
         view.registerChangeListener(this);
+        view.registerTreeMouseLister(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getClickCount() != 2) return;
+                x = e.getX();
+                y = e.getY();
+                editedField = getView().getTree().getMockedFieldAt(x, y);
+                if (editedField != null && !editedField.isSimpleValue()) {
+                    editingStarted();
+                } else {
+                    editingCanceled();
+                }
+            }
+        });
         view.initActionMap(getActionMap());
         view.setFields(MockedFieldsRepository.getInstance().loadAll());
         lock = new ReentrantLock();
@@ -92,19 +106,6 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
         return actionMap;
     }
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (e.getClickCount() != 2) return;
-        x = e.getX();
-        y = e.getY();
-        editedField = getView().getTree().getMockedFieldAt(x, y);
-        if (editedField != null && !editedField.isSimpleValue()) {
-            editingStarted();
-        } else {
-            editingCanceled();
-        }
-    }
-
     private void initActions() {
         actionMap.put(STOP_EDITING, new CallbackAction(STOP_EDITING, new Closure0() {{
             of(MockedFieldsEditorController.this).editingStopped();
@@ -118,8 +119,7 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
         if (lock.isLocked()) return;
         lock.tryLock();
         getView().initEditorPanel(selectMockedFieldTypes(),
-                                  getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(),
-                                             editedField.getClassSimpleName()));
+                                  getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(), editedField.getClassSimpleName()));
         getView().expandCollapseEditorPanel(true);
     }
 
@@ -155,4 +155,5 @@ public class MockedFieldsEditorController extends MouseAdapter implements Change
     public void setWizardFields(Collection<MockedField> wizardFields) {
         this.wizardFields = wizardFields;
     }
+
 }

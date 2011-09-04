@@ -22,6 +22,7 @@ package com.ejisto.modules.gui.components;
 import com.ejisto.event.def.ApplicationDeployed;
 import com.ejisto.event.def.ContainerInstalled;
 import com.ejisto.event.def.LogMessage;
+import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import org.jdesktop.swingx.JXPanel;
 import org.springframework.context.ApplicationListener;
@@ -58,6 +59,13 @@ public class MainPanel extends JXPanel {
         }
     };
 
+    private final ApplicationListener<StatusBarMessage> statusMessageListener = new ApplicationListener<StatusBarMessage>() {
+        @Override
+        public void onApplicationEvent(StatusBarMessage event) {
+            logStatusMessage(event.getMessage(), event.isError());
+        }
+    };
+
     public MainPanel() {
         super();
         init();
@@ -85,6 +93,7 @@ public class MainPanel extends JXPanel {
                 registerEventListener(ContainerInstalled.class, containerInstalledListener);
                 registerEventListener(LogMessage.class, logMessageListener);
                 registerEventListener(ApplicationDeployed.class, deployListener);
+                registerEventListener(StatusBarMessage.class, statusMessageListener);
             }
         });
     }

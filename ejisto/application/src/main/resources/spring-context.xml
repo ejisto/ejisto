@@ -52,7 +52,6 @@
     <bean id="applicationLoader" class="com.ejisto.event.listener.WebApplicationLoader"/>
     <bean id="errorListener" class="com.ejisto.event.listener.ErrorListener"/>
     <bean id="applicationEventDispatcher" class="com.ejisto.event.listener.ApplicationEventDispatcher"/>
-    <bean id="statusBarLogger" class="com.ejisto.event.listener.StatusBarLogger"/>
     <bean id="fieldChangesListener" class="com.ejisto.event.listener.FieldsUpdateListener"/>
     <bean id="containerInstaller" class="com.ejisto.event.listener.ContainerInstaller"/>
 

@@ -31,8 +31,12 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
+import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
+import com.ejisto.util.IOUtils;
+import javassist.ClassPool;
+import javassist.LoaderClassPath;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.Assert;
@@ -42,7 +46,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -200,10 +206,18 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         try {
             for (WebApplicationDescriptor descriptor : webApplicationDescriptorDao.loadAll()) {
                 deployWebApp(descriptor);
+                registerClassPool(descriptor);
             }
         } catch (Exception e) {
             logger.error("unable to load webapp descriptor: ", e);
         }
+    }
+
+    private void registerClassPool(WebApplicationDescriptor descriptor) throws MalformedURLException {
+        ClassPool cp = new ClassPool();
+        cp.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
+        cp.appendClassPath(new LoaderClassPath(new URLClassLoader(IOUtils.toUrlArray(descriptor))));
+        ClassPoolRepository.registerClassPool(descriptor.getContextPath(), cp);
     }
 
     private void startBrowser(WebApplicationDescriptor descriptor) {

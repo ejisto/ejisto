@@ -22,12 +22,14 @@ package com.ejisto.modules.gui.components;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.helper.MockedFieldValueEditorPanel;
+import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTable;
 
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -59,9 +61,9 @@ public class MockedFieldsEditor extends JXPanel {
 
     public void initActionMap(ActionMap actionMap) {
         getActionMap().setParent(actionMap);
-        getTree().getActionMap().setParent(actionMap);
-        getValueEditorPanel().getActionMap().setParent(actionMap);
-        getFlattenTable().getActionMap().setParent(actionMap);
+        GuiUtils.setActionMap(actionMap, getTree());
+        GuiUtils.setActionMap(actionMap, getValueEditorPanel());
+        GuiUtils.setActionMap(actionMap, getFlattenTable());
     }
 
     public String getExpression() {
@@ -86,7 +88,10 @@ public class MockedFieldsEditor extends JXPanel {
 
     public void registerChangeListener(MockedFieldsEditorController controller) {
         getEditorContainer().addChangeListener(controller);
-        getTree().addMouseListener(controller);
+    }
+
+    public void registerTreeMouseLister(MouseListener mouseListener) {
+        getTree().addMouseListener(mouseListener);
     }
 
     public void expandCollapseEditorPanel(boolean expand) {

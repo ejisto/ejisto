@@ -23,6 +23,8 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.NotFoundException;
+import org.apache.log4j.Logger;
 import org.springframework.util.StringUtils;
 
 import static com.ejisto.core.classloading.util.ReflectionUtils.detach;
@@ -30,6 +32,7 @@ import static com.ejisto.modules.repository.ClassPoolRepository.getRegisteredCla
 
 public class MockedFieldDecorator implements MockedField {
     private static final String[] COMPLEX_TYPES = {"java.util.Collection", "java.util.Map"};
+    private static final Logger LOGGER = Logger.getLogger(MockedFieldDecorator.class);
     private MockedField target;
 
     public MockedFieldDecorator(MockedField target) {
@@ -53,7 +56,10 @@ public class MockedFieldDecorator implements MockedField {
                 clazz.detach();
             }
             return true;
+        } catch (NotFoundException e) {
+            throw new IllegalStateException(e);//should never happens
         } catch (Exception e) {
+            LOGGER.error("cannot check if field " + target.getFieldName() + " is simple type", e);
             return true;
         } finally {
             detach(clazz, targetClazz);
@@ -173,8 +179,7 @@ public class MockedFieldDecorator implements MockedField {
 
     @Override
     public String getCompleteDescription() {
-        return new StringBuilder(getFieldName()).append(" [").append(getCompleteFieldType()).append("]: ").append(
-                evaluateFieldValue()).toString();
+        return new StringBuilder(getFieldName()).append(" [").append(getCompleteFieldType()).append("]: ").append(evaluateFieldValue()).toString();
     }
 
     @Override

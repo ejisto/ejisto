@@ -64,7 +64,7 @@
     <bean id="objectFactoryLoader" class="com.ejisto.modules.conf.ObjectFactoryLoader"/>
     <util:list id="taskDescriptors" value-type="com.ejisto.modules.executor.TaskDescriptor">
         <bean class="com.ejisto.modules.executor.TaskDescriptor">
-            <property name="initialDelay" value="5"/>
+            <property name="initialDelay" value="0"/>
             <property name="period" value="1"/>
             <property name="task" ref="objectFactoryLoader"/>
         </bean>

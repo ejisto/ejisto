@@ -63,8 +63,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
     @Override
     public String convertValueToText(Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-        if (EmptyTreeNode.class.isAssignableFrom(node.getClass()))
-            return getMessage("main.propertieseditor.tree.novalues.text");
+        if (EmptyTreeNode.class.isAssignableFrom(node.getClass())) return getMessage("main.propertieseditor.tree.novalues.text");
         node = (DefaultMutableTreeNode) scanNode(node);
         if (node == null) return super.convertValueToText(value, selected, expanded, leaf, row, hasFocus);
         if (!leaf) return row == 0 && main ? rootText : node.toString();
@@ -86,8 +85,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
      */
     private TreeNode mockedFields2Nodes(Collection<MockedField> in) {
         if (in.isEmpty()) return new EmptyTreeNode();
-        Group<MockedField> groupedFields = group(in, by(on(MockedField.class).getPackageName()),
-                                                 by(on(MockedField.class).getClassSimpleName()),
+        Group<MockedField> groupedFields = group(in, by(on(MockedField.class).getPackageName()), by(on(MockedField.class).getClassSimpleName()),
                                                  by(on(MockedField.class).getFieldName()));
         return group2Node(groupedFields, 0);
     }
@@ -131,10 +129,9 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
         if (errors.hasErrors()) {
             mf.setFieldValue(previousValue);
             mf.setFieldType(previousType);
-            publishApplicationEvent(new StatusBarMessage(this, getMessage("propertieseditor.invalid.input",
-                                                                          String.valueOf(
-                                                                                  cellEditor.getCellEditorValue()),
-                                                                          mf.getFieldName()), true));
+            publishApplicationEvent(new StatusBarMessage(this,
+                                                         getMessage("propertieseditor.invalid.input", String.valueOf(cellEditor.getCellEditorValue()),
+                                                                    mf.getFieldName()), true));
         }
         ((DefaultTreeModel) getModel()).reload();
         setSelectionPath(editingPath);

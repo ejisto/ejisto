@@ -32,7 +32,6 @@ import static com.ejisto.util.GuiUtils.getAction;
 
 public class MainRootPane extends JXRootPane {
     private static final long serialVersionUID = -3265545519465961578L;
-    private MainPanel mainPanel;
     private TaskController taskController;
 
     public MainRootPane() {
@@ -42,9 +41,7 @@ public class MainRootPane extends JXRootPane {
 
     private void init() {
         initMenuBar();
-        mainPanel = new MainPanel();
-        getContentPane().add(mainPanel, BorderLayout.CENTER);
-        //   setStatusBar(initStatusBar());
+        getContentPane().add(new MainPanel(), BorderLayout.CENTER);
     }
 
     private void initMenuBar() {
@@ -64,14 +61,6 @@ public class MainRootPane extends JXRootPane {
         jMenuBar.add(jMenuFile);
         jMenuBar.add(jMenuSystem);
         setJMenuBar(jMenuBar);
-    }
-
-    public void log(String message) {
-        mainPanel.log(message);
-    }
-
-    public void setStatusBarMessage(String messageText, boolean error) {
-        mainPanel.logStatusMessage(messageText, error);
     }
 
     private TaskView initTaskView() {

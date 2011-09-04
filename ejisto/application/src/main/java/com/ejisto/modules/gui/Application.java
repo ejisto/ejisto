@@ -22,6 +22,7 @@ package com.ejisto.modules.gui;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.event.def.ChangeServerStatus.Command;
+import com.ejisto.event.def.LogMessage;
 import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.modules.conf.SettingsManager;
 
@@ -40,16 +41,13 @@ public class Application extends javax.swing.JFrame {
     private static final long serialVersionUID = -3746366232127903518L;
     @Resource private EventManager eventManager;
     @Resource private SettingsManager settingsManager;
-    private MainRootPane rootPane;
-    private boolean ready;
 
     public Application() {
     }
 
     public void init() {
         setTitle(settingsManager.getValue(MAIN_TITLE));
-        rootPane = new MainRootPane();
-        setRootPane(rootPane);
+        setRootPane(new MainRootPane());
         setMinimumSize(new Dimension(700, 350));
         Dimension size = new Dimension(settingsManager.getIntValue(APPLICATION_WIDTH), settingsManager.getIntValue(APPLICATION_HEIGHT));
         setSize(size);
@@ -63,29 +61,17 @@ public class Application extends javax.swing.JFrame {
             }
         });
         pack();
-        ready = true;
-    }
-
-    public void setStatusBarMessage(String messageKey, boolean error) {
-        if (ready) {
-            rootPane.setStatusBarMessage(messageKey, error);
-        }
     }
 
     public void onServerStatusChange(ChangeServerStatus event) {
         boolean shutdown = event.getCommand() == Command.SHUTDOWN;
-        if (shutdown) rootPane.log(getMessage("default.server.shutdown.log", new Date()));
+        eventManager.publishEvent(new LogMessage(this, getMessage("default.server.shutdown.log", new Date())));
         getAction(START_CONTAINER.getValue()).setEnabled(shutdown);
         getAction(STOP_CONTAINER.getValue()).setEnabled(!shutdown);
-
     }
 
     public void onWebAppContextStatusChange() {
 //        rootPane.applicationDeployed();
-    }
-
-    public boolean isReady() {
-        return this.ready;
     }
 
     private void saveSettings() {
