@@ -24,6 +24,7 @@ import ch.lambdaj.function.convert.PropertyExtractor;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
+import com.ejisto.modules.gui.components.helper.EditorType;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 
 import javax.swing.*;
@@ -40,6 +41,8 @@ import java.util.HashSet;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static ch.lambdaj.Lambda.convert;
+import static com.ejisto.modules.gui.components.helper.EditorType.FLATTEN;
+import static com.ejisto.modules.gui.components.helper.EditorType.HIERARCHICAL;
 import static com.ejisto.util.GuiUtils.getMessage;
 
 /**
@@ -59,6 +62,7 @@ public class MockedFieldsEditorController implements ChangeListener, ActionListe
     private MockedFieldsEditor view;
     private ActionMap actionMap;
     private Collection<MockedField> wizardFields = Collections.emptyList();
+    private volatile int selectedIndex = 0;
 
     public MockedFieldsEditorController() {
         this(false);
@@ -69,13 +73,13 @@ public class MockedFieldsEditorController implements ChangeListener, ActionListe
         initActions();
         view = new MockedFieldsEditor(main);
         view.registerChangeListener(this);
-        view.registerTreeMouseLister(new MouseAdapter() {
+        view.registerMouseLister(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getClickCount() != 2) return;
                 x = e.getX();
                 y = e.getY();
-                editedField = getView().getTree().getMockedFieldAt(x, y);
+                editedField = getView().getMockedFieldAt(x, y, selectedIndex == 0);
                 if (editedField != null && !editedField.isSimpleValue()) {
                     editingStarted();
                 } else {
@@ -94,12 +98,22 @@ public class MockedFieldsEditorController implements ChangeListener, ActionListe
 
     @Override
     public void stateChanged(ChangeEvent e) {
-        int selectedIndex = ((JTabbedPane) e.getSource()).getSelectedIndex();
+        selectedIndex = ((JTabbedPane) e.getSource()).getSelectedIndex();
         if (selectedIndex == 0) {
             view.refreshTreeModel();
         } else {
             view.refreshFlattenTableModel();
         }
+    }
+
+    void selectionChanged(int selectedIndex) {
+        this.selectedIndex = selectedIndex;
+        if (selectedIndex == 0) {
+            view.refreshTreeModel();
+        } else {
+            view.refreshFlattenTableModel();
+        }
+        view.showCard(EditorType.fromIndex(selectedIndex));
     }
 
     public ActionMap getActionMap() {
@@ -113,13 +127,20 @@ public class MockedFieldsEditorController implements ChangeListener, ActionListe
         actionMap.put(CANCEL_EDITING, new CallbackAction(CANCEL_EDITING, new Closure0() {{
             of(MockedFieldsEditorController.this).editingCanceled();
         }}));
+        actionMap.put(HIERARCHICAL.toString(), new CallbackAction(HIERARCHICAL.toString(), new Closure0() {{
+            of(MockedFieldsEditorController.this).selectionChanged(HIERARCHICAL.getIndex());
+        }}));
+        actionMap.put(FLATTEN.toString(), new CallbackAction(FLATTEN.toString(), new Closure0() {{
+            of(MockedFieldsEditorController.this).selectionChanged(FLATTEN.getIndex());
+        }}));
     }
 
     void editingStarted() {
         if (lock.isLocked()) return;
         lock.tryLock();
         getView().initEditorPanel(selectMockedFieldTypes(),
-                                  getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(), editedField.getClassSimpleName()));
+                                  getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(), editedField.getClassSimpleName()),
+                                  editedField);
         getView().expandCollapseEditorPanel(true);
     }
 
@@ -148,6 +169,7 @@ public class MockedFieldsEditorController implements ChangeListener, ActionListe
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (e == null) return;
         Action action = getActionMap().get(e.getActionCommand());
         if (action != null) action.actionPerformed(e);
     }

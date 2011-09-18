@@ -111,7 +111,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex == 5;
+        return columnIndex == 5 && getMockedFieldAt(rowIndex).isSimpleValue();
     }
 
     @Override
@@ -122,6 +122,11 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
 
     public void refresh() {
         fieldsAsString = GuiUtils.asStringList(fields, partial);
+    }
+
+    public MockedField getMockedFieldAt(int row) {
+        Assert.isTrue(row < fields.size());
+        return fields.get(row);
     }
 
 }

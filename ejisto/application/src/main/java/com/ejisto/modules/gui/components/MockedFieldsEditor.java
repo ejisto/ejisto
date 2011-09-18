@@ -21,25 +21,33 @@ package com.ejisto.modules.gui.components;
 
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.helper.EditorType;
 import com.ejisto.modules.gui.components.helper.MockedFieldValueEditorPanel;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.JXRadioGroup;
 import org.jdesktop.swingx.JXTable;
 
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import static com.ejisto.modules.gui.components.helper.EditorType.FLATTEN;
+import static com.ejisto.modules.gui.components.helper.EditorType.HIERARCHICAL;
 import static com.ejisto.util.GuiUtils.getMessage;
 
-public class MockedFieldsEditor extends JXPanel {
+public class MockedFieldsEditor extends JXPanel implements ItemListener {
     private static final long serialVersionUID = 4090818654347648102L;
+
     private JXTable flattenTable;
-    private JTabbedPane editorContainer;
+    private JPanel editorContainer;
     private JScrollPane flattenTableContainer;
     private JPanel treeEditor;
     private JScrollPane treeContainer;
@@ -47,6 +55,9 @@ public class MockedFieldsEditor extends JXPanel {
     private MockedFieldTree tree;
     private boolean main;
     private List<MockedField> fields;
+    private JPanel editorSelectionPanel;
+    private JPanel editorPanel;
+    private MockedFieldsEditorController controller;
 
     public MockedFieldsEditor(boolean main) {
         this.main = main;
@@ -82,25 +93,31 @@ public class MockedFieldsEditor extends JXPanel {
         getFlattenTable().setModel(new MockedFieldsTableModel(fields, main, !main));
     }
 
+    public MockedField getMockedFieldAt(int x, int y, boolean fromTree) {
+        if (fromTree) return getTree().getMockedFieldAt(x, y);
+        return ((MockedFieldsTableModel) getFlattenTable().getModel()).getMockedFieldAt(getFlattenTable().getEditingRow());
+    }
+
     public void refreshTreeModel() {
         getTree().setFields(fields);
     }
 
     public void registerChangeListener(MockedFieldsEditorController controller) {
-        getEditorContainer().addChangeListener(controller);
+        ((JXRadioGroup<?>) getEditorSelectionPanel()).addActionListener(controller);
+        this.controller = controller;
     }
 
-    public void registerTreeMouseLister(MouseListener mouseListener) {
+    public void registerMouseLister(MouseListener mouseListener) {
         getTree().addMouseListener(mouseListener);
+        getFlattenTable().addMouseListener(mouseListener);
     }
 
     public void expandCollapseEditorPanel(boolean expand) {
         getValueEditorPanel().setCollapsed(!expand);
     }
 
-    public void initEditorPanel(Collection<String> types, String title) {
-        MockedField field = getTree().getSelectedField();
-        if (field.getFieldElementType() != null) getValueEditorPanel().setTypes(Arrays.asList(field.getFieldElementType()));
+    public void initEditorPanel(Collection<String> types, String title, MockedField editedField) {
+        if (editedField.getFieldElementType() != null) getValueEditorPanel().setTypes(Arrays.asList(editedField.getFieldElementType()));
         else getValueEditorPanel().setTypes(types);
         getValueEditorPanel().setTitle(title);
     }
@@ -111,19 +128,53 @@ public class MockedFieldsEditor extends JXPanel {
         add(getEditorContainer(), BorderLayout.CENTER);
     }
 
-    private JTabbedPane getEditorContainer() {
+    private JPanel getEditorContainer() {
         if (editorContainer != null) return editorContainer;
-        editorContainer = new JTabbedPane(JTabbedPane.BOTTOM);
-        editorContainer.addTab(getMessage("wizard.properties.editor.tab.hierarchical.text"), getTreeEditor());
-        editorContainer.addTab(getMessage("wizard.properties.editor.tab.flat.text"), getFlattenTableContainer());
+        editorContainer = new JXPanel(new BorderLayout());
+        editorContainer.add(getEditorSelectionPanel(), BorderLayout.NORTH);
+        editorContainer.add(getEditorPanel(), BorderLayout.CENTER);
+        editorContainer.add(getValueEditorPanel(), BorderLayout.SOUTH);
         return editorContainer;
+    }
+
+    private JPanel getEditorPanel() {
+        if (this.editorPanel != null) return this.editorPanel;
+        CardLayout layout = new CardLayout();
+        editorPanel = new JXPanel(layout);
+        editorPanel.add(getTreeEditor(), HIERARCHICAL.getLabel());
+        editorPanel.add(getFlattenTableContainer(), FLATTEN.getLabel());
+        return editorPanel;
+    }
+
+    private JPanel getEditorSelectionPanel() {
+        if (this.editorSelectionPanel != null) return this.editorSelectionPanel;
+        editorSelectionPanel = JXRadioGroup.create(createEditorTypeButtons());
+        editorSelectionPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        editorSelectionPanel.setBackground(Color.WHITE);
+        return editorSelectionPanel;
+    }
+
+    private AbstractButton[] createEditorTypeButtons() {
+        AbstractButton[] buttons = new AbstractButton[EditorType.values().length];
+        int index = 0;
+        for (EditorType editorType : EditorType.values()) {
+            buttons[index] = createButton(editorType, index == 0);
+            index++;
+        }
+        return buttons;
+    }
+
+    private AbstractButton createButton(EditorType option, boolean selected) {
+        JToggleButton button = new JToggleButton(option.getLabel(), selected);
+        button.setActionCommand(option.toString());
+        button.addItemListener(this);
+        return button;
     }
 
     private JPanel getTreeEditor() {
         if (this.treeEditor != null) return this.treeEditor;
         treeEditor = new JXPanel(new BorderLayout(2, 0));
         treeEditor.add(getTreeContainer(), BorderLayout.CENTER);
-        treeEditor.add(getValueEditorPanel(), BorderLayout.SOUTH);
         return treeEditor;
     }
 
@@ -162,4 +213,15 @@ public class MockedFieldsEditor extends JXPanel {
         return flattenTable;
     }
 
+    public void showCard(EditorType editorType) {
+        ((CardLayout) getEditorPanel().getLayout()).show(getEditorPanel(), editorType.toString());
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            ActionEvent event = new ActionEvent(this, e.getID(), ((AbstractButton) e.getSource()).getActionCommand());
+            controller.actionPerformed(event);
+        }
+    }
 }
