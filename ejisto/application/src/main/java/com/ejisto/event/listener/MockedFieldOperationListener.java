@@ -19,28 +19,29 @@
 
 package com.ejisto.event.listener;
 
-import com.ejisto.event.def.MockedFieldChanged;
-import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.event.def.MockedFieldOperation;
+import com.ejisto.modules.controller.MockedFieldOperationController;
 import org.springframework.context.ApplicationListener;
 
-import javax.annotation.Resource;
+import javax.swing.*;
+import java.awt.*;
 
-public class FieldsUpdateListener implements ApplicationListener<MockedFieldChanged> {
-
-    @Resource
-    private MockedFieldsRepository mockedFieldsRepository;
-
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 11/3/11
+ * Time: 8:28 AM
+ */
+public class MockedFieldOperationListener implements ApplicationListener<MockedFieldOperation> {
     @Override
-    public void onApplicationEvent(MockedFieldChanged event) {
-        for (MockedField field : event.getMockedFields()) {
-            handleFieldChange(field);
-        }
+    public void onApplicationEvent(final MockedFieldOperation event) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                Window window = SwingUtilities.windowForComponent((Component) event.getSource());
+                new MockedFieldOperationController(window, event.getMockedField(),
+                                                   event.getOperationType()).showDialog();
+            }
+        });
     }
-
-    private void handleFieldChange(MockedField field) {
-        if (field.getId() > 0) mockedFieldsRepository.update(field);
-        else mockedFieldsRepository.insert(field);
-    }
-
 }

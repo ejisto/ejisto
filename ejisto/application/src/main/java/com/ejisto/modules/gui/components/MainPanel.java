@@ -31,6 +31,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.MAIN_WINDOW;
 import static com.ejisto.util.GuiUtils.*;
 
 public class MainPanel extends JXPanel {
@@ -138,7 +139,7 @@ public class MainPanel extends JXPanel {
 
     private MockedFieldsEditor getPropertiesEditor() {
         if (propertiesEditor != null) return propertiesEditor.getView();
-        propertiesEditor = new MockedFieldsEditorController(true);
+        propertiesEditor = new MockedFieldsEditorController(MAIN_WINDOW);
         return propertiesEditor.getView();
     }
 }

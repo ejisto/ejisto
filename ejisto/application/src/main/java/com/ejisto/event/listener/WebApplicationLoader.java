@@ -27,7 +27,6 @@ import com.ejisto.event.def.ChangeWebAppContextStatus.WebAppContextStatusCommand
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.controller.ApplicationInstallerWizardController;
 import com.ejisto.modules.dao.WebApplicationDescriptorDao;
-import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
@@ -49,8 +48,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import static ch.lambdaj.Lambda.forEach;
@@ -87,21 +84,24 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     }
 
     private void installNewWebApplication() throws NotInstalledException {
-        ApplicationInstallerWizardController controller = new ApplicationInstallerWizardController(application, containerManager.getDefaultHome());
+        ApplicationInstallerWizardController controller = new ApplicationInstallerWizardController(application,
+                                                                                                   containerManager.getDefaultHome());
         if (!controller.showWizard()) return;
         WebApplicationDescriptor webApplicationDescriptor = controller.getWebApplicationDescriptor();
-        List<MockedField> fields = new ArrayList<MockedField>(webApplicationDescriptor.getModifiedFields());
-        forEach(fields).setContextPath(webApplicationDescriptor.getContextPath());
-        forEach(fields).setActive(true);
+        forEach(webApplicationDescriptor.getFields()).setContextPath(webApplicationDescriptor.getContextPath());
+        forEach(webApplicationDescriptor.getModifiedFields()).setActive(true);
         mockedFieldsRepository.deleteContext(webApplicationDescriptor.getContextPath());
-        mockedFieldsRepository.insert(fields);
+        mockedFieldsRepository.insert(webApplicationDescriptor.getFields());
+
         deployWebApp(webApplicationDescriptor);
         saveWebAppDescriptor(webApplicationDescriptor);
         startBrowser(webApplicationDescriptor);
         eventManager.publishEvent(
-                new ApplicationDeployed(this, webApplicationDescriptor.getContextPath(), webApplicationDescriptor.getContainerId()));
+                new ApplicationDeployed(this, webApplicationDescriptor.getContextPath(),
+                                        webApplicationDescriptor.getContainerId()));
         eventManager.publishEvent(
-                new StatusBarMessage(this, getMessage("statusbar.installation.successful.message", webApplicationDescriptor.getContextPath()),
+                new StatusBarMessage(this, getMessage("statusbar.installation.successful.message",
+                                                      webApplicationDescriptor.getContextPath()),
                                      false));
     }
 
@@ -134,12 +134,18 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
                 of(WebApplicationLoader.this).notifyCommand(var(ActionEvent.class));
             }};
         }
-        putAction(createAction(buildCommand(START_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()), callNotifyCommand,
-                               getMessage("webapp.context.start.icon"), true));
-        putAction(createAction(buildCommand(STOP_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()), callNotifyCommand,
-                               getMessage("webapp.context.stop.icon"), false));
-        putAction(createAction(buildCommand(DELETE_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()), callNotifyCommand,
-                               getMessage("webapp.context.delete.icon"), true));
+        putAction(createAction(
+                buildCommand(START_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()),
+                callNotifyCommand,
+                getMessage("webapp.context.start.icon"), true));
+        putAction(createAction(
+                buildCommand(STOP_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()),
+                callNotifyCommand,
+                getMessage("webapp.context.stop.icon"), false));
+        putAction(createAction(
+                buildCommand(DELETE_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()),
+                callNotifyCommand,
+                getMessage("webapp.context.delete.icon"), true));
     }
 
     private CallbackAction createAction(String command, Closure1<ActionEvent> callback, String iconKey, boolean enabled) {
@@ -162,7 +168,8 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
                     stopWebapp(command[0], command[2]);
                     break;
                 case DELETE:
-                    if (showWarning(application, "webapp.context.delete.warning", command[2])) undeployExistingWebapp(command[0], command[2]);
+                    if (showWarning(application, "webapp.context.delete.warning", command[2]))
+                        undeployExistingWebapp(command[0], command[2]);
                     break;
                 default:
                     break;
@@ -175,17 +182,20 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
 
     private void undeployExistingWebapp(String serverId, String contextPath) throws Exception {
         logger.info("undeploying webapp " + contextPath);
-        if (containerManager.undeployFromDefaultContainer(contextPath)) logger.info("webapp " + contextPath + " undeployed");
+        if (containerManager.undeployFromDefaultContainer(contextPath))
+            logger.info("webapp " + contextPath + " undeployed");
     }
 
     private void startWebapp(String serverId, String contextPath) throws Exception {
         logger.info("starting webapp " + contextPath);
-        if (containerManager.startWebApplicationOnDefaultServer(contextPath)) logger.info("started webapp " + contextPath);
+        if (containerManager.startWebApplicationOnDefaultServer(contextPath))
+            logger.info("started webapp " + contextPath);
     }
 
     private void stopWebapp(String serverId, String contextPath) throws Exception {
         logger.info("stopping webapp " + contextPath);
-        if (containerManager.stopWebApplicationOnDefaultServer(contextPath)) logger.info("stopped webapp " + contextPath);
+        if (containerManager.stopWebApplicationOnDefaultServer(contextPath))
+            logger.info("stopped webapp " + contextPath);
     }
 
     private void modifyActionState(String contextPath, boolean start) {
@@ -214,10 +224,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     }
 
     private void registerClassPool(WebApplicationDescriptor descriptor) throws MalformedURLException {
-        ClassPool cp = new ClassPool();
+        ClassPool cp = ClassPoolRepository.getRegisteredClassPool(descriptor.getContextPath());
         cp.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
         cp.appendClassPath(new LoaderClassPath(new URLClassLoader(IOUtils.toUrlArray(descriptor))));
-        ClassPoolRepository.registerClassPool(descriptor.getContextPath(), cp);
     }
 
     private void startBrowser(WebApplicationDescriptor descriptor) {

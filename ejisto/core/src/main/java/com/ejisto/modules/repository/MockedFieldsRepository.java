@@ -24,12 +24,14 @@ import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.util.ExternalizableService;
+import org.hamcrest.Matcher;
 
 import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
 
 import static ch.lambdaj.Lambda.convert;
+import static ch.lambdaj.Lambda.select;
 
 /**
  * Created by IntelliJ IDEA.
@@ -52,8 +54,9 @@ public class MockedFieldsRepository extends ExternalizableService<MockedFieldsDa
         mockedFieldConverter = new MockedFieldConverter();
     }
 
-    public List<MockedField> loadAll() {
-        return convert(getMockedFieldsDao().loadActiveFields(), mockedFieldConverter);
+    public List<MockedField> loadAll(Matcher<MockedField> matcher) {
+        List<MockedField> activeFields = select(getMockedFieldsDao().loadAll(), matcher);
+        return convert(activeFields, mockedFieldConverter);
     }
 
     public MockedField load(String contextPath, String className, String fieldName) {
@@ -113,5 +116,4 @@ public class MockedFieldsRepository extends ExternalizableService<MockedFieldsDa
             return new MockedFieldDecorator(from);
         }
     }
-
 }

@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class MockedFieldsDao extends BaseDao {
-    private static final String LOAD_ALL_ACTIVE = "SELECT * FROM MOCKEDFIELDS WHERE ACTIVE=1";
     private static final String LOAD_ALL = "SELECT * FROM MOCKEDFIELDS";
     private static final String LOAD_BY_CLASSNAME = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH=? AND CLASSNAME = ? AND FIELDNAME = ? AND ACTIVE = 1";
     private static final String LOAD_BY_CONTEXTPATH = "SELECT * FROM MOCKEDFIELDS WHERE CONTEXTPATH = ? AND ACTIVE = 1";
@@ -42,16 +41,6 @@ public class MockedFieldsDao extends BaseDao {
     private static final String UPDATE = "UPDATE MOCKEDFIELDS SET CONTEXTPATH = ?, CLASSNAME = ? , FIELDNAME = ?, FIELDTYPE=?, FIELDVALUE=?,FIELDELEMENTTYPE=?, EXPRESSION=?, ACTIVE = ? WHERE ID=?";
     private static final String INSERT = "INSERT INTO MOCKEDFIELDS (CONTEXTPATH,CLASSNAME,FIELDNAME,FIELDTYPE,FIELDVALUE,FIELDELEMENTTYPE,EXPRESSION, ACTIVE) VALUES(?,?,?,?,?,?,?,?)";
     private static final String DELETE_CONTEXT = "DELETE FROM MOCKEDFIELDS WHERE CONTEXTPATH=?";
-//    private static final String DELETE_MOCKEDFIELD = "DELETE FROM MOCKEDFIELDS WHERE ID=?";
-
-    public List<MockedField> loadActiveFields() {
-        return getJdbcTemplate().query(LOAD_ALL_ACTIVE, new RowMapper<MockedField>() {
-            @Override
-            public MockedField mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return loadFromResultSet(rs);
-            }
-        });
-    }
 
     public List<MockedField> loadAll() {
         return getJdbcTemplate().query(LOAD_ALL, new RowMapper<MockedField>() {

@@ -34,10 +34,6 @@ public class ClassPoolRepository {
     private static final ClassPoolRepository INSTANCE = new ClassPoolRepository();
     private final ConcurrentMap<String, ClassPool> dictionary;
 
-    public static void registerClassPool(String context, ClassPool cp) {
-        INSTANCE.putValue(context, cp);
-    }
-
     public static ClassPool getRegisteredClassPool(String context) {
         return INSTANCE.getValue(context);
     }
@@ -51,10 +47,14 @@ public class ClassPoolRepository {
     }
 
     private void putValue(String context, ClassPool cp) {
-        if (dictionary.putIfAbsent(context, cp) != null) throw new IllegalArgumentException("ClassPool for context " + context + " already defined");
+        if (dictionary.putIfAbsent(context, cp) != null)
+            throw new IllegalArgumentException("ClassPool for context " + context + " already defined");
     }
 
     private ClassPool getValue(String context) {
+        if (!dictionary.containsKey(context)) {
+            dictionary.putIfAbsent(context, new ClassPool(ClassPool.getDefault()));
+        }
         return dictionary.get(context);
     }
 

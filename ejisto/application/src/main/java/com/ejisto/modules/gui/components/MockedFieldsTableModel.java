@@ -21,6 +21,7 @@ package com.ejisto.modules.gui.components;
 
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.util.GuiUtils;
 import org.springframework.util.Assert;
 
@@ -30,32 +31,24 @@ import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.APPLICATION_INSTALLER_WIZARD;
 import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
 public class MockedFieldsTableModel extends AbstractTableModel implements TableModelListener {
     private static final long serialVersionUID = 7654333693058889267L;
+    public static final int EDITABLE_COLUMN_INDEX = 5;
     private String[] columnHeaders;
     private List<MockedField> fields;
     private List<List<String>> fieldsAsString;
     private boolean notifyChanges;
-    private boolean partial;
+    private FieldsEditorContext ctx;
 
-    public MockedFieldsTableModel(List<MockedField> fields) {
-        this(fields, true, false);
-    }
-
-    public MockedFieldsTableModel(List<MockedField> fields, boolean notifyChanges) {
-        this(fields, notifyChanges, false);
-    }
-
-    public MockedFieldsTableModel(List<MockedField> fields, boolean notifyChanges, boolean partial) {
-        columnHeaders = getMessage(partial ? "wizard.properties.editor.columns" : "main.tab.property.columns").split(",");
+    public MockedFieldsTableModel(List<MockedField> fields, FieldsEditorContext ctx) {
+        this.ctx = ctx;
+        columnHeaders = ctx.getTableColumns();
         this.fields = new ArrayList<MockedField>(fields);
-        this.fieldsAsString = GuiUtils.asStringList(this.fields, partial);
+        this.fieldsAsString = GuiUtils.asStringList(this.fields, ctx.getColumnFillStrategy());
         addTableModelListener(this);
-        this.notifyChanges = notifyChanges;
-        this.partial = partial;
     }
 
     @Override
@@ -77,7 +70,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         String value = String.valueOf(aValue);
         MockedField field = fields.get(rowIndex);
-        if (partial) columnIndex += 2;
+        if (ctx == APPLICATION_INSTALLER_WIZARD) columnIndex += 2;
         switch (columnIndex) {
             case 1:
                 field.setContextPath(value);
@@ -91,7 +84,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
             case 4:
                 field.setFieldType(value);
                 break;
-            case 5:
+            case EDITABLE_COLUMN_INDEX:
                 field.setFieldValue(value);
                 break;
         }
@@ -101,7 +94,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     @Override
     public void tableChanged(TableModelEvent e) {
         if (notifyChanges) notifyTableChanged(e);
-        fieldsAsString = GuiUtils.asStringList(fields, partial);
+        fieldsAsString = GuiUtils.asStringList(fields, ctx.getColumnFillStrategy());
     }
 
     private void notifyTableChanged(TableModelEvent e) {
@@ -111,17 +104,13 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex == 5 && getMockedFieldAt(rowIndex).isSimpleValue();
+        return columnIndex == EDITABLE_COLUMN_INDEX && getMockedFieldAt(rowIndex).isSimpleValue();
     }
 
     @Override
     public String getColumnName(int column) {
         Assert.isTrue(column < columnHeaders.length);
         return columnHeaders[column];
-    }
-
-    public void refresh() {
-        fieldsAsString = GuiUtils.asStringList(fields, partial);
     }
 
     public MockedField getMockedFieldAt(int row) {

@@ -23,6 +23,8 @@ import ch.lambdaj.group.Group;
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
+import com.ejisto.modules.gui.components.helper.PopupMenuManager;
 import com.ejisto.modules.validation.MockedFieldValidator;
 import com.ejisto.modules.validation.ValidationErrors;
 import org.apache.log4j.Logger;
@@ -36,56 +38,75 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
+import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.MAIN_WINDOW;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
-public class MockedFieldTree extends JTree implements CellEditorListener {
+public class MockedFieldTree extends JTree implements CellEditorListener, MockedFieldsEditorComponent {
     private static final long serialVersionUID = 3542351125591491996L;
     private static final Logger logger = Logger.getLogger(MockedFieldTree.class);
     private String rootText = getMessage("wizard.properties.editor.tab.hierarchical.rootnode");
     private MockedFieldValidator validator;
-    private boolean notifyChanges;
     private JTextField textField;
-    private boolean main;
+    private FieldsEditorContext fieldsEditorContext;
 
-    public MockedFieldTree(boolean main) {
+    public MockedFieldTree(FieldsEditorContext fieldsEditorContext) {
         super(new Object[0]);
         setCellEditor(new MockedFieldCellEditor(getTextField()));
         this.validator = new MockedFieldValidator();
-        this.notifyChanges = main;
-        this.main = main;
+        this.fieldsEditorContext = fieldsEditorContext;
+        addMouseListener(new PopupMenuManager());
     }
 
     @Override
     public String convertValueToText(Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-        if (EmptyTreeNode.class.isAssignableFrom(node.getClass())) return getMessage("main.propertieseditor.tree.novalues.text");
+        if (EmptyTreeNode.class.isAssignableFrom(node.getClass()))
+            return getMessage("main.propertieseditor.tree.novalues.text");
         node = (DefaultMutableTreeNode) scanNode(node);
         if (node == null) return super.convertValueToText(value, selected, expanded, leaf, row, hasFocus);
-        if (!leaf) return row == 0 && main ? rootText : node.toString();
+        if (!leaf) return row == 0 && fieldsEditorContext == MAIN_WINDOW ? rootText : node.toString();
         return ((MockedField) node.getUserObject()).getCompleteDescription();
     }
 
+    @Override
     public void setFields(List<MockedField> fields) {
         setModel(new DefaultTreeModel(mockedFields2Nodes(fields)));
         getCellEditor().addCellEditorListener(this);
         setExpandedState(getUI().getPathForRow(this, 0), true);
     }
 
+    @Override
+    public void editFieldAt(Point point) {
+        startEditingAtPath(getPathForLocation(point.x, point.y));
+    }
+
+    @Override
+    public void selectFieldAt(Point point) {
+        setSelectionPath(getPathForLocation(point.x, point.y));
+    }
+
+    @Override
+    public List<MockedField> getSelectedFields() {
+        return Arrays.asList(getSelectedField());
+    }
+
     /**
      * Utility method that converts a <b>sorted</b> Collection of MockedField in
      * a List of TreeNode
      *
-     * @param in Collection od MockedFields
+     * @param in Collection of MockedFields
      * @return Tree structure
      */
     private TreeNode mockedFields2Nodes(Collection<MockedField> in) {
         if (in.isEmpty()) return new EmptyTreeNode();
-        Group<MockedField> groupedFields = group(in, by(on(MockedField.class).getPackageName()), by(on(MockedField.class).getClassSimpleName()),
+        Group<MockedField> groupedFields = group(in, by(on(MockedField.class).getPackageName()),
+                                                 by(on(MockedField.class).getClassSimpleName()),
                                                  by(on(MockedField.class).getFieldName()));
         return group2Node(groupedFields, 0);
     }
@@ -130,12 +151,13 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
             mf.setFieldValue(previousValue);
             mf.setFieldType(previousType);
             publishApplicationEvent(new StatusBarMessage(this,
-                                                         getMessage("propertieseditor.invalid.input", String.valueOf(cellEditor.getCellEditorValue()),
+                                                         getMessage("propertieseditor.invalid.input",
+                                                                    String.valueOf(cellEditor.getCellEditorValue()),
                                                                     mf.getFieldName()), true));
         }
         ((DefaultTreeModel) getModel()).reload();
         setSelectionPath(editingPath);
-        if (notifyChanges) {
+        if (fieldsEditorContext.isNotifyChangeNeeded()) {
             MockedFieldChanged event = new MockedFieldChanged(this, mf);
             publishApplicationEvent(event);
         }
@@ -145,14 +167,6 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
         TreePath path = getPathForLocation(targetX, targetY);
         ((DefaultTreeModel) getModel()).reload();
         setSelectionPath(path);
-    }
-
-    public MockedField getMockedFieldAt(int x, int y) {
-        TreePath path = getPathForLocation(x, y);
-        if (path == null) return null;
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) scanNode((TreeNode) path.getLastPathComponent());
-        if (node == null) return null;
-        return (MockedField) node.getUserObject();
     }
 
     private TreeNode scanNode(TreeNode node) {
@@ -177,6 +191,20 @@ public class MockedFieldTree extends JTree implements CellEditorListener {
         textField = new JTextField();
         textField.setPreferredSize(new Dimension(300, 20));
         return textField;
+    }
+
+    @Override
+    public MockedField getFieldAt(Point point) {
+        return getFieldAt(point.x, point.y);
+    }
+
+    @Override
+    public MockedField getFieldAt(int x, int y) {
+        TreePath path = getPathForLocation(x, y);
+        if (path == null) return null;
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) scanNode((TreeNode) path.getLastPathComponent());
+        if (node == null) return null;
+        return (MockedField) node.getUserObject();
     }
 
     private static final class MockedFieldCellEditor extends DefaultCellEditor {

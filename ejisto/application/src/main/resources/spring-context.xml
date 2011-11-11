@@ -54,9 +54,11 @@
     <bean id="applicationEventDispatcher" class="com.ejisto.event.listener.ApplicationEventDispatcher"/>
     <bean id="fieldChangesListener" class="com.ejisto.event.listener.FieldsUpdateListener"/>
     <bean id="containerInstaller" class="com.ejisto.event.listener.ContainerInstaller"/>
+    <bean id="mockedFieldOperationListener" class="com.ejisto.event.listener.MockedFieldOperationListener"/>
 
 
     <util:list id="services" value-type="com.ejisto.services.Service">
+        <bean class="com.ejisto.services.startup.ConstraintsVerifier"/>
         <bean class="com.ejisto.services.shutdown.ContainerShutdown"/>
         <bean class="com.ejisto.services.startup.ResourcesInitializer"/>
         <bean class="com.ejisto.services.startup.TaskInitializer"/>

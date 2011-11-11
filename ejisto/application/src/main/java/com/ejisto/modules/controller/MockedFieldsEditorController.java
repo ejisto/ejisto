@@ -21,29 +21,31 @@ package com.ejisto.modules.controller;
 
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.convert.PropertyExtractor;
+import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.gui.components.helper.EditorType;
+import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.util.FieldsEditorContextMatcher;
+import com.ejisto.util.GuiUtils;
+import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static ch.lambdaj.Lambda.convert;
 import static com.ejisto.modules.gui.components.helper.EditorType.FLATTEN;
 import static com.ejisto.modules.gui.components.helper.EditorType.HIERARCHICAL;
+import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.APPLICATION_INSTALLER_WIZARD;
 import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.runOnEDT;
 
 /**
  * Created by IntelliJ IDEA.
@@ -51,7 +53,7 @@ import static com.ejisto.util.GuiUtils.getMessage;
  * Date: 12/28/10
  * Time: 5:22 PM
  */
-public class MockedFieldsEditorController implements ChangeListener, ActionListener {
+public class MockedFieldsEditorController implements ActionListener {
     public static final String START_EDITING = "START_EDITING";
     public static final String STOP_EDITING = "STOP_EDITING";
     public static final String CANCEL_EDITING = "CANCEL_EDITING";
@@ -63,15 +65,16 @@ public class MockedFieldsEditorController implements ChangeListener, ActionListe
     private ActionMap actionMap;
     private Collection<MockedField> wizardFields = Collections.emptyList();
     private volatile int selectedIndex = 0;
+    private FieldsEditorContextMatcher contextMatcher;
 
     public MockedFieldsEditorController() {
-        this(false);
+        this(APPLICATION_INSTALLER_WIZARD);
     }
 
-    public MockedFieldsEditorController(boolean main) {
+    public MockedFieldsEditorController(FieldsEditorContext fieldsEditorContext) {
         actionMap = new ActionMap();
         initActions();
-        view = new MockedFieldsEditor(main);
+        view = new MockedFieldsEditor(fieldsEditorContext);
         view.registerChangeListener(this);
         view.registerMouseLister(new MouseAdapter() {
             @Override
@@ -88,22 +91,24 @@ public class MockedFieldsEditorController implements ChangeListener, ActionListe
             }
         });
         view.initActionMap(getActionMap());
-        view.setFields(MockedFieldsRepository.getInstance().loadAll());
+        contextMatcher = new FieldsEditorContextMatcher(fieldsEditorContext);
+        view.setFields(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
         lock = new ReentrantLock();
+        GuiUtils.registerEventListener(MockedFieldChanged.class, new ApplicationListener<MockedFieldChanged>() {
+            @Override
+            public void onApplicationEvent(MockedFieldChanged event) {
+                runOnEDT(new Runnable() {
+                    @Override
+                    public void run() {
+                        view.setFields(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
+                    }
+                });
+            }
+        });
     }
 
     public MockedFieldsEditor getView() {
         return view;
-    }
-
-    @Override
-    public void stateChanged(ChangeEvent e) {
-        selectedIndex = ((JTabbedPane) e.getSource()).getSelectedIndex();
-        if (selectedIndex == 0) {
-            view.refreshTreeModel();
-        } else {
-            view.refreshFlattenTableModel();
-        }
     }
 
     void selectionChanged(int selectedIndex) {
@@ -118,6 +123,11 @@ public class MockedFieldsEditorController implements ChangeListener, ActionListe
 
     public ActionMap getActionMap() {
         return actionMap;
+    }
+
+    public List<MockedField> getSelection() {
+        if (selectedIndex == 0) return getView().getTableSelectedItems();
+        return getView().getTreeSelectedItems();
     }
 
     private void initActions() {
@@ -139,7 +149,8 @@ public class MockedFieldsEditorController implements ChangeListener, ActionListe
         if (lock.isLocked()) return;
         lock.tryLock();
         getView().initEditorPanel(selectMockedFieldTypes(),
-                                  getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(), editedField.getClassSimpleName()),
+                                  getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(),
+                                             editedField.getClassSimpleName()),
                                   editedField);
         getView().expandCollapseEditorPanel(true);
     }
@@ -163,7 +174,7 @@ public class MockedFieldsEditorController implements ChangeListener, ActionListe
 
     private Collection<String> selectMockedFieldTypes() {
         Collection<MockedField> fields = new ArrayList<MockedField>(wizardFields);
-        fields.addAll(MockedFieldsRepository.getInstance().loadAll());
+        fields.addAll(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
         return new HashSet<String>(convert(fields, new PropertyExtractor<Object, String>("className")));
     }
 

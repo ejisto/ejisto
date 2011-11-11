@@ -22,11 +22,11 @@ package com.ejisto.modules.gui.components;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.helper.EditorType;
+import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.gui.components.helper.MockedFieldValueEditorPanel;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXRadioGroup;
-import org.jdesktop.swingx.JXTable;
 
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
@@ -39,28 +39,26 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static com.ejisto.modules.gui.components.helper.EditorType.FLATTEN;
-import static com.ejisto.modules.gui.components.helper.EditorType.HIERARCHICAL;
 import static com.ejisto.util.GuiUtils.getMessage;
 
 public class MockedFieldsEditor extends JXPanel implements ItemListener {
     private static final long serialVersionUID = 4090818654347648102L;
 
-    private JXTable flattenTable;
+    private MockedFieldTable flattenTable;
     private JPanel editorContainer;
     private JScrollPane flattenTableContainer;
     private JPanel treeEditor;
     private JScrollPane treeContainer;
     private MockedFieldValueEditorPanel valueEditorPanel;
     private MockedFieldTree tree;
-    private boolean main;
     private List<MockedField> fields;
     private JPanel editorSelectionPanel;
     private JPanel editorPanel;
     private MockedFieldsEditorController controller;
+    private FieldsEditorContext fieldsEditorContext;
 
-    public MockedFieldsEditor(boolean main) {
-        this.main = main;
+    public MockedFieldsEditor(FieldsEditorContext fieldsEditorContext) {
+        this.fieldsEditorContext = fieldsEditorContext;
         init();
     }
 
@@ -90,12 +88,14 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     }
 
     public void refreshFlattenTableModel() {
-        getFlattenTable().setModel(new MockedFieldsTableModel(fields, main, !main));
+        getFlattenTable().setFields(fields);
     }
 
     public MockedField getMockedFieldAt(int x, int y, boolean fromTree) {
-        if (fromTree) return getTree().getMockedFieldAt(x, y);
-        return ((MockedFieldsTableModel) getFlattenTable().getModel()).getMockedFieldAt(getFlattenTable().getEditingRow());
+        MockedFieldsEditorComponent component;
+        if (fromTree) component = getTree();
+        else component = getFlattenTable();
+        return component.getFieldAt(x, y);
     }
 
     public void refreshTreeModel() {
@@ -117,7 +117,8 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     }
 
     public void initEditorPanel(Collection<String> types, String title, MockedField editedField) {
-        if (editedField.getFieldElementType() != null) getValueEditorPanel().setTypes(Arrays.asList(editedField.getFieldElementType()));
+        if (editedField.getFieldElementType() != null)
+            getValueEditorPanel().setTypes(Arrays.asList(editedField.getFieldElementType()));
         else getValueEditorPanel().setTypes(types);
         getValueEditorPanel().setTitle(title);
     }
@@ -141,9 +142,20 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         if (this.editorPanel != null) return this.editorPanel;
         CardLayout layout = new CardLayout();
         editorPanel = new JXPanel(layout);
-        editorPanel.add(getTreeEditor(), HIERARCHICAL.getLabel());
-        editorPanel.add(getFlattenTableContainer(), FLATTEN.getLabel());
+        for (EditorType editorType : fieldsEditorContext.getSupportedEditors())
+            editorPanel.add(getEditor(editorType), editorType.getLabel());
         return editorPanel;
+    }
+
+    private Component getEditor(EditorType editorType) {
+        switch (editorType) {
+            case HIERARCHICAL:
+                return getTreeEditor();
+            case FLATTEN:
+                return getFlattenTableContainer();
+            default:
+                throw new IllegalArgumentException(editorType.name());
+        }
     }
 
     private JPanel getEditorSelectionPanel() {
@@ -155,9 +167,11 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     }
 
     private AbstractButton[] createEditorTypeButtons() {
-        AbstractButton[] buttons = new AbstractButton[EditorType.values().length];
+        Collection<EditorType> supportedEditorTypes = fieldsEditorContext.getSupportedEditors();
+        if (supportedEditorTypes.size() < 2) return new AbstractButton[0];
+        AbstractButton[] buttons = new AbstractButton[supportedEditorTypes.size()];
         int index = 0;
-        for (EditorType editorType : EditorType.values()) {
+        for (EditorType editorType : supportedEditorTypes) {
             buttons[index] = createButton(editorType, index == 0);
             index++;
         }
@@ -188,13 +202,14 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
 
     private JScrollPane getTreeContainer() {
         if (treeContainer != null) return treeContainer;
-        treeContainer = new JScrollPane(getTree(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        treeContainer = new JScrollPane(getTree(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                                        JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         return treeContainer;
     }
 
     public MockedFieldTree getTree() {
         if (this.tree != null) return this.tree;
-        tree = new MockedFieldTree(main);
+        tree = new MockedFieldTree(fieldsEditorContext);
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setEditable(true);
         tree.setExpandsSelectedPaths(true);
@@ -203,13 +218,14 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
 
     private JScrollPane getFlattenTableContainer() {
         if (flattenTableContainer != null) return flattenTableContainer;
-        flattenTableContainer = new JScrollPane(getFlattenTable(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        flattenTableContainer = new JScrollPane(getFlattenTable(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                                                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         return flattenTableContainer;
     }
 
-    private JXTable getFlattenTable() {
+    private MockedFieldTable getFlattenTable() {
         if (flattenTable != null) return flattenTable;
-        flattenTable = new JXTable();
+        flattenTable = new MockedFieldTable(fieldsEditorContext);
         return flattenTable;
     }
 
@@ -223,5 +239,13 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
             ActionEvent event = new ActionEvent(this, e.getID(), ((AbstractButton) e.getSource()).getActionCommand());
             controller.actionPerformed(event);
         }
+    }
+
+    public List<MockedField> getTreeSelectedItems() {
+        return getTree().getSelectedFields();
+    }
+
+    public List<MockedField> getTableSelectedItems() {
+        return getFlattenTable().getSelectedFields();
     }
 }

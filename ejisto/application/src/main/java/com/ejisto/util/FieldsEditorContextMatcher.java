@@ -17,38 +17,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.event.def;
+package com.ejisto.util;
 
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 
-import java.util.Arrays;
-import java.util.List;
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 11/12/11
+ * Time: 12:01 AM
+ */
+public class FieldsEditorContextMatcher extends BaseMatcher<MockedField> {
 
-public class MockedFieldChanged extends BaseApplicationEvent {
-    private static final long serialVersionUID = -1695827582666783071L;
+    private FieldsEditorContext fieldsEditorContext;
 
-    private List<MockedField> mockedFields;
-
-    public MockedFieldChanged(Object source, MockedField mockedField) {
-        this(source, Arrays.asList(mockedField));
-    }
-
-    public MockedFieldChanged(Object source, List<MockedField> mockedField) {
-        super(source);
-        this.mockedFields = mockedField;
-    }
-
-    public List<MockedField> getMockedFields() {
-        return mockedFields;
+    public FieldsEditorContextMatcher(FieldsEditorContext fieldsEditorContext) {
+        this.fieldsEditorContext = fieldsEditorContext;
     }
 
     @Override
-    public String getDescription() {
-        return "mockedFields: " + mockedFields + " changed";
+    public boolean matches(Object o) {
+        return fieldsEditorContext.isAdmitted((MockedField) o);
     }
 
     @Override
-    public String getKey() {
-        return null;
+    public void describeTo(Description description) {
     }
 }

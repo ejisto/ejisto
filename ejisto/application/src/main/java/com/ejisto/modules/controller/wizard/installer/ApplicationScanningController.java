@@ -27,6 +27,7 @@ import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
+import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import javassist.*;
 import org.apache.log4j.Logger;
@@ -54,7 +55,6 @@ import java.util.regex.Pattern;
 
 import static ch.lambdaj.Lambda.join;
 import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.modules.repository.ClassPoolRepository.registerClassPool;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.IOUtils.*;
 
@@ -130,8 +130,9 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
         notifyStart(classnames.size());
         descriptor.deleteAllFields();
         URL[] descriptorEntries = toUrlArray(descriptor);
-        ClassLoader loader = new URLClassLoader(addServerLibs(descriptorEntries, containerHome + File.separator + "lib"));
-        ClassPool cp = new ClassPool(ClassPool.getDefault());
+        ClassLoader loader = new URLClassLoader(
+                addServerLibs(descriptorEntries, containerHome + File.separator + "lib"));
+        ClassPool cp = ClassPoolRepository.getRegisteredClassPool(descriptor.getContextPath());
         cp.appendClassPath(new LoaderClassPath(loader));
         CtClass clazz;
         for (String classname : classnames) {
@@ -140,7 +141,6 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
             fillMockedFields(clazz, descriptor, loader);
             clazz.detach();
         }
-        registerClassPool(descriptor.getContextPath(), cp);
         logger.info("just finished processing " + descriptor.getInstallationPath());
     }
 
@@ -234,14 +234,16 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
 //    }
 
     private void packageWar(WebApplicationDescriptor session) {
-        String libDir = new StringBuilder(session.getInstallationPath()).append(File.separator).append("WEB-INF").append(File.separator).append(
+        String libDir = new StringBuilder(session.getInstallationPath()).append(File.separator).append(
+                "WEB-INF").append(File.separator).append(
                 "lib").append(File.separator).toString();
         File dir = new File(libDir);
         List<CustomObjectFactory> jars = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
         for (CustomObjectFactory jar : jars)
             copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir);
         copyEjistoLibs(entries, dir);
-        String deployablePath = System.getProperty(DEPLOYABLES_DIR.getValue()) + File.separator + session.getWarFile().getName();
+        String deployablePath = System.getProperty(
+                DEPLOYABLES_DIR.getValue()) + File.separator + session.getWarFile().getName();
         zipDirectory(session.getInstallationPath(), deployablePath);
         session.setDeployablePath(deployablePath);
     }

@@ -55,9 +55,8 @@ public class ContextListener implements ServletContextListener {
         InstrumentationHolder.getInstrumentation().addTransformer(new ClassTransformer(targetContextPath));
         driver = new ClientDriver();
         initDataSource();
-        ClassPool cp = new ClassPool();
+        ClassPool cp = ClassPoolRepository.getRegisteredClassPool(targetContextPath);
         cp.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
-        ClassPoolRepository.registerClassPool(targetContextPath, cp);
         context.log("Ejisto successfully initialized!");
     }
 
@@ -73,7 +72,8 @@ public class ContextListener implements ServletContextListener {
     }
 
     private void initDataSource() {
-        DataSourceHolder.setDataSource(new SimpleDriverDataSource(driver, "jdbc:derby://localhost:5555/memory:ejisto", "ejisto", "ejisto"));
+        DataSourceHolder.setDataSource(
+                new SimpleDriverDataSource(driver, "jdbc:derby://localhost:5555/memory:ejisto", "ejisto", "ejisto"));
     }
 
     @Override

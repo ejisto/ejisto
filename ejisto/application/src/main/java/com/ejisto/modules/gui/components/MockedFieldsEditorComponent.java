@@ -17,38 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.event.def;
+package com.ejisto.modules.gui.components;
 
 import com.ejisto.modules.dao.entities.MockedField;
 
-import java.util.Arrays;
+import java.awt.*;
 import java.util.List;
 
-public class MockedFieldChanged extends BaseApplicationEvent {
-    private static final long serialVersionUID = -1695827582666783071L;
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 10/30/11
+ * Time: 3:35 PM
+ */
+public interface MockedFieldsEditorComponent {
 
-    private List<MockedField> mockedFields;
+    MockedField getFieldAt(Point point);
 
-    public MockedFieldChanged(Object source, MockedField mockedField) {
-        this(source, Arrays.asList(mockedField));
-    }
+    MockedField getFieldAt(int x, int y);
 
-    public MockedFieldChanged(Object source, List<MockedField> mockedField) {
-        super(source);
-        this.mockedFields = mockedField;
-    }
+    void setFields(List<MockedField> fields);
 
-    public List<MockedField> getMockedFields() {
-        return mockedFields;
-    }
+    void editFieldAt(Point point);
 
-    @Override
-    public String getDescription() {
-        return "mockedFields: " + mockedFields + " changed";
-    }
+    void selectFieldAt(Point point);
 
-    @Override
-    public String getKey() {
-        return null;
-    }
+    List<MockedField> getSelectedFields();
+
 }

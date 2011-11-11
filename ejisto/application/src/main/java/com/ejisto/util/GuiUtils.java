@@ -53,7 +53,8 @@ public class GuiUtils {
 
     public static void centerOnScreen(Window window) {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        window.setBounds((screen.width / 2 - window.getWidth() / 2), (screen.height / 2 - window.getHeight() / 2), window.getWidth(),
+        window.setBounds((screen.width / 2 - window.getWidth() / 2), (screen.height / 2 - window.getHeight() / 2),
+                         window.getWidth(),
                          window.getHeight());
     }
 
@@ -62,13 +63,17 @@ public class GuiUtils {
     }
 
     public static <T extends BaseApplicationEvent> ImageIcon getIcon(T applicationEvent) {
-        String iconKey = applicationEvent.getIconKey();
-        if (!StringUtils.hasText(iconKey)) return null;
-        return new ImageIcon(GuiUtils.class.getResource(getMessage(iconKey)));
+        return getIcon(applicationEvent.getIconKey());
+    }
+
+    public static ImageIcon getIcon(String key) {
+        if (!StringUtils.hasText(key)) return null;
+        return new ImageIcon(GuiUtils.class.getResource(getMessage(key)));
     }
 
     public static boolean showWarning(Component owner, String text, Object... values) {
-        return JOptionPane.showConfirmDialog(owner, getMessage(text, values), getMessage("confirmation.title"), JOptionPane.YES_NO_OPTION,
+        return JOptionPane.showConfirmDialog(owner, getMessage(text, values), getMessage("confirmation.title"),
+                                             JOptionPane.YES_NO_OPTION,
                                              JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION;
     }
 
@@ -86,24 +91,10 @@ public class GuiUtils {
 
     }
 
-    public static List<List<String>> stringify(List<MockedField> fields) {
-        return asStringList(fields, false);
-    }
-
-    public static List<List<String>> asStringList(List<MockedField> fields, boolean partial) {
+    public static List<List<String>> asStringList(List<MockedField> fields, EditorColumnFillStrategy fillStrategy) {
         List<List<String>> fieldsAsString = new ArrayList<List<String>>();
-        ArrayList<String> property;
         for (MockedField mockedField : fields) {
-            property = new ArrayList<String>();
-            if (!partial) {
-                property.add(String.valueOf(mockedField.getId()));
-                property.add(mockedField.getContextPath());
-            }
-            property.add(mockedField.getClassName());
-            property.add(mockedField.getFieldName());
-            property.add(mockedField.getFieldType());
-            property.add(mockedField.getFieldValue());
-            fieldsAsString.add(property);
+            fillStrategy.fillRow(fieldsAsString, mockedField);
         }
         return fieldsAsString;
     }
@@ -129,7 +120,8 @@ public class GuiUtils {
     }
 
     public static synchronized Collection<Action> getActionsFor(String prefix) {
-        return select(actionMap, having(on(Action.class).getValue(Action.NAME).toString().startsWith(prefix), equalTo(true)));
+        return select(actionMap,
+                      having(on(Action.class).getValue(Action.NAME).toString().startsWith(prefix), equalTo(true)));
     }
 
     public static void setDefaultFont(Font defaultFont) {
@@ -141,7 +133,8 @@ public class GuiUtils {
     }
 
     public static Map<String, List<WebApplication<?>>> getAllRegisteredContexts() {
-        return SpringBridge.getInstance().getBean("webApplicationRepository", WebApplicationRepository.class).getInstalledWebApplications();
+        return SpringBridge.getInstance().getBean("webApplicationRepository",
+                                                  WebApplicationRepository.class).getInstalledWebApplications();
     }
 
     public static String buildCommand(StringConstants commandPrefix, String containerId, String contextPath) {
@@ -172,9 +165,11 @@ public class GuiUtils {
 
     @SuppressWarnings("unchecked")
     public static <T extends ApplicationEvent> void registerEventListener(Class<T> eventClass, ApplicationListener<T> listener) {
-        ApplicationEventDispatcher applicationEventDispatcher = SpringBridge.getInstance().getBean("applicationEventDispatcher",
-                                                                                                   ApplicationEventDispatcher.class);
-        applicationEventDispatcher.registerApplicationEventListener(eventClass, (ApplicationListener<ApplicationEvent>) listener);
+        ApplicationEventDispatcher applicationEventDispatcher = SpringBridge.getInstance().getBean(
+                "applicationEventDispatcher",
+                ApplicationEventDispatcher.class);
+        applicationEventDispatcher.registerApplicationEventListener(eventClass,
+                                                                    (ApplicationListener<ApplicationEvent>) listener);
     }
 
     public static void setActionMap(ActionMap actionMap, JComponent component) {
@@ -206,5 +201,9 @@ public class GuiUtils {
 
     private static ContainerTab buildContainerTab(Container container) {
         return new ContainerTab(container.getDescription(), container.getId());
+    }
+
+    public static abstract class EditorColumnFillStrategy {
+        public abstract void fillRow(List<List<String>> rows, MockedField row);
     }
 }

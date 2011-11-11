@@ -66,12 +66,13 @@ public class ApplicationEventDispatcher implements ApplicationListener<Applicati
     private void notifyListeners(List<ApplicationListener<ApplicationEvent>> listeners, final ApplicationEvent applicationEvent) {
         for (final ApplicationListener<ApplicationEvent> listener : listeners) {
             debug("forwarding event to listener " + listener);
-            if (BaseApplicationEvent.class.isInstance(applicationEvent) && ((BaseApplicationEvent) applicationEvent).isRunOnEDT()) {
+            if (BaseApplicationEvent.class.isInstance(
+                    applicationEvent) && ((BaseApplicationEvent) applicationEvent).isRunOnEDT()) {
                 GuiUtils.runOnEDT(new Runnable() {
                     @Override
                     public void run() {
                         //since registered listener are GUI classes, it is better to
-                        //notify them on Event Dispatch Thread
+                        //notify them on the Event Dispatch Thread
                         listener.onApplicationEvent(applicationEvent);
                     }
                 });
