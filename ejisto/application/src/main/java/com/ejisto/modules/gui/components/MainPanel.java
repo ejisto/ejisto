@@ -40,6 +40,7 @@ public class MainPanel extends JXPanel {
     private Header header;
     private JTabbedPane mainTabbedPane;
     private List<ContainerTab> containerTabs;
+
     private final ApplicationListener<ContainerInstalled> containerInstalledListener = new ApplicationListener<ContainerInstalled>() {
         @Override
         public void onApplicationEvent(ContainerInstalled event) {
@@ -49,10 +50,11 @@ public class MainPanel extends JXPanel {
 
     private final ApplicationListener<LogMessage> logMessageListener = new ApplicationListener<LogMessage>() {
         @Override
-        public void onApplicationEvent(LogMessage event) {
+        public void onApplicationEvent(final LogMessage event) {
             log(event.getMessage());
         }
     };
+
     private final ApplicationListener<ApplicationDeployed> deployListener = new ApplicationListener<ApplicationDeployed>() {
         @Override
         public void onApplicationEvent(ApplicationDeployed event) {

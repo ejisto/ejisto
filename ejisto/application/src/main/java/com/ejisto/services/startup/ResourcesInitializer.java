@@ -68,7 +68,8 @@ public class ResourcesInitializer extends BaseStartupService {
         File deployables = new File(baseDir, "deployables");
         File runtime = new File(baseDir, "runtime");
         File temp = new File(baseDir, "temp");
-        initDirectories(derbyDir, containersDir, libDir, libExtDir, new File(baseDir, "log"), deployables, runtime, temp);
+        initDirectories(derbyDir, containersDir, libDir, libExtDir, new File(baseDir, "log"), deployables, runtime,
+                        temp);
         System.setProperty(CONTAINERS_HOME_DIR.getValue(), containersDir.getAbsolutePath());
         System.setProperty(DERBY_SCRIPT.getValue(), derbyScript.getAbsolutePath());
         System.setProperty(INITIALIZE_DATABASE.getValue(), String.valueOf(!derbyScript.exists()));
@@ -95,7 +96,8 @@ public class ResourcesInitializer extends BaseStartupService {
     }
 
     private void initBaseDir(File baseDir) {
-        if (!baseDir.mkdirs()) eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
+        if (!baseDir.mkdirs())
+            eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
     }
 
     private void initStoredWebApps() {
@@ -134,7 +136,7 @@ public class ResourcesInitializer extends BaseStartupService {
     }
 
     private void initDefaultActions() {
-        putAction(new EjistoAction<LoadWebApplication>(new LoadWebApplication(this)));
+        putAction(new EjistoAction<LoadWebApplication>(new LoadWebApplication(this), true));
         putAction(new EjistoAction<ShutdownRequest>(new ShutdownRequest(this)));
         putAction(new EjistoAction<ChangeServerStatus>(new ChangeServerStatus(this, Command.STARTUP)));
         putAction(new EjistoAction<ChangeServerStatus>(new ChangeServerStatus(this, Command.SHUTDOWN)));

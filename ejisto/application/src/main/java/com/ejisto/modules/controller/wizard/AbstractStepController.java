@@ -23,13 +23,27 @@ import com.ejisto.modules.executor.Task;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.EjistoDialog;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class AbstractStepController<K> implements StepController<K> {
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static javax.swing.SwingWorker.StateValue.DONE;
+
+public abstract class AbstractStepController<K> implements StepController<K>, PropertyChangeListener {
     private final EjistoDialog dialog;
     private K session;
     private final TaskManager taskManager = TaskManager.getInstance();
+    private AtomicBoolean done = new AtomicBoolean(false);
+    private Semaphore insertPermit = new Semaphore(1);
+    private CyclicBarrier barrier = new CyclicBarrier(2, new Runnable() {
+        @Override
+        public void run() {
+            insertPermit.release();
+        }
+    });
 
     protected AbstractStepController(EjistoDialog dialog) {
         this.dialog = dialog;
@@ -47,16 +61,52 @@ public abstract class AbstractStepController<K> implements StepController<K> {
         return dialog;
     }
 
-    protected Future<?> addJob(Runnable task) {
-        return taskManager.addTask(task, "wizard task");
+    protected <T> String addJob(Task<T> task) {
+        if (!insertPermit.tryAcquire()) throw new IllegalStateException("no available permits");
+        return taskManager.addNewTask(task);
     }
 
-    protected <T> Future<T> addJob(Callable<T> task) {
-        return taskManager.addTask(new Task<T>(task, "wizard task"));
+    @Override
+    public final void propertyChange(PropertyChangeEvent evt) {
+        handlePropertyChange(evt);
+        if (evt.getPropertyName().equalsIgnoreCase("state") &&
+                evt.getNewValue() == DONE) {
+            try {
+                done.compareAndSet(false, true);
+                //we should exit as soon as possible, since we are on EDT
+                barrier.await(100, MILLISECONDS);
+            } catch (Exception e) {
+                //should never happens, since this thread should be the second one waiting on barrier.
+                throw new AssertionError(String.format("unexpected %s", e.toString()));
+            }
+        }
     }
 
-    protected void execute(Runnable task) {
-        addJob(task);
+    @Override
+    public final boolean executionCompleted() {
+        Task<?> task = createNewTask();
+        if (task != null) {
+            addJob(task);
+            try {
+                barrier.await();
+                return true;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return true;
+    }
+
+    protected Task<?> createNewTask() {
+        return null;
+    }
+
+    protected void handlePropertyChange(PropertyChangeEvent event) {
+
+    }
+
+    protected boolean isDone() {
+        return done.get();
     }
 
 }

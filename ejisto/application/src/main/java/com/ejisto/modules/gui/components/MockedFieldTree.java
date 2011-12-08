@@ -23,7 +23,9 @@ import ch.lambdaj.group.Group;
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.helper.FieldEditingListener;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
+import com.ejisto.modules.gui.components.helper.MockedFieldEditingEvent;
 import com.ejisto.modules.gui.components.helper.PopupMenuManager;
 import com.ejisto.modules.validation.MockedFieldValidator;
 import com.ejisto.modules.validation.ValidationErrors;
@@ -38,6 +40,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -54,6 +57,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     private MockedFieldValidator validator;
     private JTextField textField;
     private FieldsEditorContext fieldsEditorContext;
+    private final List<FieldEditingListener> editingListeners = new ArrayList<FieldEditingListener>();
 
     public MockedFieldTree(FieldsEditorContext fieldsEditorContext) {
         super(new Object[0]);
@@ -83,17 +87,37 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
 
     @Override
     public void editFieldAt(Point point) {
-        startEditingAtPath(getPathForLocation(point.x, point.y));
+        MockedField field = getFieldAt(point);
+        if (field.isSimpleValue()) startEditingAtPath(getPathForLocation(point.x, point.y));
+        else fireEditingStarted(field, point);
+    }
+
+    private void fireEditingStarted(MockedField field, Point point) {
+        MockedFieldEditingEvent event = new MockedFieldEditingEvent(this, field, fieldsEditorContext, point);
+        for (FieldEditingListener editingListener : editingListeners) {
+            editingListener.editingStarted(event);
+        }
     }
 
     @Override
     public void selectFieldAt(Point point) {
-        setSelectionPath(getPathForLocation(point.x, point.y));
+        TreePath path = getPathForLocation(point.x, point.y);
+        if (path != null) setSelectionPath(path);
     }
 
     @Override
     public List<MockedField> getSelectedFields() {
         return Arrays.asList(getSelectedField());
+    }
+
+    @Override
+    public void addFieldEditingListener(FieldEditingListener fieldEditingListener) {
+        editingListeners.add(fieldEditingListener);
+    }
+
+    @Override
+    public void removeFieldEditingListener(FieldEditingListener fieldEditingListener) {
+        editingListeners.remove(fieldEditingListener);
     }
 
     /**

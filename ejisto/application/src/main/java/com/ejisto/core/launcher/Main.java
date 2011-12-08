@@ -31,6 +31,8 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.logging.Level;
 
+import static com.ejisto.util.GuiUtils.getRootThrowable;
+
 public class Main {
 
     static {
@@ -72,7 +74,8 @@ public class Main {
             controller.startup();
         } catch (Exception e) {
             JXErrorPane.showDialog(null,
-                                   new ErrorInfo("Startup error", "Startup failed", null, "SEVERE", e, Level.SEVERE,
+                                   new ErrorInfo("Startup error", "Startup failed", null, "SEVERE", getRootThrowable(e),
+                                                 Level.SEVERE,
                                                  null));
             logger.error("startup failed", e);
             System.exit(-1);

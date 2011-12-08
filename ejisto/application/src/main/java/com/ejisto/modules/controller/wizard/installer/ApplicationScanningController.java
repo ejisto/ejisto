@@ -19,52 +19,27 @@
 
 package com.ejisto.modules.controller.wizard.installer;
 
-import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.modules.controller.WizardException;
-import com.ejisto.modules.dao.entities.CustomObjectFactory;
-import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
+import com.ejisto.modules.controller.wizard.installer.workers.ApplicationScanningWorker;
+import com.ejisto.modules.executor.ProgressDescriptor;
+import com.ejisto.modules.executor.Task;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
-import com.ejisto.modules.repository.ClassPoolRepository;
-import com.ejisto.modules.repository.CustomObjectFactoryRepository;
-import javassist.*;
 import org.apache.log4j.Logger;
-import org.codehaus.cargo.module.webapp.WebXml;
-import org.codehaus.cargo.module.webapp.WebXmlIo;
-import org.codehaus.cargo.module.webapp.WebXmlType;
-import org.codehaus.cargo.module.webapp.WebXmlUtils;
-import org.jdom.Element;
-import org.springframework.util.Assert;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.beans.PropertyChangeEvent;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static ch.lambdaj.Lambda.join;
-import static com.ejisto.constants.StringConstants.*;
+import static com.ejisto.modules.executor.ProgressDescriptor.ProgressState.INDETERMINATE;
 import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.IOUtils.*;
 
-public class ApplicationScanningController extends AbstractApplicationInstallerController implements Callable<Void> {
+public class ApplicationScanningController extends AbstractApplicationInstallerController {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
-    private static final String[] entries = {"derbyclient", "derbynet", "ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "spring", "cglib", "commons", "asm"};
-    private static final Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
-    private Future<Void> task;
     private ProgressPanel applicationScanningTab;
     private final String containerHome;
+    private AtomicReference<ProgressDescriptor.ProgressState> progressState = new AtomicReference<ProgressDescriptor.ProgressState>(
+            INDETERMINATE);
 
     public ApplicationScanningController(EjistoDialog dialog, String containerHome) {
         super(dialog);
@@ -85,7 +60,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
 
     @Override
     public boolean isExecutionSucceeded() throws WizardException {
-        return task.isDone();
+        return super.isDone();
     }
 
     @Override
@@ -95,171 +70,24 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
 
     @Override
     public void activate() {
-        task = addJob(this);
+        getView().reset();
     }
 
     @Override
-    public boolean executionCompleted() {
-        try {
-            task.get();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+    protected Task<?> createNewTask() {
+        return new ApplicationScanningWorker(this, containerHome);
     }
 
-    @Override
-    public Void call() throws Exception {
-        processWebApplication();
-        return null;
-    }
-
-    private void processWebApplication() throws Exception {
-        Assert.notNull(getSession().getInstallationPath());
-        String basePath = getSession().getInstallationPath();
-        getSession().setContextPath(getContextPath(basePath));
-        getSession().setClassPathElements(getClasspathEntries(basePath));
-        loadAllClasses(findAllWebApplicationClasses(basePath, getSession()), getSession());
-        processWebXmlDescriptor(getSession());
-        packageWar(getSession());
-        getView().jobCompleted(getMessage("progress.scan.end"));
-    }
-
-    private void loadAllClasses(Collection<String> classnames, WebApplicationDescriptor descriptor) throws NotFoundException, MalformedURLException {
-        notifyStart(classnames.size());
-        descriptor.deleteAllFields();
-        URL[] descriptorEntries = toUrlArray(descriptor);
-        ClassLoader loader = new URLClassLoader(
-                addServerLibs(descriptorEntries, containerHome + File.separator + "lib"));
-        ClassPool cp = ClassPoolRepository.getRegisteredClassPool(descriptor.getContextPath());
-        cp.appendClassPath(new LoaderClassPath(loader));
-        CtClass clazz;
-        for (String classname : classnames) {
-            notifyJobCompleted(classname);
-            clazz = cp.get(classname);
-            fillMockedFields(clazz, descriptor, loader);
-            clazz.detach();
-        }
-        logger.info("just finished processing " + descriptor.getInstallationPath());
-    }
-
-    private void fillMockedFields(CtClass clazz, WebApplicationDescriptor descriptor, ClassLoader loader) throws NotFoundException {
-        MockedField mockedField;
-        try {
-            for (CtField field : clazz.getDeclaredFields()) {
-                mockedField = new MockedFieldDecorator();
-                mockedField.setContextPath(descriptor.getContextPath());
-                mockedField.setClassName(clazz.getName());
-                mockedField.setFieldName(field.getName());
-                mockedField.setFieldType(field.getType().getName());
-                parseGenerics(clazz, field, mockedField, loader);
-                descriptor.addField(mockedField);
-            }
-            CtClass zuperclazz = clazz.getSuperclass();
-            if (!zuperclazz.getName().startsWith("java")) fillMockedFields(zuperclazz, descriptor, loader);
-        } catch (Exception e) {
-            //TODO check whether or not an exception should be thrown
-            e.printStackTrace();
-        }
-    }
-
-    private void parseGenerics(CtClass clazz, CtField field, MockedField mockedField, ClassLoader loader) {
-        try {
-            Class<?> cl = loader.loadClass(clazz.getName());
-            Field f = cl.getDeclaredField(field.getName());
-            Type type = f.getGenericType();
-            if (ParameterizedType.class.isAssignableFrom(type.getClass())) {
-                List<String> generics = new ArrayList<String>();
-                deepParseGenerics((ParameterizedType) type, generics);
-                mockedField.setFieldElementType(join(generics));
-            }
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
-
-    private void deepParseGenerics(ParameterizedType type, List<String> target) {
-        Type[] types = type.getActualTypeArguments();
-        for (Type generic : types) {
-            if (ParameterizedType.class.isAssignableFrom(generic.getClass())) {
-                //TODO implement deep inspection
-                target.add(((ParameterizedType) generic).getRawType().getClass().getName());
-            } else {
-                target.add(((Class<?>) generic).getName());
-            }
-
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void processWebXmlDescriptor(WebApplicationDescriptor descriptor) {
-        StringBuilder webXmlPath = new StringBuilder(descriptor.getInstallationPath()).append(File.separator);
-        webXmlPath.append("WEB-INF").append(File.separator).append("web.xml");
-        File webXml = new File(webXmlPath.toString());
-        if (!webXml.exists()) return;
-        try {
-            WebXml xml = WebXmlIo.parseWebXmlFromFile(webXml, null);
-            WebXmlUtils.addContextParam(xml, CONTEXT_PARAM_NAME.getValue(), descriptor.getContextPath());
-            xml.getRootElement().getChildren().add(0, buildListener(xml.getRootElement().getNamespace().getURI()));
-            //TODO to be completed
-//            WebDescriptor webDescriptor = new WebDescriptor(new FileResource(webXml.toURI().toURL()));
-//            webDescriptor.parse();
-//            XmlParser.Node root = webDescriptor.getRoot();
-//            Iterator<XmlParser.Node> it = root.iterator("resource-ref");
-//            while (it.hasNext()) {
-//                buildEnvEntry(it.next());
-//            }
-            WebXmlIo.writeDescriptor(xml, webXml);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Element buildListener(String namespaceURI) {
-        Element listener = new Element(WebXmlType.LISTENER, namespaceURI);
-        Element listenerClass = new Element("listener-class", namespaceURI);
-        listenerClass.setText("com.ejisto.modules.web.ContextListener");
-        listener.addContent(listenerClass);
-        return listener;
-    }
-
-//    private void buildEnvEntry(XmlParser.Node node) {
-//        String type = node.getString("res-type", false, true);
-//        if (!"javax.sql.DataSource".equals(type)) return;
-//        JndiDataSource entry = new JndiDataSource();
-//        entry.setName(node.getString("res-ref-name", false, true));
-//        entry.setType(type);
-//        if (!isAlreadyBound(entry.getName())) JndiDataSourcesRepository.store(entry);
-//    }
-
-    private void packageWar(WebApplicationDescriptor session) {
-        String libDir = new StringBuilder(session.getInstallationPath()).append(File.separator).append(
-                "WEB-INF").append(File.separator).append(
-                "lib").append(File.separator).toString();
-        File dir = new File(libDir);
-        List<CustomObjectFactory> jars = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
-        for (CustomObjectFactory jar : jars)
-            copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir);
-        copyEjistoLibs(entries, dir);
-        String deployablePath = System.getProperty(
-                DEPLOYABLES_DIR.getValue()) + File.separator + session.getWarFile().getName();
-        zipDirectory(session.getInstallationPath(), deployablePath);
-        session.setDeployablePath(deployablePath);
-    }
-
-    String getContextPath(String realPath) {
-        Matcher matcher = contextExtractor.matcher(realPath.replaceAll(Pattern.quote("\\"), "/"));
-        if (matcher.matches()) return matcher.group(1);
-        return null;
-    }
-
-    private void notifyStart(int numJobs) {
+    private void notifyStart(final int numJobs) {
         getView().initProgress(numJobs, getMessage("progress.scan.start"));
     }
 
     private void notifyJobCompleted(String nextClass) {
-        getView().jobCompleted(getMessage("progress.scan.class", nextClass));
+        writeProgress(getMessage("progress.scan.class", nextClass));
+    }
+
+    private void writeProgress(final String message) {
+        getView().jobCompleted(message);
     }
 
     @Override
@@ -275,6 +103,31 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     @Override
     public boolean isBackEnabled() {
         return false;
+    }
+
+    @Override
+    protected void handlePropertyChange(PropertyChangeEvent event) {
+        String propertyName = event.getPropertyName();
+        if (propertyName.equals("startProgress")) {
+            notifyStart((Integer) event.getNewValue());
+        } else if (propertyName.equals("progressDescriptor")) {
+            ProgressDescriptor descriptor = (ProgressDescriptor) event.getNewValue();
+            syncProgressState(descriptor.getProgressState());
+            if (descriptor.isTaskCompleted()) {
+                getView().processCompleted(getMessage("progress.scan.end"));
+            } else if (descriptor.isIndeterminate()) {
+                writeProgress(descriptor.getMessage());
+            } else {
+                notifyJobCompleted(descriptor.getMessage());
+            }
+
+        }
+    }
+
+    private void syncProgressState(ProgressDescriptor.ProgressState current) {
+        ProgressDescriptor.ProgressState previous = progressState.get();
+        boolean success = previous != current && progressState.compareAndSet(previous, current);
+        if (success && current == INDETERMINATE) getView().reset();
     }
 
 }

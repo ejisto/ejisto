@@ -89,7 +89,8 @@ public class CargoManager implements ContainerManager {
         ContainerInstaller installer = new ContainerInstaller(url, folder);
         installer.install();
         containersRepository.registerDefaultContainer(DEFAULT, installer.getHome(),
-                                                      settingsRepository.getSettingValue(DEFAULT_CONTAINER_DESCRIPTION));
+                                                      settingsRepository.getSettingValue(
+                                                              DEFAULT_CONTAINER_DESCRIPTION));
         return installer.getHome();
     }
 
@@ -100,12 +101,12 @@ public class CargoManager implements ContainerManager {
 
     @Override
     public boolean startDefault() throws NotInstalledException {
-        return start(loadDefault());
+        return start(loadDefault(true));
     }
 
     @Override
     public boolean stopDefault() throws NotInstalledException {
-        return stop(DEFAULT, loadDefault());
+        return stop(DEFAULT, loadDefault(false));
     }
 
     @Override
@@ -123,6 +124,7 @@ public class CargoManager implements ContainerManager {
         try {
             if (lifeCycleOperationLock.tryLock(30, TimeUnit.SECONDS)) {
                 owned = true;
+
                 localContainer.start();
                 serverStarted.set(true);
                 return true;
@@ -163,13 +165,13 @@ public class CargoManager implements ContainerManager {
         return false;
     }
 
-    private AbstractInstalledLocalContainer loadDefault() throws NotInstalledException {
+    private AbstractInstalledLocalContainer loadDefault(boolean addStartupOptions) throws NotInstalledException {
         Container container = containersRepository.loadDefault();
-        return loadContainer(container);
+        return loadContainer(container, addStartupOptions);
     }
 
     @SuppressWarnings("unchecked")
-    private AbstractInstalledLocalContainer loadContainer(Container installedContainer) {
+    private AbstractInstalledLocalContainer loadContainer(Container installedContainer, boolean addStartupOptions) {
         String containerId = installedContainer.getCargoId();
         if (installedContainers.containsKey(containerId)) return installedContainers.get(containerId);
         //container creation
@@ -180,13 +182,15 @@ public class CargoManager implements ContainerManager {
         StringBuilder jvmArgs = new StringBuilder("-javaagent:");
         jvmArgs.append(agentPath);
         jvmArgs.append(" -Djava.net.preferIPv4Stack=true");
+        if (addStartupOptions) jvmArgs.append(" -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005");
         String existingConfiguration = configuration.getPropertyValue(GeneralPropertySet.JVMARGS);
         if (StringUtils.hasText(existingConfiguration)) jvmArgs.append(" ").append(existingConfiguration);
         configuration.setProperty(GeneralPropertySet.JVMARGS, jvmArgs.append(" ").toString());
         DefaultContainerFactory containerFactory = new DefaultContainerFactory();
-        AbstractInstalledLocalContainer container = (AbstractInstalledLocalContainer) containerFactory.createContainer(containerId,
-                                                                                                                       ContainerType.INSTALLED,
-                                                                                                                       configuration);
+        AbstractInstalledLocalContainer container = (AbstractInstalledLocalContainer) containerFactory.createContainer(
+                containerId,
+                ContainerType.INSTALLED,
+                configuration);
         container.setHome(installedContainer.getHomeDir());
         container.setLogger(new ServerLogger());
         container.addExtraClasspath(agentPath);
@@ -196,7 +200,7 @@ public class CargoManager implements ContainerManager {
 
     @Override
     public boolean deployToDefaultContainer(WebApplicationDescriptor webApplicationDescriptor) throws NotInstalledException {
-        return deploy(webApplicationDescriptor, loadDefault(), DEFAULT);
+        return deploy(webApplicationDescriptor, loadDefault(false), DEFAULT);
     }
 
     @Override
@@ -213,7 +217,7 @@ public class CargoManager implements ContainerManager {
     public boolean undeployFromDefaultContainer(String contextPath) throws NotInstalledException {
         Deployable deployable = (Deployable) webApplicationRepository.getRegisteredWebApplication(DEFAULT,
                                                                                                   contextPath).getContainerWebApplicationDescriptor();
-        undeploy(DEFAULT, contextPath, deployable, loadDefault());
+        undeploy(DEFAULT, contextPath, deployable, loadDefault(false));
         return true;
     }
 
@@ -229,12 +233,12 @@ public class CargoManager implements ContainerManager {
 
     @Override
     public boolean startWebApplicationOnDefaultServer(String contextPath) throws NotInstalledException {
-        return start(DEFAULT, contextPath, getDeployableFromRepository(DEFAULT, contextPath), loadDefault());
+        return start(DEFAULT, contextPath, getDeployableFromRepository(DEFAULT, contextPath), loadDefault(false));
     }
 
     @Override
     public boolean stopWebApplicationOnDefaultServer(String contextPath) throws NotInstalledException {
-        return stop(DEFAULT, contextPath, getDeployableFromRepository(DEFAULT, contextPath), loadDefault());
+        return stop(DEFAULT, contextPath, getDeployableFromRepository(DEFAULT, contextPath), loadDefault(false));
     }
 
     @Override
@@ -244,12 +248,13 @@ public class CargoManager implements ContainerManager {
 
     @Override
     public String getHome(Container container) {
-        return loadContainer(container).getHome();
+        return loadContainer(container, false).getHome();
     }
 
     private Configuration loadExistingConfiguration(String containerId, File configurationDir) {
         if (logger.isDebugEnabled()) logger.debug("loading existing configuration for container " + containerId);
-        Configuration configuration = new DefaultConfigurationFactory().createConfiguration(containerId, ContainerType.INSTALLED,
+        Configuration configuration = new DefaultConfigurationFactory().createConfiguration(containerId,
+                                                                                            ContainerType.INSTALLED,
                                                                                             ConfigurationType.EXISTING,
                                                                                             configurationDir.getAbsolutePath());
         configuration.setProperty(ServletPropertySet.PORT, settingsRepository.getSettingValue(DEFAULT_SERVER_PORT));
@@ -257,9 +262,12 @@ public class CargoManager implements ContainerManager {
     }
 
     private boolean deploy(WebApplicationDescriptor descriptor, LocalContainer container, String containerId) {
-        Deployable deployable = serverStarted.get() ? hotDeploy(descriptor, container) : staticDeploy(descriptor, container);
+        Deployable deployable = serverStarted.get() ? hotDeploy(descriptor, container) : staticDeploy(descriptor,
+                                                                                                      container);
         if (deployable == null) return false;
-        webApplicationRepository.registerWebApplication(containerId, new CargoWebApplication(descriptor.getContextPath(), containerId, deployable));
+        webApplicationRepository.registerWebApplication(containerId,
+                                                        new CargoWebApplication(descriptor.getContextPath(),
+                                                                                containerId, deployable));
         return true;
     }
 
@@ -279,7 +287,8 @@ public class CargoManager implements ContainerManager {
         try {
             Deployable deployable = createDeployable(webApplicationDescriptor, container);
             Deployer deployer = getDeployerFor(container);
-            URLDeployableMonitor monitor = new URLDeployableMonitor(new URL(guessWebApplicationUri(webApplicationDescriptor)));
+            URLDeployableMonitor monitor = new URLDeployableMonitor(
+                    new URL(guessWebApplicationUri(webApplicationDescriptor)));
             if (isAlreadyDeployed(deployable, container)) {
                 deployer.undeploy(deployable, monitor);
                 deployer.deploy(deployable, monitor);
@@ -308,7 +317,8 @@ public class CargoManager implements ContainerManager {
     private boolean stop(String containerId, String contextPath, Deployable deployable, LocalContainer container) {
         try {
             getDeployerFor(container).stop(deployable);
-            webApplicationRepository.getRegisteredWebApplication(containerId, contextPath).setStatus(WebApplication.Status.STOPPED);
+            webApplicationRepository.getRegisteredWebApplication(containerId, contextPath).setStatus(
+                    WebApplication.Status.STOPPED);
             return true;
         } catch (Exception ex) {
             logger.error("error during web application stop", ex);
@@ -319,7 +329,8 @@ public class CargoManager implements ContainerManager {
     private boolean start(String containerId, String contextPath, Deployable deployable, LocalContainer container) {
         try {
             getDeployerFor(container).start(deployable);
-            webApplicationRepository.getRegisteredWebApplication(containerId, contextPath).setStatus(WebApplication.Status.STARTED);
+            webApplicationRepository.getRegisteredWebApplication(containerId, contextPath).setStatus(
+                    WebApplication.Status.STARTED);
             return true;
         } catch (Exception ex) {
             logger.error("error during web application start", ex);
@@ -334,7 +345,8 @@ public class CargoManager implements ContainerManager {
 
     private Deployable createDeployable(WebApplicationDescriptor webApplicationDescriptor, LocalContainer container) {
         DeployableFactory deployableFactory = new DefaultDeployableFactory();
-        return deployableFactory.createDeployable(container.getId(), webApplicationDescriptor.getDeployablePath(), DeployableType.WAR);
+        return deployableFactory.createDeployable(container.getId(), webApplicationDescriptor.getDeployablePath(),
+                                                  DeployableType.WAR);
     }
 
     private boolean isAlreadyDeployed(Deployable deployable, LocalContainer container) {
@@ -353,7 +365,8 @@ public class CargoManager implements ContainerManager {
     }
 
     private Deployable getDeployableFromRepository(String containerId, String contextPath) {
-        WebApplication<?> webApplication = webApplicationRepository.getRegisteredWebApplication(containerId, contextPath);
+        WebApplication<?> webApplication = webApplicationRepository.getRegisteredWebApplication(containerId,
+                                                                                                contextPath);
         return (Deployable) webApplication.getContainerWebApplicationDescriptor();
     }
 

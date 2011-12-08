@@ -17,37 +17,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.gui.components;
+package com.ejisto.modules.gui.components.helper;
 
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.gui.components.helper.FieldEditingListener;
 
 import java.awt.*;
-import java.util.List;
+import java.util.EventObject;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 10/30/11
- * Time: 3:35 PM
+ * Date: 11/17/11
+ * Time: 8:52 AM
  */
-public interface MockedFieldsEditorComponent {
+public class MockedFieldEditingEvent extends EventObject {
 
-    MockedField getFieldAt(Point point);
+    private MockedField field;
+    private FieldsEditorContext editorContext;
+    private Point point;
 
-    MockedField getFieldAt(int x, int y);
+    public MockedFieldEditingEvent(Object source, MockedField field, FieldsEditorContext editorContext, Point point) {
+        super(source);
+        this.field = field;
+        this.editorContext = editorContext;
+        this.point = point;
+    }
 
-    void setFields(List<MockedField> fields);
+    public MockedField getField() {
+        return field;
+    }
 
-    void editFieldAt(Point point);
+    public FieldsEditorContext getEditorContext() {
+        return editorContext;
+    }
 
-    void selectFieldAt(Point point);
-
-    List<MockedField> getSelectedFields();
-
-    void addFieldEditingListener(FieldEditingListener fieldEditingListener);
-
-    void removeFieldEditingListener(FieldEditingListener fieldEditingListener);
-
+    public Point getPoint() {
+        return point;
+    }
 }
-

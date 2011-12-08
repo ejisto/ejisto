@@ -92,7 +92,6 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         forEach(webApplicationDescriptor.getModifiedFields()).setActive(true);
         mockedFieldsRepository.deleteContext(webApplicationDescriptor.getContextPath());
         mockedFieldsRepository.insert(webApplicationDescriptor.getFields());
-
         deployWebApp(webApplicationDescriptor);
         saveWebAppDescriptor(webApplicationDescriptor);
         startBrowser(webApplicationDescriptor);

@@ -41,4 +41,9 @@ public class LogMessage extends BaseApplicationEvent {
     public String getKey() {
         return null;
     }
+
+    @Override
+    public boolean isRunOnEDT() {
+        return true;
+    }
 }

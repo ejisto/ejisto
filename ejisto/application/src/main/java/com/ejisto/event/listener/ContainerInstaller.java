@@ -21,11 +21,13 @@ package com.ejisto.event.listener;
 
 import ch.lambdaj.function.closure.Closure;
 import com.ejisto.event.EventManager;
-import com.ejisto.event.def.*;
+import com.ejisto.event.def.ChangeServerStatus;
+import com.ejisto.event.def.ContainerInstalled;
+import com.ejisto.event.def.InstallContainer;
+import com.ejisto.event.def.LogMessage;
 import com.ejisto.modules.cargo.CargoManager;
 import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.controller.DialogManager;
-import com.ejisto.modules.executor.Task;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.ContainerInstallationPanel;
@@ -34,13 +36,14 @@ import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import static ch.lambdaj.Lambda.closure;
 import static ch.lambdaj.Lambda.of;
 import static com.ejisto.constants.StringConstants.CONTAINERS_HOME_DIR;
+import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.runInEDT;
 
@@ -50,7 +53,7 @@ import static com.ejisto.util.GuiUtils.runInEDT;
  * Date: 3/6/11
  * Time: 12:46 PM
  */
-public class ContainerInstaller implements ApplicationListener<InstallContainer> {
+public class ContainerInstaller implements ApplicationListener<InstallContainer>, PropertyChangeListener {
     private static final Logger logger = Logger.getLogger(ContainerInstaller.class);
     @Resource Application application;
     @Resource CargoManager cargoManager;
@@ -61,11 +64,18 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
     public void onApplicationEvent(final InstallContainer event) {
         logger.info("about to install " + event.getDescription() + " container");
         final String containerDescription = settingsManager.getValue("container.default.description");
-        final ContainerInstallationPanel panel = new ContainerInstallationPanel(getMessage("container.installation.panel.title"),
-                                                                                getMessage("container.installation.panel.description",
-                                                                                           containerDescription));
-        final DialogManager manager = new DialogManager(application, panel);
-        Callable<Void> task = new Callable<Void>() {
+        final ContainerInstallationPanel panel = new ContainerInstallationPanel(
+                getMessage("container.installation.panel.title"),
+                getMessage("container.installation.panel.description",
+                           containerDescription));
+        final DialogManager manager = DialogManager.Builder.newInstance()
+                .withContent(panel)
+                .withParentFrame(application)
+                .withDecorations(false)
+                .build();
+
+        //new DialogManager(application, panel);
+        Callable<Void> action = new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 notifyToPanel(panel, getMessage("container.installation.panel.status.1", containerDescription));
@@ -77,22 +87,14 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                 if (logger.isDebugEnabled()) logger.debug("notifying installation success");
                 eventManager.publishEvent(new ContainerInstalled(this, event.getContainerId(), event.getDescription()));
                 eventManager.publishEvent(new LogMessage(this, getMessage("container.installation.ok")));
-                if (event.isStart()) eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
+                if (event.isStart())
+                    eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
                 showHideProgressPanel(false, manager);
                 return null;
             }
         };
-        Future<Void> future = TaskManager.getInstance().addTask(new Task<Void>(task, "download server"));
-        showHideProgressPanel(true, manager);
-        try {
-            future.get();
-        } catch (InterruptedException e) {
-            logger.error("got interrupted exception", e);
-        } catch (ExecutionException e) {
-            showHideProgressPanel(false, manager);
-            logger.error("got execution exception", e);
-            eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e.getCause()));
-        }
+
+        String uuid = TaskManager.getInstance().addNewTask(createNewGuiTask(action, "download server", this));
     }
 
     private void notifyToPanel(ContainerInstallationPanel panel, String message) {
@@ -105,11 +107,24 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         GuiUtils.runOnEDT(new Runnable() {
             @Override
             public void run() {
-                if (show) manager.show(true);
+                if (show) manager.showUndecorated(true);
                 else manager.hide();
             }
         });
 
     }
 
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+//        try {
+//            evt.getNewValue();
+//            //future.get();
+//        } catch (InterruptedException e) {
+//            logger.error("got interrupted exception", e);
+//        } catch (ExecutionException e) {
+//            //showHideProgressPanel(false, manager);
+//            logger.error("got execution exception", e);
+//            eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e.getCause()));
+//        }
+    }
 }

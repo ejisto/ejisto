@@ -17,25 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.executor;
+package com.ejisto.util;
 
-import java.util.concurrent.RunnableFuture;
+import java.beans.PropertyChangeListener;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 4/2/11
- * Time: 6:57 PM
+ * Date: 12/7/11
+ * Time: 8:38 AM
  */
-public interface Task<T> extends RunnableFuture<T> {
-
-    String getDescription();
-
-    boolean supportsProcessChangeNotification();
-
-    void work();
-
-    ProgressDescriptor getCurrentProgressDescriptor();
-
-
+public interface PropertyChangePublisher {
+    void addPropertyChangeListener(PropertyChangeListener propertyChangeListener);
 }

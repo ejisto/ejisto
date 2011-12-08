@@ -52,6 +52,8 @@ public class PopupMenuManager extends MouseAdapter {
     private void handleClick(final MouseEvent e) {
         if (e.isPopupTrigger()) {
             final Component component = e.getComponent();
+            final MockedFieldsEditorComponent editor = (MockedFieldsEditorComponent) component;
+            editor.selectFieldAt(e.getPoint());
             JPopupMenu menu = new JPopupMenu();
             menu.setInvoker(component);
             menu.add(buildEjistoAction(component, CREATE, null));
@@ -62,9 +64,7 @@ public class PopupMenuManager extends MouseAdapter {
                     @Override
                     public void actionPerformed(ActionEvent ev) {
                         Point point = e.getPoint();
-                        MockedFieldsEditorComponent comp = (MockedFieldsEditorComponent) component;
-                        comp.selectFieldAt(point);
-                        comp.editFieldAt(point);
+                        editor.editFieldAt(point);
                     }
                 });
                 menu.add(buildEjistoAction(component, DELETE, target));

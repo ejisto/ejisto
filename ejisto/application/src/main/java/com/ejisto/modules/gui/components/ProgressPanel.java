@@ -93,4 +93,11 @@ public class ProgressPanel extends JXPanel {
         title.setText(defaultMessage);
     }
 
+    public void processCompleted(String text) {
+        progress.setIndeterminate(false);
+        progress.setMaximum(1);
+        progress.setMinimum(0);
+        jobCompleted(text);
+    }
+
 }  //  @jve:decl-index=0:visual-constraint="10,10"

@@ -25,6 +25,7 @@ import com.ejisto.modules.controller.wizard.StepController;
 import com.ejisto.modules.controller.wizard.StepControllerComparator;
 import com.ejisto.modules.controller.wizard.installer.*;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
+import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.ApplicationInstallerWizard;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
@@ -34,16 +35,21 @@ import javax.swing.*;
 import java.awt.Dialog.ModalityType;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static ch.lambdaj.Lambda.forEach;
 import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.*;
+import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 import static com.ejisto.util.GuiUtils.*;
 import static java.util.Collections.sort;
 
-public class ApplicationInstallerWizardController {
+public class ApplicationInstallerWizardController implements PropertyChangeListener {
     private static final Logger logger = Logger.getLogger(ApplicationInstallerWizard.class);
     private List<StepController<WebApplicationDescriptor>> controllers;
     private ApplicationInstallerWizard wizard;
@@ -52,7 +58,7 @@ public class ApplicationInstallerWizardController {
     private Closure0 confirm;
     private final Frame application;
     private EjistoDialog dialog;
-    private int currentIndex = -1;
+    private AtomicInteger currentIndex = new AtomicInteger(-1);
     private StepController<WebApplicationDescriptor> currentController;
     private boolean success;
     private final String containerHome;
@@ -89,12 +95,15 @@ public class ApplicationInstallerWizardController {
         dialog = new EjistoDialog(application, getMessage("wizard.title"), createWizard(), false);
         initAndSortControllers(dialog);
         initContainer();
-        dialog.registerAction(new CallbackAction(getMessage("buttons.previous.text"), PREVIOUS_STEP_COMMAND.getValue(), callActionPerformed));
-        dialog.registerAction(new CallbackAction(getMessage("buttons.next.text"), NEXT_STEP_COMMAND.getValue(), callActionPerformed));
+        dialog.registerAction(new CallbackAction(getMessage("buttons.previous.text"), PREVIOUS_STEP_COMMAND.getValue(),
+                                                 callActionPerformed));
+        dialog.registerAction(
+                new CallbackAction(getMessage("buttons.next.text"), NEXT_STEP_COMMAND.getValue(), callActionPerformed));
         Action act = new CallbackAction(getMessage("wizard.ok.text"), CONFIRM.getValue(), confirm);
         act.setEnabled(isSummaryStep());
         dialog.registerAction(act);
-        dialog.registerAction(new CallbackAction(getMessage("wizard.close.text"), EjistoDialog.CLOSE_ACTION_COMMAND, closeDialog));
+        dialog.registerAction(
+                new CallbackAction(getMessage("wizard.close.text"), EjistoDialog.CLOSE_ACTION_COMMAND, closeDialog));
         dialog.setModalityType(ModalityType.APPLICATION_MODAL);
         dialog.setSize(600, 500);
         centerOnScreen(dialog);
@@ -127,8 +136,14 @@ public class ApplicationInstallerWizardController {
         }
     }
 
-    synchronized void actionPerformed(ActionEvent e) {
-        navigate(e.getActionCommand().equals(NEXT_STEP_COMMAND.getValue()));
+    synchronized void actionPerformed(final ActionEvent e) {
+        TaskManager.getInstance().addNewTask(createNewGuiTask(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                navigate(e.getActionCommand().equals(NEXT_STEP_COMMAND.getValue()));
+                return null;
+            }
+        }, "navigate", this));
     }
 
     private void navigate(final boolean fwd) {
@@ -139,7 +154,7 @@ public class ApplicationInstallerWizardController {
         StepController<WebApplicationDescriptor> controller = fwd ? nextController() : previousController();
         if (currentController != null && currentController.equals(controller)) return;
         if (fwd && !controller.isForwardEnabled()) {
-            currentIndex++;
+            currentIndex.incrementAndGet();
             navigate(true);
         }
         if (currentController != null) {
@@ -147,18 +162,16 @@ public class ApplicationInstallerWizardController {
             currentController.beforeNext();
         }
         if (fwd && !controller.canProceed()) return;
+        dialog.getActionFor(PREVIOUS_STEP_COMMAND.getValue()).setEnabled(false);
+        dialog.getActionFor(NEXT_STEP_COMMAND.getValue()).setEnabled(false);
+        dialog.getActionFor(CONFIRM.getValue()).setEnabled(false);
         currentController = controller;
-        if (fwd) currentIndex++;
+        if (fwd) currentIndex.incrementAndGet();
         currentController.activate();
         wizard.goToStep(currentController.getStep());
         dialog.setHeaderTitle(getMessage(currentController.getTitleKey()));
         dialog.setHeaderDescription(getMessage(currentController.getDescriptionKey()));
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                executeStep(fwd);
-            }
-        });
+        executeStep(fwd);
         dialog.getActionFor(PREVIOUS_STEP_COMMAND.getValue()).setEnabled(isPreviousAvailable());
         dialog.getActionFor(NEXT_STEP_COMMAND.getValue()).setEnabled(!isSummaryStep());
         dialog.getActionFor(CONFIRM.getValue()).setEnabled(isSummaryStep());
@@ -194,22 +207,26 @@ public class ApplicationInstallerWizardController {
 
     private StepController<WebApplicationDescriptor> nextController() {
         if (!isNextAvailable()) return currentController;
-        return controllers.get(currentIndex + 1);
+        return controllers.get(currentIndex.get() + 1);
     }
 
     private StepController<WebApplicationDescriptor> previousController() {
         if (!isPreviousAvailable()) return currentController;
-        StepController<WebApplicationDescriptor> controller = controllers.get(--currentIndex);
+        StepController<WebApplicationDescriptor> controller = controllers.get(currentIndex.decrementAndGet());
         if (!controller.isBackEnabled()) return previousController();
         return controller;
     }
 
     private boolean isNextAvailable() {
-        return currentIndex + 1 < controllers.size();
+        return currentIndex.get() + 1 < controllers.size();
     }
 
     private boolean isPreviousAvailable() {
-        return currentIndex - 1 >= 0;
+        return currentIndex.get() - 1 >= 0;
     }
 
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

@@ -158,4 +158,41 @@ public class MockedFieldImpl implements MockedField {
         return getFieldType();
     }
 
+    @Override
+    public void copyFrom(MockedField original) {
+        if (id != 0) throw new UnsupportedOperationException("target field is already persisted");
+        setActive(original.isActive());
+        setFieldValue(original.getFieldValue());
+        setFieldElementType(original.getFieldElementType());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MockedFieldImpl that = (MockedFieldImpl) o;
+
+        if (id != that.id) return false;
+        if (!className.equals(that.className)) return false;
+        if (!contextPath.equals(that.contextPath)) return false;
+        if (fieldElementType != null ? !fieldElementType.equals(that.fieldElementType) : that.fieldElementType != null)
+            return false;
+        if (!fieldName.equals(that.fieldName)) return false;
+        if (!fieldType.equals(that.fieldType)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + contextPath.hashCode();
+        result = 31 * result + className.hashCode();
+        result = 31 * result + fieldName.hashCode();
+        result = 31 * result + fieldType.hashCode();
+        result = 31 * result + (fieldElementType != null ? fieldElementType.hashCode() : 0);
+        return result;
+    }
+
 }

@@ -20,35 +20,51 @@
 package com.ejisto.modules.gui;
 
 import com.ejisto.event.def.BaseApplicationEvent;
+import com.ejisto.modules.executor.TaskManager;
 import org.jdesktop.swingx.action.AbstractActionExt;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.concurrent.Executors;
 
-import static com.ejisto.util.GuiUtils.getIcon;
-import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.modules.executor.TaskManager.createNewBackgroundTask;
+import static com.ejisto.util.GuiUtils.*;
 import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
 public class EjistoAction<T extends BaseApplicationEvent> extends AbstractActionExt {
     private static final long serialVersionUID = 4999338415439543233L;
     private final T applicationEvent;
+    private boolean async;
 
     public EjistoAction(T applicationEvent) {
+        this(applicationEvent, false);
+    }
+
+    public EjistoAction(T applicationEvent, boolean async) {
         super();
         this.applicationEvent = applicationEvent;
         putValue(Action.NAME, getMessage(applicationEvent.getDescription()));
         putValue(Action.SMALL_ICON, getIcon(applicationEvent));
         putValue(Action.SHORT_DESCRIPTION, getMessage(applicationEvent.getDescription()));
+        this.async = async;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        SwingUtilities.invokeLater(new Runnable() {
+
+        Runnable action = new Runnable() {
             @Override
             public void run() {
                 publishApplicationEvent(applicationEvent);
             }
-        });
+        };
+
+        if (!async) {
+            runOnEDT(action);
+        } else {
+            TaskManager.getInstance().addNewTask(
+                    createNewBackgroundTask(Executors.callable(action), applicationEvent.getDescription()));
+        }
     }
 
     public String getKey() {

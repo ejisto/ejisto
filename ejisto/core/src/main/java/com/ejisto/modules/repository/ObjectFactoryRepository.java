@@ -47,6 +47,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     private static final String DEFAULT = "java.lang.Object";
     private static final ObjectFactoryRepository INSTANCE = new ObjectFactoryRepository();
     private final Map<String, String> factories = new HashMap<String, String>();
+    private final Map<String, String> primitives = new HashMap<String, String>();
     private final AtomicBoolean initialized = new AtomicBoolean(false);
 
     @Resource private EventManager eventManager;
@@ -57,13 +58,26 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     }
 
     private ObjectFactoryRepository() {
-        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicIntegerFactory", "java.util.concurrent.AtomicInteger", false);
-        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicLongFactory", "java.util.concurrent.atomic.AtomicLong", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicIntegerFactory",
+                              "java.util.concurrent.atomic.AtomicInteger", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicLongFactory",
+                              "java.util.concurrent.atomic.AtomicLong", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.NumberFactory", "java.lang.Number", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.StringFactory", "java.lang.String", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.DefaultObjectFactory", DEFAULT, false);
         registerObjectFactory("com.ejisto.modules.factory.impl.CollectionFactory", "java.util.Collection", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.MapFactory", "java.util.Map", false);
+
+        //populating primitive types map
+        primitives.put("int", "java.lang.Integer");
+        primitives.put("long", "java.lang.Long");
+        primitives.put("char", "java.lang.Character");
+        primitives.put("byte", "java.lang.Byte");
+        primitives.put("boolean", "java.lang.Boolean");
+        primitives.put("double", "java.lang.Double");
+        primitives.put("float", "java.lang.Float");
+        primitives.put("short", "java.lang.Short");
+
     }
 
     public void registerObjectFactory(String objectFactoryClassName, String targetClassName) {
@@ -86,11 +100,17 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     public String getObjectFactory(String objectClassName, String contextPath) {
         try {
             syncObjectFactories();
-            return scanForObjectFactory(retrieveClassPool(contextPath).get(objectClassName));
+            String className = transformPrimitiveType(objectClassName);
+            return scanForObjectFactory(retrieveClassPool(contextPath).get(className));
         } catch (Exception e) {
             logger.error("getObjectFactory failed with exception, returning default one", e);
             return factories.get(DEFAULT);
         }
+    }
+
+    String transformPrimitiveType(String type) {
+        if (primitives.containsKey(type)) return primitives.get(type);
+        return type;
     }
 
     private void insertObjectFactory(String objectFactoryClassName, String targetClassName) {

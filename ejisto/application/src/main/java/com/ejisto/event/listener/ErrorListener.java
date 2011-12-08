@@ -21,6 +21,7 @@ package com.ejisto.event.listener;
 
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.modules.gui.Application;
+import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.springframework.context.ApplicationListener;
@@ -41,7 +42,10 @@ public class ErrorListener implements ApplicationListener<ApplicationError> {
     }
 
     private ErrorInfo getErrorInfo(ApplicationError event) {
-        return new ErrorInfo(getMessage("error.dialog.title"), getMessage("error.dialog.message", event.getError().getClass().getName()), null,
-                             event.getPriority().name(), event.getError(), Level.SEVERE, null);
+        Throwable throwable = GuiUtils.getRootThrowable(event.getError());
+        return new ErrorInfo(getMessage("error.dialog.title"),
+                             getMessage("error.dialog.message", throwable.getClass().getName()), null,
+                             event.getPriority().name(), throwable, Level.SEVERE, null);
     }
+
 }

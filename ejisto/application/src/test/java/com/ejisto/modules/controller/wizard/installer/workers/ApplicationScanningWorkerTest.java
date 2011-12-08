@@ -17,27 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.controller.wizard.installer;
+package com.ejisto.modules.controller.wizard.installer.workers;
 
+import com.ejisto.modules.controller.wizard.installer.ApplicationScanningController;
+import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 
-public class ApplicationScanningControllerTest {
+public class ApplicationScanningWorkerTest {
+
+    ApplicationScanningController controller;
+
+    @Before
+    public void init() {
+        controller = new ApplicationScanningController(null, "");
+    }
 
     @Test
     public void testGetContextPath() {
-        ApplicationScanningController applicationScanningController = new ApplicationScanningController(null, null);
+        ApplicationScanningWorker worker = new ApplicationScanningWorker(controller, "");
         assertEquals("/simpleWarProject",
-                     applicationScanningController.getContextPath("/tmp/ejisto/jetty/webapps/simpleWarProject/"));
-        assertEquals("/simpleWarProject", applicationScanningController.getContextPath(
+                     worker.getContextPath("/tmp/ejisto/jetty/webapps/simpleWarProject/"));
+        assertEquals("/simpleWarProject", worker.getContextPath(
                 "c:\\Windows\\Temp\\Space dir\\ejisto\\jetty\\webapps\\simpleWarProject\\"));
         assertEquals("/simpleWarProject",
-                     applicationScanningController.getContextPath("/tmp/ejisto12 3/jetty/webapps/simpleWarProject/"));
+                     worker.getContextPath("/tmp/ejisto12 3/jetty/webapps/simpleWarProject/"));
         assertEquals("/simpleWarProject",
-                     applicationScanningController.getContextPath("/tmp/(ejisto12 3)/jetty/webapps/simpleWarProject/"));
+                     worker.getContextPath("/tmp/(ejisto12 3)/jetty/webapps/simpleWarProject/"));
         assertEquals("/simpleWarProject",
-                     applicationScanningController.getContextPath("/tmp/(ejisto12 3)/jetty/webapps/simpleWarProject"));
+                     worker.getContextPath("/tmp/(ejisto12 3)/jetty/webapps/simpleWarProject"));
     }
 
 }

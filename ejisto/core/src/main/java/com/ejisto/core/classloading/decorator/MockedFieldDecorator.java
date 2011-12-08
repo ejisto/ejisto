@@ -179,7 +179,8 @@ public class MockedFieldDecorator implements MockedField {
 
     @Override
     public String getCompleteDescription() {
-        return new StringBuilder(getFieldName()).append(" [").append(getCompleteFieldType()).append("]: ").append(evaluateFieldValue()).toString();
+        return new StringBuilder(getFieldName()).append(" [").append(getCompleteFieldType()).append("]: ").append(
+                evaluateFieldValue()).toString();
     }
 
     @Override
@@ -187,6 +188,24 @@ public class MockedFieldDecorator implements MockedField {
         if (StringUtils.hasText(target.getFieldElementType()))
             return target.getFieldType() + "<" + cleanFieldElementType(target.getFieldElementType()) + ">";
         return target.getFieldType();
+    }
+
+    @Override
+    public void copyFrom(MockedField original) {
+        target.copyFrom(original);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MockedFieldDecorator that = (MockedFieldDecorator) o;
+        return target.equals(that.target);
+    }
+
+    @Override
+    public int hashCode() {
+        return target.hashCode();
     }
 
     private String cleanFieldElementType(String fieldElementType) {

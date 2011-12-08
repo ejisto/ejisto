@@ -22,10 +22,15 @@ package com.ejisto.modules.factory.impl;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.AbstractContainerFactory;
 import com.ejisto.modules.factory.ObjectFactory;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import ognl.Ognl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * Created by IntelliJ IDEA.
@@ -43,11 +48,11 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
     public Collection<Y> create(MockedField m, Collection<Y> actualValue) {
         ObjectFactory<Y> elementObjectFactory = loadElementObjectFactory(m.getFieldElementType(), m.getContextPath());
         Collection<Y> value = new ArrayList<Y>();
-        applyExpressions(value, m.getExpression(), elementObjectFactory, m, null);
+        applyExpressions(value, m.getExpression(), elementObjectFactory, m, actualValue);
         return value;
     }
 
-    private void applyExpressions(Collection<Y> in, String expression, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Y actualValue) {
+    private void applyExpressions(Collection<Y> in, String expression, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Collection<Y> actualValue) {
         try {
             int size = 10;
             if (expression != null) {
@@ -65,9 +70,16 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
         }
     }
 
-    private void fillCollection(Collection<Y> in, int size, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Y actualValue) {
-        for (int i = 0; i < size; i++) {
-            in.add(elementObjectFactory.create(mockedField, actualValue));
+    private void fillCollection(Collection<Y> in, int size, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Collection<Y> actualValue) {
+        List<MockedField> fields = MockedFieldsRepository.getInstance().load(mockedField.getContextPath(),
+                                                                             mockedField.getFieldElementType());
+        if (isEmpty(fields)) {
+            in.addAll(isEmpty(actualValue) ? Collections.<Y>emptyList() : actualValue);
+        } else {
+            for (int i = 0; i < size; i++) {
+                in.add(elementObjectFactory.create(fields.get(0),
+                                                   isEmpty(actualValue) ? null : actualValue.iterator().next()));
+            }
         }
     }
 }

@@ -27,6 +27,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 
 import javax.annotation.Resource;
+import java.util.concurrent.Callable;
+
+import static com.ejisto.modules.executor.TaskManager.createNewBackgroundTask;
 
 public class EventManager implements ApplicationContextAware {
     private static final Logger logger = Logger.getLogger(EventManager.class);
@@ -39,12 +42,13 @@ public class EventManager implements ApplicationContextAware {
             logger.warn("discarded event from " + event.getSource() + " " + event);
             return;
         }
-        taskManager.addTask(new Runnable() {
+        taskManager.addNewTask(createNewBackgroundTask(new Callable<Void>() {
             @Override
-            public void run() {
+            public Void call() {
                 publishEventAndWait(event);
+                return null;
             }
-        }, event.toString());
+        }, event.toString()));
     }
 
     public void publishEventAndWait(ApplicationEvent event) {

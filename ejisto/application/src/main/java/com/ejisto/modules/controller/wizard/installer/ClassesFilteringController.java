@@ -82,11 +82,6 @@ public class ClassesFilteringController extends AbstractApplicationInstallerCont
     }
 
     @Override
-    public boolean executionCompleted() {
-        return true;
-    }
-
-    @Override
     public void beforeNext() {
         getSession().setBlacklist(getView().getBlacklistedObjects());
     }

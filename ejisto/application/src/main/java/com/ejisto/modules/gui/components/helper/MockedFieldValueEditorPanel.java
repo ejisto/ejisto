@@ -22,6 +22,7 @@ package com.ejisto.modules.gui.components.helper;
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.modules.validation.NumberValidator;
+import com.ejisto.util.GuiUtils;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import org.jdesktop.swingx.JXCollapsiblePane;
@@ -31,6 +32,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collection;
 
 import static ch.lambdaj.Lambda.var;
@@ -58,7 +62,8 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
     private String fieldType;
     private String fieldSize;
 
-    public MockedFieldValueEditorPanel() {
+    public MockedFieldValueEditorPanel(ActionMap actionMap) {
+        GuiUtils.fillActionMap(getActionMap(), actionMap);
         $$$setupUI$$$();
     }
 
@@ -100,12 +105,12 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
             of(MockedFieldValueEditorPanel.this).onTypeSelected();
         }}));
         genericType.setActionCommand(TYPE_SELECTION);
-        ok = new JButton("ok");
-        ok.setActionCommand(STOP_EDITING);
-        ok.addActionListener(this);
-        cancel = new JButton("cancel");
-        cancel.setActionCommand(CANCEL_EDITING);
-        cancel.addActionListener(this);
+        ok = new JButton(getActionMap().get(STOP_EDITING));
+        //ok.setActionCommand(STOP_EDITING);
+        //ok.addActionListener(this);
+        cancel = new JButton(getActionMap().get(CANCEL_EDITING));
+        //cancel.setActionCommand(CANCEL_EDITING);
+        //cancel.addActionListener(this);
         size = new JXLabel(getMessage("wizard.properties.editor.complex.size"));
         collectionSize = new JFormattedTextField();
         collectionSize.addPropertyChangeListener("value",
@@ -116,6 +121,15 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
         collectionSize.addFocusListener(new TextComponentFocusListener());
         collectionSize.setValue("10");
         add(editor, BorderLayout.CENTER);
+        registerKeyboardAction(getActionMap().get(STOP_EDITING), STOP_EDITING,
+                               KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        addPropertyChangeListener("collapsed", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (!((Boolean) evt.getNewValue()))
+                    type.grabFocus();
+            }
+        });
     }
 
     public void onTypeSelected() {

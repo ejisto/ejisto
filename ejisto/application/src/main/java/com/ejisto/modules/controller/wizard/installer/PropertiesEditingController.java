@@ -80,11 +80,6 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
     }
 
     @Override
-    public boolean executionCompleted() {
-        return true;
-    }
-
-    @Override
     public void beforeNext() {
 
     }

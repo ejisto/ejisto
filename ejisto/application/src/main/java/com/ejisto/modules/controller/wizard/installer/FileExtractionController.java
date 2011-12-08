@@ -20,25 +20,19 @@
 package com.ejisto.modules.controller.wizard.installer;
 
 import com.ejisto.modules.controller.WizardException;
-import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
+import com.ejisto.modules.controller.wizard.installer.workers.FileExtractionWorker;
+import com.ejisto.modules.executor.ProgressDescriptor;
+import com.ejisto.modules.executor.Task;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.concurrent.Future;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.beans.PropertyChangeEvent;
 
 import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.GuiUtils.showWarning;
-import static com.ejisto.util.IOUtils.*;
 
-public class FileExtractionController extends AbstractApplicationInstallerController implements Runnable {
+public class FileExtractionController extends AbstractApplicationInstallerController {
 
-    private Future<?> task;
     private ProgressPanel fileExtractionTab;
 
     public FileExtractionController(EjistoDialog dialog) {
@@ -59,22 +53,17 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
 
     @Override
     public boolean automaticallyProceedToNextStep() {
-        return true;
+        return false;
     }
 
     @Override
-    public boolean executionCompleted() {
-        return task.isDone();
+    protected Task<?> createNewTask() {
+        return new FileExtractionWorker(getSession(), this);
     }
 
     @Override
     public boolean isExecutionSucceeded() throws WizardException {
-        try {
-            task.get();
-            return true;
-        } catch (Exception e) {
-            throw new WizardException(e);
-        }
+        return isDone();
     }
 
     @Override
@@ -84,55 +73,7 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
 
     @Override
     public void activate() {
-        this.task = addJob(this);
-    }
 
-    @Override
-    public void run() {
-        try {
-            File war = getSession().getWarFile();
-            String path = openWar(war);
-            getSession().setInstallationPath(path);
-            getView().jobCompleted(getMessage("progress.file.extraction.end", war.getName()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String openWar(File file) throws IOException {
-        File baseDir = new File(System.getProperty("java.io.tmpdir") + File.separator + getFilenameWithoutExt(file));
-        if (!overwriteDir(baseDir)) return null;
-        if (!initTempDir(baseDir)) throw new IOException("Path " + baseDir.getAbsolutePath() + " is not writable. Cannot continue.");
-        getSession().clearElements();
-        ZipFile war = new ZipFile(file);
-        Enumeration<? extends ZipEntry> entries = war.entries();
-        getView().initProgress(war.size(), getMessage("progress.start"));
-        ZipEntry entry;
-        while (entries.hasMoreElements()) {
-            entry = entries.nextElement();
-            getView().jobCompleted(getMessage("progress.file.extraction", entry.getName()));
-            if (!entry.isDirectory()) writeFile(war.getInputStream(entry), baseDir, entry.getName());
-            if (entry.getName().endsWith(".jar"))
-                getSession().addElement(new WebApplicationDescriptorElement(retrieveFilenameFromZipEntryPath(entry.getName())));
-        }
-        return baseDir.getAbsolutePath();
-    }
-
-    private boolean overwriteDir(File dir) {
-        if (dir.exists() && showWarning(getDialog(), "wizard.overwrite.dir.message", dir.getAbsolutePath())) {
-            boolean success = true;
-            for (File f : dir.listFiles()) success &= deleteFile(f);
-            return success;
-        }
-        return !dir.exists();
-    }
-
-    private boolean initTempDir(File dir) {
-        if (dir.exists()) return true;
-        boolean success = dir.mkdir();
-        if (!success) return success;
-        dir.deleteOnExit();
-        return success;
     }
 
     @Override
@@ -150,4 +91,27 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
         return false;
     }
 
+    @Override
+    protected void handlePropertyChange(PropertyChangeEvent event) {
+        String propertyName = event.getPropertyName();
+        if (propertyName.equals("startProgress")) {
+            notifyStart((Integer) event.getNewValue());
+        } else if (propertyName.equals("progressDescriptor")) {
+            ProgressDescriptor descriptor = (ProgressDescriptor) event.getNewValue();
+            if (descriptor.isTaskCompleted()) {
+                getView().processCompleted(
+                        getMessage("progress.file.extraction.end", getSession().getWarFile().getName()));
+            } else {
+                writeProgress(descriptor.getMessage());
+            }
+        }
+    }
+
+    private void notifyStart(final int numJobs) {
+        getView().initProgress(numJobs, getMessage("progress.start"));
+    }
+
+    private void writeProgress(String message) {
+        getView().jobCompleted(message);
+    }
 }

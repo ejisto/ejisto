@@ -22,6 +22,7 @@ package com.ejisto.modules.gui.components;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.helper.EditorType;
+import com.ejisto.modules.gui.components.helper.FieldEditingListener;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.gui.components.helper.MockedFieldValueEditorPanel;
 import com.ejisto.util.GuiUtils;
@@ -57,9 +58,11 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     private MockedFieldsEditorController controller;
     private FieldsEditorContext fieldsEditorContext;
 
-    public MockedFieldsEditor(FieldsEditorContext fieldsEditorContext) {
+    public MockedFieldsEditor(FieldsEditorContext fieldsEditorContext, ActionMap actionMap) {
         this.fieldsEditorContext = fieldsEditorContext;
+        getActionMap().setParent(actionMap);
         init();
+        initActionMap(actionMap);
     }
 
     public void setFields(List<MockedField> fields) {
@@ -69,9 +72,7 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     }
 
     public void initActionMap(ActionMap actionMap) {
-        getActionMap().setParent(actionMap);
         GuiUtils.setActionMap(actionMap, getTree());
-        GuiUtils.setActionMap(actionMap, getValueEditorPanel());
         GuiUtils.setActionMap(actionMap, getFlattenTable());
     }
 
@@ -158,6 +159,17 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         }
     }
 
+    private MockedFieldsEditorComponent getEditorComponent(EditorType editorType) {
+        switch (editorType) {
+            case HIERARCHICAL:
+                return getTree();
+            case FLATTEN:
+                return getFlattenTable();
+            default:
+                throw new IllegalArgumentException(editorType.name());
+        }
+    }
+
     private JPanel getEditorSelectionPanel() {
         if (this.editorSelectionPanel != null) return this.editorSelectionPanel;
         editorSelectionPanel = JXRadioGroup.create(createEditorTypeButtons());
@@ -194,7 +206,7 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
 
     private MockedFieldValueEditorPanel getValueEditorPanel() {
         if (this.valueEditorPanel != null) return valueEditorPanel;
-        valueEditorPanel = new MockedFieldValueEditorPanel();
+        valueEditorPanel = new MockedFieldValueEditorPanel(getActionMap());
         valueEditorPanel.setCollapsed(true);
         valueEditorPanel.setPreferredSize(new Dimension(200, 150));
         return valueEditorPanel;
@@ -247,5 +259,11 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
 
     public List<MockedField> getTableSelectedItems() {
         return getFlattenTable().getSelectedFields();
+    }
+
+    public void registerFieldEditingListener(FieldEditingListener listener) {
+        for (EditorType editorType : fieldsEditorContext.getSupportedEditors()) {
+            getEditorComponent(editorType).addFieldEditingListener(listener);
+        }
     }
 }

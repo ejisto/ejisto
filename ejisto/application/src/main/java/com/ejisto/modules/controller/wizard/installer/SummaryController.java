@@ -60,11 +60,6 @@ public class SummaryController extends AbstractApplicationInstallerController {
     }
 
     @Override
-    public boolean executionCompleted() {
-        return true;
-    }
-
-    @Override
     public String getTitleKey() {
         return "wizard.summary.title";
     }

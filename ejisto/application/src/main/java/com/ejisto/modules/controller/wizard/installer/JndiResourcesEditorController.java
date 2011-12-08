@@ -76,11 +76,6 @@ public class JndiResourcesEditorController extends AbstractApplicationInstallerC
     }
 
     @Override
-    public boolean executionCompleted() {
-        return true;
-    }
-
-    @Override
     public String getTitleKey() {
         return "wizard.jndiresourceseditor.title";
     }

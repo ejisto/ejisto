@@ -21,10 +21,7 @@ package com.ejisto.modules.controller;
 
 import ch.lambdaj.function.closure.Closure0;
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.gui.components.Header;
-import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
-import org.jdesktop.swingx.JXDialog;
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
@@ -32,7 +29,6 @@ import java.awt.*;
 import java.util.List;
 
 import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.ADD_FIELD;
-import static com.ejisto.util.GuiUtils.centerOnScreen;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static java.util.Collections.emptyList;
 
@@ -47,7 +43,7 @@ public class MockedFieldSelectionController {
     private MockedFieldsEditorController controller;
     private Closure0 closeAction;
     private Closure0 okAction;
-    private JXDialog dialog;
+    private DialogManager dialogManager;
     private List<MockedField> selectedFields;
 
     public MockedFieldSelectionController() {
@@ -61,34 +57,28 @@ public class MockedFieldSelectionController {
 
     void close() {
         this.selectedFields = emptyList();
-        dialog.setVisible(false);
+        dialogManager.hide();
     }
 
     void ok() {
         this.selectedFields = controller.getSelection();
-        dialog.setVisible(false);
+        dialogManager.hide();
     }
 
     public void showSelectionDialog() {
         initClosures();
-        dialog = new JXDialog(createPanel());
-        dialog.setPreferredSize(new Dimension(400, 300));
-        dialog.setSize(new Dimension(400, 300));
-        dialog.setResizable(true);
-        dialog.setModal(true);
-        centerOnScreen(dialog);
-        dialog.setVisible(true);
+        dialogManager = DialogManager.Builder.newInstance()
+                .withActions(new CallbackAction(getMessage("field.create.dialog.ok"), okAction),
+                             new CallbackAction(getMessage("field.create.dialog.cancel"), closeAction))
+                .withContent(createPanel())
+                .withHeader(getMessage("field.create.dialog.title"), getMessage("field.create.dialog.description"))
+                .build();
+        dialogManager.show(true, new Dimension(500, 400));
     }
 
     private JPanel createPanel() {
         JXPanel content = new JXPanel(new BorderLayout(0, 0));
-        content.add(new Header(getMessage("field.create.dialog.title"), getMessage("field.create.dialog.description")),
-                    BorderLayout.NORTH);
-        MockedFieldsEditor view = controller.getView();
-        ActionMap actionMap = content.getActionMap();
-        actionMap.put(JXDialog.CLOSE_ACTION_COMMAND, new CallbackAction("close", closeAction));
-        actionMap.put(JXDialog.EXECUTE_ACTION_COMMAND, new CallbackAction("ok", okAction));
-        content.add(view, BorderLayout.CENTER);
+        content.add(controller.getView(), BorderLayout.CENTER);
         return content;
     }
 

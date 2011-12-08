@@ -19,23 +19,44 @@
 
 package com.ejisto.modules.executor;
 
-import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 4/2/11
- * Time: 6:57 PM
+ * Date: 11/22/11
+ * Time: 7:18 PM
  */
-public interface Task<T> extends RunnableFuture<T> {
+public class BackgroundTask<T> extends FutureTask<T> implements Task<T> {
 
-    String getDescription();
+    private static final ProgressDescriptor NO_PROGRESS = new ProgressDescriptor(0, "");
 
-    boolean supportsProcessChangeNotification();
+    public BackgroundTask(Callable<T> callable) {
+        super(callable);
+    }
 
-    void work();
+    public BackgroundTask(Runnable runnable, T result) {
+        super(runnable, result);
+    }
 
-    ProgressDescriptor getCurrentProgressDescriptor();
+    @Override
+    public String getDescription() {
+        return null;
+    }
 
+    @Override
+    public boolean supportsProcessChangeNotification() {
+        return false;
+    }
+
+    @Override
+    public void work() {
+    }
+
+    @Override
+    public ProgressDescriptor getCurrentProgressDescriptor() {
+        return NO_PROGRESS;
+    }
 
 }

@@ -54,61 +54,8 @@
         <dependency>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-core-container-tomcat</artifactId>
-            <version>1.1.2</version>
+            <version>1.1.3</version>
         </dependency>
-
-
-        <!--dependency>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-core-uberjar</artifactId>
-            <version>1.1.2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-core-container-geronimo</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-core-container-glassfish</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-core-container-jboss</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-core-container-jetty</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-core-container-jo</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-core-container-jonas</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-core-container-jrun</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-core-container-orion</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-core-container-tomcat</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-core-container-resin</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-core-container-weblogic</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -118,7 +65,7 @@
         <dependency>
             <groupId>javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>3.11.0.GA</version>
+            <version>3.12.1.GA</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

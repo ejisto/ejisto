@@ -19,9 +19,13 @@
 
 package com.ejisto.modules.cargo.util;
 
+import com.ejisto.util.PropertyChangePublisher;
 import org.apache.log4j.Logger;
 import org.codehaus.cargo.container.installer.ZipURLInstaller;
 
+import javax.swing.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,6 +34,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,13 +43,15 @@ import java.nio.channels.FileChannel;
  * Date: 3/10/11
  * Time: 10:40 PM
  */
-public class ContainerInstaller extends ZipURLInstaller {
+public class ContainerInstaller extends ZipURLInstaller implements PropertyChangePublisher {
     private static final Logger logger = Logger.getLogger(ContainerInstaller.class);
-    private URL url;
+    private final URL url;
+    private final List<PropertyChangeListener> propertyChangeListeners;
 
     public ContainerInstaller(URL remoteLocation, String installDir) {
         super(remoteLocation, System.getProperty("java.io.tmpdir"), installDir);
         this.url = remoteLocation;
+        this.propertyChangeListeners = new ArrayList<PropertyChangeListener>();
     }
 
     @Override
@@ -58,10 +66,13 @@ public class ContainerInstaller extends ZipURLInstaller {
             byte[] buffer = new byte[512000];
             int readed;
             int totalReaded = 0;
+            fireProgressChange(0);
+
             while ((readed = bis.read(buffer)) != -1) {
                 totalReaded += readed;
                 if (logger.isDebugEnabled()) logger.debug("readed " + totalReaded + " of " + total);
                 ch.write(ByteBuffer.wrap(buffer, 0, readed));
+                fireProgressChange(Math.max(50, totalReaded / total * 100));
             }
             ch.close();
             out.close();
@@ -71,4 +82,24 @@ public class ContainerInstaller extends ZipURLInstaller {
             throw new RuntimeException("cannot download from " + url.toString(), e);
         }
     }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        this.propertyChangeListeners.add(listener);
+    }
+
+    private void fireProgressChange(int progress) {
+        for (PropertyChangeListener listener : propertyChangeListeners) {
+            firePropertyChange(listener, new PropertyChangeEvent(this, "progress", -1, progress));
+        }
+    }
+
+    private void firePropertyChange(final PropertyChangeListener listener, final PropertyChangeEvent event) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                listener.propertyChange(event);
+            }
+        });
+    }
+
 }

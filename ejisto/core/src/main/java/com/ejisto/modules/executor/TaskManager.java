@@ -22,12 +22,14 @@ package com.ejisto.modules.executor;
 import ch.lambdaj.Lambda;
 import org.springframework.beans.factory.DisposableBean;
 
+import java.beans.PropertyChangeListener;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static ch.lambdaj.Lambda.forEach;
 import static java.util.Collections.emptyList;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -43,12 +45,14 @@ public class TaskManager implements DisposableBean {
     private ScheduledExecutorService scheduler;
     private final ReentrantLock lock = new ReentrantLock();
     private final Map<String, TaskEntry> registry;
+    private final Semaphore semaphore;
 
     public static TaskManager getInstance() {
         return INSTANCE;
     }
 
     private TaskManager() {
+        this.semaphore = new Semaphore(Runtime.getRuntime().availableProcessors() + 2);
         this.registry = Collections.synchronizedMap(new LinkedHashMap<String, TaskEntry>());
         this.executorService = Executors.newCachedThreadPool();
         this.scheduler = Executors.newScheduledThreadPool(5);
@@ -57,7 +61,7 @@ public class TaskManager implements DisposableBean {
             public void run() {
                 refreshTasksList();
             }
-        }, 500L, 500L, SECONDS);
+        }, 500L, 500L, MILLISECONDS);
     }
 
     private void refreshTasksList() {
@@ -79,15 +83,18 @@ public class TaskManager implements DisposableBean {
 
     }
 
-    public <T> Future<T> addTask(Task<T> task) {
+    public String addNewTask(Task<?> task) {
         boolean locked = false;
         try {
             locked = lock.tryLock(1, SECONDS);
             if (!locked) return null;
-            Future<T> future = executorService.submit(task);
             String uuid = UUID.randomUUID().toString();
-            registry.put(uuid, new TaskEntry(future, buildTaskDescriptor(uuid, task, future), task));
-            return future;
+            Future<?> future;
+            if (task.supportsProcessChangeNotification()) future = task;
+            else future = internalAddTask(task, uuid);
+            task.work();
+            registerTask(uuid, task, future);
+            return uuid;
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -95,9 +102,14 @@ public class TaskManager implements DisposableBean {
         }
     }
 
-    public Future<Void> addTask(Runnable target, String description) {
-        return addTask(new Task<Void>(Executors.callable(target, (Void) null), description));
+    private Future<?> internalAddTask(Task<?> task, String uuid) {
+        return executorService.submit(task);
     }
+
+    private void registerTask(String uuid, Task<?> task, Future<?> future) {
+        registry.put(uuid, new TaskEntry(future, buildTaskDescriptor(uuid, task, future), task));
+    }
+
 
     public void scheduleTaskAtFixedRate(Runnable task, long delay, long period, TimeUnit timeUnit) {
         scheduler.scheduleAtFixedRate(task, delay, period, timeUnit);
@@ -115,7 +127,8 @@ public class TaskManager implements DisposableBean {
 
     public List<TaskDescriptor> getRegisteredTasks() {
         if (isEmpty(registry)) return emptyList();
-        return new ArrayList<TaskDescriptor>(Lambda.<TaskDescriptor>collect(forEach(registry.values()).getDescriptor()));
+        return new ArrayList<TaskDescriptor>(
+                Lambda.<TaskDescriptor>collect(forEach(registry.values()).getDescriptor()));
     }
 
     private TaskDescriptor buildTaskDescriptor(String uuid, Task task, Future<?> future) {
@@ -145,11 +158,11 @@ public class TaskManager implements DisposableBean {
     }
 
     private class TaskEntry {
-        private Future<?> future;
-        private TaskDescriptor descriptor;
-        private Task task;
+        private final Future<?> future;
+        private final TaskDescriptor descriptor;
+        private final Task<?> task;
 
-        private TaskEntry(Future<?> future, TaskDescriptor descriptor, Task task) {
+        private TaskEntry(Future<?> future, TaskDescriptor descriptor, Task<?> task) {
             this.future = future;
             this.descriptor = descriptor;
             this.task = task;
@@ -163,9 +176,21 @@ public class TaskManager implements DisposableBean {
             return descriptor;
         }
 
-        public Task getTask() {
+        public Task<?> getTask() {
             return task;
         }
+    }
+
+    public static <T> GuiTask<T> createNewGuiTask(Callable<T> callable, String description, PropertyChangeListener... listeners) {
+        GuiTask<T> task = new GuiTask<T>(callable, description);
+        for (PropertyChangeListener listener : listeners) {
+            task.addPropertyChangeListener(listener);
+        }
+        return task;
+    }
+
+    public static <T> BackgroundTask<T> createNewBackgroundTask(Callable<T> callable, String description) {
+        return new BackgroundTask<T>(callable);
     }
 
 }

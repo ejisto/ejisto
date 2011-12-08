@@ -39,7 +39,7 @@ public class WebApplicationDescriptorHelper {
     public boolean isBlacklistedEntry(String filename) {
         WebApplicationDescriptorElement element = selectFirst(getElements(), having(on(
                 WebApplicationDescriptorElement.class).getPath(), equalTo(filename)));
-        return element != null && element.isBlacklisted();
+        return element == null || element.isBlacklisted();
     }
 
     public void setBlacklist(List<String> blacklist) {

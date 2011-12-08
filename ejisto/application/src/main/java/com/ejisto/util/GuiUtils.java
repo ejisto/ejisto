@@ -154,6 +154,10 @@ public class GuiUtils {
         SwingUtilities.invokeLater(action);
     }
 
+    public static void runOnEdtAndWait(Runnable action) throws InvocationTargetException, InterruptedException {
+        SwingUtilities.invokeAndWait(action);
+    }
+
     public static void runInEDT(final Closure closure) {
         runOnEDT(new Runnable() {
             @Override
@@ -173,10 +177,13 @@ public class GuiUtils {
     }
 
     public static void setActionMap(ActionMap actionMap, JComponent component) {
-        ActionMap original = component.getActionMap();
-        ActionMap parent = actionMap;
+        fillActionMap(component.getActionMap(), actionMap);
+    }
+
+    public static void fillActionMap(ActionMap original, ActionMap target) {
+        ActionMap parent = target;
         if (original.getParent() != null) {
-            parent = cloneActionMap(actionMap);
+            parent = cloneActionMap(target);
             parent.setParent(original.getParent());
         }
         original.setParent(parent);
@@ -205,5 +212,10 @@ public class GuiUtils {
 
     public static abstract class EditorColumnFillStrategy {
         public abstract void fillRow(List<List<String>> rows, MockedField row);
+    }
+
+    public static Throwable getRootThrowable(Throwable in) {
+        if (in.getCause() != null) return getRootThrowable(in.getCause());
+        return in;
     }
 }

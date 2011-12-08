@@ -33,9 +33,11 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
+import java.util.concurrent.Callable;
 
 import static ch.lambdaj.Lambda.closure;
 import static ch.lambdaj.Lambda.of;
+import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 import static com.ejisto.util.GuiUtils.runInEDT;
 
 public class ServerController implements ApplicationListener<ChangeServerStatus>, DisposableBean {
@@ -50,12 +52,13 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
     @Override
     public void onApplicationEvent(final ChangeServerStatus event) {
         logger.info("handling event: " + event);
-        taskManager.addTask(new Runnable() {
+        taskManager.addNewTask(createNewGuiTask(new Callable<Void>() {
             @Override
-            public void run() {
+            public Void call() {
                 handleEvent(event);
+                return null;
             }
-        }, event.getDescription());
+        }, event.getDescription()));
     }
 
     private void handleEvent(ChangeServerStatus event) {

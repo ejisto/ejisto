@@ -90,11 +90,6 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
         //no extra work here :)
     }
 
-    @Override
-    public boolean executionCompleted() {
-        return executionCompleted;
-    }
-
     private File openFileSelectionDialog() {
         String directoryPath = SettingsRepository.getInstance().getSettingValue(LAST_FILESELECTION_PATH);
         JFileChooser fileChooser = new JFileChooser(directoryPath);

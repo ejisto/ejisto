@@ -21,31 +21,30 @@ package com.ejisto.modules.controller;
 
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.convert.PropertyExtractor;
+import com.ejisto.event.def.ApplicationDeployed;
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
-import com.ejisto.modules.gui.components.helper.CallbackAction;
-import com.ejisto.modules.gui.components.helper.EditorType;
-import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
+import com.ejisto.modules.gui.components.helper.*;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.FieldsEditorContextMatcher;
-import com.ejisto.util.GuiUtils;
 import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static ch.lambdaj.Lambda.convert;
 import static com.ejisto.modules.gui.components.helper.EditorType.FLATTEN;
 import static com.ejisto.modules.gui.components.helper.EditorType.HIERARCHICAL;
 import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.APPLICATION_INSTALLER_WIZARD;
-import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.GuiUtils.runOnEDT;
+import static com.ejisto.util.GuiUtils.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -53,14 +52,13 @@ import static com.ejisto.util.GuiUtils.runOnEDT;
  * Date: 12/28/10
  * Time: 5:22 PM
  */
-public class MockedFieldsEditorController implements ActionListener {
+public class MockedFieldsEditorController implements ActionListener, FieldEditingListener {
     public static final String START_EDITING = "START_EDITING";
     public static final String STOP_EDITING = "STOP_EDITING";
     public static final String CANCEL_EDITING = "CANCEL_EDITING";
     private MockedField editedField;
     private ReentrantLock lock;
-    private int x;
-    private int y;
+    private Point currentEditingLocation;
     private MockedFieldsEditor view;
     private ActionMap actionMap;
     private Collection<MockedField> wizardFields = Collections.emptyList();
@@ -74,37 +72,58 @@ public class MockedFieldsEditorController implements ActionListener {
     public MockedFieldsEditorController(FieldsEditorContext fieldsEditorContext) {
         actionMap = new ActionMap();
         initActions();
-        view = new MockedFieldsEditor(fieldsEditorContext);
+        view = new MockedFieldsEditor(fieldsEditorContext, getActionMap());
         view.registerChangeListener(this);
         view.registerMouseLister(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getClickCount() != 2) return;
-                x = e.getX();
-                y = e.getY();
-                editedField = getView().getMockedFieldAt(x, y, selectedIndex == 0);
-                if (editedField != null && !editedField.isSimpleValue()) {
-                    editingStarted();
-                } else {
-                    editingCanceled();
-                }
+                setCurrentEditingLocation(e.getPoint());
+                startEdit(null, e.getPoint());
             }
         });
-        view.initActionMap(getActionMap());
         contextMatcher = new FieldsEditorContextMatcher(fieldsEditorContext);
         view.setFields(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
+        view.registerFieldEditingListener(this);
         lock = new ReentrantLock();
-        GuiUtils.registerEventListener(MockedFieldChanged.class, new ApplicationListener<MockedFieldChanged>() {
+        registerEventListener(ApplicationDeployed.class, new ApplicationListener<ApplicationDeployed>() {
+            @Override
+            public void onApplicationEvent(ApplicationDeployed event) {
+                runOnEDT(new Runnable() {
+                    @Override
+                    public void run() {
+                        reloadFields();
+                    }
+                });
+            }
+        });
+        registerEventListener(MockedFieldChanged.class, new ApplicationListener<MockedFieldChanged>() {
             @Override
             public void onApplicationEvent(MockedFieldChanged event) {
                 runOnEDT(new Runnable() {
                     @Override
                     public void run() {
-                        view.setFields(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
+                        reloadFields();
                     }
                 });
             }
         });
+    }
+
+    private void reloadFields() {
+        view.setFields(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
+    }
+
+    private void startEdit(MockedFieldEditingEvent event, Point editingPoint) {
+
+        editedField = event != null ? event.getField() : getView().getMockedFieldAt(editingPoint.x, editingPoint.y,
+                                                                                    selectedIndex == 0);
+
+        if (editedField != null && !editedField.isSimpleValue()) {
+            editingStarted();
+        } else {
+            editingCanceled();
+        }
     }
 
     public MockedFieldsEditor getView() {
@@ -131,10 +150,10 @@ public class MockedFieldsEditorController implements ActionListener {
     }
 
     private void initActions() {
-        actionMap.put(STOP_EDITING, new CallbackAction(STOP_EDITING, new Closure0() {{
+        actionMap.put(STOP_EDITING, new CallbackAction(getMessage("ok"), new Closure0() {{
             of(MockedFieldsEditorController.this).editingStopped();
         }}));
-        actionMap.put(CANCEL_EDITING, new CallbackAction(CANCEL_EDITING, new Closure0() {{
+        actionMap.put(CANCEL_EDITING, new CallbackAction(getMessage("cancel"), new Closure0() {{
             of(MockedFieldsEditorController.this).editingCanceled();
         }}));
         actionMap.put(HIERARCHICAL.toString(), new CallbackAction(HIERARCHICAL.toString(), new Closure0() {{
@@ -156,10 +175,12 @@ public class MockedFieldsEditorController implements ActionListener {
     }
 
     void editingStopped() {
+        if (!lock.isLocked()) return; //probably called when panel is collapsing
         getView().expandCollapseEditorPanel(false);
         editedField.setFieldElementType(getView().getFieldType());
         editedField.setExpression(buildExpression());
-        getView().getTree().redraw(x, y);
+        Point p = getCurrentEditingLocation();
+        getView().getTree().redraw(p.x, p.y);
         lock.unlock();
     }
 
@@ -189,4 +210,25 @@ public class MockedFieldsEditorController implements ActionListener {
         this.wizardFields = wizardFields;
     }
 
+    @Override
+    public void editingStarted(MockedFieldEditingEvent event) {
+        setCurrentEditingLocation(event.getPoint());
+        startEdit(event, getCurrentEditingLocation());
+    }
+
+    @Override
+    public void editingStopped(MockedFieldEditingEvent event) {
+    }
+
+    @Override
+    public void editingCanceled(MockedFieldEditingEvent event) {
+    }
+
+    public Point getCurrentEditingLocation() {
+        return currentEditingLocation;
+    }
+
+    public void setCurrentEditingLocation(Point currentEditingLocation) {
+        this.currentEditingLocation = currentEditingLocation;
+    }
 }

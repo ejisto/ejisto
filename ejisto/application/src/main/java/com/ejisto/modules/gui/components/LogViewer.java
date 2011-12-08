@@ -48,8 +48,6 @@ public class LogViewer extends JXPanel {
         log = new JTextArea();
         logPanel = new JScrollPane(log);
         logPanel.setMinimumSize(new Dimension(500, 100));
-//        logPanel.setPreferredSize(new Dimension(500, 100));
-//        logPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 300));
         log.setEditable(false);
         log.setFont(new java.awt.Font("Monospaced", 0, 9));
         return logPanel;
@@ -57,11 +55,6 @@ public class LogViewer extends JXPanel {
 
     public void log(String message) {
         log.append(message);
-//        try {
-//            log.setCaretPosition(log.getLineEndOffset(log.getLineCount() -1));
-//        } catch (BadLocationException e) {
-//            e.printStackTrace();
-//        }
     }
 
 }

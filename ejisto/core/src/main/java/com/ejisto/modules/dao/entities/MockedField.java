@@ -73,4 +73,6 @@ public interface MockedField {
     String getCompleteDescription();
 
     String getCompleteFieldType();
+
+    void copyFrom(MockedField original);
 }

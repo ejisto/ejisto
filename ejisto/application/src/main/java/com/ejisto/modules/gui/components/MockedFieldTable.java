@@ -20,12 +20,17 @@
 package com.ejisto.modules.gui.components;
 
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
-import com.ejisto.modules.gui.components.helper.PopupMenuManager;
+import com.ejisto.modules.gui.components.helper.*;
+import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXTable;
 
+import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.ADD_FIELD;
+import static java.util.Collections.emptyList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,10 +41,14 @@ import java.util.List;
 public class MockedFieldTable extends JXTable implements MockedFieldsEditorComponent {
 
     private FieldsEditorContext fieldsEditorContext;
+    private final MockedFieldEditingEventHelper helper;
 
     public MockedFieldTable(FieldsEditorContext fieldsEditorContext) {
         this.fieldsEditorContext = fieldsEditorContext;
         addMouseListener(new PopupMenuManager());
+        if (fieldsEditorContext == ADD_FIELD)
+            setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        this.helper = new MockedFieldEditingEventHelper();
     }
 
     @Override
@@ -60,19 +69,51 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
     }
 
     @Override
-    public void editFieldAt(Point point) {
-        editCellAt(rowAtPoint(point), MockedFieldsTableModel.EDITABLE_COLUMN_INDEX);
+    public void editFieldAt(final Point point) {
+        MockedField field = getFieldAt(point);
+        if (!field.isSimpleValue()) {
+            fireEditingStarted(field, point);
+        } else {
+            GuiUtils.runOnEDT(new Runnable() {
+                @Override
+                public void run() {
+                    editCellAt(rowAtPoint(point), MockedFieldsTableModel.EDITABLE_COLUMN_INDEX);
+                    ((JTextField) getEditorComponent()).grabFocus();
+                }
+            });
+        }
     }
 
     @Override
     public void selectFieldAt(Point point) {
         int rowIndex = rowAtPoint(point);
-        setRowSelectionInterval(rowIndex, rowIndex);
+        if (rowIndex > -1) setRowSelectionInterval(rowIndex, rowIndex);
     }
 
     @Override
     public List<MockedField> getSelectedFields() {
-        return null;
+        int[] selectedRows = getSelectedRows();
+        if (selectedRows.length == 0) return emptyList();
+        List<MockedField> selectedFields = new ArrayList<MockedField>(selectedRows.length);
+        for (int selectedRow : selectedRows) {
+            selectedFields.add(((MockedFieldsTableModel) getModel()).getMockedFieldAt(selectedRow));
+        }
+        return selectedFields;
+    }
+
+    @Override
+    public void addFieldEditingListener(FieldEditingListener fieldEditingListener) {
+        helper.addFieldEditingListener(fieldEditingListener);
+    }
+
+    @Override
+    public void removeFieldEditingListener(FieldEditingListener fieldEditingListener) {
+        helper.removeFieldEditingListener(fieldEditingListener);
+    }
+
+    private void fireEditingStarted(MockedField field, Point point) {
+        MockedFieldEditingEvent event = new MockedFieldEditingEvent(this, field, fieldsEditorContext, point);
+        helper.fireEditingStarted(event);
     }
 
 }
