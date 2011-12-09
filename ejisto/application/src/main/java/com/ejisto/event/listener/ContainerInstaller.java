@@ -19,7 +19,6 @@
 
 package com.ejisto.event.listener;
 
-import ch.lambdaj.function.closure.Closure;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.event.def.ContainerInstalled;
@@ -40,12 +39,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.Callable;
 
-import static ch.lambdaj.Lambda.closure;
-import static ch.lambdaj.Lambda.of;
 import static com.ejisto.constants.StringConstants.CONTAINERS_HOME_DIR;
 import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.GuiUtils.runInEDT;
+import static com.ejisto.util.GuiUtils.runOnEDT;
 
 /**
  * Created by IntelliJ IDEA.
@@ -64,15 +61,11 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
     public void onApplicationEvent(final InstallContainer event) {
         logger.info("about to install " + event.getDescription() + " container");
         final String containerDescription = settingsManager.getValue("container.default.description");
-        final ContainerInstallationPanel panel = new ContainerInstallationPanel(
-                getMessage("container.installation.panel.title"),
-                getMessage("container.installation.panel.description",
-                           containerDescription));
-        final DialogManager manager = DialogManager.Builder.newInstance()
-                .withContent(panel)
-                .withParentFrame(application)
-                .withDecorations(false)
-                .build();
+        final ContainerInstallationPanel panel = new ContainerInstallationPanel(getMessage("container.installation.panel.title"),
+                                                                                getMessage("container.installation.panel.description",
+                                                                                           containerDescription));
+        final DialogManager manager = DialogManager.Builder.newInstance().withContent(panel).withParentFrame(application).withDecorations(
+                false).build();
 
         //new DialogManager(application, panel);
         Callable<Void> action = new Callable<Void>() {
@@ -87,8 +80,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                 if (logger.isDebugEnabled()) logger.debug("notifying installation success");
                 eventManager.publishEvent(new ContainerInstalled(this, event.getContainerId(), event.getDescription()));
                 eventManager.publishEvent(new LogMessage(this, getMessage("container.installation.ok")));
-                if (event.isStart())
-                    eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
+                if (event.isStart()) eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
                 showHideProgressPanel(false, manager);
                 return null;
             }
@@ -97,10 +89,13 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         String uuid = TaskManager.getInstance().addNewTask(createNewGuiTask(action, "download server", this));
     }
 
-    private void notifyToPanel(ContainerInstallationPanel panel, String message) {
-        Closure c = closure();
-        {of(panel).notifyJobCompleted(message); }
-        runInEDT(c);
+    private void notifyToPanel(final ContainerInstallationPanel panel, final String message) {
+        runOnEDT(new Runnable() {
+            @Override
+            public void run() {
+                panel.notifyJobCompleted(message);
+            }
+        });
     }
 
     void showHideProgressPanel(final boolean show, final DialogManager manager) {

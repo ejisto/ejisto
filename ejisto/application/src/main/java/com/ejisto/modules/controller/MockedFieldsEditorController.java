@@ -116,8 +116,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
 
     private void startEdit(MockedFieldEditingEvent event, Point editingPoint) {
 
-        editedField = event != null ? event.getField() : getView().getMockedFieldAt(editingPoint.x, editingPoint.y,
-                                                                                    selectedIndex == 0);
+        editedField = event != null ? event.getField() : getView().getMockedFieldAt(editingPoint.x, editingPoint.y, selectedIndex == 0);
 
         if (editedField != null && !editedField.isSimpleValue()) {
             editingStarted();
@@ -150,17 +149,20 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     }
 
     private void initActions() {
+
+        final ActionHelper actionHelper = new ActionHelper();
+
         actionMap.put(STOP_EDITING, new CallbackAction(getMessage("ok"), new Closure0() {{
-            of(MockedFieldsEditorController.this).editingStopped();
+            of(actionHelper).editingStopped();
         }}));
         actionMap.put(CANCEL_EDITING, new CallbackAction(getMessage("cancel"), new Closure0() {{
-            of(MockedFieldsEditorController.this).editingCanceled();
+            of(actionHelper).editingCanceled();
         }}));
         actionMap.put(HIERARCHICAL.toString(), new CallbackAction(HIERARCHICAL.toString(), new Closure0() {{
-            of(MockedFieldsEditorController.this).selectionChanged(HIERARCHICAL.getIndex());
+            of(actionHelper).hierarchicalSelected();
         }}));
         actionMap.put(FLATTEN.toString(), new CallbackAction(FLATTEN.toString(), new Closure0() {{
-            of(MockedFieldsEditorController.this).selectionChanged(FLATTEN.getIndex());
+            of(actionHelper).flattenSelected();
         }}));
     }
 
@@ -168,8 +170,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         if (lock.isLocked()) return;
         lock.tryLock();
         getView().initEditorPanel(selectMockedFieldTypes(),
-                                  getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(),
-                                             editedField.getClassSimpleName()),
+                                  getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(), editedField.getClassSimpleName()),
                                   editedField);
         getView().expandCollapseEditorPanel(true);
     }
@@ -230,5 +231,25 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
 
     public void setCurrentEditingLocation(Point currentEditingLocation) {
         this.currentEditingLocation = currentEditingLocation;
+    }
+
+    private class ActionHelper {
+
+        void editingStopped() {
+            MockedFieldsEditorController.this.editingStopped();
+        }
+
+        void editingCanceled() {
+            MockedFieldsEditorController.this.editingCanceled();
+        }
+
+        void hierarchicalSelected() {
+            MockedFieldsEditorController.this.selectionChanged(HIERARCHICAL.getIndex());
+        }
+
+        void flattenSelected() {
+            MockedFieldsEditorController.this.selectionChanged(FLATTEN.getIndex());
+        }
+
     }
 }

@@ -19,7 +19,6 @@
 
 package com.ejisto.event.listener;
 
-import ch.lambdaj.function.closure.Closure;
 import com.ejisto.core.container.ContainerManager;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
@@ -35,10 +34,8 @@ import org.springframework.context.ApplicationListener;
 import javax.annotation.Resource;
 import java.util.concurrent.Callable;
 
-import static ch.lambdaj.Lambda.closure;
-import static ch.lambdaj.Lambda.of;
 import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
-import static com.ejisto.util.GuiUtils.runInEDT;
+import static com.ejisto.util.GuiUtils.runOnEDT;
 
 public class ServerController implements ApplicationListener<ChangeServerStatus>, DisposableBean {
 
@@ -61,7 +58,7 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
         }, event.getDescription()));
     }
 
-    private void handleEvent(ChangeServerStatus event) {
+    private void handleEvent(final ChangeServerStatus event) {
         try {
             if (event.getCommand() == ChangeServerStatus.Command.STARTUP) {
                 logger.info("Starting server:");
@@ -72,9 +69,13 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
                 containerManager.stopDefault();
                 logger.info("done");
             }
-            Closure c = closure();
-            {of(application).onServerStatusChange(event);}
-            runInEDT(c);
+
+            runOnEDT(new Runnable() {
+                @Override
+                public void run() {
+                    application.onServerStatusChange(event);
+                }
+            });
 
         } catch (NotInstalledException e) {
             logger.error("server " + e.getId() + " is not installed.", e);
