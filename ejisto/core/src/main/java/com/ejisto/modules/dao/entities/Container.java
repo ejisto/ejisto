@@ -19,47 +19,19 @@
 
 package com.ejisto.modules.dao.entities;
 
+import lombok.Data;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
  * Date: 3/6/11
  * Time: 8:44 AM
  */
+@Data
 public class Container {
     private String id;
     private String cargoId;
     private String homeDir;
     private String description;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getCargoId() {
-        return cargoId;
-    }
-
-    public void setCargoId(String cargoId) {
-        this.cargoId = cargoId;
-    }
-
-    public String getHomeDir() {
-        return homeDir;
-    }
-
-    public void setHomeDir(String homeDir) {
-        this.homeDir = homeDir;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 }

@@ -21,6 +21,7 @@ package com.ejisto.util;
 
 import com.ejisto.core.classloading.SharedClassLoader;
 import com.ejisto.event.EventManager;
+import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.repository.ContainersRepository;
 import org.springframework.context.*;
@@ -62,6 +63,10 @@ public class SpringBridge implements ApplicationContextAware {
 
     public static List<Container> loadExistingContainers() {
         return getInstance().getBean("containersRepository", ContainersRepository.class).loadContainers();
+    }
+
+    public static Container loadExistingContainer(String id) throws NotInstalledException {
+        return getInstance().getBean("containersRepository", ContainersRepository.class).loadDefault();
     }
 
     public static SpringBridge getInstance() {

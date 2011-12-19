@@ -21,6 +21,8 @@ package com.ejisto.modules.executor;
 
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -34,7 +36,8 @@ public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
 
     private Callable<T> target;
     private String description;
-    private AtomicReference<ProgressDescriptor> progressDescriptor = new AtomicReference<ProgressDescriptor>();
+    private final AtomicReference<ProgressDescriptor> progressDescriptor = new AtomicReference<ProgressDescriptor>();
+    private final List<TaskExecutionListener> taskExecutionListeners = new ArrayList<TaskExecutionListener>();
 
     public GuiTask(Callable<T> target, String description) {
         this.target = target;
@@ -70,6 +73,18 @@ public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
         return progressDescriptor.get();
     }
 
+    @Override
+    public void addTaskExecutionListener(TaskExecutionListener listener) {
+        this.taskExecutionListeners.add(listener);
+    }
+
+    @Override
+    protected void done() {
+        for (TaskExecutionListener taskExecutionListener : taskExecutionListeners) {
+            taskExecutionListener.stateChanged(ExecutionState.DONE);
+        }
+    }
+
     protected final void notifyJobCompleted(final ProgressDescriptor.ProgressState progressState, final String message) throws InterruptedException, InvocationTargetException {
         SwingUtilities.invokeAndWait(new Runnable() {
             @Override
@@ -88,4 +103,16 @@ public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
         });
     }
 
+    protected final void addErrorDescriptor(final ErrorDescriptor errorDescriptor) {
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    firePropertyChange("error", null, errorDescriptor);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

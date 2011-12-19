@@ -50,4 +50,8 @@ public class ContainerInstalled extends BaseApplicationEvent {
     public boolean isRunOnEDT() {
         return false;
     }
+
+    public String getContainerId() {
+        return id;
+    }
 }

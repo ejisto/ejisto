@@ -59,4 +59,9 @@ public class BackgroundTask<T> extends FutureTask<T> implements Task<T> {
         return NO_PROGRESS;
     }
 
+    @Override
+    public void addTaskExecutionListener(TaskExecutionListener listener) {
+        throw new UnsupportedOperationException("not implemented.");
+    }
+
 }

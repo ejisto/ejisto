@@ -19,7 +19,9 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.modules.gui.EjistoAction;
 import org.jdesktop.swingx.JXHeader;
+import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
@@ -29,8 +31,7 @@ import java.beans.PropertyChangeListener;
 
 import static com.ejisto.constants.StringConstants.START_CONTAINER;
 import static com.ejisto.constants.StringConstants.STOP_CONTAINER;
-import static com.ejisto.util.GuiUtils.getAction;
-import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -44,6 +45,7 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     private String containerId;
     private String serverName;
     private JPanel buttonsPanel;
+    private JXLabel serverStatus;
 
     public ServerSummary(String containerId, String serverName) {
         this.containerId = containerId;
@@ -65,36 +67,54 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
 
     private JXHeader getHeader() {
         if (header != null) return header;
-        header = new JXHeader(serverName, getMessage("server.summary.status", getServerStatus()),
+        header = new JXHeader(serverName, getMessage("server.summary.status"),
                               new ImageIcon(getClass().getResource("/icons/containers/tomcat.gif")));
         return header;
     }
 
     private JPanel getButtonsPanel() {
         if (buttonsPanel != null) return buttonsPanel;
-        buttonsPanel = new JXPanel(new FlowLayout(FlowLayout.RIGHT, 0, 5));
+        buttonsPanel = new JXPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+        buttonsPanel.add(getServerStatus());
         buttonsPanel.add(createButton(getAction(START_CONTAINER.getValue())));
         Action stop = getAction(STOP_CONTAINER.getValue());
         stop.setEnabled(false);
         buttonsPanel.add(createButton(stop));
         buttonsPanel.setBackground(Color.WHITE);
+        updateStatusIndicatorTooltip();
         return buttonsPanel;
     }
 
-    private void updateServerStatus() {
-        getHeader().setDescription(getMessage("server.summary.status", getServerStatus()));
+    private JXLabel getServerStatus() {
+        if (serverStatus != null) return serverStatus;
+        serverStatus = new JXLabel(getIcon(getServerStatusIcon()));
+        return serverStatus;
     }
 
-    private String getServerStatus() {
-        return getMessage(getAction(START_CONTAINER.getValue()).isEnabled() ? "server.status.shutdown" : "server.status.running");
+    private void updateServerStatus() {
+        getServerStatus().setIcon(getIcon(getServerStatusIcon()));
+        updateStatusIndicatorTooltip();
+    }
+
+    private void updateStatusIndicatorTooltip() {
+        String key = getAction(
+                START_CONTAINER.getValue()).isEnabled() ? "server.summary.status.indicator.tooltip.shutdown" : "server.summary.status.indicator.tooltip.running";
+        getServerStatus().setToolTipText(getMessage(key));
+    }
+
+    private String getServerStatusIcon() {
+        return getMessage(
+                getAction(START_CONTAINER.getValue()).isEnabled() ? "server.status.shutdown" : "server.status.running");
     }
 
     private JButton createButton(Action action) {
         JButton button = new JButton(action);
         button.setSize(new Dimension(100, 16));
-        button.setBorder(BorderFactory.createEmptyBorder());
+        button.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         button.setBackground(new Color(255, 255, 255, 0));
-        button.setHideActionText(true);
+        button.setHideActionText(false);
+        disableFocusPainting(button);
+        button.setRolloverIcon(getIcon(((EjistoAction<?>) action).getRolloverKey()));
         return button;
     }
 

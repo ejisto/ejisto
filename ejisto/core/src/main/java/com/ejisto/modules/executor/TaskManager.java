@@ -45,14 +45,12 @@ public class TaskManager implements DisposableBean {
     private ScheduledExecutorService scheduler;
     private final ReentrantLock lock = new ReentrantLock();
     private final Map<String, TaskEntry> registry;
-    private final Semaphore semaphore;
 
     public static TaskManager getInstance() {
         return INSTANCE;
     }
 
     private TaskManager() {
-        this.semaphore = new Semaphore(Runtime.getRuntime().availableProcessors() + 2);
         this.registry = Collections.synchronizedMap(new LinkedHashMap<String, TaskEntry>());
         this.executorService = Executors.newCachedThreadPool();
         this.scheduler = Executors.newScheduledThreadPool(5);

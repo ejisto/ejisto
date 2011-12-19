@@ -24,6 +24,7 @@ import com.ejisto.constants.StringConstants;
 import com.ejisto.core.container.WebApplication;
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.event.listener.ApplicationEventDispatcher;
+import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.EjistoAction;
@@ -206,6 +207,18 @@ public class GuiUtils {
         return containerTabs;
     }
 
+    public static List<com.ejisto.modules.dao.entities.Container> getActiveContainers() {
+        return SpringBridge.loadExistingContainers();
+    }
+
+    public static com.ejisto.modules.dao.entities.Container loadContainer(String id) {
+        try {
+            return SpringBridge.loadExistingContainer(id);
+        } catch (NotInstalledException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static ContainerTab buildContainerTab(Container container) {
         return new ContainerTab(container.getDescription(), container.getId());
     }
@@ -217,5 +230,12 @@ public class GuiUtils {
     public static Throwable getRootThrowable(Throwable in) {
         if (in.getCause() != null) return getRootThrowable(in.getCause());
         return in;
+    }
+
+    public static void disableFocusPainting(JButton button) {
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setRolloverEnabled(true);
+        button.setFocusPainted(false);
     }
 }

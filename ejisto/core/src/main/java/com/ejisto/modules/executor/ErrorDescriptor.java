@@ -17,30 +17,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.event.def;
+package com.ejisto.modules.executor;
 
-import com.ejisto.constants.StringConstants;
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 12/13/11
+ * Time: 7:03 PM
+ */
+public class ErrorDescriptor {
+    private final Throwable error;
+    private final String category;
 
-public class ShutdownRequest extends BaseApplicationEvent {
-
-    private static final long serialVersionUID = 5574899567022807174L;
-
-    public ShutdownRequest(Object source) {
-        super(source);
+    public ErrorDescriptor(Throwable error, String category) {
+        this.error = error;
+        this.category = category;
     }
 
-    @Override
-    public String getDescription() {
-        return "System shutdown requested";
+    public Throwable getError() {
+        return error;
     }
 
-    @Override
-    public String getKey() {
-        return StringConstants.SHUTDOWN.getValue();
+    public String getErrorDescription() {
+        return error.toString();
     }
 
-    @Override
-    public String getIconKey() {
-        return "exit.icon";
+    public String getCategory() {
+        return category;
     }
 }

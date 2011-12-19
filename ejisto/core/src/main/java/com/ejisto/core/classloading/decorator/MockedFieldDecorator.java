@@ -24,15 +24,21 @@ import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
+import lombok.Delegate;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.apache.log4j.Logger;
 import org.springframework.util.StringUtils;
 
 import static com.ejisto.core.classloading.util.ReflectionUtils.detach;
 import static com.ejisto.modules.repository.ClassPoolRepository.getRegisteredClassPool;
 
+@ToString
+@EqualsAndHashCode
 public class MockedFieldDecorator implements MockedField {
     private static final String[] COMPLEX_TYPES = {"java.util.Collection", "java.util.Map"};
     private static final Logger LOGGER = Logger.getLogger(MockedFieldDecorator.class);
+    @Delegate(excludes = ComplexValuesAware.class)
     private MockedField target;
 
     public MockedFieldDecorator(MockedField target) {
@@ -67,117 +73,6 @@ public class MockedFieldDecorator implements MockedField {
     }
 
     @Override
-    public String toString() {
-        return new StringBuilder("MockedFieldDecorator[target: ").append(target.toString()).append("]").toString();
-    }
-
-    //delegated methods
-    @Override
-    public long getId() {
-        return target.getId();
-    }
-
-    @Override
-    public void setId(long id) {
-        target.setId(id);
-    }
-
-    @Override
-    public String getContextPath() {
-        return target.getContextPath();
-    }
-
-    @Override
-    public void setContextPath(String contextPath) {
-        target.setContextPath(contextPath);
-    }
-
-    @Override
-    public String getClassName() {
-        return target.getClassName();
-    }
-
-    @Override
-    public void setClassName(String className) {
-        target.setClassName(className);
-    }
-
-    @Override
-    public String getFieldName() {
-        return target.getFieldName();
-    }
-
-    @Override
-    public void setFieldName(String fieldName) {
-        target.setFieldName(fieldName);
-    }
-
-    @Override
-    public String getFieldType() {
-        return target.getFieldType();
-    }
-
-    @Override
-    public void setFieldType(String fieldType) {
-        target.setFieldType(fieldType);
-    }
-
-    @Override
-    public String getFieldValue() {
-        return target.getFieldValue();
-    }
-
-    @Override
-    public void setFieldValue(String fieldValue) {
-        target.setFieldValue(fieldValue);
-    }
-
-    @Override
-    public boolean isActive() {
-        return target.isActive();
-    }
-
-    @Override
-    public void setActive(boolean active) {
-        target.setActive(active);
-    }
-
-    @Override
-    public String getExpression() {
-        return target.getExpression();
-    }
-
-    @Override
-    public void setExpression(String expression) {
-        target.setExpression(expression);
-    }
-
-    @Override
-    public String getComparisonKey() {
-        return target.getComparisonKey();
-    }
-
-    @Override
-    public String getPackageName() {
-        return target.getPackageName();
-    }
-
-    @Override
-    public String getClassSimpleName() {
-        return target.getClassSimpleName();
-    }
-
-    @Override
-    public String getFieldElementType() {
-        return target.getFieldElementType();
-    }
-
-    @Override
-    public void setFieldElementType(String fieldElementType) {
-        target.setFieldElementType(fieldElementType);
-    }
-
-    @Override
     public String getCompleteDescription() {
         return new StringBuilder(getFieldName()).append(" [").append(getCompleteFieldType()).append("]: ").append(
                 evaluateFieldValue()).toString();
@@ -190,24 +85,6 @@ public class MockedFieldDecorator implements MockedField {
         return target.getFieldType();
     }
 
-    @Override
-    public void copyFrom(MockedField original) {
-        target.copyFrom(original);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MockedFieldDecorator that = (MockedFieldDecorator) o;
-        return target.equals(that.target);
-    }
-
-    @Override
-    public int hashCode() {
-        return target.hashCode();
-    }
-
     private String cleanFieldElementType(String fieldElementType) {
         String[] path = fieldElementType.split("\\.");
         return path[path.length - 1];
@@ -216,6 +93,14 @@ public class MockedFieldDecorator implements MockedField {
     private String evaluateFieldValue() {
         if (isSimpleValue()) return getFieldValue();
         return "**expression**";
+    }
+
+    private static interface ComplexValuesAware {
+        boolean isSimpleValue();
+
+        String getCompleteDescription();
+
+        String getCompleteFieldType();
     }
 
 }

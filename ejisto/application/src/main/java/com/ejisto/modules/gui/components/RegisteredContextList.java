@@ -69,10 +69,13 @@ public class RegisteredContextList extends JXPanel {
         JXPanel panel = new JXPanel(new FlowLayout(FlowLayout.LEADING));
         panel.setBackground(Color.WHITE);
         panel.add(getLabelFor(context));
-        panel.add(getCommandButton(getAction(buildCommand(START_CONTEXT_PREFIX, containerId, contextPath)), getMessage("webapp.context.start.text")));
-        panel.add(getCommandButton(getAction(buildCommand(STOP_CONTEXT_PREFIX, containerId, contextPath)), getMessage("webapp.context.stop.text")));
+        panel.add(getCommandButton(getAction(buildCommand(START_CONTEXT_PREFIX, containerId, contextPath)),
+                                   getMessage("webapp.context.start.text")));
+        panel.add(getCommandButton(getAction(buildCommand(STOP_CONTEXT_PREFIX, containerId, contextPath)),
+                                   getMessage("webapp.context.stop.text")));
         panel.add(
-                getCommandButton(getAction(buildCommand(DELETE_CONTEXT_PREFIX, containerId, contextPath)), getMessage("webapp.context.delete.text")));
+                getCommandButton(getAction(buildCommand(DELETE_CONTEXT_PREFIX, containerId, contextPath)),
+                                 getMessage("webapp.context.delete.text")));
         panel.setMinimumSize(new Dimension(210, 30));
         panel.setMaximumSize(new Dimension(210, 30));
         panel.setPreferredSize(new Dimension(210, 30));
@@ -96,6 +99,7 @@ public class RegisteredContextList extends JXPanel {
         button.setBorder(BorderFactory.createEmptyBorder());
         button.setBackground(new Color(0f, 0f, 0f, 0f));
         button.setToolTipText(toolTipText);
+        disableFocusPainting(button);
         return button;
     }
 }

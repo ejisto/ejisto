@@ -70,4 +70,8 @@ public class EjistoAction<T extends BaseApplicationEvent> extends AbstractAction
     public String getKey() {
         return applicationEvent.getKey();
     }
+
+    public String getRolloverKey() {
+        return applicationEvent.getIconKey() + ".rollover";
+    }
 }

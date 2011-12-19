@@ -19,11 +19,18 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.modules.executor.ErrorDescriptor;
+import org.jdesktop.swingx.JXCollapsiblePane;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.JXTable;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 import static com.ejisto.util.GuiUtils.getMessage;
 
@@ -34,6 +41,9 @@ public class ProgressPanel extends JXPanel {
     private JProgressBar progress = null;
     private JXLabel title = null;
     private int jobsCompleted = 0;
+    private JXCollapsiblePane collapsiblePane;
+    private JXTable eventTable;
+    private final List<ErrorDescriptor> errors = new ArrayList<ErrorDescriptor>();
 
     /**
      * This method initializes
@@ -56,6 +66,7 @@ public class ProgressPanel extends JXPanel {
         this.setSize(new Dimension(500, 217));
         this.add(getProgress(), BorderLayout.SOUTH);
         this.add(title, BorderLayout.CENTER);
+        this.add(getCollapsiblePane(), BorderLayout.NORTH);
     }
 
     /**
@@ -100,4 +111,75 @@ public class ProgressPanel extends JXPanel {
         jobCompleted(text);
     }
 
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+    public void addError(ErrorDescriptor errorDescriptor) {
+        errorTableModel.addRow(errorDescriptor);
+        getEventTable().setModel(errorTableModel);
+        getEventTable().packColumn(1, -1);
+        if (getCollapsiblePane().isCollapsed())
+            getCollapsiblePane().setCollapsed(false);
+    }
+
+    private JXCollapsiblePane getCollapsiblePane() {
+        if (collapsiblePane != null) return collapsiblePane;
+        collapsiblePane = new JXCollapsiblePane();
+        collapsiblePane.setCollapsed(true);
+        JScrollPane scrollPane = new JScrollPane(getEventTable());
+        scrollPane.setPreferredSize(new Dimension(100, 100));
+        scrollPane.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        collapsiblePane.getContentPane().add(scrollPane, BorderLayout.CENTER);
+        return collapsiblePane;
+    }
+
+    private JXTable getEventTable() {
+        if (eventTable != null) return eventTable;
+        eventTable = new JXTable();
+        return eventTable;
+    }
+
+    private static Vector<String> printErrorDescriptor(ErrorDescriptor errorDescriptor) {
+        Vector<String> row = new Vector<String>();
+        row.add(errorDescriptor.getCategory());
+        row.add(errorDescriptor.getErrorDescription());
+        return row;
+    }
+
+    private final static ErrorTableModel errorTableModel = new ErrorTableModel();
+
+    private static final class ErrorTableModel extends AbstractTableModel {
+
+        private final List<ErrorDescriptor> data;
+        private static final String[] COLUMNS = {"Severity", "Error"};
+
+        public ErrorTableModel() {
+            super();
+            this.data = new ArrayList<ErrorDescriptor>();
+
+        }
+
+        public void addRow(ErrorDescriptor errorDescriptor) {
+            this.data.add(errorDescriptor);
+            fireTableDataChanged();
+        }
+
+        @Override
+        public int getRowCount() {
+            return data.size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return COLUMNS.length;
+        }
+
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            ErrorDescriptor value = data.get(rowIndex);
+            return columnIndex == 0 ? value.getCategory() : value.getErrorDescription();
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            return COLUMNS[column];
+        }
+    }
+}

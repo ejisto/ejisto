@@ -35,10 +35,7 @@ import org.springframework.validation.Errors;
 import javax.swing.*;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
+import javax.swing.tree.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +44,7 @@ import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.MAIN_WINDOW;
+import static com.ejisto.util.GuiUtils.getIcon;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
@@ -65,6 +63,16 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
         this.validator = new MockedFieldValidator();
         this.fieldsEditorContext = fieldsEditorContext;
         addMouseListener(new PopupMenuManager());
+        initCellRenderer();
+    }
+
+    private void initCellRenderer() {
+        DefaultTreeCellRenderer cellRenderer = new DefaultTreeCellRenderer();
+        cellRenderer.setLeafIcon(getIcon("propertieseditor.tree.leaf.icon"));
+        cellRenderer.setClosedIcon(getIcon("propertieseditor.tree.closed.icon"));
+        cellRenderer.setOpenIcon(getIcon("propertieseditor.tree.open.icon"));
+        cellRenderer.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        setCellRenderer(cellRenderer);
     }
 
     @Override

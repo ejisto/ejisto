@@ -37,5 +37,7 @@ public interface Task<T> extends RunnableFuture<T> {
 
     ProgressDescriptor getCurrentProgressDescriptor();
 
+    void addTaskExecutionListener(TaskExecutionListener listener);
+
 
 }

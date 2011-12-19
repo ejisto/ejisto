@@ -24,6 +24,7 @@ import com.ejisto.modules.controller.wizard.installer.ApplicationScanningControl
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
+import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.executor.GuiTask;
 import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
@@ -64,6 +65,8 @@ import static com.ejisto.util.IOUtils.*;
  * Time: 5:45 PM
  */
 public class ApplicationScanningWorker extends GuiTask<Void> {
+    private static final String INSTRUMENTATION = "INSTRUMENTATION";
+    private static final String UNEXPECTED = "UNEXPECTED";
 
     private static final Logger logger = Logger.getLogger(ApplicationScanningWorker.class);
     private static final Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
@@ -110,15 +113,25 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
         String contextPath = descriptor.getContextPath();
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(contextPath);
         cp.appendClassPath(new LoaderClassPath(loader));
-        CtClass clazz;
         int progressCounter = 0;
         for (String className : classNames) {
             notifyJobCompleted(++progressCounter, className);
-            clazz = cp.get(className);
-            fillMockedFields(clazz, descriptor, loader);
-            clazz.detach();
+            loadClass(className, cp, descriptor, loader);
         }
         logger.info("just finished processing " + descriptor.getInstallationPath());
+    }
+
+    private void loadClass(String className, ClassPool cp, WebApplicationDescriptor descriptor, ClassLoader loader) {
+        try {
+            CtClass clazz = cp.get(className);
+            fillMockedFields(clazz, descriptor, loader);
+            clazz.detach();
+        } catch (Throwable e) {
+            Class<?> c = e.getClass();
+            boolean classIssue = NotFoundException.class.isAssignableFrom(c) ||
+                    NoClassDefFoundError.class.isAssignableFrom(c);
+            addErrorDescriptor(new ErrorDescriptor(e, classIssue ? INSTRUMENTATION : UNEXPECTED));
+        }
     }
 
     private void fillMockedFields(CtClass clazz, WebApplicationDescriptor descriptor, ClassLoader loader) throws NotFoundException {

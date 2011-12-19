@@ -19,6 +19,9 @@
 
 package com.ejisto.modules.dao.entities;
 
+import lombok.Data;
+
+@Data
 public class JndiDataSource {
     private long id;
     private String name;
@@ -32,94 +35,6 @@ public class JndiDataSource {
     private String url;
     private String driverJarPath;
     private boolean alreadyBound;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public int getMaxActive() {
-        return maxActive;
-    }
-
-    public void setMaxActive(int maxActive) {
-        this.maxActive = maxActive;
-    }
-
-    public int getMaxIdle() {
-        return maxIdle;
-    }
-
-    public void setMaxIdle(int maxIdle) {
-        this.maxIdle = maxIdle;
-    }
-
-    public long getMaxWait() {
-        return maxWait;
-    }
-
-    public void setMaxWait(long maxWait) {
-        this.maxWait = maxWait;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getDriverClassName() {
-        return driverClassName;
-    }
-
-    public void setDriverClassName(String driverClassName) {
-        this.driverClassName = driverClassName;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getDriverJarPath() {
-        return driverJarPath;
-    }
-
-    public void setDriverJarPath(String driverJarPath) {
-        this.driverJarPath = driverJarPath;
-    }
 
     @Override
     public String toString() {

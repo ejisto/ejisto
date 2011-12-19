@@ -19,6 +19,9 @@
 
 package com.ejisto.modules.dao.entities;
 
+import lombok.Data;
+
+@Data
 public class MockedFieldImpl implements MockedField {
     private long id;
     private String contextPath;
@@ -31,96 +34,8 @@ public class MockedFieldImpl implements MockedField {
     private boolean active;
 
     @Override
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getContextPath() {
-        return contextPath;
-    }
-
-    @Override
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
-    }
-
-    @Override
-    public String getClassName() {
-        return className;
-    }
-
-    @Override
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    @Override
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    @Override
-    public void setFieldName(String fieldName) {
-        this.fieldName = fieldName;
-    }
-
-    @Override
-    public String getFieldType() {
-        return fieldType;
-    }
-
-    @Override
-    public void setFieldType(String fieldType) {
-        this.fieldType = fieldType;
-    }
-
-    @Override
-    public String getFieldValue() {
-        return fieldValue;
-    }
-
-    @Override
-    public void setFieldValue(String fieldValue) {
-        this.fieldValue = fieldValue;
-    }
-
-    @Override
-    public boolean isActive() {
-        return active;
-    }
-
-    @Override
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    @Override
     public boolean isSimpleValue() {
         return expression == null;
-    }
-
-    @Override
-    public String getExpression() {
-        return expression;
-    }
-
-    @Override
-    public void setExpression(String expression) {
-        this.expression = expression;
-    }
-
-    @Override
-    public String toString() {
-        return new StringBuilder("MockedField [id=").append(id).append(", contextPath=").append(contextPath).append(
-                ", className=").append(className).append(", fieldName=").append(fieldName).append(
-                ", fieldType=").append(fieldType).append(", fieldValue=").append(fieldValue).append(", active=").append(
-                active).append("]").toString();
     }
 
     @Override

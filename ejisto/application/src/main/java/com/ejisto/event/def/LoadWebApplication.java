@@ -47,4 +47,8 @@ public class LoadWebApplication extends BaseApplicationEvent {
         this.loadStored = loadStored;
     }
 
+    @Override
+    public String getIconKey() {
+        return "new.icon";
+    }
 }

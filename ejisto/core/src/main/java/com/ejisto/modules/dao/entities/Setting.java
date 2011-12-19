@@ -20,7 +20,9 @@
 package com.ejisto.modules.dao.entities;
 
 import com.ejisto.constants.StringConstants;
+import lombok.Data;
 
+@Data
 public class Setting {
 
     private String key;
@@ -33,29 +35,5 @@ public class Setting {
     public Setting(String key, String value) {
         this.key = key;
         this.value = value;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public void setHumanReadableKey(StringConstants humanReadableKey) {
-        this.humanReadableKey = humanReadableKey;
-    }
-
-    public StringConstants getHumanReadableKey() {
-        return humanReadableKey;
     }
 }

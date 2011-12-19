@@ -19,7 +19,9 @@
 
 package com.ejisto.modules.controller.wizard;
 
+import com.ejisto.modules.executor.ExecutionState;
 import com.ejisto.modules.executor.Task;
+import com.ejisto.modules.executor.TaskExecutionListener;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.EjistoDialog;
 
@@ -30,9 +32,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static javax.swing.SwingWorker.StateValue.DONE;
 
-public abstract class AbstractStepController<K> implements StepController<K>, PropertyChangeListener {
+public abstract class AbstractStepController<K> implements StepController<K>, PropertyChangeListener, TaskExecutionListener {
     private final EjistoDialog dialog;
     private K session;
     private final TaskManager taskManager = TaskManager.getInstance();
@@ -67,25 +68,38 @@ public abstract class AbstractStepController<K> implements StepController<K>, Pr
     }
 
     @Override
+    public void stateChanged(ExecutionState state) {
+        switch (state) {
+            case DONE:
+                waitUntilFinished();
+                break;
+            default:
+                break;
+
+        }
+    }
+
+    @Override
     public final void propertyChange(PropertyChangeEvent evt) {
         handlePropertyChange(evt);
-        if (evt.getPropertyName().equalsIgnoreCase("state") &&
-                evt.getNewValue() == DONE) {
-            try {
-                done.compareAndSet(false, true);
-                //we should exit as soon as possible, since we are on EDT
-                barrier.await(100, MILLISECONDS);
-            } catch (Exception e) {
-                //should never happens, since this thread should be the second one waiting on barrier.
-                throw new AssertionError(String.format("unexpected %s", e.toString()));
-            }
-        }
+//        if (evt.getPropertyName().equalsIgnoreCase("state") &&
+//                evt.getNewValue() == DONE) {
+//            try {
+//                done.compareAndSet(false, true);
+//                //we should exit as soon as possible, since we are on EDT
+//                barrier.await(100, MILLISECONDS);
+//            } catch (Exception e) {
+//                //should never happens, since this thread should be the second one waiting on barrier.
+//                throw new AssertionError(String.format("unexpected %s", e.toString()));
+//            }
+//        }
     }
 
     @Override
     public final boolean executionCompleted() {
         Task<?> task = createNewTask();
         if (task != null) {
+            task.addTaskExecutionListener(this);
             addJob(task);
             try {
                 barrier.await();
@@ -107,6 +121,17 @@ public abstract class AbstractStepController<K> implements StepController<K>, Pr
 
     protected boolean isDone() {
         return done.get();
+    }
+
+    private void waitUntilFinished() {
+        try {
+            done.compareAndSet(false, true);
+            //we should exit as soon as possible, since we are on EDT
+            barrier.await(100, MILLISECONDS);
+        } catch (Exception e) {
+            //should never happens, since this thread should be the second one waiting on barrier.
+            throw new AssertionError(String.format("unexpected %s", e.toString()));
+        }
     }
 
 }

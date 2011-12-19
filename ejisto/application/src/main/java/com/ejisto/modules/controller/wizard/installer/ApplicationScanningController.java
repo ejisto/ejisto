@@ -21,6 +21,7 @@ package com.ejisto.modules.controller.wizard.installer;
 
 import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.controller.wizard.installer.workers.ApplicationScanningWorker;
+import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.executor.ProgressDescriptor;
 import com.ejisto.modules.executor.Task;
 import com.ejisto.modules.gui.components.EjistoDialog;
@@ -33,6 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.ejisto.modules.executor.ProgressDescriptor.ProgressState.INDETERMINATE;
 import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.runOnEDT;
 
 public class ApplicationScanningController extends AbstractApplicationInstallerController {
     private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
@@ -106,7 +108,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     }
 
     @Override
-    protected void handlePropertyChange(PropertyChangeEvent event) {
+    protected void handlePropertyChange(final PropertyChangeEvent event) {
         String propertyName = event.getPropertyName();
         if (propertyName.equals("startProgress")) {
             notifyStart((Integer) event.getNewValue());
@@ -121,6 +123,13 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
                 notifyJobCompleted(descriptor.getMessage());
             }
 
+        } else if (propertyName.equals("error")) {
+            runOnEDT(new Runnable() {
+                @Override
+                public void run() {
+                    getView().addError((ErrorDescriptor) event.getNewValue());
+                }
+            });
         }
     }
 

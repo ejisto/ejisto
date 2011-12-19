@@ -157,22 +157,22 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
         createUIComponents();
         editor.setLayout(new FormLayout(
                 "fill:max(d;4px):grow,left:4dlu:noGrow,fill:max(p;60px):grow,left:4dlu:noGrow,fill:216px:noGrow,left:9px:grow,fill:max(d;4px):noGrow",
-                "center:d:noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
+                "center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:5dlu:noGrow,center:max(m;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
         CellConstraints cc = new CellConstraints();
         editor.add(type, cc.xy(3, 3));
         editor.add(genericType, cc.xy(5, 3));
         buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        editor.add(buttonsPanel, cc.xyw(3, 5, 3));
+        editor.add(buttonsPanel, cc.xyw(3, 9, 3));
         buttonsPanel.add(ok);
         buttonsPanel.add(cancel);
+        editor.add(size, cc.xy(3, 5));
+        editor.add(collectionSize, cc.xy(5, 5, CellConstraints.FILL, CellConstraints.DEFAULT));
         type.setLabelFor(genericType);
     }
 
     /**
      * @noinspection ALL
      */
-    public JComponent $$$getRootComponent$$$() {
-        return editor;
-    }
+    public JComponent $$$getRootComponent$$$() { return editor; }
 }

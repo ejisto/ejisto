@@ -116,7 +116,8 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
 
     private void startEdit(MockedFieldEditingEvent event, Point editingPoint) {
 
-        editedField = event != null ? event.getField() : getView().getMockedFieldAt(editingPoint.x, editingPoint.y, selectedIndex == 0);
+        editedField = event != null ? event.getField() : getView().getMockedFieldAt(editingPoint.x, editingPoint.y,
+                                                                                    selectedIndex == 0);
 
         if (editedField != null && !editedField.isSimpleValue()) {
             editingStarted();
@@ -170,7 +171,8 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         if (lock.isLocked()) return;
         lock.tryLock();
         getView().initEditorPanel(selectMockedFieldTypes(),
-                                  getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(), editedField.getClassSimpleName()),
+                                  getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(),
+                                             editedField.getClassSimpleName()),
                                   editedField);
         getView().expandCollapseEditorPanel(true);
     }

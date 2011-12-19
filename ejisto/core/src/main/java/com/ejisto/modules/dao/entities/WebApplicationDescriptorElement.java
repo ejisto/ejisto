@@ -19,6 +19,9 @@
 
 package com.ejisto.modules.dao.entities;
 
+import lombok.Data;
+
+@Data
 public class WebApplicationDescriptorElement {
     enum Kind {
         CLASSPATH,
@@ -35,30 +38,6 @@ public class WebApplicationDescriptorElement {
     }
 
     public WebApplicationDescriptorElement(String path) {
-        this.path = path;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getContextPath() {
-        return contextPath;
-    }
-
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
         this.path = path;
     }
 
