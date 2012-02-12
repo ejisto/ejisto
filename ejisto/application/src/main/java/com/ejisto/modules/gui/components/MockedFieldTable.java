@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import org.jdesktop.swingx.JXTable;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.ADD_FIELD;
@@ -44,6 +45,7 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
     private final MockedFieldEditingEventHelper helper;
 
     public MockedFieldTable(FieldsEditorContext fieldsEditorContext) {
+        super(new MockedFieldsTableModel(Collections.<MockedField>emptyList(), fieldsEditorContext));
         this.fieldsEditorContext = fieldsEditorContext;
         addMouseListener(new PopupMenuManager());
         if (fieldsEditorContext == ADD_FIELD)
@@ -52,10 +54,15 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
     }
 
     @Override
+    public boolean hasEditableFieldAtLocation(Point point) {
+        return getFieldAt(point) != null;
+    }
+
+    @Override
     public MockedField getFieldAt(Point point) {
         int rowIndex = rowAtPoint(point);
         if (rowIndex == -1) return null;
-        return ((MockedFieldsTableModel) getModel()).getMockedFieldAt(rowIndex);
+        return getModel().getMockedFieldAt(rowIndex);
     }
 
     @Override
@@ -109,6 +116,26 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
     @Override
     public void removeFieldEditingListener(FieldEditingListener fieldEditingListener) {
         helper.removeFieldEditingListener(fieldEditingListener);
+    }
+
+    @Override
+    public MockedFieldsTableModel getModel() {
+        return (MockedFieldsTableModel) super.getModel();
+    }
+
+    @Override
+    public void fieldsChanged(List<MockedField> fields) {
+        getModel().replaceFields(fields);
+    }
+
+    @Override
+    public void contextInstalled(String contextPath, List<MockedField> fields) {
+        fieldsChanged(fields);
+    }
+
+    @Override
+    public void contextRemoved(String contextPath, List<MockedField> fields) {
+        getModel().deleteFields(fields);
     }
 
     private void fireEditingStarted(MockedField field, Point point) {

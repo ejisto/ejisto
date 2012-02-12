@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import com.ejisto.event.def.InstallContainer;
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationListener;
 
@@ -37,9 +37,8 @@ import java.util.concurrent.Callable;
 import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 import static com.ejisto.util.GuiUtils.runOnEDT;
 
+@Log4j
 public class ServerController implements ApplicationListener<ChangeServerStatus>, DisposableBean {
-
-    private static final Logger logger = Logger.getLogger(ServerController.class);
 
     @Resource(name = "containerManager") private ContainerManager containerManager;
     @Resource private EventManager eventManager;
@@ -48,7 +47,7 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
 
     @Override
     public void onApplicationEvent(final ChangeServerStatus event) {
-        logger.info("handling event: " + event);
+        log.info("handling event: " + event);
         taskManager.addNewTask(createNewGuiTask(new Callable<Void>() {
             @Override
             public Void call() {
@@ -61,13 +60,13 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
     private void handleEvent(final ChangeServerStatus event) {
         try {
             if (event.getCommand() == ChangeServerStatus.Command.STARTUP) {
-                logger.info("Starting server:");
+                log.info("Starting server:");
                 containerManager.startDefault();
-                logger.info("done");
+                log.info("done");
             } else {
-                logger.info("Stopping server:");
+                log.info("Stopping server:");
                 containerManager.stopDefault();
-                logger.info("done");
+                log.info("done");
             }
 
             runOnEDT(new Runnable() {
@@ -78,10 +77,10 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
             });
 
         } catch (NotInstalledException e) {
-            logger.error("server " + e.getId() + " is not installed.", e);
+            log.error("server " + e.getId() + " is not installed.", e);
             eventManager.publishEvent(new InstallContainer(this, e.getId(), true));
         } catch (Exception e) {
-            logger.error("event handling failed", e);
+            log.error("event handling failed", e);
             eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));
         }
     }

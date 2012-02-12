@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATE
  * Date: 12/11/10
  * Time: 4:41 PM
  */
+
 public class ObjectFactoryRepository extends ExternalizableService<ObjectFactoryDao> implements InitializingBean {
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private static final String DEFAULT = "java.lang.Object";
@@ -62,6 +63,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
                               "java.util.concurrent.atomic.AtomicInteger", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.AtomicLongFactory",
                               "java.util.concurrent.atomic.AtomicLong", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.BooleanFactory", "java.lang.Boolean", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.NumberFactory", "java.lang.Number", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.StringFactory", "java.lang.String", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.DefaultObjectFactory", DEFAULT, false);

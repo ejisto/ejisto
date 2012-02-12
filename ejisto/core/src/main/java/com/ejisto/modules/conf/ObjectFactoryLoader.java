@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ import com.ejisto.modules.repository.ObjectFactoryRepository;
 import com.ejisto.util.FileExtensionFilter;
 import javassist.ClassPool;
 import javassist.CtClass;
+import lombok.extern.log4j.Log4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.log4j.Logger;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -43,8 +43,8 @@ import static com.ejisto.util.IOUtils.findAllClassesInJarFile;
  * Date: 12/11/10
  * Time: 4:57 PM
  */
+@Log4j
 public class ObjectFactoryLoader implements Runnable {
-    private static final Logger logger = Logger.getLogger(ObjectFactoryLoader.class);
     private boolean initialized = false;
     @Resource private ObjectFactoryRepository objectFactoryRepository;
     @Resource private CustomObjectFactoryDao customObjectFactoryDao;
@@ -57,14 +57,14 @@ public class ObjectFactoryLoader implements Runnable {
         if (!initialized) init();
         if (!initialized) return; //workaround to avoid startup failures.
         if (!directory.exists()) {
-            logger.warn("directory " + directory.getAbsolutePath() + " does not exist. Exiting");
+            log.warn("directory " + directory.getAbsolutePath() + " does not exist. Exiting");
             return;
         }
         for (File file : directory.listFiles(new FileExtensionFilter(FileExtensionFilter.ALL_JARS, false))) {
             try {
                 processFile(file);
             } catch (Exception e) {
-                logger.error("exception during ObjectFactory loading", e);
+                log.error("exception during ObjectFactory loading", e);
             }
         }
     }
@@ -73,7 +73,7 @@ public class ObjectFactoryLoader implements Runnable {
         CustomObjectFactory factory = customObjectFactoryDao.load(file.getName());
         String checksum = DigestUtils.shaHex(new FileInputStream(file));
         if (factory != null && factory.getChecksum().equals(checksum)) return;
-        logger.info("processing file: " + file.getAbsolutePath());
+        log.info("processing file: " + file.getAbsolutePath());
         cp.appendClassPath(file.getAbsolutePath());
         CtClass clazz;
         Collection<String> clazzNames = findAllClassesInJarFile(file);

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ package com.ejisto.event.def;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.MockedFieldsEditorComponent;
+import com.ejisto.modules.gui.components.helper.MockedFieldNode;
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,6 +33,7 @@ public class MockedFieldOperation extends BaseApplicationEvent {
 
     private OperationType operationType;
     private MockedField mockedField;
+    private MockedFieldNode source;
 
     public enum OperationType {
         CREATE("propertieseditor.popup.add", "propertieseditor.popup.add.icon"),

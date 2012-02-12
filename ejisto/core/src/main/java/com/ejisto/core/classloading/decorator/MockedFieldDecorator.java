@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 package com.ejisto.core.classloading.decorator;
 
+import com.ejisto.modules.dao.entities.ComplexValuesAware;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import javassist.ClassPool;
@@ -27,7 +28,7 @@ import javassist.NotFoundException;
 import lombok.Delegate;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.springframework.util.StringUtils;
 
 import static com.ejisto.core.classloading.util.ReflectionUtils.detach;
@@ -35,9 +36,9 @@ import static com.ejisto.modules.repository.ClassPoolRepository.getRegisteredCla
 
 @ToString
 @EqualsAndHashCode
+@Log4j
 public class MockedFieldDecorator implements MockedField {
     private static final String[] COMPLEX_TYPES = {"java.util.Collection", "java.util.Map"};
-    private static final Logger LOGGER = Logger.getLogger(MockedFieldDecorator.class);
     @Delegate(excludes = ComplexValuesAware.class)
     private MockedField target;
 
@@ -65,7 +66,7 @@ public class MockedFieldDecorator implements MockedField {
         } catch (NotFoundException e) {
             throw new IllegalStateException(e);//should never happens
         } catch (Exception e) {
-            LOGGER.error("cannot check if field " + target.getFieldName() + " is simple type", e);
+            log.error("cannot check if field " + target.getFieldName() + " is simple type", e);
             return true;
         } finally {
             detach(clazz, targetClazz);
@@ -93,14 +94,6 @@ public class MockedFieldDecorator implements MockedField {
     private String evaluateFieldValue() {
         if (isSimpleValue()) return getFieldValue();
         return "**expression**";
-    }
-
-    private static interface ComplexValuesAware {
-        boolean isSimpleValue();
-
-        String getCompleteDescription();
-
-        String getCompleteFieldType();
     }
 
 }

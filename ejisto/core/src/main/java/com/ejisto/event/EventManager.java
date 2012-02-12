@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 package com.ejisto.event;
 
 import com.ejisto.modules.executor.TaskManager;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -31,15 +31,15 @@ import java.util.concurrent.Callable;
 
 import static com.ejisto.modules.executor.TaskManager.createNewBackgroundTask;
 
+@Log4j
 public class EventManager implements ApplicationContextAware {
-    private static final Logger logger = Logger.getLogger(EventManager.class);
     private boolean initialized = false;
     private ApplicationContext applicationContext;
     @Resource private TaskManager taskManager;
 
     public void publishEvent(final ApplicationEvent event) {
         if (!initialized) {
-            logger.warn("discarded event from " + event.getSource() + " " + event);
+            log.warn("discarded event from " + event.getSource() + " " + event);
             return;
         }
         taskManager.addNewTask(createNewBackgroundTask(new Callable<Void>() {

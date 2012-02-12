@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 package com.ejisto.services.startup;
 
 import com.ejisto.util.ContainerUtils;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
@@ -34,13 +34,12 @@ import java.nio.channels.FileLock;
  * Date: 10/30/11
  * Time: 6:42 PM
  */
+@Log4j
 public class ConstraintsVerifier extends BaseStartupService {
-
-    private static final Logger LOGGER = Logger.getLogger(ConstraintsVerifier.class);
 
     @Override
     public void execute() {
-        LOGGER.info("checking if there is another process already running");
+        log.info("checking if there is another process already running");
         File lockFile = new File(System.getProperty("ejisto.home"), ".lock");
         try {
             if (!lockFile.exists() && !lockFile.createNewFile())
@@ -53,13 +52,13 @@ public class ConstraintsVerifier extends BaseStartupService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        LOGGER.info("checking System properties");
+        log.info("checking System properties");
         String agentPath = ContainerUtils.extractAgentJar(System.getProperty("java.class.path"));
         if (!StringUtils.hasText(agentPath)) {
-            LOGGER.warn("**************************************************");
-            LOGGER.warn("**       ejisto-agent not found in path.        **");
-            LOGGER.warn("**          Check your configuration!           **");
-            LOGGER.warn("**************************************************");
+            log.warn("**************************************************");
+            log.warn("**       ejisto-agent not found in path.        **");
+            log.warn("**          Check your configuration!           **");
+            log.warn("**************************************************");
         } else {
             System.setProperty("ejisto.agent.jar.path", agentPath);
         }

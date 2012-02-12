@@ -2,7 +2,7 @@
 <!--
   ~ Ejisto, a powerful developer assistant
   ~
-  ~ Copyright (C) 2010-2011  Celestino Bellone
+  ~ Copyright (C) 2010-2012  Celestino Bellone
   ~
   ~ Ejisto is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -63,8 +63,14 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>0.10.4</version>
+            <version>0.10.6</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.9.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

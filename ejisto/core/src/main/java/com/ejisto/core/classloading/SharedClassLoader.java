@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,20 +19,19 @@
 
 package com.ejisto.core.classloading;
 
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
+@Log4j
 public class SharedClassLoader extends URLClassLoader {
 
-    private static final Logger logger = Logger.getLogger(SharedClassLoader.class);
     private static final SharedClassLoader INSTANCE = new SharedClassLoader();
 
     private Set<String> entries;
@@ -43,7 +42,7 @@ public class SharedClassLoader extends URLClassLoader {
 
     private SharedClassLoader() {
         super(new URL[0]);
-        entries = Collections.synchronizedSet(new HashSet<String>());
+        entries = new CopyOnWriteArraySet<String>();
     }
 
     public void addEntry(String entry) {
@@ -52,7 +51,7 @@ public class SharedClassLoader extends URLClassLoader {
                 super.addURL(new File(entry).toURI().toURL());
                 entries.add(entry);
             } catch (MalformedURLException e) {
-                logger.error("unable to add resource " + entry, e);
+                log.error("unable to add resource " + entry, e);
             }
         }
     }

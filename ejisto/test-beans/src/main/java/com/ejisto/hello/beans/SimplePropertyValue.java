@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,25 +19,19 @@
 
 package com.ejisto.hello.beans;
 
+import lombok.Data;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
  * Date: 12/20/10
  * Time: 07:45 PM
  */
+@Data
 public class SimplePropertyValue {
     private String value;
 
     public SimplePropertyValue(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return "SimplePropertyValue [" + hashCode() + "] = " + getValue();
     }
 }

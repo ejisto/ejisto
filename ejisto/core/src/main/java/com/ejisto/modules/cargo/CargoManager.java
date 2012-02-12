@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import com.ejisto.util.ContainerUtils;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.codehaus.cargo.container.ContainerType;
 import org.codehaus.cargo.container.LocalContainer;
 import org.codehaus.cargo.container.configuration.Configuration;
@@ -72,9 +72,9 @@ import static org.hamcrest.Matchers.equalTo;
  * Date: 2/18/11
  * Time: 7:23 PM
  */
+@Log4j
 public class CargoManager implements ContainerManager {
 
-    private static final Logger logger = Logger.getLogger(CargoManager.class);
     private static final String DEFAULT = DEFAULT_CONTAINER_ID.getValue();
     private final AtomicBoolean serverStarted = new AtomicBoolean(false);
     @Resource private ContainersRepository containersRepository;
@@ -130,7 +130,7 @@ public class CargoManager implements ContainerManager {
                 return true;
             }
         } catch (InterruptedException e) {
-            logger.error("caught InterruptedException", e);
+            log.error("caught InterruptedException", e);
             Thread.currentThread().interrupt();
         } finally {
             if (owned) lifeCycleOperationLock.unlock();
@@ -157,7 +157,7 @@ public class CargoManager implements ContainerManager {
                 return true;
             }
         } catch (InterruptedException e) {
-            logger.error("caught InterruptedException", e);
+            log.error("caught InterruptedException", e);
             Thread.currentThread().interrupt();
         } finally {
             if (owned) lifeCycleOperationLock.unlock();
@@ -252,7 +252,7 @@ public class CargoManager implements ContainerManager {
     }
 
     private Configuration loadExistingConfiguration(String containerId, File configurationDir) {
-        if (logger.isDebugEnabled()) logger.debug("loading existing configuration for container " + containerId);
+        log.debug("loading existing configuration for container " + containerId);
         Configuration configuration = new DefaultConfigurationFactory().createConfiguration(containerId,
                                                                                             ContainerType.INSTALLED,
                                                                                             ConfigurationType.EXISTING,
@@ -278,7 +278,7 @@ public class CargoManager implements ContainerManager {
             replaceDeployable(deployable, container);
             return deployable;
         } catch (Exception e) {
-            logger.error("error during static deploy", e);
+            log.error("error during static deploy", e);
             return null;
         }
     }
@@ -297,19 +297,19 @@ public class CargoManager implements ContainerManager {
             }
             return deployable;
         } catch (Exception ex) {
-            logger.error("error during hot deploy", ex);
+            log.error("error during hot deploy", ex);
             return null;
         }
     }
 
-    private boolean undeploy(String contextPath, String containerId, Deployable deployable, LocalContainer container) {
+    private boolean undeploy(String containerId, String contextPath, Deployable deployable, LocalContainer container) {
         try {
             URLDeployableMonitor monitor = new URLDeployableMonitor(new URL(guessWebApplicationUri(contextPath)));
             getDeployerFor(container).undeploy(deployable, monitor);
             webApplicationRepository.unregisterWebApplication(containerId, contextPath);
             return true;
         } catch (Exception ex) {
-            logger.error("error during undeploy", ex);
+            log.error("error during undeploy", ex);
             return false;
         }
     }
@@ -321,19 +321,19 @@ public class CargoManager implements ContainerManager {
                     WebApplication.Status.STOPPED);
             return true;
         } catch (Exception ex) {
-            logger.error("error during web application stop", ex);
+            log.error("error during web application stop", ex);
             return false;
         }
     }
 
     private boolean start(String containerId, String contextPath, Deployable deployable, LocalContainer container) {
         try {
-            getDeployerFor(container).start(deployable);
+            getDeployerFor(container).deploy(deployable);
             webApplicationRepository.getRegisteredWebApplication(containerId, contextPath).setStatus(
                     WebApplication.Status.STARTED);
             return true;
         } catch (Exception ex) {
-            logger.error("error during web application start", ex);
+            log.error("error during web application start", ex);
             return false;
         }
     }

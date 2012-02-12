@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +30,8 @@ import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
+import static com.ejisto.util.GuiUtils.getErrorIcon;
 import static com.ejisto.util.GuiUtils.getMessage;
 
 public class ProgressPanel extends JXPanel {
@@ -114,6 +114,9 @@ public class ProgressPanel extends JXPanel {
     public void addError(ErrorDescriptor errorDescriptor) {
         errorTableModel.addRow(errorDescriptor);
         getEventTable().setModel(errorTableModel);
+        getEventTable().setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        getEventTable().packColumn(0, 2);
+        getEventTable().getColumn(0).setPreferredWidth(50);
         getEventTable().packColumn(1, -1);
         if (getCollapsiblePane().isCollapsed())
             getCollapsiblePane().setCollapsed(false);
@@ -134,13 +137,6 @@ public class ProgressPanel extends JXPanel {
         if (eventTable != null) return eventTable;
         eventTable = new JXTable();
         return eventTable;
-    }
-
-    private static Vector<String> printErrorDescriptor(ErrorDescriptor errorDescriptor) {
-        Vector<String> row = new Vector<String>();
-        row.add(errorDescriptor.getCategory());
-        row.add(errorDescriptor.getErrorDescription());
-        return row;
     }
 
     private final static ErrorTableModel errorTableModel = new ErrorTableModel();
@@ -174,12 +170,18 @@ public class ProgressPanel extends JXPanel {
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             ErrorDescriptor value = data.get(rowIndex);
-            return columnIndex == 0 ? value.getCategory() : value.getErrorDescription();
+            return columnIndex == 0 ? getErrorIcon(value.getCategory()) : value.getErrorDescription();
         }
 
         @Override
         public String getColumnName(int column) {
             return COLUMNS[column];
+        }
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            if (columnIndex == 0) return Icon.class;
+            return String.class;
         }
     }
 }

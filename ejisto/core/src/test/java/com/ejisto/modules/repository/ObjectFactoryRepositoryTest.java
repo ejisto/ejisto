@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,18 +79,24 @@ public class ObjectFactoryRepositoryTest {
     public void testCollectionFactory() {
         assertEquals("com.ejisto.modules.factory.impl.CollectionFactory",
                      repository.getObjectFactory("java.util.Collection", context));
+        assertEquals("com.ejisto.modules.factory.impl.CollectionFactory",
+                     repository.getObjectFactory("java.util.List", context));
     }
 
     @Test
     public void testGetMapFactory() {
         assertEquals("com.ejisto.modules.factory.impl.MapFactory",
                      repository.getObjectFactory("java.util.Map", context));
+        assertEquals("com.ejisto.modules.factory.impl.MapFactory",
+                     repository.getObjectFactory("java.util.TreeMap", context));
     }
 
     @Test
     public void testGetDefaultObjectFactory() {
         assertEquals("com.ejisto.modules.factory.impl.DefaultObjectFactory",
                      repository.getObjectFactory("java.lang.Object", context));
+        assertEquals("com.ejisto.modules.factory.impl.DefaultObjectFactory",
+                     repository.getObjectFactory("com.ejisto.modules.cargo.CargoManager", context));
     }
 
     @Test

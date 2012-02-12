@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ package com.ejisto.services.startup;
 
 import com.ejisto.modules.executor.TaskDescriptor;
 import com.ejisto.modules.executor.TaskManager;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -34,16 +34,17 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * Date: 6/2/11
  * Time: 4:17 PM
  */
+@Log4j
 public class TaskInitializer extends BaseStartupService {
-    private static final Logger logger = Logger.getLogger(TaskInitializer.class);
     @Resource TaskManager taskManager;
     @Resource List<TaskDescriptor> taskDescriptors;
 
     @Override
     public void execute() {
-        logger.info("scheduling tasks for execution");
+        log.info("scheduling tasks for execution");
         for (TaskDescriptor taskDescriptor : taskDescriptors) {
-            taskManager.scheduleTaskAtFixedRate(taskDescriptor.getTask(), taskDescriptor.getInitialDelay(), taskDescriptor.getPeriod(), SECONDS);
+            taskManager.scheduleTaskAtFixedRate(taskDescriptor.getTask(), taskDescriptor.getInitialDelay(),
+                                                taskDescriptor.getPeriod(), SECONDS);
         }
 
     }

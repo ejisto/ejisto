@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ public class PopupMenuManager extends MouseAdapter {
             JPopupMenu menu = new JPopupMenu();
             menu.setInvoker(component);
             menu.add(buildEjistoAction(component, CREATE, null));
-            if (isMockedFieldSelected(component, e.getPoint())) {
+            if (isEditingAllowed(component, e.getPoint())) {
                 MockedField target = getFieldAt(component, e.getPoint());
                 //update button
                 menu.add(new AbstractAction(getMessage(UPDATE.getKey()), getIcon(UPDATE.getIcon())) {
@@ -73,13 +73,17 @@ public class PopupMenuManager extends MouseAdapter {
         }
     }
 
-    private boolean isMockedFieldSelected(Component component, Point p) {
+    private boolean isEditingAllowed(Component component, Point p) {
         return MockedFieldsEditorComponent.class.isInstance(component)
-                && getFieldAt(component, p) != null;
+                && isLocationEditable(component, p);
     }
 
     private MockedField getFieldAt(Component component, Point p) {
         return ((MockedFieldsEditorComponent) component).getFieldAt(p);
+    }
+
+    private boolean isLocationEditable(Component component, Point p) {
+        return ((MockedFieldsEditorComponent) component).hasEditableFieldAtLocation(p);
     }
 
     private EjistoAction<MockedFieldOperation> buildEjistoAction(Component component, MockedFieldOperation.OperationType operationType, MockedField field) {

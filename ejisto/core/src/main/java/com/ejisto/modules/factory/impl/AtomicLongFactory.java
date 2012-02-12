@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,5 +40,15 @@ public class AtomicLongFactory implements ObjectFactory<AtomicLong> {
     @Override
     public AtomicLong create(MockedField m, AtomicLong actualValue) {
         return new AtomicLong(Long.parseLong(m.getFieldValue()));
+    }
+
+    @Override
+    public boolean supportsRandomValuesCreation() {
+        return false;
+    }
+
+    @Override
+    public AtomicLong createRandomValue() {
+        return new AtomicLong();
     }
 }

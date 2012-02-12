@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.APPLICATION_INSTALLER_WIZARD;
@@ -47,6 +48,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
         this.ctx = ctx;
         columnHeaders = ctx.getTableColumns();
         this.fields = new ArrayList<MockedField>(fields);
+        Collections.sort(this.fields);
         this.fieldsAsString = GuiUtils.asStringList(this.fields, ctx.getColumnFillStrategy());
         addTableModelListener(this);
     }
@@ -116,6 +118,21 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     public MockedField getMockedFieldAt(int row) {
         Assert.isTrue(row < fields.size());
         return fields.get(row);
+    }
+
+    public void replaceFields(List<MockedField> fields) {
+        for (MockedField field : fields) {
+            int index = this.fields.indexOf(field);
+            if (index == -1) this.fields.add(field);
+            else this.fields.set(index, field);
+        }
+        Collections.sort(this.fields);
+        fireTableDataChanged();
+    }
+
+    public void deleteFields(List<MockedField> fields) {
+        this.fields.removeAll(fields);
+        Collections.sort(this.fields);
     }
 
 }

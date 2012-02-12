@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ import com.ejisto.modules.repository.WebApplicationRepository;
 import com.ejisto.util.IOUtils;
 import javassist.ClassPool;
 import javassist.LoaderClassPath;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.Assert;
 
@@ -56,9 +56,9 @@ import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.*;
 import static com.ejisto.util.IOUtils.guessWebApplicationUri;
 
+@Log4j
 public class WebApplicationLoader implements ApplicationListener<LoadWebApplication> {
 
-    private static final Logger logger = Logger.getLogger(WebApplicationLoader.class);
     private static final Pattern SPLIT_PATTERN = Pattern.compile(Pattern.quote(CONTEXT_PREFIX_SEPARATOR.getValue()));
     @Resource private Application application;
     @Resource private EventManager eventManager;
@@ -79,7 +79,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             eventManager.publishEvent(new InstallContainer(this, e.getId(), false));
         } catch (Exception e) {
             eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -180,21 +180,21 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     }
 
     private void undeployExistingWebapp(String serverId, String contextPath) throws Exception {
-        logger.info("undeploying webapp " + contextPath);
+        log.info("undeploying webapp " + contextPath);
         if (containerManager.undeployFromDefaultContainer(contextPath))
-            logger.info("webapp " + contextPath + " undeployed");
+            log.info("webapp " + contextPath + " undeployed");
     }
 
     private void startWebapp(String serverId, String contextPath) throws Exception {
-        logger.info("starting webapp " + contextPath);
+        log.info("starting webapp " + contextPath);
         if (containerManager.startWebApplicationOnDefaultServer(contextPath))
-            logger.info("started webapp " + contextPath);
+            log.info("started webapp " + contextPath);
     }
 
     private void stopWebapp(String serverId, String contextPath) throws Exception {
-        logger.info("stopping webapp " + contextPath);
+        log.info("stopping webapp " + contextPath);
         if (containerManager.stopWebApplicationOnDefaultServer(contextPath))
-            logger.info("stopped webapp " + contextPath);
+            log.info("stopped webapp " + contextPath);
     }
 
     private void modifyActionState(String contextPath, boolean start) {
@@ -207,7 +207,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             webApplicationDescriptorDao.insert(webApplicationDescriptor);
         } catch (Exception e) {
             eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));
-            logger.error("error saving webappdescriptor", e);
+            log.error("error saving webappdescriptor", e);
         }
     }
 
@@ -218,7 +218,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
                 registerClassPool(descriptor);
             }
         } catch (Exception e) {
-            logger.error("unable to load webapp descriptor: ", e);
+            log.error("unable to load webapp descriptor: ", e);
         }
     }
 
@@ -234,7 +234,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         try {
             Desktop.getDesktop().browse(URI.create(guessWebApplicationUri(descriptor)));
         } catch (IOException e) {
-            logger.error("unable to open system browser", e);
+            log.error("unable to open system browser", e);
         }
     }
 }

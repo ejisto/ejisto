@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +21,12 @@ package com.ejisto.services.shutdown;
 
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ChangeServerStatus;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 import javax.annotation.Resource;
 
+@Log4j
 public class ContainerShutdown extends BaseShutdownService {
-
-    private static final Logger logger = Logger.getLogger(ContainerShutdown.class);
 
     @Resource
     private EventManager eventManager;
@@ -37,7 +36,7 @@ public class ContainerShutdown extends BaseShutdownService {
         try {
             eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.SHUTDOWN));
         } catch (Exception e) {
-            logger.error("error during server shutdown", e);
+            log.error("error during server shutdown", e);
         }
     }
 

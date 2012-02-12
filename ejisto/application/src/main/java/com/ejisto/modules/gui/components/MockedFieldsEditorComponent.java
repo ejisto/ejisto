@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.helper.FieldEditingListener;
 
 import java.awt.*;
+import java.awt.event.MouseListener;
 import java.util.List;
 
 /**
@@ -32,6 +33,8 @@ import java.util.List;
  * Time: 3:35 PM
  */
 public interface MockedFieldsEditorComponent {
+
+    boolean hasEditableFieldAtLocation(Point point);
 
     MockedField getFieldAt(Point point);
 
@@ -49,5 +52,12 @@ public interface MockedFieldsEditorComponent {
 
     void removeFieldEditingListener(FieldEditingListener fieldEditingListener);
 
+    void fieldsChanged(List<MockedField> fields);
+
+    void contextInstalled(String contextPath, List<MockedField> fields);
+
+    void contextRemoved(String contextPath, List<MockedField> fields);
+
+    void addMouseListener(MouseListener mouseListener);
 }
 

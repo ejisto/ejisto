@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import javassist.*;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.codehaus.cargo.module.DescriptorElement;
 import org.codehaus.cargo.module.webapp.WebXml;
 import org.codehaus.cargo.module.webapp.WebXmlIo;
@@ -53,6 +53,8 @@ import java.util.regex.Pattern;
 
 import static ch.lambdaj.Lambda.join;
 import static com.ejisto.constants.StringConstants.*;
+import static com.ejisto.modules.executor.ErrorDescriptor.Category.ERROR;
+import static com.ejisto.modules.executor.ErrorDescriptor.Category.WARN;
 import static com.ejisto.modules.executor.ProgressDescriptor.ProgressState.COMPLETED;
 import static com.ejisto.modules.executor.ProgressDescriptor.ProgressState.INDETERMINATE;
 import static com.ejisto.util.GuiUtils.getMessage;
@@ -64,11 +66,8 @@ import static com.ejisto.util.IOUtils.*;
  * Date: 11/25/11
  * Time: 5:45 PM
  */
+@Log4j
 public class ApplicationScanningWorker extends GuiTask<Void> {
-    private static final String INSTRUMENTATION = "INSTRUMENTATION";
-    private static final String UNEXPECTED = "UNEXPECTED";
-
-    private static final Logger logger = Logger.getLogger(ApplicationScanningWorker.class);
     private static final Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
     private static final String[] entries = {"derbyclient", "derbynet", "ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "spring", "cglib", "commons", "asm"};
     private WebApplicationDescriptor session;
@@ -118,7 +117,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
             notifyJobCompleted(++progressCounter, className);
             loadClass(className, cp, descriptor, loader);
         }
-        logger.info("just finished processing " + descriptor.getInstallationPath());
+        log.info("just finished processing " + descriptor.getInstallationPath());
     }
 
     private void loadClass(String className, ClassPool cp, WebApplicationDescriptor descriptor, ClassLoader loader) {
@@ -127,10 +126,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
             fillMockedFields(clazz, descriptor, loader);
             clazz.detach();
         } catch (Throwable e) {
-            Class<?> c = e.getClass();
-            boolean classIssue = NotFoundException.class.isAssignableFrom(c) ||
-                    NoClassDefFoundError.class.isAssignableFrom(c);
-            addErrorDescriptor(new ErrorDescriptor(e, classIssue ? INSTRUMENTATION : UNEXPECTED));
+            addErrorDescriptor(buildErrorDescriptor(e));
         }
     }
 
@@ -154,9 +150,15 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
             if (!zuperclazz.getName().startsWith("java"))
                 fillMockedFields(zuperclazz, descriptor, loader);
         } catch (Exception e) {
-            //TODO check whether or not an exception should be thrown
-            e.printStackTrace();
+            addErrorDescriptor(buildErrorDescriptor(e));
         }
+    }
+
+    private ErrorDescriptor buildErrorDescriptor(Throwable e) {
+        Class<?> c = e.getClass();
+        boolean classIssue = NotFoundException.class.isAssignableFrom(c) ||
+                NoClassDefFoundError.class.isAssignableFrom(c);
+        return new ErrorDescriptor(e, classIssue ? WARN : ERROR);
     }
 
     private void parseGenerics(CtClass clazz, CtField field, MockedField mockedField, ClassLoader loader) {
@@ -170,7 +172,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
                 mockedField.setFieldElementType(join(generics));
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 

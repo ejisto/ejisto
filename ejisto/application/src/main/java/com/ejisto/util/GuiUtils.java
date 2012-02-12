@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 package com.ejisto.util;
 
+import ch.lambdaj.Lambda;
 import ch.lambdaj.function.closure.Closure;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.core.container.WebApplication;
@@ -27,12 +28,14 @@ import com.ejisto.event.listener.ApplicationEventDispatcher;
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.ContainerTab;
 import com.ejisto.modules.repository.WebApplicationRepository;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.swing.*;
@@ -46,11 +49,11 @@ import java.util.Map;
 import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
 
+@Log4j
 public class GuiUtils {
 
     private static ActionMap actionMap = new ActionMap();
     private static Font defaultFont;
-    private static final Logger logger = Logger.getLogger(GuiUtils.class);
 
     public static void centerOnScreen(Window window) {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -87,12 +90,12 @@ public class GuiUtils {
                 }
             });
         } catch (InvocationTargetException e) {
-            logger.error("exception during error message notification", e);
+            log.error("exception during error message notification", e);
         }
 
     }
 
-    public static List<List<String>> asStringList(List<MockedField> fields, EditorColumnFillStrategy fillStrategy) {
+    public static List<List<String>> asStringList(Collection<MockedField> fields, EditorColumnFillStrategy fillStrategy) {
         List<List<String>> fieldsAsString = new ArrayList<List<String>>();
         for (MockedField mockedField : fields) {
             fillStrategy.fillRow(fieldsAsString, mockedField);
@@ -146,7 +149,7 @@ public class GuiUtils {
         try {
             SwingUtilities.invokeAndWait(action);
         } catch (InterruptedException e) {
-            logger.error("", e);
+            log.error("action interrupted", e);
             Thread.currentThread().interrupt();
         }
     }
@@ -237,5 +240,27 @@ public class GuiUtils {
         button.setContentAreaFilled(false);
         button.setRolloverEnabled(true);
         button.setFocusPainted(false);
+    }
+
+    public static Icon getErrorIcon(ErrorDescriptor.Category category) {
+        return getIcon(category.getIconKey());
+    }
+
+    public static String encodeTreePath(Object treePath) {
+        return Lambda.join(treePath, ">");
+    }
+
+    public static String encodeTreePath(String[] path, int from, int to) {
+        Assert.isTrue(from < to);
+        String[] target = new String[to - from];
+        System.arraycopy(path, 0, target, from, to - from);
+        return encodeTreePath(target);
+    }
+
+    public static void makeTransparent(JButton button) {
+        button.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        button.setBackground(new Color(255, 255, 255, 0));
+        button.setHideActionText(false);
+        disableFocusPainting(button);
     }
 }

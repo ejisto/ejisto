@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ public class MockedFieldSelectionController {
     private MockedFieldsEditorController controller;
     private Closure0 closeAction;
     private Closure0 okAction;
-    private DialogManager dialogManager;
+    private DialogController dialogController;
     private List<MockedField> selectedFields;
 
     public MockedFieldSelectionController() {
@@ -57,23 +57,23 @@ public class MockedFieldSelectionController {
 
     void close() {
         this.selectedFields = emptyList();
-        dialogManager.hide();
+        dialogController.hide();
     }
 
     void ok() {
         this.selectedFields = controller.getSelection();
-        dialogManager.hide();
+        dialogController.hide();
     }
 
     public void showSelectionDialog() {
         initClosures();
-        dialogManager = DialogManager.Builder.newInstance()
+        dialogController = DialogController.Builder.newInstance()
                 .withActions(new CallbackAction(getMessage("field.create.dialog.ok"), okAction),
                              new CallbackAction(getMessage("field.create.dialog.cancel"), closeAction))
                 .withContent(createPanel())
                 .withHeader(getMessage("field.create.dialog.title"), getMessage("field.create.dialog.description"))
                 .build();
-        dialogManager.show(true, new Dimension(500, 400));
+        dialogController.show(true, new Dimension(500, 400));
     }
 
     private JPanel createPanel() {

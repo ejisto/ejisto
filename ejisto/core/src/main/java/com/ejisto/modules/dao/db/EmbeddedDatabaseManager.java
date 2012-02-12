@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,9 @@
 package com.ejisto.modules.dao.db;
 
 import com.ejisto.constants.StringConstants;
+import lombok.extern.log4j.Log4j;
 import org.apache.derby.drda.NetworkServerControl;
 import org.apache.derby.jdbc.ClientDriver;
-import org.apache.log4j.Logger;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -37,9 +37,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+@Log4j
 public class EmbeddedDatabaseManager extends AbstractDataSource {
 
-    private static final Logger logger = Logger.getLogger(EmbeddedDatabaseManager.class);
     private SimpleDriverDataSource driverDataSource;
     private NetworkServerControl serverControl;
     private boolean started;
@@ -64,9 +64,10 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
         checkServerStartup();
         started = true;
         initDatabase();
-        driverDataSource = new SimpleDriverDataSource(new ClientDriver(), "jdbc:derby://localhost:5555/memory:ejisto", "ejisto", "ejisto");
+        driverDataSource = new SimpleDriverDataSource(new ClientDriver(), "jdbc:derby://localhost:5555/memory:ejisto",
+                                                      "ejisto", "ejisto");
         populator.populate(getConnection());
-        logger.info("done");
+        log.info("done");
     }
 
     public boolean isStarted() {
@@ -93,7 +94,8 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
 
     private void initDatabase() throws Exception {
         DriverManager.registerDriver(new ClientDriver());
-        Connection con = DriverManager.getConnection("jdbc:derby://localhost:5555/memory:ejisto;create=true", "ejisto", "ejisto");
+        Connection con = DriverManager.getConnection("jdbc:derby://localhost:5555/memory:ejisto;create=true", "ejisto",
+                                                     "ejisto");
         con.close();
     }
 

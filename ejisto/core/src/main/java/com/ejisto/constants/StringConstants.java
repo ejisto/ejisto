@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ public enum StringConstants {
     START_CONTAINER("startContainer"),
     STOP_CONTAINER("stopContainer"),
     SHUTDOWN("shutdown"),
+    SHOW_ABOUT_PANEL("show-about-panel"),
     LOAD_WEB_APP("loadwebapp"),
     CONTEXT_PREFIX_SEPARATOR("!!registeredContext!!"),
     START_CONTEXT_COMMAND("start"),

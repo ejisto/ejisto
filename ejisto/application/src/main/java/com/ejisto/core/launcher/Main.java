@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 package com.ejisto.core.launcher;
 
 import com.ejisto.core.classloading.SharedClassLoader;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -33,6 +33,7 @@ import java.util.logging.Level;
 
 import static com.ejisto.util.GuiUtils.getRootThrowable;
 
+@Log4j
 public class Main {
 
     static {
@@ -46,8 +47,6 @@ public class Main {
         System.setProperty("ejisto.home", baseDir.getAbsolutePath());
         System.setProperty("java.net.preferIPv4Stack", "true");
     }
-
-    private static final Logger logger = Logger.getLogger(Main.class);
 
     /*
      * to start application from an IDE (like Intellij Idea)
@@ -63,21 +62,21 @@ public class Main {
             System.setProperty("derby.stream.error.field", "com.ejisto.core.launcher.Main.DEV_NULL");
             System.getProperties().list(System.out);
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            logger.info("Starting Ejisto...");
-            logger.info("setting dynamic ClassLoader");
+            log.info("Starting Ejisto...");
+            log.info("setting dynamic ClassLoader");
             Thread.currentThread().setContextClassLoader(SharedClassLoader.getInstance());
-            logger.info("initializing Spring framework");
+            log.info("initializing Spring framework");
             AbstractApplicationContext context = new ClassPathXmlApplicationContext("/spring-context.xml");
             context.registerShutdownHook();
             ApplicationController controller = context.getBean("applicationController", ApplicationController.class);
-            logger.info("starting application... enjoy ejisto!!");
+            log.info("starting application... enjoy ejisto!!");
             controller.startup();
         } catch (Exception e) {
             JXErrorPane.showDialog(null,
                                    new ErrorInfo("Startup error", "Startup failed", null, "SEVERE", getRootThrowable(e),
                                                  Level.SEVERE,
                                                  null));
-            logger.error("startup failed", e);
+            log.error("startup failed", e);
             System.exit(-1);
         }
     }

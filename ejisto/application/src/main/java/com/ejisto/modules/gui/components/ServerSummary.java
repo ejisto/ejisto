@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,10 +110,7 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     private JButton createButton(Action action) {
         JButton button = new JButton(action);
         button.setSize(new Dimension(100, 16));
-        button.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        button.setBackground(new Color(255, 255, 255, 0));
-        button.setHideActionText(false);
-        disableFocusPainting(button);
+        makeTransparent(button);
         button.setRolloverIcon(getIcon(((EjistoAction<?>) action).getRolloverKey()));
         return button;
     }

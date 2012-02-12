@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,16 @@ public class SimplePropertyValueFactory implements ObjectFactory<SimplePropertyV
 
     @Override
     public SimplePropertyValue create(MockedField m, SimplePropertyValue actualValue) {
+        return createRandomValue();
+    }
+
+    @Override
+    public boolean supportsRandomValuesCreation() {
+        return true;
+    }
+
+    @Override
+    public SimplePropertyValue createRandomValue() {
         return new SimplePropertyValue(values[random.nextInt(values.length)]);
     }
 }

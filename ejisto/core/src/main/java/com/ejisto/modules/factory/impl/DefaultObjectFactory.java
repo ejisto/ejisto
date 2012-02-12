@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,13 +22,13 @@ package com.ejisto.modules.factory.impl;
 import com.ejisto.core.classloading.proxy.EjistoProxyFactory;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.ObjectFactory;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 /**
  * Default Object factory
  */
+@Log4j
 public class DefaultObjectFactory implements ObjectFactory<Object> {
-    private static final Logger logger = Logger.getLogger(DefaultObjectFactory.class);
 
     @Override
     public String getTargetClassName() {
@@ -38,11 +38,22 @@ public class DefaultObjectFactory implements ObjectFactory<Object> {
     @Override
     public Object create(MockedField m, Object actualValue) {
         try {
-            return EjistoProxyFactory.getInstance().proxyClass(Class.forName(m.getFieldType()), m.getContextPath());
+            Class<?> clazz = Class.forName(m.getFieldType());
+            return EjistoProxyFactory.getInstance().proxyClass(clazz, m.getContextPath());
         } catch (Exception e) {
-            logger.error("exception during field evaluation, returning actualValue.", e);
+            log.error("exception during field evaluation, returning actualValue.", e);
             return actualValue;
         }
+    }
+
+    @Override
+    public boolean supportsRandomValuesCreation() {
+        return false;
+    }
+
+    @Override
+    public Object createRandomValue() {
+        return null;
     }
 
 }

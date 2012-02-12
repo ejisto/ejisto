@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ package com.ejisto.event.listener;
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.util.GuiUtils;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -37,8 +37,8 @@ import java.util.concurrent.ConcurrentMap;
  * Date: 8/8/11
  * Time: 9:14 PM
  */
+@Log4j
 public class ApplicationEventDispatcher implements ApplicationListener<ApplicationEvent> {
-    private static final Logger LOGGER = Logger.getLogger(ApplicationEventDispatcher.class);
     private final ConcurrentMap<Class<?>, List<ApplicationListener<ApplicationEvent>>> registeredListeners;
     private volatile boolean running = true;
 
@@ -54,7 +54,7 @@ public class ApplicationEventDispatcher implements ApplicationListener<Applicati
     @Override
     public void onApplicationEvent(final ApplicationEvent event) {
         if (!running) return;
-        debug("got event of type [" + event.getClass().getName() + "]");
+        log.debug("got event of type [" + event.getClass().getName() + "]");
         if (registeredListeners.containsKey(event.getClass())) {
             notifyListeners(registeredListeners.get(event.getClass()), event);
         }
@@ -65,7 +65,7 @@ public class ApplicationEventDispatcher implements ApplicationListener<Applicati
 
     private void notifyListeners(List<ApplicationListener<ApplicationEvent>> listeners, final ApplicationEvent applicationEvent) {
         for (final ApplicationListener<ApplicationEvent> listener : listeners) {
-            debug("forwarding event to listener " + listener);
+            log.debug("forwarding event to listener " + listener);
             if (BaseApplicationEvent.class.isInstance(
                     applicationEvent) && ((BaseApplicationEvent) applicationEvent).isRunOnEDT()) {
                 GuiUtils.runOnEDT(new Runnable() {
@@ -83,9 +83,4 @@ public class ApplicationEventDispatcher implements ApplicationListener<Applicati
 
         }
     }
-
-    private void debug(String message) {
-        if (LOGGER.isDebugEnabled()) LOGGER.debug(message);
-    }
-
 }

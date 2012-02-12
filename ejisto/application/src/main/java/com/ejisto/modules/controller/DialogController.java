@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import com.ejisto.modules.gui.components.EjistoDialog;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyListener;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -35,7 +36,7 @@ import static org.springframework.util.StringUtils.hasText;
  * Date: 3/6/11
  * Time: 2:55 PM
  */
-public class DialogManager {
+public class DialogController {
 
     private final JDialog dialog;
     private final JPanel view;
@@ -43,23 +44,23 @@ public class DialogManager {
 
 
     /**
-     * Constructs a new DialogManager using a {@link JDialog} as container.
+     * Constructs a new DialogController using a {@link JDialog} as container.
      *
      * @param parent opener Frame
      * @param view   target JPanel
      */
-    private DialogManager(Frame parent, JPanel view) {
+    private DialogController(Frame parent, JPanel view) {
         this(new JDialog(parent), view);
     }
 
 
     /**
-     * Constructs a new DialogManager using a user-defined {@link JDialog} instance as container.
+     * Constructs a new DialogController using a user-defined {@link JDialog} instance as container.
      *
      * @param dialog container
      * @param view   target JPanel
      */
-    private DialogManager(JDialog dialog, JPanel view) {
+    private DialogController(JDialog dialog, JPanel view) {
         this.dialog = dialog;
         this.view = view;
     }
@@ -104,6 +105,7 @@ public class DialogManager {
         centerOnScreen(dialog);
         dialog.doLayout();
         dialog.setVisible(true);
+        lock.unlock();
     }
 
     /**
@@ -111,22 +113,17 @@ public class DialogManager {
      */
     public void hide() {
         dialog.setVisible(false);
-        lock.unlock();
     }
-
-//    public static final DialogManager buildNewSimpleDialog(JPanel content, Action... actions) {
-//        EjistoDialog dialog = new EjistoDialog(null, content.getName(), content, true, actions);
-//        return new DialogManager(dialog, content);
-//    }
 
     public static final class Builder {
 
         private JPanel view;
         private String description;
         private String title;
-        private boolean decorated;
+        private boolean decorated = true;
         private Action[] actions;
         private Frame parent;
+        private KeyListener keyListener;
 
         public static Builder newInstance() {
             return new Builder();
@@ -162,7 +159,12 @@ public class DialogManager {
             return this;
         }
 
-        public DialogManager build() {
+        public Builder withKeyListener(KeyListener keyListener) {
+            this.keyListener = keyListener;
+            return this;
+        }
+
+        public DialogController build() {
             JDialog dialog;
             if (hasText(description) || hasText(title)) {
                 dialog = new EjistoDialog(parent, title, view, true, actions);
@@ -171,7 +173,9 @@ public class DialogManager {
             } else {
                 dialog = new JDialog(parent);
             }
-            return new DialogManager(dialog, view);
+            dialog.setUndecorated(!decorated);
+            if (keyListener != null) dialog.addKeyListener(keyListener);
+            return new DialogController(dialog, view);
         }
 
     }

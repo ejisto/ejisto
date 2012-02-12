@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 package com.ejisto.modules.cargo.util;
 
 import com.ejisto.util.PropertyChangePublisher;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.codehaus.cargo.container.installer.ZipURLInstaller;
 
 import javax.swing.*;
@@ -43,8 +43,8 @@ import java.util.List;
  * Date: 3/10/11
  * Time: 10:40 PM
  */
+@Log4j
 public class ContainerInstaller extends ZipURLInstaller implements PropertyChangePublisher {
-    private static final Logger logger = Logger.getLogger(ContainerInstaller.class);
     private final URL url;
     private final List<PropertyChangeListener> propertyChangeListeners;
 
@@ -70,7 +70,7 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
 
             while ((readed = bis.read(buffer)) != -1) {
                 totalReaded += readed;
-                if (logger.isDebugEnabled()) logger.debug("readed " + totalReaded + " of " + total);
+                log.debug("readed " + totalReaded + " of " + total);
                 ch.write(ByteBuffer.wrap(buffer, 0, readed));
                 fireProgressChange(Math.max(50, totalReaded / total * 100));
             }
@@ -78,7 +78,7 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
             out.close();
 
         } catch (IOException e) {
-            logger.error("cannot download container", e);
+            log.error("cannot download container", e);
             throw new RuntimeException("cannot download from " + url.toString(), e);
         }
     }

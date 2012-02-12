@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,9 @@ package com.ejisto.modules.dao.entities;
  * Date: Dec 5, 2010
  * Time: 10:39:18 AM
  */
-public interface MockedField {
+public interface MockedField extends ComplexValuesAware, Comparable<MockedField> {
+    static final String PATH_SEPARATOR = ">";
+
     long getId();
 
     void setId(long id);
@@ -54,13 +56,17 @@ public interface MockedField {
 
     void setActive(boolean active);
 
-    boolean isSimpleValue();
-
     String getExpression();
 
     void setExpression(String expression);
 
     String getComparisonKey();
+
+    String[] getParentClassPath();
+
+    String[] getPath();
+
+    String getParentClassPathAsString();
 
     String getPackageName();
 
@@ -69,10 +75,6 @@ public interface MockedField {
     String getFieldElementType();
 
     void setFieldElementType(String fieldElementType);
-
-    String getCompleteDescription();
-
-    String getCompleteFieldType();
 
     void copyFrom(MockedField original);
 }

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,12 @@ package com.ejisto.modules.controller;
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.convert.PropertyExtractor;
 import com.ejisto.event.def.ApplicationDeployed;
-import com.ejisto.event.def.MockedFieldChanged;
+import com.ejisto.event.def.ChangeWebAppContextStatus;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.*;
 import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.util.ContextPathMatcher;
 import com.ejisto.util.FieldsEditorContextMatcher;
 import org.springframework.context.ApplicationListener;
 
@@ -64,6 +65,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     private Collection<MockedField> wizardFields = Collections.emptyList();
     private volatile int selectedIndex = 0;
     private FieldsEditorContextMatcher contextMatcher;
+    private FieldsEditorContext fieldsEditorContext;
 
     public MockedFieldsEditorController() {
         this(APPLICATION_INSTALLER_WIZARD);
@@ -83,42 +85,50 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
             }
         });
         contextMatcher = new FieldsEditorContextMatcher(fieldsEditorContext);
-        view.setFields(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
+        if (fieldsEditorContext != APPLICATION_INSTALLER_WIZARD)
+            view.setFields(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
+        this.fieldsEditorContext = fieldsEditorContext;
         view.registerFieldEditingListener(this);
         lock = new ReentrantLock();
         registerEventListener(ApplicationDeployed.class, new ApplicationListener<ApplicationDeployed>() {
             @Override
-            public void onApplicationEvent(ApplicationDeployed event) {
+            public void onApplicationEvent(final ApplicationDeployed event) {
                 runOnEDT(new Runnable() {
                     @Override
                     public void run() {
-                        reloadFields();
+                        notifyContextInstalled(event.getContext());
                     }
                 });
             }
         });
-        registerEventListener(MockedFieldChanged.class, new ApplicationListener<MockedFieldChanged>() {
+
+        registerEventListener(ChangeWebAppContextStatus.class, new ApplicationListener<ChangeWebAppContextStatus>() {
             @Override
-            public void onApplicationEvent(MockedFieldChanged event) {
+            public void onApplicationEvent(final ChangeWebAppContextStatus event) {
                 runOnEDT(new Runnable() {
                     @Override
                     public void run() {
-                        reloadFields();
+                        if (event.getCommand() == ChangeWebAppContextStatus.WebAppContextStatusCommand.DELETE)
+                            notifyContextDeleted(event.getContextPath());
                     }
                 });
             }
         });
     }
 
-    private void reloadFields() {
-        view.setFields(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
+    private void notifyContextInstalled(String contextPath) {
+        view.contextInstalled(contextPath, MockedFieldsRepository.getInstance().loadAll(
+                new ContextPathMatcher(contextPath, fieldsEditorContext)));
+    }
+
+    private void notifyContextDeleted(String contextPath) {
+        view.contextRemoved(contextPath, MockedFieldsRepository.getInstance().loadAll(
+                new ContextPathMatcher(contextPath, fieldsEditorContext)));
     }
 
     private void startEdit(MockedFieldEditingEvent event, Point editingPoint) {
-
         editedField = event != null ? event.getField() : getView().getMockedFieldAt(editingPoint.x, editingPoint.y,
                                                                                     selectedIndex == 0);
-
         if (editedField != null && !editedField.isSimpleValue()) {
             editingStarted();
         } else {
@@ -132,11 +142,6 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
 
     void selectionChanged(int selectedIndex) {
         this.selectedIndex = selectedIndex;
-        if (selectedIndex == 0) {
-            view.refreshTreeModel();
-        } else {
-            view.refreshFlattenTableModel();
-        }
         view.showCard(EditorType.fromIndex(selectedIndex));
     }
 
@@ -150,9 +155,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     }
 
     private void initActions() {
-
         final ActionHelper actionHelper = new ActionHelper();
-
         actionMap.put(STOP_EDITING, new CallbackAction(getMessage("ok"), new Closure0() {{
             of(actionHelper).editingStopped();
         }}));

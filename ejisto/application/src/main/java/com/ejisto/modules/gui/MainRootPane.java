@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,9 +57,9 @@ public class MainRootPane extends JXRootPane {
     }
 
     private void initMenuBar() {
-        JMenuBar jMenuBar = new javax.swing.JMenuBar();
-        JMenu jMenuFile = new javax.swing.JMenu("File");
-        containersMenu = new javax.swing.JMenu("Containers");
+        JMenuBar jMenuBar = new JMenuBar();
+        JMenu jMenuFile = new JMenu("File");
+        containersMenu = new JMenu("Containers");
         JMenuItem open = new JMenuItem(getAction(StringConstants.LOAD_WEB_APP.getValue()));
         open.setText("Open");
         open.setAccelerator(
@@ -74,6 +74,10 @@ public class MainRootPane extends JXRootPane {
         createContainerMenus(containersMenu);
         jMenuBar.add(jMenuFile);
         jMenuBar.add(containersMenu);
+        //About menu
+        JMenu jMenuHelp = new JMenu("?");
+        jMenuHelp.add(getAction(StringConstants.SHOW_ABOUT_PANEL.getValue()));
+        jMenuBar.add(jMenuHelp);
         setJMenuBar(jMenuBar);
     }
 

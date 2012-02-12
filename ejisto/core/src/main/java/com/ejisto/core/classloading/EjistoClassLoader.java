@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ package com.ejisto.core.classloading;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,9 +29,9 @@ import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 import java.util.Collection;
 
+@Log4j
 public class EjistoClassLoader extends URLClassLoader {
 
-    private static final Logger logger = Logger.getLogger(EjistoClassLoader.class);
     private ClassTransformer transformer;
     private String contextPath;
     private String installationPath;
@@ -39,10 +39,7 @@ public class EjistoClassLoader extends URLClassLoader {
 
     public EjistoClassLoader(String installationPath/*, WebAppContext context*/) throws IOException {
         super(SharedClassLoader.getInstance().getURLs());
-//        InstrumentationHolder.getInstrumentation().addTransformer(new ClassTransformer(this, mockedFields), true);
         this.installationPath = installationPath;
-//        this.contextPath = context.getContextPath();
-//        this.transformer = new ClassTransformer(context.getContextPath());
         this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
         addLibExt();
     }
@@ -51,7 +48,7 @@ public class EjistoClassLoader extends URLClassLoader {
     public Class<?> findClass(String name) throws ClassNotFoundException {
         try {
             boolean instrumentableClass = isInstrumentableClass(name);
-            if (logger.isDebugEnabled()) logger.debug(name + " is mockable class: " + instrumentableClass);
+            log.debug(name + " is mockable class: " + instrumentableClass);
             if (instrumentableClass) return loadInstrumentableClass(name);
             return null;//should never happen...
         } catch (Exception e) {
@@ -60,7 +57,7 @@ public class EjistoClassLoader extends URLClassLoader {
     }
 
     public Class<?> loadInstrumentableClass(String name) throws Exception {
-        if (logger.isDebugEnabled()) logger.debug("loading instrumentable class: " + name);
+        log.debug("loading instrumentable class: " + name);
         return transformer.transform(name);
     }
 
@@ -84,7 +81,7 @@ public class EjistoClassLoader extends URLClassLoader {
                 if (f.getName().endsWith(".jar")) addURL(f.toURI().toURL());
             }
         } catch (Exception e) {
-            logger.error("unable to load extra classpath", e);
+            log.error("unable to load extra classpath", e);
         }
     }
 

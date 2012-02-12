@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.helper.EditorType;
@@ -28,6 +29,7 @@ import com.ejisto.modules.gui.components.helper.MockedFieldValueEditorPanel;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXRadioGroup;
+import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
@@ -40,7 +42,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.*;
 
 public class MockedFieldsEditor extends JXPanel implements ItemListener {
     private static final long serialVersionUID = 4090818654347648102L;
@@ -52,7 +54,6 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     private JScrollPane treeContainer;
     private MockedFieldValueEditorPanel valueEditorPanel;
     private MockedFieldTree tree;
-    private List<MockedField> fields;
     private JPanel editorSelectionPanel;
     private JPanel editorPanel;
     private MockedFieldsEditorController controller;
@@ -66,9 +67,21 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     }
 
     public void setFields(List<MockedField> fields) {
-        this.fields = fields;
-        refreshFlattenTableModel();
-        refreshTreeModel();
+        for (EditorType editorType : fieldsEditorContext.getSupportedEditors()) {
+            getEditorComponent(editorType).setFields(fields);
+        }
+    }
+
+    public void contextInstalled(String contextPath, List<MockedField> fields) {
+        for (EditorType editorType : fieldsEditorContext.getSupportedEditors()) {
+            getEditorComponent(editorType).contextInstalled(contextPath, fields);
+        }
+    }
+
+    public void contextRemoved(String contextPath, List<MockedField> fields) {
+        for (EditorType editorType : fieldsEditorContext.getSupportedEditors()) {
+            getEditorComponent(editorType).contextRemoved(contextPath, fields);
+        }
     }
 
     public void initActionMap(ActionMap actionMap) {
@@ -88,19 +101,11 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         return getValueEditorPanel().getFieldType();
     }
 
-    public void refreshFlattenTableModel() {
-        getFlattenTable().setFields(fields);
-    }
-
     public MockedField getMockedFieldAt(int x, int y, boolean fromTree) {
         MockedFieldsEditorComponent component;
         if (fromTree) component = getTree();
         else component = getFlattenTable();
         return component.getFieldAt(x, y);
-    }
-
-    public void refreshTreeModel() {
-        getTree().setFields(fields);
     }
 
     public void registerChangeListener(MockedFieldsEditorController controller) {
@@ -109,8 +114,8 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     }
 
     public void registerMouseLister(MouseListener mouseListener) {
-        getTree().addMouseListener(mouseListener);
-        getFlattenTable().addMouseListener(mouseListener);
+        for (EditorType editorType : fieldsEditorContext.getSupportedEditors())
+            getEditorComponent(editorType).addMouseListener(mouseListener);
     }
 
     public void expandCollapseEditorPanel(boolean expand) {
@@ -128,6 +133,22 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         setName(getMessage("main.propertieseditor.title.text"));
         setLayout(new BorderLayout());
         add(getEditorContainer(), BorderLayout.CENTER);
+        registerEventListener(MockedFieldChanged.class, new ApplicationListener<MockedFieldChanged>() {
+            @Override
+            public void onApplicationEvent(final MockedFieldChanged event) {
+                runOnEDT(new Runnable() {
+                    @Override
+                    public void run() {
+                        fieldsChanged(event.getMockedFields());
+                    }
+                });
+            }
+        });
+    }
+
+    private void fieldsChanged(List<MockedField> fields) {
+        for (EditorType editorType : fieldsEditorContext.getSupportedEditors())
+            getEditorComponent(editorType).fieldsChanged(fields);
     }
 
     private JPanel getEditorContainer() {

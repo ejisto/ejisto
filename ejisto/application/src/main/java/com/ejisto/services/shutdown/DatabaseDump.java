@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.dao.*;
 import com.ejisto.modules.dao.entities.*;
 import com.ejisto.util.converter.*;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -34,9 +34,8 @@ import java.util.List;
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.util.IOUtils.writeFile;
 
+@Log4j
 public class DatabaseDump extends BaseShutdownService {
-
-    private static final Logger logger = Logger.getLogger(DatabaseDump.class);
 
     private static final String NEWLINE = "\n";
 
@@ -60,7 +59,7 @@ public class DatabaseDump extends BaseShutdownService {
             dumpContainers(file);
             writeFile(file.toString().getBytes(), System.getProperty(StringConstants.DERBY_SCRIPT.getValue()));
         } catch (Exception e) {
-            logger.error("error during db dump", e);
+            log.error("error during db dump", e);
         }
     }
 
@@ -82,7 +81,8 @@ public class DatabaseDump extends BaseShutdownService {
     private void dumpDescriptors(StringBuilder file) {
         List<WebApplicationDescriptor> descriptors = webApplicationDescriptorDao.loadAll();
         append(file, convert(descriptors, new DescriptorDumpConverter()));
-        append(file, convert(collect(forEach(descriptors, WebApplicationDescriptor.class).getElements()), new DescriptorElementDumpConverter()));
+        append(file, convert(collect(forEach(descriptors, WebApplicationDescriptor.class).getElements()),
+                             new DescriptorElementDumpConverter()));
     }
 
     private void dumpDataSources(StringBuilder file) {

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +26,12 @@ import com.ejisto.event.def.InstallContainer;
 import com.ejisto.event.def.LogMessage;
 import com.ejisto.modules.cargo.CargoManager;
 import com.ejisto.modules.conf.SettingsManager;
-import com.ejisto.modules.controller.DialogManager;
+import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.ContainerInstallationPanel;
 import com.ejisto.util.GuiUtils;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
@@ -50,8 +50,8 @@ import static com.ejisto.util.GuiUtils.runOnEDT;
  * Date: 3/6/11
  * Time: 12:46 PM
  */
+@Log4j
 public class ContainerInstaller implements ApplicationListener<InstallContainer>, PropertyChangeListener {
-    private static final Logger logger = Logger.getLogger(ContainerInstaller.class);
     @Resource Application application;
     @Resource CargoManager cargoManager;
     @Resource SettingsManager settingsManager;
@@ -59,29 +59,32 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
 
     @Override
     public void onApplicationEvent(final InstallContainer event) {
-        logger.info("about to install " + event.getDescription() + " container");
+        log.info("about to install " + event.getDescription() + " container");
         final String containerDescription = settingsManager.getValue("container.default.description");
-        final ContainerInstallationPanel panel = new ContainerInstallationPanel(getMessage("container.installation.panel.title"),
-                                                                                getMessage("container.installation.panel.description",
-                                                                                           containerDescription));
-        final DialogManager manager = DialogManager.Builder.newInstance().withContent(panel).withParentFrame(application).withDecorations(
+        final ContainerInstallationPanel panel = new ContainerInstallationPanel(
+                getMessage("container.installation.panel.title"),
+                getMessage("container.installation.panel.description",
+                           containerDescription));
+        final DialogController controller = DialogController.Builder.newInstance().withContent(panel).withParentFrame(
+                application).withDecorations(
                 false).build();
 
-        //new DialogManager(application, panel);
+        //new DialogController(application, panel);
         Callable<Void> action = new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 notifyToPanel(panel, getMessage("container.installation.panel.status.1", containerDescription));
-                if (logger.isDebugEnabled()) logger.debug("downloading container");
+                log.debug("downloading container");
                 cargoManager.downloadAndInstall(settingsManager.getValue("container.default.url"),
                                                 System.getProperty(CONTAINERS_HOME_DIR.getValue()));
-                if (logger.isDebugEnabled()) logger.debug("download completed");
+                log.debug("download completed");
                 notifyToPanel(panel, getMessage("container.installation.panel.status.2", containerDescription));
-                if (logger.isDebugEnabled()) logger.debug("notifying installation success");
+                log.debug("notifying installation success");
                 eventManager.publishEvent(new ContainerInstalled(this, event.getContainerId(), event.getDescription()));
                 eventManager.publishEvent(new LogMessage(this, getMessage("container.installation.ok")));
-                if (event.isStart()) eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
-                showHideProgressPanel(false, manager);
+                if (event.isStart())
+                    eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
+                showHideProgressPanel(false, controller);
                 return null;
             }
         };
@@ -98,12 +101,12 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         });
     }
 
-    void showHideProgressPanel(final boolean show, final DialogManager manager) {
+    void showHideProgressPanel(final boolean show, final DialogController controller) {
         GuiUtils.runOnEDT(new Runnable() {
             @Override
             public void run() {
-                if (show) manager.showUndecorated(true);
-                else manager.hide();
+                if (show) controller.showUndecorated(true);
+                else controller.hide();
             }
         });
 
@@ -115,10 +118,10 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
 //            evt.getNewValue();
 //            //future.get();
 //        } catch (InterruptedException e) {
-//            logger.error("got interrupted exception", e);
+//            log.error("got interrupted exception", e);
 //        } catch (ExecutionException e) {
-//            //showHideProgressPanel(false, manager);
-//            logger.error("got execution exception", e);
+//            //showHideProgressPanel(false, controller);
+//            log.error("got execution exception", e);
 //            eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e.getCause()));
 //        }
     }

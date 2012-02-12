@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.ApplicationInstallerWizard;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 import javax.swing.*;
 import java.awt.Dialog.ModalityType;
@@ -49,8 +49,8 @@ import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 import static com.ejisto.util.GuiUtils.*;
 import static java.util.Collections.sort;
 
+@Log4j
 public class ApplicationInstallerWizardController implements PropertyChangeListener {
-    private static final Logger logger = Logger.getLogger(ApplicationInstallerWizard.class);
     private List<StepController<WebApplicationDescriptor>> controllers;
     private ApplicationInstallerWizard wizard;
     private Closure1<ActionEvent> callActionPerformed;
@@ -183,7 +183,7 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
                 navigate(true);
             }
         } catch (WizardException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 

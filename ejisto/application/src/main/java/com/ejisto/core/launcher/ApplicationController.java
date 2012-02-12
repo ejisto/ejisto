@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ package com.ejisto.core.launcher;
 import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.services.Service;
 import com.ejisto.services.ServiceType;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationListener;
 
@@ -32,9 +32,8 @@ import java.util.Collection;
 import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
 
+@Log4j
 public class ApplicationController implements InitializingBean, ApplicationListener<ShutdownRequest> {
-
-    private static final Logger logger = Logger.getLogger(ApplicationController.class);
 
     @Resource
     private Collection<Service> services;
@@ -43,14 +42,16 @@ public class ApplicationController implements InitializingBean, ApplicationListe
     }
 
     public void startup() {
-        if (logger.isDebugEnabled()) logger.debug("invoking startup services...");
-        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.STARTUP))), Service.class).execute();
+        log.debug("invoking startup services...");
+        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.STARTUP))),
+                Service.class).execute();
     }
 
     private void shutdown() {
-        if (logger.isDebugEnabled()) logger.debug("invoking startup services...");
-        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.SHUTDOWN))), Service.class).execute();
-        logger.info("Application shutdown succesfully completed. Invoking shutdown hooks via System.exit(0)");
+        log.debug("invoking startup services...");
+        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.SHUTDOWN))),
+                Service.class).execute();
+        log.info("Application shutdown successfully completed. Invoking shutdown hooks via System.exit(0)");
         System.exit(0);
     }
 

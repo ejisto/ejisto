@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,16 @@ public class MapFactory<K, V> extends AbstractContainerFactory<Map<K, V>, V> {
         FakeMap<K, V> map = new FakeMap<K, V>(size);
         fillMap(map, elementObjectFactory, m);
         return map;
+    }
+
+    @Override
+    public boolean supportsRandomValuesCreation() {
+        return false;
+    }
+
+    @Override
+    public Map<K, V> createRandomValue() {
+        return null;
     }
 
     private void fillMap(Map<K, V> map, ObjectFactory<V> elementObjectFactory, MockedField m) {

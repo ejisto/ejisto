@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,9 @@
 package com.ejisto.modules.dao.entities;
 
 import lombok.Data;
+
+import static ch.lambdaj.Lambda.join;
+import static java.util.Arrays.asList;
 
 @Data
 public class MockedFieldImpl implements MockedField {
@@ -40,7 +43,31 @@ public class MockedFieldImpl implements MockedField {
 
     @Override
     public String getComparisonKey() {
-        return contextPath + "/" + className + "/" + fieldName;
+        return join(asList(contextPath, getPackageName(), className, fieldName), PATH_SEPARATOR);
+    }
+
+    @Override
+    public String[] getParentClassPath() {
+        String[] pathToClass = getClassName().split("[.\\$]");
+        String[] path = new String[pathToClass.length + 1];
+        path[0] = getContextPath();
+        System.arraycopy(pathToClass, 0, path, 1, pathToClass.length);
+        return path;
+    }
+
+    @Override
+    public String[] getPath() {
+        String[] pathToClass = getClassName().split("[.\\$]");
+        String[] path = new String[pathToClass.length + 2];
+        path[0] = getContextPath();
+        path[path.length - 1] = getFieldName();
+        System.arraycopy(pathToClass, 0, path, 1, pathToClass.length);
+        return path;
+    }
+
+    @Override
+    public String getParentClassPathAsString() {
+        return join(getParentClassPath(), PATH_SEPARATOR);
     }
 
     @Override
@@ -110,4 +137,9 @@ public class MockedFieldImpl implements MockedField {
         return result;
     }
 
+    @Override
+    public int compareTo(MockedField o) {
+        if (id == o.getId()) return 0;
+        return getComparisonKey().compareTo(o.getComparisonKey());
+    }
 }

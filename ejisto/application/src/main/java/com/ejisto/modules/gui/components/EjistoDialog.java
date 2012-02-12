@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 package com.ejisto.modules.gui.components;
 
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -34,10 +34,10 @@ import java.util.LinkedHashSet;
 
 import static com.ejisto.util.GuiUtils.*;
 
+@Log4j
 public class EjistoDialog extends JDialog {
     private static final long serialVersionUID = 1533524071894496853L;
     public static final String CLOSE_ACTION_COMMAND = "close";
-    private static final Logger logger = Logger.getLogger(EjistoDialog.class);
     private Collection<Action> actions = new LinkedHashSet<Action>();
     private JPanel content;
     private Header header;
@@ -69,8 +69,7 @@ public class EjistoDialog extends JDialog {
     }
 
     public void registerAction(Action action) {
-        if (logger.isDebugEnabled())
-            logger.debug("registering action [" + action.getValue(Action.ACTION_COMMAND_KEY) + "]");
+        log.debug("registering action [" + action.getValue(Action.ACTION_COMMAND_KEY) + "]");
         putAction(action.getValue(Action.ACTION_COMMAND_KEY), action);
         this.actions.add(action);
     }
@@ -120,7 +119,7 @@ public class EjistoDialog extends JDialog {
     private void handleClose(WindowEvent e) {
         Action action = getActionFor(CLOSE_ACTION_COMMAND);
         if (action == null) {
-            logger.warn("Dialog isn't freely disposable but no action found.");
+            log.warn("Dialog isn't freely disposable but no action found.");
             close();
         } else {
             action.actionPerformed(new ActionEvent(this, e.getID(), CLOSE_ACTION_COMMAND));

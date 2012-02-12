@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,21 +56,26 @@ public class PropertyManager {
             MockedField mockedField = mockedFieldsRepository.load(contextPath, className, fieldName);
             trace("found " + mockedField);
             if (mockedField != null && mockedField.isActive()) {
+                trace("mocked field is active");
                 return evaluateResult(mockedField, type, actualValue);
             } else {
+                trace("mocked field is not active");
                 return actualValue;
             }
         } catch (Exception e) {
-            logger.error("Property " + fieldName + " of class " + className + " not found. Returning " + actualValue, e);
+            logger.error("Property " + fieldName + " of class " + className + " not found. Returning " + actualValue,
+                         e);
             return actualValue;
         }
     }
 
     @SuppressWarnings("unchecked")
     private <T> T evaluateResult(MockedField mockedField, Class<T> type, T actualValue) throws Exception {
-        String objectFactoryClass = objectFactoryRepository.getObjectFactory(mockedField.getFieldType(), mockedField.getContextPath());
+        String objectFactoryClass = objectFactoryRepository.getObjectFactory(mockedField.getFieldType(),
+                                                                             mockedField.getContextPath());
         ObjectFactory<T> objectFactory = (ObjectFactory<T>) Thread.currentThread().getContextClassLoader().loadClass(
                 objectFactoryClass).newInstance();
+        trace("ObjectFactory " + objectFactoryClass + " supports random values creation: " + objectFactory.supportsRandomValuesCreation());
         return objectFactory.create(mockedField, actualValue);
     }
 

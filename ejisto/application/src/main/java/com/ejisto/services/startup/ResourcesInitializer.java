@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,17 +20,14 @@
 package com.ejisto.services.startup;
 
 import com.ejisto.event.EventManager;
-import com.ejisto.event.def.ApplicationError;
-import com.ejisto.event.def.ChangeServerStatus;
+import com.ejisto.event.def.*;
 import com.ejisto.event.def.ChangeServerStatus.Command;
-import com.ejisto.event.def.LoadWebApplication;
-import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.Header;
 import com.ejisto.util.GuiUtils;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.jdesktop.swingx.JXHeader;
 import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 
@@ -41,15 +38,15 @@ import java.io.File;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.putAction;
 
+@Log4j
 public class ResourcesInitializer extends BaseStartupService {
-    private static final Logger logger = Logger.getLogger(ResourcesInitializer.class);
     @Resource private EventManager eventManager;
     @Resource private EmbeddedDatabaseManager dataSource;
     @Resource private SettingsManager settingsManager;
 
     @Override
     public void execute() {
-        logger.info("executing ResourcesInitializer");
+        log.info("executing ResourcesInitializer");
         File baseDir = new File(System.getProperty("user.home"), ".ejisto");
         if (!baseDir.exists()) initBaseDir(baseDir);
         initDirectories(baseDir);
@@ -140,5 +137,6 @@ public class ResourcesInitializer extends BaseStartupService {
         putAction(new EjistoAction<ShutdownRequest>(new ShutdownRequest(this)));
         putAction(new EjistoAction<ChangeServerStatus>(new ChangeServerStatus(this, Command.STARTUP)));
         putAction(new EjistoAction<ChangeServerStatus>(new ChangeServerStatus(this, Command.SHUTDOWN)));
+        putAction(new EjistoAction<DialogRequested>(new DialogRequested(this, DialogRequested.DialogType.ABOUT)));
     }
 }

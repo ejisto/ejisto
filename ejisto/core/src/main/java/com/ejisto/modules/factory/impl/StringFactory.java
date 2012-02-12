@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@ package com.ejisto.modules.factory.impl;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.ObjectFactory;
 
+import java.util.Random;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -29,6 +31,9 @@ import com.ejisto.modules.factory.ObjectFactory;
  * Time: 5:19:03 PM
  */
 public class StringFactory implements ObjectFactory<String> {
+
+    private static final Random random = new Random();
+
     @Override
     public String getTargetClassName() {
         return "java.lang.String";
@@ -37,5 +42,18 @@ public class StringFactory implements ObjectFactory<String> {
     @Override
     public String create(MockedField m, String actualValue) {
         return m.getFieldValue();
+    }
+
+    @Override
+    public boolean supportsRandomValuesCreation() {
+        return true;
+    }
+
+    @Override
+    public String createRandomValue() {
+        StringBuilder builder = new StringBuilder();
+        int size = random.nextInt(1024);
+        for (int i = 0; i < size; i++) builder.append("a");
+        return builder.toString();
     }
 }

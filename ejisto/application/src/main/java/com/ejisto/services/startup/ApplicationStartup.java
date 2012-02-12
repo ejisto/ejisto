@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,21 +20,21 @@
 package com.ejisto.services.startup;
 
 import com.ejisto.modules.gui.Application;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 import javax.annotation.Resource;
 
 import static com.ejisto.util.GuiUtils.centerOnScreen;
 
+@Log4j
 public class ApplicationStartup extends BaseStartupService {
-    private static final Logger logger = Logger.getLogger(ApplicationStartup.class);
 
     @Resource
     private Application application;
 
     @Override
     public void execute() {
-        logger.info("executing ApplicationStartup");
+        log.info("executing ApplicationStartup");
         application.init();
         centerOnScreen(application);
         application.setVisible(true);

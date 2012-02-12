@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,11 +60,16 @@ public class ClassTransformer implements ClassFileTransformer {
     }
 
     private CtClass instrument(String className) throws Exception {
-        CtClass clazz = classPool.get(className.replaceAll("/", "."));
-        if (clazz.isFrozen()) clazz.defrost();
+        CtClass clazz = load(className);
         removeFinalModifier(clazz);
         addDefaultConstructor(clazz);
         clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, getFieldsFor(className))));
+        return clazz;
+    }
+
+    private CtClass load(String className) throws Exception {
+        CtClass clazz = classPool.get(className.replaceAll("/", "."));
+        if (clazz.isFrozen()) clazz.defrost();
         return clazz;
     }
 

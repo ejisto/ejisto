@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,4 +48,18 @@ public interface ObjectFactory<T> {
      * @return new Instance of managed Object
      */
     T create(MockedField m, T actualValue);
+
+    /**
+     * Returns a flag indicating that this ObjectFactory supports random values creation
+     *
+     * @return {@code true} if supported, @{code false} otherwise
+     */
+    boolean supportsRandomValuesCreation();
+
+    /**
+     * Random value generator
+     *
+     * @return random value (if supported)
+     */
+    T createRandomValue();
 }

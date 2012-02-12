@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ package com.ejisto.modules.dao.entities;
 
 import com.ejisto.modules.dao.entities.helper.WebApplicationDescriptorHelper;
 import com.ejisto.util.JndiDataSourcesRepository;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.springframework.util.CollectionUtils;
 
 import java.io.File;
@@ -32,8 +32,8 @@ import static ch.lambdaj.Lambda.*;
 import static com.ejisto.modules.dao.entities.WebApplicationDescriptorElement.Kind.CLASSPATH;
 import static org.hamcrest.Matchers.equalTo;
 
+@Log4j
 public class WebApplicationDescriptor implements Serializable {
-    private static final Logger logger = Logger.getLogger(WebApplicationDescriptor.class);
     private static final long serialVersionUID = 7454195671017831484L;
     private List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>();
     private int id = -1;
@@ -85,7 +85,7 @@ public class WebApplicationDescriptor implements Serializable {
     }
 
     public void setBlacklist(List<String> blacklist) {
-        if (logger.isDebugEnabled()) logger.debug("blacklisting: " + blacklist);
+        log.debug("blacklisting: " + blacklist);
         helper.setBlacklist(blacklist);
     }
 

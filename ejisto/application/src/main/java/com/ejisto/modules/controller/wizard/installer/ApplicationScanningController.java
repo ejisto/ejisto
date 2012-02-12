@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ import com.ejisto.modules.executor.Task;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
-import org.apache.log4j.Logger;
 
 import java.beans.PropertyChangeEvent;
 import java.util.concurrent.atomic.AtomicReference;
@@ -37,7 +36,6 @@ import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.runOnEDT;
 
 public class ApplicationScanningController extends AbstractApplicationInstallerController {
-    private static final Logger logger = Logger.getLogger(ApplicationScanningController.class);
     private ProgressPanel applicationScanningTab;
     private final String containerHome;
     private AtomicReference<ProgressDescriptor.ProgressState> progressState = new AtomicReference<ProgressDescriptor.ProgressState>(
