@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +30,8 @@ import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
 
-import static ch.lambdaj.Lambda.convert;
-import static ch.lambdaj.Lambda.select;
+import static ch.lambdaj.Lambda.*;
+import static org.hamcrest.Matchers.equalTo;
 
 /**
  * Created by IntelliJ IDEA.
@@ -55,8 +55,12 @@ public class MockedFieldsRepository extends ExternalizableService<MockedFieldsDa
     }
 
     public List<MockedField> loadAll(Matcher<MockedField> matcher) {
-        List<MockedField> activeFields = select(getMockedFieldsDao().loadAll(), matcher);
-        return convert(activeFields, mockedFieldConverter);
+        List<MockedField> allFields = select(getMockedFieldsDao().loadAll(), matcher);
+        return convert(allFields, mockedFieldConverter);
+    }
+
+    public List<MockedField> loadActiveFields(Matcher<MockedField> matcher) {
+        return select(loadAll(matcher), having(on(MockedField.class).isActive(), equalTo(true)));
     }
 
     public MockedField load(String contextPath, String className, String fieldName) {
@@ -108,6 +112,11 @@ public class MockedFieldsRepository extends ExternalizableService<MockedFieldsDa
     @Override
     protected Class<MockedFieldsDao> getDaoClass() {
         return MockedFieldsDao.class;
+    }
+
+    public List<MockedField> loadActiveFields(String contextPath, String className) {
+        return select(mockedFieldsDao.loadByContextPathAndClassName(contextPath, className),
+                      having(on(MockedField.class).isActive(), equalTo(true)));
     }
 
     private static final class MockedFieldConverter implements Converter<MockedField, MockedField> {

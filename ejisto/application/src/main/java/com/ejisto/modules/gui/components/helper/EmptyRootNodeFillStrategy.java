@@ -47,7 +47,7 @@ public class EmptyRootNodeFillStrategy implements NodeFillStrategy {
 
     @Override
     public MockedFieldNode removeField(MockedFieldNode parent, MockedField field) {
-        throw new UnsupportedOperationException("write-only strategy");
+        throw new UnsupportedOperationException("not supported");
     }
 
     @Override

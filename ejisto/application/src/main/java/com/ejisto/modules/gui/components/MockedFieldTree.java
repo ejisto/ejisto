@@ -22,6 +22,7 @@ package com.ejisto.modules.gui.components;
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.gui.components.helper.*;
 import com.ejisto.modules.validation.MockedFieldValidator;
 import com.ejisto.modules.validation.ValidationErrors;
@@ -36,6 +37,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -154,6 +156,23 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
 
     @Override
     public void contextInstalled(String contextPath, List<MockedField> fields) {
+        Enumeration<MockedFieldNode> e = getRoot().children();
+        boolean found = false;
+        MockedFieldNode contextRoot = null;
+        while (!found && e.hasMoreElements()) {
+            MockedFieldNode node = e.nextElement();
+            if (node.getNodePath()[0].equals(contextPath)) {
+                found = true;
+                contextRoot = node;
+            }
+        }
+        if (contextRoot != null) {
+            MockedField mf = new MockedFieldImpl();
+            mf.setClassName("");
+            mf.setFieldName("");
+            mf.setContextPath(contextPath);
+            getRoot().remove(mf);
+        }
         fieldsChanged(fields);
     }
 
@@ -169,6 +188,28 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
             if (found) deleted = current;
         }
         if (deleted != null) deleted.removeFromParent();
+    }
+
+    @Override
+    public void fillWithCustomMenuItems(JPopupMenu menu, Point sourcePosition) {
+        final MockedFieldNode node = getNodeAt(sourcePosition.x, sourcePosition.y);
+        if (node == null || node.isLeaf()) return;
+        Action customAction = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean expand = e.getActionCommand().equals("expand");
+                toggleExpandCollapse(node, expand);
+            }
+        };
+
+        boolean expanded = isExpanded(getPathForLocation(sourcePosition.x, sourcePosition.y));
+        customAction.putValue(Action.NAME, getMessage(expanded ? "collapse.node.text" : "expand.node.text"));
+        customAction.putValue(Action.SMALL_ICON, getIcon(expanded ? "collapse.node.icon" : "expand.node.icon"));
+        customAction.putValue(Action.SHORT_DESCRIPTION,
+                              getMessage(expanded ? "collapse.node.text" : "expand.node.text"));
+        customAction.putValue(Action.ACTION_COMMAND_KEY, expanded ? "collapse" : "expand");
+        menu.add(customAction);
+        menu.add(new JPopupMenu.Separator());
     }
 
 
@@ -215,6 +256,28 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
         TreePath path = getPathForLocation(targetX, targetY);
         getModel().reload();
         setSelectionPath(path);
+    }
+
+    private void toggleExpandCollapse(MockedFieldNode parent, boolean expand) {
+        if (parent.isLeaf()) return;
+        changeNodeState(parent, expand);
+        if (!expand) return;
+        Enumeration<MockedFieldNode> e = parent.children();
+        while (e.hasMoreElements()) {
+            MockedFieldNode node = e.nextElement();
+            changeNodeState(node, expand);
+            toggleExpandCollapse(node, expand);
+        }
+    }
+
+    private void changeNodeState(MockedFieldNode node, boolean expand) {
+        if (node.isLeaf()) return;
+        TreePath path = new TreePath(getModel().getPathToRoot(node));
+        if (expand) {
+            expandPath(path);
+        } else {
+            collapsePath(path);
+        }
     }
 
     private boolean isMockedFieldNode(Object node) {

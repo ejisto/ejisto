@@ -138,6 +138,10 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
         getModel().deleteFields(fields);
     }
 
+    @Override
+    public void fillWithCustomMenuItems(JPopupMenu menu, Point sourcePosition) {
+    }
+
     private void fireEditingStarted(MockedField field, Point point) {
         MockedFieldEditingEvent event = new MockedFieldEditingEvent(this, field, fieldsEditorContext, point);
         helper.fireEditingStarted(event);

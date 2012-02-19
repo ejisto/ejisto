@@ -37,6 +37,7 @@ public class DefaultObjectFactory implements ObjectFactory<Object> {
 
     @Override
     public Object create(MockedField m, Object actualValue) {
+        if (!m.isActive()) return actualValue;
         try {
             Class<?> clazz = Class.forName(m.getFieldType());
             return EjistoProxyFactory.getInstance().proxyClass(clazz, m.getContextPath());

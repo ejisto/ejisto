@@ -47,6 +47,7 @@ public class AboutPanel extends JXPanel {
     }
 
     private void init() {
+        //add(getHeader(), BorderLayout.NORTH);
         add(getContainer(), BorderLayout.CENTER);
         setBackground(Color.WHITE);
     }

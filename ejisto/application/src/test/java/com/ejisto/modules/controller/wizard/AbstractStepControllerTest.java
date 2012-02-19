@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ public class AbstractStepControllerTest {
                 }
             });
         try {
-            barrier.await(1200, TimeUnit.MILLISECONDS);
+            barrier.await(1500, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             fail(e.toString());
         }

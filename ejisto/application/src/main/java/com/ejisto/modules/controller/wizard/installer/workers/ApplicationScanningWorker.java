@@ -131,12 +131,11 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
     }
 
     private void fillMockedFields(CtClass clazz, WebApplicationDescriptor descriptor, ClassLoader loader) throws NotFoundException {
-        MockedField mockedField;
         try {
             List<MockedField> mockedFields = MockedFieldsRepository.getInstance().load(descriptor.getContextPath(),
                                                                                        clazz.getName());
             for (CtField field : clazz.getDeclaredFields()) {
-                mockedField = new MockedFieldDecorator();
+                MockedField mockedField = new MockedFieldDecorator();
                 mockedField.setContextPath(descriptor.getContextPath());
                 mockedField.setClassName(clazz.getName());
                 mockedField.setFieldName(field.getName());

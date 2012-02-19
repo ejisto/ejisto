@@ -22,6 +22,7 @@ package com.ejisto.modules.gui.components;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.helper.FieldEditingListener;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 import java.util.List;
@@ -59,5 +60,7 @@ public interface MockedFieldsEditorComponent {
     void contextRemoved(String contextPath, List<MockedField> fields);
 
     void addMouseListener(MouseListener mouseListener);
+
+    void fillWithCustomMenuItems(JPopupMenu menu, Point sourcePosition);
 }
 

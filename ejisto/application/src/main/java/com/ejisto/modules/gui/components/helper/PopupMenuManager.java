@@ -56,6 +56,7 @@ public class PopupMenuManager extends MouseAdapter {
             editor.selectFieldAt(e.getPoint());
             JPopupMenu menu = new JPopupMenu();
             menu.setInvoker(component);
+            editor.fillWithCustomMenuItems(menu, e.getPoint());
             menu.add(buildEjistoAction(component, CREATE, null));
             if (isEditingAllowed(component, e.getPoint())) {
                 MockedField target = getFieldAt(component, e.getPoint());
