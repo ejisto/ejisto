@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,11 @@ package com.ejisto.modules.repository;
 
 import com.ejisto.core.container.WebApplication;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static ch.lambdaj.Lambda.forEach;
 
 /**
  * Created by IntelliJ IDEA.
@@ -42,7 +41,8 @@ public class WebApplicationRepository {
     }
 
     public void registerWebApplication(String containerId, WebApplication<?> webApplication) {
-        if (!webApplications.containsKey(containerId)) webApplications.putIfAbsent(containerId, new HashMap<String, WebApplication<?>>());
+        if (!webApplications.containsKey(containerId))
+            webApplications.putIfAbsent(containerId, new HashMap<String, WebApplication<?>>());
         webApplications.get(containerId).put(webApplication.getWebApplicationContextPath(), webApplication);
     }
 
@@ -58,8 +58,14 @@ public class WebApplicationRepository {
         webApplications.remove(containerId);
     }
 
+    public void containerStartup(String containerId) {
+        if (!webApplications.containsKey(containerId)) return;
+        Collection<WebApplication<?>> containerApplications = webApplications.get(containerId).values();
+        forEach(containerApplications).setStatus(WebApplication.Status.STARTED);
+    }
+
     public Map<String, List<WebApplication<?>>> getInstalledWebApplications() {
-        Map<String, List<WebApplication<?>>> applications = new HashMap<String, List<WebApplication<?>>>();
+        Map<String, List<WebApplication<?>>> applications = new TreeMap<String, List<WebApplication<?>>>();
         List<WebApplication<?>> serverApplications;
         for (String serverId : webApplications.keySet()) {
             serverApplications = new ArrayList<WebApplication<?>>(webApplications.get(serverId).values());

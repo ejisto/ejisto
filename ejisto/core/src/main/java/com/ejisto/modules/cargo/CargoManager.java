@@ -63,6 +63,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.*;
+import static com.ejisto.core.container.WebApplication.Status.STARTED;
 import static com.ejisto.util.IOUtils.guessWebApplicationUri;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -152,7 +153,6 @@ public class CargoManager implements ContainerManager {
                     deployer.undeploy(deployable);
                 }
                 localContainer.stop();
-                webApplicationRepository.containerShutdown(id);
                 serverStarted.set(false);
                 return true;
             }
@@ -329,8 +329,7 @@ public class CargoManager implements ContainerManager {
     private boolean start(String containerId, String contextPath, Deployable deployable, LocalContainer container) {
         try {
             getDeployerFor(container).deploy(deployable);
-            webApplicationRepository.getRegisteredWebApplication(containerId, contextPath).setStatus(
-                    WebApplication.Status.STARTED);
+            webApplicationRepository.getRegisteredWebApplication(containerId, contextPath).setStatus(STARTED);
             return true;
         } catch (Exception ex) {
             log.error("error during web application start", ex);

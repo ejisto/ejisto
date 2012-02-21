@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,22 +19,55 @@
 
 package com.ejisto.modules.gui.components;
 
-import ch.lambdaj.Lambda;
 import com.ejisto.core.container.WebApplication;
+import com.ejisto.event.def.ApplicationDeployed;
+import com.ejisto.event.def.ChangeWebAppContextStatus;
+import com.ejisto.event.def.ContainerStatusChanged;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
+import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
+import static ch.lambdaj.Lambda.flatten;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.*;
 
 public class RegisteredContextList extends JXPanel {
 
     private static final long serialVersionUID = -157871898009911909L;
+    private final ApplicationListener<ChangeWebAppContextStatus> contextChangeListener = new ApplicationListener<ChangeWebAppContextStatus>() {
+        @Override
+        public void onApplicationEvent(ChangeWebAppContextStatus event) {
+            reloadAllContexts();
+        }
+    };
+
+    private final ApplicationListener<ApplicationDeployed> applicationDeployListener = new ApplicationListener<ApplicationDeployed>() {
+        @Override
+        public void onApplicationEvent(ApplicationDeployed event) {
+            reloadAllContexts();
+        }
+    };
+
+    private final ApplicationListener<ContainerStatusChanged> serverStartListener = new ApplicationListener<ContainerStatusChanged>() {
+        @Override
+        public void onApplicationEvent(ContainerStatusChanged event) {
+            boolean started = event.isStarted();
+            for (WebApplication<?> application : getAllRegisteredWebApplications()) {
+                getAction(buildCommand(START_CONTEXT_PREFIX, application.getContainerId(),
+                                       application.getWebApplicationContextPath())).setEnabled(!started);
+                getAction(buildCommand(STOP_CONTEXT_PREFIX, application.getContainerId(),
+                                       application.getWebApplicationContextPath())).setEnabled(started);
+            }
+            reloadAllContexts();
+        }
+    };
+
 
     public RegisteredContextList() {
         super();
@@ -45,9 +78,13 @@ public class RegisteredContextList extends JXPanel {
         internalReloadAllContexts(true);
     }
 
+    private List<WebApplication<?>> getAllRegisteredWebApplications() {
+        return flatten(getAllRegisteredContexts());
+    }
+
     private void internalReloadAllContexts(boolean removeAll) {
         if (removeAll) removeAll();
-        for (WebApplication<?> context : Lambda.<WebApplication<?>>flatten(getAllRegisteredContexts())) {
+        for (WebApplication<?> context : getAllRegisteredWebApplications()) {
             add(buildContextControlPanel(context));
         }
         revalidate();
@@ -55,6 +92,9 @@ public class RegisteredContextList extends JXPanel {
     }
 
     private void init() {
+        registerEventListener(ChangeWebAppContextStatus.class, contextChangeListener);
+        registerEventListener(ApplicationDeployed.class, applicationDeployListener);
+        registerEventListener(ContainerStatusChanged.class, serverStartListener);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setBackground(Color.WHITE);
         setName(getMessage("main.tab.webappcontext.text"));
