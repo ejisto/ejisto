@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  */
 public class ContainerUtils {
 
-    private static final Pattern AGENT_JAR = Pattern.compile("^ejisto-agent.*?\\.jar$");
+    private static final Pattern AGENT_JAR = Pattern.compile("^.*?ejisto-agent.*?\\.jar$");
 
     public static String extractAgentJar(String classPath) {
         String systemProperty = System.getProperty("ejisto.agent.jar.path");

@@ -31,6 +31,7 @@ public class HelloWorldBean implements Serializable {
     private String title = "Unchanged Title";
     private String description = "Unchanged Description";
     private Collection<SimplePropertyValue> propertyValues;
+    private boolean displayHeader;
 
     private int hits = 0;
     private long timestamp = 0L;

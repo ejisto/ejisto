@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,8 @@ import javax.servlet.ServletContextListener;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
+import static java.lang.String.format;
 
 /**
  * Created by IntelliJ IDEA.
@@ -72,13 +74,19 @@ public class ContextListener implements ServletContextListener {
     }
 
     private void initDataSource() {
+        int port = 5555;
+        String portNumberProperty = System.getProperty("ejisto.database.port");
+        if (portNumberProperty != null && !portNumberProperty.isEmpty())
+            port = Integer.parseInt(portNumberProperty);
         DataSourceHolder.setDataSource(
-                new SimpleDriverDataSource(driver, "jdbc:derby://localhost:5555/memory:ejisto", "ejisto", "ejisto"));
+                new SimpleDriverDataSource(driver, format("jdbc:derby://localhost:%s/memory:ejisto", port), "ejisto",
+                                           "ejisto"));
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         try {
+            DataSourceHolder.clearDataSource();
             DriverManager.deregisterDriver(driver);
             driver = null;
         } catch (SQLException e) {

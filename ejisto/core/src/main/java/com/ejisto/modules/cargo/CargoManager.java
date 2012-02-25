@@ -181,8 +181,10 @@ public class CargoManager implements ContainerManager {
         String agentPath = ContainerUtils.extractAgentJar(System.getProperty("java.class.path"));
         StringBuilder jvmArgs = new StringBuilder("-javaagent:");
         jvmArgs.append(agentPath);
-        jvmArgs.append(" -Djava.net.preferIPv4Stack=true");
-        if (addStartupOptions) jvmArgs.append(" -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005");
+        jvmArgs.append(" -Djava.net.preferIPv4Stack=true -Dejisto.database.port=");
+        jvmArgs.append(System.getProperty(DATABASE_PORT.getValue()));
+
+        //if (addStartupOptions) jvmArgs.append(" -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005");
         String existingConfiguration = configuration.getPropertyValue(GeneralPropertySet.JVMARGS);
         if (StringUtils.hasText(existingConfiguration)) jvmArgs.append(" ").append(existingConfiguration);
         configuration.setProperty(GeneralPropertySet.JVMARGS, jvmArgs.append(" ").toString());

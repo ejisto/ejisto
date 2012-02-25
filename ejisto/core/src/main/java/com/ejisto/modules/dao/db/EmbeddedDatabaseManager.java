@@ -37,6 +37,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import static com.ejisto.constants.StringConstants.DATABASE_PORT;
+import static com.ejisto.util.IOUtils.findFirstAvailablePort;
+import static java.lang.String.format;
+
 @Log4j
 public class EmbeddedDatabaseManager extends AbstractDataSource {
 
@@ -45,7 +49,9 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
     private boolean started;
 
     public void initDb() throws Exception {
-        serverControl = new NetworkServerControl(InetAddress.getByName("localhost"), 5555, "ejisto", "ejisto");
+        int port = findFirstAvailablePort(5555);
+        System.setProperty(DATABASE_PORT.getValue(), String.valueOf(port));
+        serverControl = new NetworkServerControl(InetAddress.getByName("localhost"), port, "ejisto", "ejisto");
         ResourceLoader loader = new DefaultResourceLoader() {
             @Override
             protected Resource getResourceByPath(String path) {
@@ -56,15 +62,12 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
         populator.addScript(loader.getResource("classpath:sql/ejisto-schema.sql"));
         if (!Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue()))
             populator.addScript(loader.getResource(System.getProperty(StringConstants.DERBY_SCRIPT.getValue())));
-//		EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder(loader);
-//		builder.setType(EmbeddedDatabaseType.DERBY).setName("ejisto").addScript("classpath:sql/ejisto-schema.sql");
-//		if(!Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) builder.addScript(System.getProperty(StringConstants.DERBY_SCRIPT.getValue()));
-//		dataSource = builder.build();
         serverControl.start(new PrintWriter(System.out));
         checkServerStartup();
         started = true;
-        initDatabase();
-        driverDataSource = new SimpleDriverDataSource(new ClientDriver(), "jdbc:derby://localhost:5555/memory:ejisto",
+        initDatabase(port);
+        driverDataSource = new SimpleDriverDataSource(new ClientDriver(),
+                                                      format("jdbc:derby://localhost:%s/memory:ejisto", port),
                                                       "ejisto", "ejisto");
         populator.populate(getConnection());
         log.info("done");
@@ -92,10 +95,11 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
         serverControl.ping();
     }
 
-    private void initDatabase() throws Exception {
+    private void initDatabase(int port) throws Exception {
         DriverManager.registerDriver(new ClientDriver());
-        Connection con = DriverManager.getConnection("jdbc:derby://localhost:5555/memory:ejisto;create=true", "ejisto",
-                                                     "ejisto");
+        Connection con = DriverManager.getConnection(
+                format("jdbc:derby://localhost:%s/memory:ejisto;create=true", port), "ejisto",
+                "ejisto");
         con.close();
     }
 

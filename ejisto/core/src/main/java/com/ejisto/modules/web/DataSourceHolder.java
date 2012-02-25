@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Time: 8:51 AM
  */
 public class DataSourceHolder {
-    public static final AtomicReference<DataSource> dataSource = new AtomicReference<DataSource>();
+    private static final AtomicReference<DataSource> dataSource = new AtomicReference<DataSource>();
 
     public static DataSource getDataSource() {
         return dataSource.get();
@@ -37,6 +37,10 @@ public class DataSourceHolder {
 
     public static void setDataSource(DataSource ds) {
         if (dataSource.get() == null) dataSource.compareAndSet(null, ds);
+    }
+
+    static void clearDataSource() {
+        dataSource.set(null);
     }
 
 }

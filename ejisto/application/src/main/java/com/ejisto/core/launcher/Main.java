@@ -47,7 +47,11 @@ public class Main {
      */
     public static void main(String[] args) {
         int status = new Launcher().launch();
-        System.out.printf("exit status: %s", status);
+        if (status < 0) {
+            //something went wrong...
+            System.out.printf("exit status: %s", status);
+            System.exit(status);
+        }
     }
 
     public static final OutputStream DEV_NULL = new OutputStream() {
