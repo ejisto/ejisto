@@ -23,8 +23,9 @@ import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.event.def.ContainerInstalled;
 import com.ejisto.event.def.InstallContainer;
-import com.ejisto.event.def.LogMessage;
+import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.cargo.CargoManager;
+import com.ejisto.modules.cargo.util.DownloadFailed;
 import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.executor.TaskManager;
@@ -35,14 +36,18 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
+import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.Callable;
 
 import static com.ejisto.constants.StringConstants.CONTAINERS_HOME_DIR;
+import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_DOWNLOAD_URL;
 import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.runOnEDT;
+import static java.lang.String.format;
+import static org.springframework.util.StringUtils.hasText;
 
 /**
  * Created by IntelliJ IDEA.
@@ -68,20 +73,22 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         final DialogController controller = DialogController.Builder.newInstance().withContent(panel).withParentFrame(
                 application).withDecorations(
                 false).build();
-
-        //new DialogController(application, panel);
+        showHideProgressPanel(true, controller);
         Callable<Void> action = new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 notifyToPanel(panel, getMessage("container.installation.panel.status.1", containerDescription));
-                log.debug("downloading container");
-                cargoManager.downloadAndInstall(settingsManager.getValue("container.default.url"),
-                                                System.getProperty(CONTAINERS_HOME_DIR.getValue()));
+                log.debug(format("downloading container from url: %s",
+                                 settingsManager.getValue("container.default.url")));
+                boolean success = tryDownload(containerDescription);
+                if (!success) throw new RuntimeException("download failed");
                 log.debug("download completed");
                 notifyToPanel(panel, getMessage("container.installation.panel.status.2", containerDescription));
                 log.debug("notifying installation success");
                 eventManager.publishEvent(new ContainerInstalled(this, event.getContainerId(), event.getDescription()));
-                eventManager.publishEvent(new LogMessage(this, getMessage("container.installation.ok")));
+                eventManager.publishEvent(
+                        new StatusBarMessage(this, getMessage("container.installation.ok", containerDescription),
+                                             false));
                 if (event.isStart())
                     eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
                 showHideProgressPanel(false, controller);
@@ -99,6 +106,28 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                 panel.notifyJobCompleted(message);
             }
         });
+    }
+
+    private boolean tryDownload(String containerDescription) {
+        boolean tryDownload = true;
+        String url = settingsManager.getValue("container.default.url");
+        while (tryDownload) {
+            try {
+                cargoManager.downloadAndInstall(url, System.getProperty(CONTAINERS_HOME_DIR.getValue()));
+                settingsManager.putValue(DEFAULT_CONTAINER_DOWNLOAD_URL, url);
+                return true;
+            } catch (Exception e) {
+                if (e instanceof DownloadFailed) {
+                    //there was an error while downloading resource
+                    url = JOptionPane.showInputDialog(null,
+                                                      getMessage("container.download.failed", containerDescription));
+                    tryDownload = hasText(url);
+                } else {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return false;
     }
 
     void showHideProgressPanel(final boolean show, final DialogController controller) {

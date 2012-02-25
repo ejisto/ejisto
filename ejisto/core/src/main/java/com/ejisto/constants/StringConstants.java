@@ -59,6 +59,7 @@ public enum StringConstants {
     EJISTO_CLASS_TRANSFORMER_CATEGORY("EjistoClassTransformer"),
     DEFAULT_CONTAINER_ID("tomcat7x"),
     DEFAULT_CONTAINER_DESCRIPTION("container.default.description"),
+    DEFAULT_CONTAINER_DOWNLOAD_URL("container.default.url"),
     DATABASE_PORT("database.port");
 
     private final String value;

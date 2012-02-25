@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import org.springframework.beans.factory.InitializingBean;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
@@ -36,7 +37,7 @@ public class SettingsManager extends ExternalizableService<SettingsDao> implemen
     @Resource(name = "settings") private Properties settings;
     @Resource private SettingsDao settingsDao;
 
-    private List<Setting> settingsList;
+    private AtomicReference<List<Setting>> settingsList = new AtomicReference<List<Setting>>();
 
     public int getIntValue(StringConstants key) {
         return Integer.parseInt(getValue(key));
@@ -55,12 +56,12 @@ public class SettingsManager extends ExternalizableService<SettingsDao> implemen
         Setting setting = find(key);
         if (setting != null) return setting.getValue();
         setting = new Setting(key, settings.getProperty(key));
-        settingsList.add(setting);
+        settingsList.get().add(setting);
         return setting.getValue();
     }
 
     public void flush() {
-        if (getSettingsDao().clearSettings(settingsList)) getSettingsDao().insertSettings(settingsList);
+        if (getSettingsDao().clearSettings(settingsList.get())) getSettingsDao().insertSettings(settingsList.get());
     }
 
     public void putValue(StringConstants key, Object value) {
@@ -73,7 +74,7 @@ public class SettingsManager extends ExternalizableService<SettingsDao> implemen
             setting.setValue(value);
         } else {
             setting = new Setting(key, value);
-            settingsList.add(setting);
+            settingsList.get().add(setting);
         }
     }
 
@@ -82,11 +83,12 @@ public class SettingsManager extends ExternalizableService<SettingsDao> implemen
     }
 
     private void init() {
-        if (settingsList == null) settingsList = getSettingsDao().loadAll();
+        if (settingsList.get() == null)
+            settingsList.compareAndSet(null, getSettingsDao().loadAll());
     }
 
     private Setting find(String key) {
-        return selectFirst(settingsList, having(on(Setting.class).getKey(), equalTo(key)));
+        return selectFirst(settingsList.get(), having(on(Setting.class).getKey(), equalTo(key)));
     }
 
     private SettingsDao getSettingsDao() {

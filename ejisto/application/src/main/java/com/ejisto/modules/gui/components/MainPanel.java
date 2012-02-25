@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ import java.util.List;
 
 import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.MAIN_WINDOW;
 import static com.ejisto.util.GuiUtils.*;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 public class MainPanel extends JXPanel {
     private static final long serialVersionUID = -28148619997853619L;
@@ -75,7 +76,8 @@ public class MainPanel extends JXPanel {
     }
 
     public void log(String message) {
-        getContainerTabs().get(0).log(message);
+        if (!isEmpty(getContainerTabs()))
+            getContainerTabs().get(0).log(message);
     }
 
     public void logStatusMessage(String message, boolean error) {

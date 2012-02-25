@@ -64,22 +64,20 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
             FileOutputStream out = new FileOutputStream(new File(getDownloadDir(), getSourceFileName()));
             FileChannel ch = out.getChannel();
             byte[] buffer = new byte[512000];
-            int readed;
-            int totalReaded = 0;
+            int read;
+            int totalRead = 0;
             fireProgressChange(0);
-
-            while ((readed = bis.read(buffer)) != -1) {
-                totalReaded += readed;
-                log.debug("readed " + totalReaded + " of " + total);
-                ch.write(ByteBuffer.wrap(buffer, 0, readed));
-                fireProgressChange(Math.max(50, totalReaded / total * 100));
+            while ((read = bis.read(buffer)) != -1) {
+                totalRead += read;
+                log.debug("read " + totalRead + " of " + total);
+                ch.write(ByteBuffer.wrap(buffer, 0, read));
+                fireProgressChange(Math.max(50, totalRead / total * 100));
             }
             ch.close();
             out.close();
-
         } catch (IOException e) {
             log.error("cannot download container", e);
-            throw new RuntimeException("cannot download from " + url.toString(), e);
+            throw new DownloadFailed("cannot download from " + url.toString(), e);
         }
     }
 

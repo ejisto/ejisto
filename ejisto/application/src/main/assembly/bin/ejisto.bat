@@ -28,4 +28,4 @@ set CLASSPATH=%CLASSPATH%%1;
 goto :eof
 
 :run-application
-java -cp "%CLASSPATH%" com.ejisto.core.launcher.Main
+javaw -cp "%CLASSPATH%" com.ejisto.core.launcher.Main

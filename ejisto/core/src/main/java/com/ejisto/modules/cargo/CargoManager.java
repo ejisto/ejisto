@@ -107,7 +107,7 @@ public class CargoManager implements ContainerManager {
 
     @Override
     public boolean stopDefault() throws NotInstalledException {
-        return stop(DEFAULT, loadDefault(false));
+        return !serverStarted.get() || stop(DEFAULT, loadDefault(false));
     }
 
     @Override
