@@ -22,13 +22,17 @@ package com.ejisto.modules.cargo.util;
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 2/25/12
- * Time: 11:45 PM
+ * Date: 2/26/12
+ * Time: 6:43 PM
  */
-public class DownloadFailed extends RuntimeException {
-    private static final long serialVersionUID = 7192365229152917824L;
+public class DownloadTimeout extends RuntimeException {
+    private static final long serialVersionUID = -4771893347922750361L;
 
-    public DownloadFailed(String message, Throwable cause) {
+    public DownloadTimeout(String message) {
+        super(message);
+    }
+
+    public DownloadTimeout(String message, Throwable cause) {
         super(message, cause);
     }
 }

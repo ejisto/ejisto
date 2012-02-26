@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -317,6 +317,14 @@ public class IOUtils {
         path.append(SettingsRepository.getInstance().getSettingValue(EJISTO_VERSION));
         path.append(".jar");
         return path.toString();
+    }
+
+    public static URL fileToUrl(File f) {
+        try {
+            return f.toURI().toURL();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

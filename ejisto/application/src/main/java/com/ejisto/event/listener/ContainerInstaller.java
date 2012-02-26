@@ -26,6 +26,7 @@ import com.ejisto.event.def.InstallContainer;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.cargo.CargoManager;
 import com.ejisto.modules.cargo.util.DownloadFailed;
+import com.ejisto.modules.cargo.util.DownloadTimeout;
 import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.executor.TaskManager;
@@ -39,13 +40,14 @@ import javax.annotation.Resource;
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.concurrent.Callable;
 
 import static com.ejisto.constants.StringConstants.CONTAINERS_HOME_DIR;
 import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_DOWNLOAD_URL;
 import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
-import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.GuiUtils.runOnEDT;
+import static com.ejisto.util.GuiUtils.*;
+import static com.ejisto.util.IOUtils.fileToUrl;
 import static java.lang.String.format;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -66,31 +68,25 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
     public void onApplicationEvent(final InstallContainer event) {
         log.info("about to install " + event.getDescription() + " container");
         final String containerDescription = settingsManager.getValue("container.default.description");
-        final ContainerInstallationPanel panel = new ContainerInstallationPanel(
-                getMessage("container.installation.panel.title"),
-                getMessage("container.installation.panel.description",
-                           containerDescription));
-        final DialogController controller = DialogController.Builder.newInstance().withContent(panel).withParentFrame(
-                application).withDecorations(
+        final ContainerInstallationPanel panel = new ContainerInstallationPanel(getMessage("container.installation.panel.title"),
+                                                                                getMessage("container.installation.panel.description",
+                                                                                           containerDescription));
+        final DialogController controller = DialogController.Builder.newInstance().withContent(panel).withParentFrame(application).withDecorations(
                 false).build();
         showHideProgressPanel(true, controller);
         Callable<Void> action = new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 notifyToPanel(panel, getMessage("container.installation.panel.status.1", containerDescription));
-                log.debug(format("downloading container from url: %s",
-                                 settingsManager.getValue("container.default.url")));
+                log.debug(format("downloading container from url: %s", settingsManager.getValue("container.default.url")));
                 boolean success = tryDownload(containerDescription);
                 if (!success) throw new RuntimeException("download failed");
                 log.debug("download completed");
                 notifyToPanel(panel, getMessage("container.installation.panel.status.2", containerDescription));
                 log.debug("notifying installation success");
                 eventManager.publishEvent(new ContainerInstalled(this, event.getContainerId(), event.getDescription()));
-                eventManager.publishEvent(
-                        new StatusBarMessage(this, getMessage("container.installation.ok", containerDescription),
-                                             false));
-                if (event.isStart())
-                    eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
+                eventManager.publishEvent(new StatusBarMessage(this, getMessage("container.installation.ok", containerDescription), false));
+                if (event.isStart()) eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
                 showHideProgressPanel(false, controller);
                 return null;
             }
@@ -113,19 +109,28 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         String url = settingsManager.getValue("container.default.url");
         while (tryDownload) {
             try {
+                log.debug("calling cargoManager");
                 cargoManager.downloadAndInstall(url, System.getProperty(CONTAINERS_HOME_DIR.getValue()));
+                log.debug("call succeeded");
                 settingsManager.putValue(DEFAULT_CONTAINER_DOWNLOAD_URL, url);
                 return true;
+            } catch (DownloadFailed e) {
+                log.debug("got DownloadFailed exception");
+                //there was an error while downloading resource
+                url = JOptionPane.showInputDialog(null, getMessage("container.download.failed", containerDescription));
+                tryDownload = hasText(url);
+            } catch (DownloadTimeout e) {
+                log.debug("got DownloadTimeout exception");
+                JOptionPane.showMessageDialog(null, getMessage("container.download.timeout", containerDescription), "error",
+                                              JOptionPane.ERROR_MESSAGE);
+                File localFile = selectFile(null, null, false);
+                if (localFile != null) url = fileToUrl(localFile).toString();
+                tryDownload = localFile != null;
             } catch (Exception e) {
-                if (e instanceof DownloadFailed) {
-                    //there was an error while downloading resource
-                    url = JOptionPane.showInputDialog(null,
-                                                      getMessage("container.download.failed", containerDescription));
-                    tryDownload = hasText(url);
-                } else {
-                    throw new RuntimeException(e);
-                }
+                log.error("got exception", e);
+                throw new RuntimeException(e);
             }
+
         }
         return false;
     }

@@ -28,4 +28,4 @@ set CLASSPATH=%CLASSPATH%%1;
 goto :eof
 
 :run-application
-javaw -cp "%CLASSPATH%" com.ejisto.core.launcher.Main
+javaw -cp "%CLASSPATH%" -Dejisto.enable.direct.download=false com.ejisto.core.launcher.Main

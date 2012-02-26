@@ -30,12 +30,16 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.ejisto.util.IOUtils.copyFile;
+import static java.lang.String.format;
 
 /**
  * Created by IntelliJ IDEA.
@@ -50,18 +54,35 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
 
     public ContainerInstaller(URL remoteLocation, String installDir) {
         super(remoteLocation, System.getProperty("java.io.tmpdir"), installDir);
+        log.debug("super constructor called");
         this.url = remoteLocation;
         this.propertyChangeListeners = new ArrayList<PropertyChangeListener>();
     }
 
     @Override
     protected void download() {
+        log.debug("called download()");
+        if (url.getProtocol().equals("file")) copyFromLocalFile();
+        else downloadFromNetwork();
+    }
+
+    private void downloadFromNetwork() {
+        log.debug(format("called downloadFromNetwork() [enabled: %s]", Boolean.getBoolean("ejisto.enable.direct.download")));
+        //due to a problem with Windows Firewall, connection to internet has been disabled on Windows systems.
+        if (!Boolean.getBoolean("ejisto.enable.direct.download")) {
+            log.debug("direct download disabled. Throwing a DownloadTimeout exception");
+            throw new DownloadTimeout("direct download disabled.");
+        }
         try {
+            log.debug(format("trying to download from %s", url.toString()));
             URLConnection connection = url.openConnection();
+            log.debug(format("trying to download from %s", url.toString()));
+            connection.setConnectTimeout(1000);
+            connection.setReadTimeout(10000);
             connection.connect();
             int total = connection.getContentLength();
             BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
-            FileOutputStream out = new FileOutputStream(new File(getDownloadDir(), getSourceFileName()));
+            FileOutputStream out = new FileOutputStream(getDestinationFile());
             FileChannel ch = out.getChannel();
             byte[] buffer = new byte[512000];
             int read;
@@ -75,10 +96,25 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
             }
             ch.close();
             out.close();
+        } catch (SocketTimeoutException e) {
+            log.error("caught SocketTimeoutException. About to throw DownloadTimeout", e);
+            throw new DownloadTimeout("cannot open connection to " + url.toString(), e);
         } catch (IOException e) {
-            log.error("cannot download container", e);
+            log.error("caught IOException. About to throw DownloadFailed", e);
             throw new DownloadFailed("cannot download from " + url.toString(), e);
         }
+    }
+
+    private void copyFromLocalFile() {
+        try {
+            copyFile(new File(url.toURI()), getDestinationFile());
+        } catch (Exception e) {
+            throw new RuntimeException("local file URL is not valid ", e);
+        }
+    }
+
+    private File getDestinationFile() {
+        return new File(getDownloadDir(), getSourceFileName());
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {

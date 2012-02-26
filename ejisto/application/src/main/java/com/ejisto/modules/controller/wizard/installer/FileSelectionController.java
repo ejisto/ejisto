@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@ import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -37,6 +36,7 @@ import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
 import static com.ejisto.constants.StringConstants.SELECT_FILE_COMMAND;
 import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.selectFile;
 
 public class FileSelectionController extends AbstractApplicationInstallerController {
     private JXPanel fileSelectionTab;
@@ -91,24 +91,7 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
     }
 
     private File openFileSelectionDialog() {
-        String directoryPath = SettingsRepository.getInstance().getSettingValue(LAST_FILESELECTION_PATH);
-        JFileChooser fileChooser = new JFileChooser(directoryPath);
-        fileChooser.setFileFilter(new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getName().endsWith(".war");
-            }
-
-            @Override
-            public String getDescription() {
-                return "*.war";
-            }
-        });
-        if (fileChooser.showOpenDialog(getDialog()) == JFileChooser.APPROVE_OPTION) {
-            SettingsRepository.getInstance().putSettingValue(LAST_FILESELECTION_PATH,
-                                                             fileChooser.getCurrentDirectory().getAbsolutePath());
-            return fileChooser.getSelectedFile();
-        } else return null;
+        return selectFile(getDialog(), SettingsRepository.getInstance().getSettingValue(LAST_FILESELECTION_PATH), true);
     }
 
     private JXPanel getFileSelectionTab() {

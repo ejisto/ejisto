@@ -31,6 +31,7 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.ContainerTab;
+import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import lombok.extern.log4j.Log4j;
 import org.springframework.context.ApplicationEvent;
@@ -39,7 +40,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 
 import static ch.lambdaj.Lambda.*;
+import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
 import static org.hamcrest.Matchers.equalTo;
 
 @Log4j
@@ -57,8 +61,7 @@ public class GuiUtils {
 
     public static void centerOnScreen(Window window) {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        window.setBounds((screen.width / 2 - window.getWidth() / 2), (screen.height / 2 - window.getHeight() / 2),
-                         window.getWidth(),
+        window.setBounds((screen.width / 2 - window.getWidth() / 2), (screen.height / 2 - window.getHeight() / 2), window.getWidth(),
                          window.getHeight());
     }
 
@@ -76,8 +79,7 @@ public class GuiUtils {
     }
 
     public static boolean showWarning(Component owner, String text, Object... values) {
-        return JOptionPane.showConfirmDialog(owner, getMessage(text, values), getMessage("confirmation.title"),
-                                             JOptionPane.YES_NO_OPTION,
+        return JOptionPane.showConfirmDialog(owner, getMessage(text, values), getMessage("confirmation.title"), JOptionPane.YES_NO_OPTION,
                                              JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION;
     }
 
@@ -124,8 +126,7 @@ public class GuiUtils {
     }
 
     public static synchronized Collection<Action> getActionsFor(String prefix) {
-        return select(actionMap,
-                      having(on(Action.class).getValue(Action.NAME).toString().startsWith(prefix), equalTo(true)));
+        return select(actionMap, having(on(Action.class).getValue(Action.NAME).toString().startsWith(prefix), equalTo(true)));
     }
 
     public static void setDefaultFont(Font defaultFont) {
@@ -137,8 +138,7 @@ public class GuiUtils {
     }
 
     public static Map<String, List<WebApplication<?>>> getAllRegisteredContexts() {
-        return SpringBridge.getInstance().getBean("webApplicationRepository",
-                                                  WebApplicationRepository.class).getInstalledWebApplications();
+        return SpringBridge.getInstance().getBean("webApplicationRepository", WebApplicationRepository.class).getInstalledWebApplications();
     }
 
     public static String buildCommand(StringConstants commandPrefix, String containerId, String contextPath) {
@@ -173,11 +173,9 @@ public class GuiUtils {
 
     @SuppressWarnings("unchecked")
     public static <T extends ApplicationEvent> void registerEventListener(Class<T> eventClass, ApplicationListener<T> listener) {
-        ApplicationEventDispatcher applicationEventDispatcher = SpringBridge.getInstance().getBean(
-                "applicationEventDispatcher",
-                ApplicationEventDispatcher.class);
-        applicationEventDispatcher.registerApplicationEventListener(eventClass,
-                                                                    (ApplicationListener<ApplicationEvent>) listener);
+        ApplicationEventDispatcher applicationEventDispatcher = SpringBridge.getInstance().getBean("applicationEventDispatcher",
+                                                                                                   ApplicationEventDispatcher.class);
+        applicationEventDispatcher.registerApplicationEventListener(eventClass, (ApplicationListener<ApplicationEvent>) listener);
     }
 
     public static void setActionMap(ActionMap actionMap, JComponent component) {
@@ -262,5 +260,25 @@ public class GuiUtils {
         button.setBackground(new Color(255, 255, 255, 0));
         button.setHideActionText(false);
         disableFocusPainting(button);
+    }
+
+    public static File selectFile(Component parent, String directoryPath, boolean saveLastSelectionPath) {
+        JFileChooser fileChooser = new JFileChooser(directoryPath);
+        fileChooser.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return f.isDirectory() || f.getName().endsWith(".war");
+            }
+
+            @Override
+            public String getDescription() {
+                return "*.war";
+            }
+        });
+        if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
+            if (saveLastSelectionPath)
+                SettingsRepository.getInstance().putSettingValue(LAST_FILESELECTION_PATH, fileChooser.getCurrentDirectory().getAbsolutePath());
+            return fileChooser.getSelectedFile();
+        } else return null;
     }
 }
