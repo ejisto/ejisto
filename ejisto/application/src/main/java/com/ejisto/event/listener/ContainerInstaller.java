@@ -68,27 +68,37 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
     public void onApplicationEvent(final InstallContainer event) {
         log.info("about to install " + event.getDescription() + " container");
         final String containerDescription = settingsManager.getValue("container.default.description");
-        final ContainerInstallationPanel panel = new ContainerInstallationPanel(getMessage("container.installation.panel.title"),
-                                                                                getMessage("container.installation.panel.description",
-                                                                                           containerDescription));
-        final DialogController controller = DialogController.Builder.newInstance().withContent(panel).withParentFrame(application).withDecorations(
+        final ContainerInstallationPanel panel = new ContainerInstallationPanel(
+                getMessage("container.installation.panel.title"),
+                getMessage("container.installation.panel.description",
+                           containerDescription));
+        final DialogController controller = DialogController.Builder.newInstance().withContent(panel).withParentFrame(
+                application).withDecorations(
                 false).build();
         showHideProgressPanel(true, controller);
         Callable<Void> action = new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                notifyToPanel(panel, getMessage("container.installation.panel.status.1", containerDescription));
-                log.debug(format("downloading container from url: %s", settingsManager.getValue("container.default.url")));
-                boolean success = tryDownload(containerDescription);
-                if (!success) throw new RuntimeException("download failed");
-                log.debug("download completed");
-                notifyToPanel(panel, getMessage("container.installation.panel.status.2", containerDescription));
-                log.debug("notifying installation success");
-                eventManager.publishEvent(new ContainerInstalled(this, event.getContainerId(), event.getDescription()));
-                eventManager.publishEvent(new StatusBarMessage(this, getMessage("container.installation.ok", containerDescription), false));
-                if (event.isStart()) eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
-                showHideProgressPanel(false, controller);
-                return null;
+                try {
+                    notifyToPanel(panel, getMessage("container.installation.panel.status.1", containerDescription));
+                    log.debug(format("downloading container from url: %s",
+                                     settingsManager.getValue("container.default.url")));
+                    boolean success = tryDownload(containerDescription);
+                    if (!success) throw new RuntimeException("download failed");
+                    log.debug("download completed");
+                    notifyToPanel(panel, getMessage("container.installation.panel.status.2", containerDescription));
+                    log.debug("notifying installation success");
+                    eventManager.publishEvent(
+                            new ContainerInstalled(this, event.getContainerId(), event.getDescription()));
+                    eventManager.publishEvent(
+                            new StatusBarMessage(this, getMessage("container.installation.ok", containerDescription),
+                                                 false));
+                    if (event.isStart())
+                        eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
+                    return null;
+                } finally {
+                    showHideProgressPanel(false, controller);
+                }
             }
         };
 
@@ -121,7 +131,8 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                 tryDownload = hasText(url);
             } catch (DownloadTimeout e) {
                 log.debug("got DownloadTimeout exception");
-                JOptionPane.showMessageDialog(null, getMessage("container.download.timeout", containerDescription), "error",
+                JOptionPane.showMessageDialog(null, getMessage("container.download.timeout", containerDescription),
+                                              "error",
                                               JOptionPane.ERROR_MESSAGE);
                 File localFile = selectFile(null, null, false);
                 if (localFile != null) url = fileToUrl(localFile).toString();

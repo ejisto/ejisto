@@ -18,7 +18,7 @@ rem You should have received a copy of the GNU General Public License
 rem along with this program.  If not, see <http://www.gnu.org/licenses/>.
 rem
 
-SET CLASSPATH=lib\
+SET CLASSPATH=lib\;
 rem Many thanks to Ruben Farias and stack overflow (http://stackoverflow.com/a/2027110)
 For %%f in (lib\*.jar) DO call :concat %%f
 goto :run-application
@@ -28,4 +28,4 @@ set CLASSPATH=%CLASSPATH%%1;
 goto :eof
 
 :run-application
-javaw -cp "%CLASSPATH%" -Dejisto.enable.direct.download=false com.ejisto.core.launcher.Main
+start "ejisto" javaw -cp "%CLASSPATH%" com.ejisto.core.launcher.Main

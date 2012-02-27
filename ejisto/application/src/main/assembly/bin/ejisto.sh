@@ -21,4 +21,4 @@ CLASSPATH="lib/"
 for element in `ls lib/*.jar`; do
     CLASSPATH="$CLASSPATH:$element"
 done
-java -cp $CLASSPATH -Dejisto.enable.direct.download=true com.ejisto.core.launcher.Main
+java -cp $CLASSPATH com.ejisto.core.launcher.Main

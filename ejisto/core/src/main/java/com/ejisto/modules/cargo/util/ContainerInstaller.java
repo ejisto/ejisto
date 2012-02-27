@@ -67,12 +67,6 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
     }
 
     private void downloadFromNetwork() {
-        log.debug(format("called downloadFromNetwork() [enabled: %s]", Boolean.getBoolean("ejisto.enable.direct.download")));
-        //due to a problem with Windows Firewall, connection to internet has been disabled on Windows systems.
-        if (!Boolean.getBoolean("ejisto.enable.direct.download")) {
-            log.debug("direct download disabled. Throwing a DownloadTimeout exception");
-            throw new DownloadTimeout("direct download disabled.");
-        }
         try {
             log.debug(format("trying to download from %s", url.toString()));
             URLConnection connection = url.openConnection();
@@ -90,7 +84,7 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
             fireProgressChange(0);
             while ((read = bis.read(buffer)) != -1) {
                 totalRead += read;
-                log.debug("read " + totalRead + " of " + total);
+                log.trace("read " + totalRead + " of " + total);
                 ch.write(ByteBuffer.wrap(buffer, 0, read));
                 fireProgressChange(Math.max(50, totalRead / total * 100));
             }
