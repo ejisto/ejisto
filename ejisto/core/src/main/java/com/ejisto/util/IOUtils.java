@@ -22,14 +22,16 @@ package com.ejisto.util;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 import com.ejisto.modules.repository.SettingsRepository;
+import org.apache.commons.io.FileUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.DatagramSocket;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -40,12 +42,14 @@ import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.DEFAULT_SERVER_PORT;
 import static com.ejisto.constants.StringConstants.EJISTO_VERSION;
 import static java.util.Collections.emptyList;
+import static org.apache.commons.io.FilenameUtils.*;
 import static org.hamcrest.Matchers.equalTo;
 
 public class IOUtils {
 
     private static final FileExtensionFilter jarFilter = new FileExtensionFilter(FileExtensionFilter.ALL_JARS, true);
-    private static final FileExtensionFilter classesFilter = new FileExtensionFilter(FileExtensionFilter.ALL_CLASSES, true);
+    private static final String[] jarExtension = new String[]{"jar"};
+    private static final String[] classExtension = new String[]{"class"};
 
     public static String copyFile(String filePath, File destDir) {
         File original = new File(filePath);
@@ -54,58 +58,39 @@ public class IOUtils {
 
     public static String copyFile(File original, File destDir) {
         try {
-            File newFile = new File(destDir, original.getName());
-            if (newFile.exists()) return newFile.getName();
-            FileInputStream is = new FileInputStream(original);
-            writeFile(is, destDir, original.getName());
-            is.close();
-            return original.getName();
+            File copy = new File(destDir, original.getName());
+            FileUtils.copyFile(original, copy);
+            return copy.getName();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static void copyDirContent(File srcDir, File targetDir, String[] prefixes) {
-        for (File file : srcDir.listFiles(new FilePrefixFilter(prefixes))) {
-            copyFile(file, targetDir);
+        try {
+            FileUtils.copyDirectory(srcDir, targetDir, new FilePrefixFilter(prefixes));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public static void writeFile(InputStream inputStream, File baseDir, String filename) throws IOException {
-        File dest = new File(baseDir, filename);
-        if (!dest.getParentFile().exists() && !dest.getParentFile().mkdirs()) throw new IOException("Unable to write file " + dest.getAbsolutePath());
-        byte[] data = new byte[1024];
-        BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(dest));
-        int readed;
-        while (inputStream.available() > 0) {
-            readed = inputStream.read(data);
-            stream.write(data, 0, readed);
-        }
-        stream.flush();
-        stream.close();
+        File out = new File(baseDir, filename);
+        if (!out.getParentFile().exists() && !out.getParentFile().mkdirs())
+            throw new IOException("Unable to write file " + out.getAbsolutePath());
+        FileUtils.writeByteArrayToFile(out, org.apache.commons.io.IOUtils.toByteArray(inputStream));
     }
 
     public static void writeFile(byte[] content, String filename) throws IOException {
-        FileOutputStream fos = new FileOutputStream(filename);
-        FileChannel ch = fos.getChannel();
-        ch.write(ByteBuffer.wrap(content));
-        ch.close();
-        fos.close();
+        FileUtils.writeByteArrayToFile(new File(filename), content);
     }
 
     public static byte[] readFile(File file) throws IOException {
-        FileInputStream fin = new FileInputStream(file);
-        FileChannel ch = fin.getChannel();
-        ByteBuffer bb = ByteBuffer.allocate((int) ch.size());
-        ch.read(bb);
-        ch.close();
-        fin.close();
-        return bb.array();
+        return FileUtils.readFileToByteArray(file);
     }
 
     public static String getFilenameWithoutExt(File file) {
-        String filename = file.getName();
-        return filename.substring(0, filename.lastIndexOf("."));
+        return getBaseName(file.getName());
     }
 
     public static List<WebApplicationDescriptorElement> getClasspathEntries(String basePath, URL[] baseUrls) throws MalformedURLException {
@@ -114,7 +99,7 @@ public class IOUtils {
         for (URL url : baseUrls)
             elements.add(new WebApplicationDescriptorElement(url.getPath()));
         //elements.add(new File(base, "WEB-INF/classes/").toURI().toURL());
-        elements.addAll(toWebApplicationDescriptorElement(getAllFiles(base, jarFilter)));
+        elements.addAll(toWebApplicationDescriptorElement(getAllFiles(base, jarExtension)));
         return elements;
     }
 
@@ -131,7 +116,7 @@ public class IOUtils {
     }
 
     public static URL[] addServerLibs(URL[] entries, String serverLibDir) throws MalformedURLException {
-        List<File> jars = getAllFiles(new File(serverLibDir), jarFilter);
+        Collection<File> jars = getAllFiles(new File(serverLibDir), new String[]{"jar"});
         URL[] ret = new URL[entries.length + jars.size()];
         System.arraycopy(entries, 0, ret, 0, entries.length);
         int pos = entries.length;
@@ -139,20 +124,14 @@ public class IOUtils {
         return ret;
     }
 
-    public static List<File> getAllFiles(File dir, FileExtensionFilter fileExtensionFilter) {
-        List<File> files = new ArrayList<File>();
-        if (!dir.exists() || !dir.isDirectory()) return files;
-        File[] children = dir.listFiles(fileExtensionFilter);
-        for (File file : children) {
-            if (file.isDirectory()) files.addAll(getAllFiles(file, fileExtensionFilter));
-            else files.add(file);
-        }
-        return files;
+    private static Collection<File> getAllFiles(File dir, String[] extensions) {
+        if (!dir.exists() || !dir.isDirectory()) return emptyList();
+        return FileUtils.listFiles(dir, extensions, true);
     }
 
     public static List<String> listJarFiles(String dir) {
         List<String> files = new ArrayList<String>();
-        for (File file : getAllFiles(new File(dir), jarFilter)) {
+        for (File file : getAllFiles(new File(dir), jarExtension)) {
             files.add(file.getAbsolutePath());
         }
         return files;
@@ -170,7 +149,7 @@ public class IOUtils {
         return urls.toArray(new URL[urls.size()]);
     }
 
-    public static List<WebApplicationDescriptorElement> toWebApplicationDescriptorElement(List<File> in) {
+    public static List<WebApplicationDescriptorElement> toWebApplicationDescriptorElement(Collection<File> in) {
         if (in.isEmpty()) return emptyList();
         List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>(in.size());
         for (File file : in) {
@@ -188,20 +167,19 @@ public class IOUtils {
     }
 
     public static Collection<String> findAllClassNamesInDirectory(File directory) {
-        List<String> pathnames = extractProperty(select(getAllFiles(directory, classesFilter), having(on(File.class).isDirectory(), equalTo(false))),
-                                                 "path");
+        List<String> pathNames = extractProperty(select(getAllFiles(directory, classExtension), having(on(File.class).isDirectory(), equalTo(false))),
+                "path");
         HashSet<String> ret = new HashSet<String>();
         int index = directory.getAbsolutePath().length();
-        for (String path : pathnames) {
+        for (String path : pathNames) {
             ret.add(translatePath(path.substring(index + 1, path.length() - 6)));
         }
         return ret;
     }
 
     public static Collection<String> findAllClassNamesInJarDirectory(File directory, WebApplicationDescriptor descriptor) throws IOException {
-        List<File> jars = getAllFiles(directory, jarFilter);
         HashSet<String> ret = new HashSet<String>();
-        for (File file : jars) {
+        for (File file : getAllFiles(directory, jarExtension)) {
             if (!descriptor.isBlacklistedEntry(file.getName())) ret.addAll(findAllClassesInJarFile(file));
         }
         return ret;
@@ -214,30 +192,34 @@ public class IOUtils {
         for (Enumeration<? extends ZipEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
             entry = entries.nextElement();
             if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-                ret.add(translatePath(entry.getName().substring(0, entry.getName().length() - 6)));
+                ret.add(translatePath(entry.getName().substring(0, entry.getName().length() - 6), "/"));
             }
         }
         return ret;
     }
 
-    public static String translatePath(String in) {
-        String separator = File.separator;
+    public static String translatePath(String in, String separator) {
         return in.replaceAll(Pattern.quote(separator), ".");
     }
 
-    public static boolean deleteFile(File file) {
-        if (!file.isDirectory()) return file.delete();
-        File[] children = file.listFiles();
-        for (File child : children) {
-            if (!deleteFile(child)) return false;
-        }
-        return file.delete();
+    public static String translatePath(String in) {
+        return translatePath(in, File.separator);
     }
 
-    public static boolean zipDirectory(String path, String destFilePath) {
+    public static boolean deleteFile(File file) {
+        if (!file.isDirectory()) return FileUtils.deleteQuietly(file);
+        try {
+            FileUtils.deleteDirectory(file);
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean zipDirectory(String path, String destinationFilePath) {
         try {
             File src = new File(path);
-            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(destFilePath));
+            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(destinationFilePath));
             zipDirectory(path, src, out);
             out.flush();
             out.close();
@@ -251,18 +233,14 @@ public class IOUtils {
         if (src.isDirectory()) {
             for (File file : src.listFiles()) zipDirectory(base, file, out);
         } else {
-            ZipEntry entry = new ZipEntry(src.getPath().substring(base.length()));
+            ZipEntry entry = new ZipEntry(normalize(src.getPath(), true).substring(base.length()));
             out.putNextEntry(entry);
             out.write(readFile(src));
         }
     }
 
-    public static String retrieveFilenameFromZipEntryPath(String filename) {
-        return retrieveFilenameFromPath(filename, "/");
-    }
-
-    public static String retrieveFilenameFromPath(String filename, String fileSeparator) {
-        return filename.substring(filename.lastIndexOf(fileSeparator) + 1);
+    public static String retrieveFilenameFromPath(String filename) {
+        return getName(filename);
     }
 
     public static String guessWebApplicationUri(WebApplicationDescriptor descriptor) {
@@ -326,5 +304,4 @@ public class IOUtils {
             throw new RuntimeException(e);
         }
     }
-
 }

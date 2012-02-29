@@ -61,7 +61,9 @@ public class FileExtractionWorker extends GuiTask<Void> {
     }
 
     private String openWar(File file) throws Exception {
-        File baseDir = new File(System.getProperty("java.io.tmpdir") + File.separator + getFilenameWithoutExt(file));
+        String newPath = new StringBuilder(System.getProperty("java.io.tmpdir")).append(File.separator)
+                        .append(getFilenameWithoutExt(file)).append(File.separator).toString();
+        File baseDir = new File(newPath);
         if (!overwriteDir(baseDir)) return null;
         if (!initTempDir(baseDir))
             throw new IOException("Path " + baseDir.getAbsolutePath() + " is not writable. Cannot continue.");
@@ -76,9 +78,9 @@ public class FileExtractionWorker extends GuiTask<Void> {
             if (!entry.isDirectory()) writeFile(war.getInputStream(entry), baseDir, entry.getName());
             if (entry.getName().endsWith(".jar"))
                 getSession().addElement(
-                        new WebApplicationDescriptorElement(retrieveFilenameFromZipEntryPath(entry.getName())));
+                        new WebApplicationDescriptorElement(retrieveFilenameFromPath(entry.getName())));
         }
-        return baseDir.getAbsolutePath();
+        return newPath;
     }
 
     private boolean overwriteDir(File dir) {
