@@ -72,6 +72,7 @@ public class MockedFieldSelectionController {
                              new CallbackAction(getMessage("field.create.dialog.cancel"), closeAction))
                 .withContent(createPanel())
                 .withHeader(getMessage("field.create.dialog.title"), getMessage("field.create.dialog.description"))
+                .withIconKey("field.add.icon")
                 .build();
         dialogController.show(true, new Dimension(500, 400));
     }

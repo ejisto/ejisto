@@ -178,6 +178,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
                                              editedField.getClassSimpleName()),
                                   editedField);
         getView().expandCollapseEditorPanel(true);
+        getView().setFocusOnComplexEditorPanel();
     }
 
     void editingStopped() {
@@ -187,6 +188,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         editedField.setExpression(buildExpression());
         Point p = getCurrentEditingLocation();
         getView().getTree().redraw(p.x, p.y);
+        getView().requestFocusOnActiveEditor(EditorType.fromIndex(selectedIndex));
         lock.unlock();
     }
 

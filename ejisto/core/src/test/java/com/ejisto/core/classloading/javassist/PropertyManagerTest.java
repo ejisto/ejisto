@@ -54,7 +54,7 @@ public class PropertyManagerTest {
         stream.write(sql.getBytes());
         stream.flush();
         stream.close();
-        System.setProperty(StringConstants.DERBY_SCRIPT.getValue(), f.getAbsolutePath());
+        System.setProperty(StringConstants.DB_SCRIPT.getValue(), f.getAbsolutePath());
         EmbeddedDatabaseManager dataSource = new EmbeddedDatabaseManager();
         dataSource.initDb();
         DataSourceHolder.setDataSource(dataSource);

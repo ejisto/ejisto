@@ -20,7 +20,6 @@
 package com.ejisto.modules.gui.components;
 
 import com.ejisto.modules.gui.EjistoAction;
-import org.jdesktop.swingx.JXHeader;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
@@ -41,7 +40,7 @@ import static com.ejisto.util.GuiUtils.*;
  */
 public class ServerSummary extends JXPanel implements PropertyChangeListener {
 
-    private JXHeader header;
+    private JPanel header;
     private String containerId;
     private String serverName;
     private JPanel buttonsPanel;
@@ -60,15 +59,17 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     private void init() {
         setBackground(Color.WHITE);
         setLayout(new BorderLayout());
-        add(getHeader(), BorderLayout.NORTH);
-        add(getButtonsPanel(), BorderLayout.CENTER);
+        add(getHeader(), BorderLayout.WEST);
+        add(getButtonsPanel(), BorderLayout.EAST);
         getAction(START_CONTAINER.getValue()).addPropertyChangeListener(this);
     }
 
-    private JXHeader getHeader() {
+    private JPanel getHeader() {
         if (header != null) return header;
-        header = new JXHeader(serverName, getMessage("server.summary.status"),
-                              new ImageIcon(getClass().getResource("/icons/containers/tomcat.gif")));
+        header = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        header.setBackground(Color.WHITE);
+        header.add(new JXLabel(serverName));
+        header.add(new JXLabel(getMessage("server.summary.status")));
         return header;
     }
 

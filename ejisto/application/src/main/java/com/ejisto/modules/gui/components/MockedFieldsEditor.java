@@ -122,6 +122,10 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         getValueEditorPanel().setCollapsed(!expand);
     }
 
+    public void setFocusOnComplexEditorPanel() {
+        getValueEditorPanel().setFocusOnFirstField();
+    }
+
     public void initEditorPanel(Collection<String> types, String title, MockedField editedField) {
         if (editedField.getFieldElementType() != null)
             getValueEditorPanel().setTypes(Arrays.asList(editedField.getFieldElementType()));
@@ -286,5 +290,9 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         for (EditorType editorType : fieldsEditorContext.getSupportedEditors()) {
             getEditorComponent(editorType).addFieldEditingListener(listener);
         }
+    }
+
+    public void requestFocusOnActiveEditor(EditorType editorType) {
+        ((Component) getEditorComponent(editorType)).requestFocus();
     }
 }

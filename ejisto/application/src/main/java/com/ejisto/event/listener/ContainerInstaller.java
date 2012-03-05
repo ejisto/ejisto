@@ -49,6 +49,7 @@ import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 import static com.ejisto.util.GuiUtils.*;
 import static com.ejisto.util.IOUtils.fileToUrl;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
@@ -74,7 +75,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                            containerDescription));
         final DialogController controller = DialogController.Builder.newInstance().withContent(panel).withParentFrame(
                 application).withDecorations(
-                false).build();
+                false).withIconKey("container.download.icon").build();
         showHideProgressPanel(true, controller);
         Callable<Void> action = new Callable<Void>() {
             @Override
@@ -129,21 +130,29 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                 //there was an error while downloading resource
                 url = JOptionPane.showInputDialog(null, getMessage("container.download.failed", containerDescription));
                 tryDownload = hasText(url);
+                if (!tryDownload) {
+                    url = selectFileFromDisk(containerDescription, "container.download.canceled");
+                    tryDownload = url != null;
+                }
             } catch (DownloadTimeout e) {
                 log.debug("got DownloadTimeout exception");
-                JOptionPane.showMessageDialog(null, getMessage("container.download.timeout", containerDescription),
-                                              "error",
-                                              JOptionPane.ERROR_MESSAGE);
-                File localFile = selectFile(null, null, false);
-                if (localFile != null) url = fileToUrl(localFile).toString();
-                tryDownload = localFile != null;
+                url = selectFileFromDisk(containerDescription, "container.download.timeout");
+                tryDownload = url != null;
             } catch (Exception e) {
                 log.error("got exception", e);
                 throw new RuntimeException(e);
             }
-
         }
         return false;
+    }
+
+    private String selectFileFromDisk(String containerDescription, String messageKey) {
+        JOptionPane.showMessageDialog(null, getMessage(messageKey, containerDescription),
+                                      "error",
+                                      JOptionPane.ERROR_MESSAGE);
+        File localFile = selectFile(null, null, false, asList("zip", "gz", "bz2"));
+        if (localFile == null) return null;
+        return fileToUrl(localFile).toString();
     }
 
     void showHideProgressPanel(final boolean show, final DialogController controller) {

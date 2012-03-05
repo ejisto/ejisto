@@ -26,11 +26,7 @@ import org.codehaus.cargo.container.installer.ZipURLInstaller;
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.SocketTimeoutException;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
@@ -90,7 +86,7 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
             }
             ch.close();
             out.close();
-        } catch (SocketTimeoutException e) {
+        } catch (InterruptedIOException e) {
             log.error("caught SocketTimeoutException. About to throw DownloadTimeout", e);
             throw new DownloadTimeout("cannot open connection to " + url.toString(), e);
         } catch (IOException e) {
@@ -101,7 +97,7 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
 
     private void copyFromLocalFile() {
         try {
-            copyFile(new File(url.toURI()), getDestinationFile());
+            copyFile(new File(url.toURI()), getDestinationFile().getParentFile());
         } catch (Exception e) {
             throw new RuntimeException("local file URL is not valid ", e);
         }

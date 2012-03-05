@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,10 +19,17 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.def.ApplicationDeployed;
+import com.ejisto.event.def.LogMessage;
 import org.jdesktop.swingx.JXPanel;
+import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
+
+import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.registerEventListener;
+import static java.lang.String.format;
 
 /**
  * Created by IntelliJ IDEA.
@@ -47,8 +54,8 @@ public class ContainerTab extends JSplitPane {
         init();
     }
 
-    public void log(String message) {
-        getLogViewer().log(message);
+    private void log(LogMessage event) {
+        if (containerId.equals(event.getContainerId())) getLogViewer().log(event.getMessage());
     }
 
     public String getContainerId() {
@@ -59,12 +66,32 @@ public class ContainerTab extends JSplitPane {
         getContextList().reloadAllContexts();
     }
 
+    public Icon getIcon() {
+        return new ImageIcon(getClass().getResource(getMessage(format("container.%s.icon", containerId))));
+    }
+
     private void init() {
         setOrientation(HORIZONTAL_SPLIT);
         initLeftComponent();
         initRightComponent();
         setDividerSize(2);
         setResizeWeight(1.0D);
+        registerEventListener(ApplicationDeployed.class, new ApplicationListener<ApplicationDeployed>() {
+            @Override
+            public void onApplicationEvent(ApplicationDeployed event) {
+                applicationDeployed(event);
+            }
+        });
+        registerEventListener(LogMessage.class, new ApplicationListener<LogMessage>() {
+            @Override
+            public void onApplicationEvent(final LogMessage event) {
+                log(event);
+            }
+        });
+    }
+
+    private void applicationDeployed(ApplicationDeployed event) {
+        if (containerId.equals(event.getContainerId())) reloadApplications();
     }
 
     private void initLeftComponent() {

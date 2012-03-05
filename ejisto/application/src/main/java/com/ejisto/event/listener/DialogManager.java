@@ -48,6 +48,7 @@ public class DialogManager implements ApplicationListener<DialogRequested>, Acti
             controller = DialogController.Builder
                     .newInstance()
                     .withParentFrame(application)
+                    .withIconKey("field.add.icon")
                     .withContent(view)
                     .build();
             controller.show(true, event.getDialogSize());

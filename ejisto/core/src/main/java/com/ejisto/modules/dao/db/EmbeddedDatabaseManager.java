@@ -61,7 +61,7 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(loader.getResource("classpath:sql/ejisto-schema.sql"));
         if (!Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue()))
-            populator.addScript(loader.getResource(System.getProperty(StringConstants.DERBY_SCRIPT.getValue())));
+            populator.addScript(loader.getResource(System.getProperty(StringConstants.DB_SCRIPT.getValue())));
         serverControl.start(new PrintWriter(System.out));
         checkServerStartup();
         started = true;

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,8 +33,7 @@ import java.awt.event.WindowEvent;
 import java.util.Date;
 
 import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.util.GuiUtils.getAction;
-import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.*;
 
 public class Application extends javax.swing.JFrame {
 
@@ -46,9 +45,10 @@ public class Application extends javax.swing.JFrame {
     }
 
     public void init() {
+        setIconImage(getIcon("application.icon").getImage());
         setTitle(settingsManager.getValue(MAIN_TITLE));
         setRootPane(new MainRootPane());
-        setMinimumSize(new Dimension(700, 350));
+        setMinimumSize(new Dimension(700, 500));
         Dimension size = new Dimension(settingsManager.getIntValue(APPLICATION_WIDTH),
                                        settingsManager.getIntValue(APPLICATION_HEIGHT));
         setSize(size);
@@ -66,14 +66,12 @@ public class Application extends javax.swing.JFrame {
 
     public void onServerStatusChange(ChangeServerStatus event) {
         boolean shutdown = event.getCommand() == Command.SHUTDOWN;
-        if (shutdown)
-            eventManager.publishEvent(new LogMessage(this, getMessage("default.server.shutdown.log", new Date())));
+        if (shutdown) {
+            eventManager.publishEvent(new LogMessage(this, getMessage("default.server.shutdown.log", new Date()),
+                                                     DEFAULT_CONTAINER_ID.getValue()));
+        }
         getAction(START_CONTAINER.getValue()).setEnabled(shutdown);
         getAction(STOP_CONTAINER.getValue()).setEnabled(!shutdown);
-    }
-
-    public void onWebAppContextStatusChange() {
-//        rootPane.applicationDeployed();
     }
 
     private void saveSettings() {

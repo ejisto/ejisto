@@ -92,7 +92,8 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
 
     public boolean showWizard() {
         initClosures();
-        dialog = new EjistoDialog(application, getMessage("wizard.title"), createWizard(), false);
+        dialog = new EjistoDialog(application, getMessage("wizard.title"), createWizard(), false,
+                                  "application.installer.icon");
         initAndSortControllers(dialog);
         initContainer();
         dialog.registerAction(new CallbackAction(getMessage("buttons.previous.text"), PREVIOUS_STEP_COMMAND.getValue(),

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,30 +30,31 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
+import static com.ejisto.util.GuiUtils.getIcon;
+import static org.springframework.util.StringUtils.hasText;
+
 public class Header extends JXPanel implements ComponentListener {
 
     private static final long serialVersionUID = -8596340359045874928L;
-
     private JLabel gradient = null;
-
     private JXHeader header;
-
     private String title;
-
     private String description;
+    private String imageKey;
 
     public Header() {
-        this(null, null);
+        this(null, null, null);
     }
 
     public Header(String title) {
-        this(title, null);
+        this(title, null, null);
     }
 
-    public Header(String title, String description) {
+    public Header(String title, String description, String imageKey) {
         super();
         this.title = title;
         this.description = description;
+        this.imageKey = imageKey;
         initialize();
     }
 
@@ -77,6 +78,12 @@ public class Header extends JXPanel implements ComponentListener {
         getHeader().setDescription(description);
     }
 
+    public void setImageKey(String imageKey) {
+        if (!hasText(imageKey)) return;
+        this.imageKey = imageKey;
+        getHeader().setIcon(getIcon(imageKey));
+    }
+
     /**
      * This method initializes this
      */
@@ -95,7 +102,7 @@ public class Header extends JXPanel implements ComponentListener {
         setMinimumSize(new Dimension(300, 80));
         setMaximumSize(new Dimension(32767, 100));
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.gray));
-        add(logo, BorderLayout.WEST);
+        //add(logo, BorderLayout.WEST);
 //        add(gradient, BorderLayout.EAST);
         add(getHeader(), BorderLayout.CENTER);
         addComponentListener(this);
@@ -105,9 +112,10 @@ public class Header extends JXPanel implements ComponentListener {
         if (this.header != null) return this.header;
         header = new JXHeader();
         header.setPreferredSize(new Dimension(350, 60));
-        header.setMaximumSize(new Dimension(32767, 60));
+        header.setMaximumSize(new Dimension(Short.MAX_VALUE, 60));
         if (title != null) header.setTitle(title);
         if (description != null) header.setDescription(description);
+        if (imageKey != null) header.setIcon(getIcon(imageKey));
         header.setBackground(Color.white);
         return header;
     }
@@ -121,7 +129,8 @@ public class Header extends JXPanel implements ComponentListener {
         }
         BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bi.createGraphics();
-        GradientPaint paint = new GradientPaint(new Point2D.Double(0, 0), Color.white, new Point2D.Double(width + 170, height),
+        GradientPaint paint = new GradientPaint(new Point2D.Double(0, 0), Color.white,
+                                                new Point2D.Double(width + 170, height),
                                                 new Color(82, 139, 197));
         g.setPaint(paint);
         g.fill(new Rectangle2D.Double(0, 0, width, height));

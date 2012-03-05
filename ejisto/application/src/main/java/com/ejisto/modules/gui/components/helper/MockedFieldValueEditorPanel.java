@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,6 +65,10 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
     public MockedFieldValueEditorPanel(ActionMap actionMap) {
         GuiUtils.fillActionMap(getActionMap(), actionMap);
         $$$setupUI$$$();
+    }
+
+    public void setFocusOnFirstField() {
+        if (genericType != null) genericType.requestFocus();
     }
 
     public void setTypes(Collection<String> types) {

@@ -57,7 +57,7 @@ public class DatabaseDump extends BaseShutdownService {
             dumpDescriptors(file);
             dumpDataSources(file);
             dumpContainers(file);
-            writeFile(file.toString().getBytes(), System.getProperty(StringConstants.DERBY_SCRIPT.getValue()));
+            writeFile(file.toString().getBytes(), System.getProperty(StringConstants.DB_SCRIPT.getValue()));
         } catch (Exception e) {
             log.error("error during db dump", e);
         }

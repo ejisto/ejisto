@@ -20,7 +20,6 @@
 package com.ejisto.util;
 
 import ch.lambdaj.Lambda;
-import ch.lambdaj.function.closure.Closure;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.core.container.WebApplication;
 import com.ejisto.event.def.BaseApplicationEvent;
@@ -34,6 +33,7 @@ import com.ejisto.modules.gui.components.ContainerTab;
 import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.Assert;
@@ -61,7 +61,8 @@ public class GuiUtils {
 
     public static void centerOnScreen(Window window) {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        window.setBounds((screen.width / 2 - window.getWidth() / 2), (screen.height / 2 - window.getHeight() / 2), window.getWidth(),
+        window.setBounds((screen.width / 2 - window.getWidth() / 2), (screen.height / 2 - window.getHeight() / 2),
+                         window.getWidth(),
                          window.getHeight());
     }
 
@@ -79,7 +80,8 @@ public class GuiUtils {
     }
 
     public static boolean showWarning(Component owner, String text, Object... values) {
-        return JOptionPane.showConfirmDialog(owner, getMessage(text, values), getMessage("confirmation.title"), JOptionPane.YES_NO_OPTION,
+        return JOptionPane.showConfirmDialog(owner, getMessage(text, values), getMessage("confirmation.title"),
+                                             JOptionPane.YES_NO_OPTION,
                                              JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION;
     }
 
@@ -126,7 +128,8 @@ public class GuiUtils {
     }
 
     public static synchronized Collection<Action> getActionsFor(String prefix) {
-        return select(actionMap, having(on(Action.class).getValue(Action.NAME).toString().startsWith(prefix), equalTo(true)));
+        return select(actionMap,
+                      having(on(Action.class).getValue(Action.NAME).toString().startsWith(prefix), equalTo(true)));
     }
 
     public static void setDefaultFont(Font defaultFont) {
@@ -138,7 +141,8 @@ public class GuiUtils {
     }
 
     public static Map<String, List<WebApplication<?>>> getAllRegisteredContexts() {
-        return SpringBridge.getInstance().getBean("webApplicationRepository", WebApplicationRepository.class).getInstalledWebApplications();
+        return SpringBridge.getInstance().getBean("webApplicationRepository",
+                                                  WebApplicationRepository.class).getInstalledWebApplications();
     }
 
     public static String buildCommand(StringConstants commandPrefix, String containerId, String contextPath) {
@@ -158,24 +162,12 @@ public class GuiUtils {
         SwingUtilities.invokeLater(action);
     }
 
-    public static void runOnEdtAndWait(Runnable action) throws InvocationTargetException, InterruptedException {
-        SwingUtilities.invokeAndWait(action);
-    }
-
-    public static void runInEDT(final Closure closure) {
-        runOnEDT(new Runnable() {
-            @Override
-            public void run() {
-                closure.apply();
-            }
-        });
-    }
-
     @SuppressWarnings("unchecked")
     public static <T extends ApplicationEvent> void registerEventListener(Class<T> eventClass, ApplicationListener<T> listener) {
-        ApplicationEventDispatcher applicationEventDispatcher = SpringBridge.getInstance().getBean("applicationEventDispatcher",
-                                                                                                   ApplicationEventDispatcher.class);
-        applicationEventDispatcher.registerApplicationEventListener(eventClass, (ApplicationListener<ApplicationEvent>) listener);
+        ApplicationEventDispatcher applicationEventDispatcher = SpringBridge.getInstance().getBean(
+                "applicationEventDispatcher", ApplicationEventDispatcher.class);
+        applicationEventDispatcher.registerApplicationEventListener(eventClass,
+                                                                    (ApplicationListener<ApplicationEvent>) listener);
     }
 
     public static void setActionMap(ActionMap actionMap, JComponent component) {
@@ -221,7 +213,7 @@ public class GuiUtils {
     }
 
     private static ContainerTab buildContainerTab(Container container) {
-        return new ContainerTab(container.getDescription(), container.getId());
+        return new ContainerTab(container.getDescription(), container.getCargoId());
     }
 
     public static abstract class EditorColumnFillStrategy {
@@ -262,22 +254,23 @@ public class GuiUtils {
         disableFocusPainting(button);
     }
 
-    public static File selectFile(Component parent, String directoryPath, boolean saveLastSelectionPath) {
+    public static File selectFile(Component parent, String directoryPath, boolean saveLastSelectionPath, final Collection<String> extensions) {
         JFileChooser fileChooser = new JFileChooser(directoryPath);
         fileChooser.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File f) {
-                return f.isDirectory() || f.getName().endsWith(".war");
+                return f.isDirectory() || FilenameUtils.isExtension(f.getName(), extensions);
             }
 
             @Override
             public String getDescription() {
-                return "*.war";
+                return "*." + join(extensions, ", *.");
             }
         });
         if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
             if (saveLastSelectionPath)
-                SettingsRepository.getInstance().putSettingValue(LAST_FILESELECTION_PATH, fileChooser.getCurrentDirectory().getAbsolutePath());
+                SettingsRepository.getInstance().putSettingValue(LAST_FILESELECTION_PATH,
+                                                                 fileChooser.getCurrentDirectory().getAbsolutePath());
             return fileChooser.getSelectedFile();
         } else return null;
     }

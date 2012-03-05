@@ -124,6 +124,7 @@ public class DialogController {
         private Action[] actions;
         private Frame parent;
         private KeyListener keyListener;
+        private String iconKey;
 
         public static Builder newInstance() {
             return new Builder();
@@ -159,6 +160,11 @@ public class DialogController {
             return this;
         }
 
+        public Builder withIconKey(String iconKey) {
+            this.iconKey = iconKey;
+            return this;
+        }
+
         public Builder withKeyListener(KeyListener keyListener) {
             this.keyListener = keyListener;
             return this;
@@ -167,7 +173,7 @@ public class DialogController {
         public DialogController build() {
             JDialog dialog;
             if (hasText(description) || hasText(title)) {
-                dialog = new EjistoDialog(parent, title, view, true, actions);
+                dialog = new EjistoDialog(parent, title, view, true, iconKey, actions);
                 ((EjistoDialog) dialog).setHeaderTitle(title);
                 ((EjistoDialog) dialog).setHeaderDescription(description);
             } else {

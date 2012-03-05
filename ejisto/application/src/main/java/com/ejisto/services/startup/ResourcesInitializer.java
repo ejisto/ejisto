@@ -58,18 +58,18 @@ public class ResourcesInitializer extends BaseStartupService {
 
     private void initDirectories(File baseDir) {
         File containersDir = new File(baseDir, "containers");
-        File derbyDir = new File(baseDir, "derby");
-        File derbyScript = new File(derbyDir, "ejisto.sql");
+        File data = new File(baseDir, "data");
+        File dbScript = new File(data, "ejisto.sql");
         File libDir = new File(baseDir, "lib");
         File libExtDir = new File(libDir, "ext");
         File deployables = new File(baseDir, "deployables");
         File runtime = new File(baseDir, "runtime");
         File temp = new File(baseDir, "temp");
-        initDirectories(derbyDir, containersDir, libDir, libExtDir, new File(baseDir, "log"), deployables, runtime,
+        initDirectories(data, containersDir, libDir, libExtDir, new File(baseDir, "log"), deployables, runtime,
                         temp);
         System.setProperty(CONTAINERS_HOME_DIR.getValue(), containersDir.getAbsolutePath());
-        System.setProperty(DERBY_SCRIPT.getValue(), derbyScript.getAbsolutePath());
-        System.setProperty(INITIALIZE_DATABASE.getValue(), String.valueOf(!derbyScript.exists()));
+        System.setProperty(DB_SCRIPT.getValue(), dbScript.getAbsolutePath());
+        System.setProperty(INITIALIZE_DATABASE.getValue(), String.valueOf(!dbScript.exists()));
         System.setProperty(LIB_DIR.getValue(), libDir.getAbsolutePath() + File.separator);
         System.setProperty(EXTENSIONS_DIR.getValue(), libExtDir.getAbsolutePath());
         System.setProperty(DEPLOYABLES_DIR.getValue(), deployables.getAbsolutePath());

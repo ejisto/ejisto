@@ -43,15 +43,17 @@ public class EjistoDialog extends JDialog {
     private Header header;
     private JPanel buttonsBar;
     private boolean freelyCloseable;
+    private String iconKey;
 
-    public EjistoDialog(Frame owner, String title) {
-        this(owner, title, null, true);
+    public EjistoDialog(Frame owner, String title, String iconKey) {
+        this(owner, title, null, true, iconKey);
     }
 
-    public EjistoDialog(Frame owner, String title, JPanel content, boolean freelyCloseable, Action... actions) {
+    public EjistoDialog(Frame owner, String title, JPanel content, boolean freelyCloseable, String iconKey, Action... actions) {
         super(owner, title, false);
         this.content = content;
         this.freelyCloseable = freelyCloseable;
+        this.iconKey = iconKey;
         setActions(actions);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     }
@@ -161,6 +163,7 @@ public class EjistoDialog extends JDialog {
     protected Header getHeader() {
         if (this.header != null) return this.header;
         header = new Header();
+        header.setImageKey(iconKey);
         return header;
     }
 }

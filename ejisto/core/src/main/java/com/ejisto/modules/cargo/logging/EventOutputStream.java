@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,11 +32,13 @@ public class EventOutputStream extends OutputStream {
     private StringBuffer buffer;
     private LinkedBlockingQueue<LogMessage> queue;
     private EventManager eventManager;
+    private String containerId;
 
-    public EventOutputStream() {
+    public EventOutputStream(String containerId) {
         super();
         this.queue = new LinkedBlockingQueue<LogMessage>();
         this.buffer = new StringBuffer();
+        this.containerId = containerId;
     }
 
     @Override
@@ -47,7 +49,7 @@ public class EventOutputStream extends OutputStream {
     @Override
     public void flush() throws IOException {
         eventManager = SpringBridge.getInstance().getBean("eventManager", EventManager.class);
-        queue.offer(new LogMessage(this, buffer.toString()));
+        queue.offer(new LogMessage(this, buffer.toString(), containerId));
         if (eventManager != null) {
             publishEvents();
         }

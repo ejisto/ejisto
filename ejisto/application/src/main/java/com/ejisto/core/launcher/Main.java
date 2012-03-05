@@ -42,8 +42,9 @@ public class Main {
      * to start application from an IDE (like Intellij Idea)
      * add -Dejisto.agent.jar.path=/path/to/agent.jar to vm parameters
      * in launch configuration panel
-     * and set working directory to:
-     * /path/to/ejisto/application/target
+     * it is also required to unpack distribution zip and
+     * to set working directory to:
+     * /path/to/extracted/application/
      */
     public static void main(String[] args) {
         int status = new Launcher().launch();

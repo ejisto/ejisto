@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,12 @@ package com.ejisto.event.def;
 public class LogMessage extends BaseApplicationEvent {
     private static final long serialVersionUID = 4174138101995544515L;
     private String message;
+    private String containerId;
 
-    public LogMessage(Object source, String message) {
+    public LogMessage(Object source, String message, String containerId) {
         super(source);
         this.message = message;
+        this.containerId = containerId;
     }
 
     public String getMessage() {
@@ -45,5 +47,9 @@ public class LogMessage extends BaseApplicationEvent {
     @Override
     public boolean isRunOnEDT() {
         return true;
+    }
+
+    public String getContainerId() {
+        return containerId;
     }
 }
