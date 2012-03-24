@@ -32,13 +32,15 @@ import java.awt.*;
 public class DialogRequested extends BaseApplicationEvent {
 
     public enum DialogType {
-        ABOUT("menu.about", 400, 300);
+        ABOUT("menu.about", 530, 350, false);
         private final String description;
         private final Dimension dimension;
+        private final boolean resizable;
 
-        DialogType(String description, int w, int h) {
+        DialogType(String description, int w, int h, boolean resizable) {
             this.description = description;
             this.dimension = new Dimension(w, h);
+            this.resizable = resizable;
         }
 
         public String getDescription() {
@@ -47,6 +49,10 @@ public class DialogRequested extends BaseApplicationEvent {
 
         public Dimension getDimension() {
             return new Dimension(dimension);
+        }
+
+        public boolean isResizable() {
+            return resizable;
         }
     }
 
@@ -69,6 +75,10 @@ public class DialogRequested extends BaseApplicationEvent {
 
     public Dimension getDialogSize() {
         return type.getDimension();
+    }
+
+    public boolean isResizable() {
+        return type.isResizable();
     }
 
 }

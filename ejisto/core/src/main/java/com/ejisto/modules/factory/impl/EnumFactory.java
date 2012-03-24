@@ -21,25 +21,41 @@ package com.ejisto.modules.factory.impl;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.ObjectFactory;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import lombok.extern.log4j.Log4j;
+import org.springframework.util.Assert;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: Dec 5, 2010
- * Time: 5:21:37 PM
+ * Date: 3/22/12
+ * Time: 8:08 AM
  */
-public class AtomicIntegerFactory implements ObjectFactory<AtomicInteger> {
+@Log4j
+public class EnumFactory<T extends Enum<T>> implements ObjectFactory<Enum<T>> {
 
     @Override
     public String getTargetClassName() {
-        return "java.util.concurrent.AtomicInteger";
+        return "java.lang.Enum";
     }
 
     @Override
-    public AtomicInteger create(MockedField m, AtomicInteger actualValue) {
-        return new AtomicInteger(Integer.parseInt(m.getFieldValue()));
+    public Enum<T> create(MockedField m, Enum<T> actualValue) {
+        try {
+            String name = m.getFieldValue();
+            Assert.hasText(name);
+            @SuppressWarnings("unchecked")
+            Class<Enum<T>> clazz = (Class<Enum<T>>) Class.forName(m.getFieldType());
+            Assert.state(clazz.isEnum());
+            Enum<T>[] enums = clazz.getEnumConstants();
+            for (Enum<T> en : enums) {
+                if (en.name().equals(name)) return en;
+            }
+            if (actualValue != null) return actualValue;
+            return enums.length > 0 ? enums[0] : null;
+        } catch (Exception ex) {
+            log.warn(String.format("enum value not found for %s.", m), ex);
+        }
+        return actualValue;
     }
 
     @Override
@@ -48,7 +64,8 @@ public class AtomicIntegerFactory implements ObjectFactory<AtomicInteger> {
     }
 
     @Override
-    public AtomicInteger createRandomValue() {
+    public Enum<T> createRandomValue() {
         return null;
     }
+
 }

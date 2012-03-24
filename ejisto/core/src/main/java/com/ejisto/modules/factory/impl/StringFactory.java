@@ -56,4 +56,5 @@ public class StringFactory implements ObjectFactory<String> {
         for (int i = 0; i < size; i++) builder.append("a");
         return builder.toString();
     }
+
 }

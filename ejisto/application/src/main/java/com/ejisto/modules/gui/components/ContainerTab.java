@@ -98,8 +98,8 @@ public class ContainerTab extends JSplitPane {
         JXPanel leftComponent = new JXPanel(new BorderLayout());
         leftComponent.add(getServerSummaryPane(), BorderLayout.NORTH);
         leftComponent.add(getLogViewer(), BorderLayout.CENTER);
-        leftComponent.setPreferredSize(new Dimension(500, 250));
-        leftComponent.setMinimumSize(new Dimension(500, 250));
+        leftComponent.setPreferredSize(new Dimension(500, 150));
+        leftComponent.setMinimumSize(new Dimension(500, 150));
         leftComponent.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
         setLeftComponent(leftComponent);
     }
@@ -125,7 +125,7 @@ public class ContainerTab extends JSplitPane {
         scrollableContextList = new JScrollPane(getContextList(), ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                                                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollableContextList.setMinimumSize(new Dimension(250, 100));
-        scrollableContextList.setPreferredSize(new Dimension(250, 300));
+        scrollableContextList.setPreferredSize(new Dimension(250, 150));
         scrollableContextList.setMaximumSize(new Dimension(250, Short.MAX_VALUE));
         scrollableContextList.setName(getContextList().getName());
 

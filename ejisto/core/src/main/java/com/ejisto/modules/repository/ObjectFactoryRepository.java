@@ -22,7 +22,9 @@ package com.ejisto.modules.repository;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.ObjectFactoryDao;
-import com.ejisto.modules.dao.entities.ObjectFactory;
+import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
+import com.ejisto.modules.factory.ObjectFactory;
+import com.ejisto.modules.factory.impl.ArrayFactory;
 import com.ejisto.util.ExternalizableService;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -33,8 +35,11 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
+import static java.lang.String.format;
 
 /**
  * Created by IntelliJ IDEA.
@@ -46,10 +51,18 @@ import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATE
 public class ObjectFactoryRepository extends ExternalizableService<ObjectFactoryDao> implements InitializingBean {
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private static final String DEFAULT = "java.lang.Object";
+    private static final Pattern TYPE_EXTRACTOR = Pattern.compile("\\[?L?([a-zA-Z0-9\\.]+);?\\[?\\]?");
+    private static final Pattern ARRAY_MATCHER = Pattern.compile("(\\[L([a-zA-Z0-9\\.]+);)|([a-zA-Z0-9\\.]+\\[\\])");
     private static final ObjectFactoryRepository INSTANCE = new ObjectFactoryRepository();
+    private static final String ENUM_FACTORY_CLASS_NAME = "com.ejisto.modules.factory.impl.EnumFactory";
     private final Map<String, String> factories = new HashMap<String, String>();
     private final Map<String, String> primitives = new HashMap<String, String>();
     private final AtomicBoolean initialized = new AtomicBoolean(false);
+
+    enum ObjectType {
+        ARRAY, ENUM, OBJECT;
+    }
+
 
     @Resource private EventManager eventManager;
     @Resource private ObjectFactoryDao objectFactoryDao;
@@ -92,17 +105,36 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
         if (!error) {
             factories.put(targetClassName, objectFactoryClassName);
             insertObjectFactory(objectFactoryClassName, targetClassName);
-            message = "registered ObjectFactory [" + objectFactoryClassName + "] for class " + targetClassName;
+            message = format("registered ObjectFactory [%s] for class %s", objectFactoryClassName, targetClassName);
         } else {
-            message = "rejected ObjectFactory [" + objectFactoryClassName + "]";
+            message = format("rejected ObjectFactory [%s]", objectFactoryClassName);
         }
         if (notify && eventManager != null) eventManager.publishEvent(new StatusBarMessage(this, message, error));
     }
 
-    public String getObjectFactory(String objectClassName, String contextPath) {
+    @SuppressWarnings("unchecked")
+    public <T> ObjectFactory<T> getObjectFactory(String objectClassName, String contextPath) throws Exception {
+        String objectFactoryClass = getObjectFactoryClass(objectClassName, contextPath);
+        ObjectFactory<T> objectFactory = loadObjectFactory(objectFactoryClass);
+        if (isArray(objectClassName))
+            return (ObjectFactory<T>) new ArrayFactory<T>(objectFactory);
+        return objectFactory;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private <T> ObjectFactory<T> loadObjectFactory(String className) {
+        try {
+            return (ObjectFactory<T>) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    String getObjectFactoryClass(String objectClassName, String contextPath) {
         try {
             syncObjectFactories();
-            String className = transformPrimitiveType(objectClassName);
+            String className = getActualType(objectClassName);
             return scanForObjectFactory(retrieveClassPool(contextPath).get(className));
         } catch (Exception e) {
             logger.error("getObjectFactory failed with exception, returning default one", e);
@@ -110,20 +142,28 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
         }
     }
 
-    String transformPrimitiveType(String type) {
-        if (primitives.containsKey(type)) return primitives.get(type);
-        return type;
+    boolean isArray(String type) {
+        return ARRAY_MATCHER.matcher(type).matches();
+    }
+
+    String getActualType(String type) {
+        String actualType = type;
+        Matcher m = TYPE_EXTRACTOR.matcher(actualType);
+        if (m.matches()) actualType = m.group(1);
+        if (primitives.containsKey(actualType)) return primitives.get(actualType);
+        return actualType;
     }
 
     private void insertObjectFactory(String objectFactoryClassName, String targetClassName) {
-        if (initialized.get()) objectFactoryDao.insert(new ObjectFactory(objectFactoryClassName, targetClassName));
+        if (initialized.get())
+            objectFactoryDao.insert(new RegisteredObjectFactory(objectFactoryClassName, targetClassName));
     }
 
     private synchronized void syncObjectFactories() {
         if (!initialized.get()) {
             checkDao();
-            for (ObjectFactory objectFactory : objectFactoryDao.loadAll()) {
-                factories.put(objectFactory.getTargetClassName(), objectFactory.getClassName());
+            for (RegisteredObjectFactory registeredObjectFactory : objectFactoryDao.loadAll()) {
+                factories.put(registeredObjectFactory.getTargetClassName(), registeredObjectFactory.getClassName());
             }
             initialized.compareAndSet(false, true);
         }
@@ -135,19 +175,23 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
 
     private String scanForObjectFactory(CtClass objectClass) throws Exception {
         try {
-            trace("Hey! Could someone create an instance of [" + objectClass.getName() + "]?");
+            trace(format("Searching for a factory for [%s]", objectClass.getName()));
+            if (objectClass.isEnum()) {
+                trace("target class is an Enum. Returning EnumFactory");
+                return ENUM_FACTORY_CLASS_NAME;
+            }
             if (factories.containsKey(objectClass.getName())) {
-                trace("yep!");
+                trace("found!");
                 return factories.get(objectClass.getName());
             }
             String factory;
-            trace("nope. Trying interfaces...");
+            trace("not found. Trying with implemented interfaces...");
             for (CtClass c : objectClass.getInterfaces()) {
                 factory = scanForObjectFactory(c);
                 if (factory != null) return factory;
             }
             if (!objectClass.isInterface()) {
-                trace("nope. Trying super class...");
+                trace("not found. Trying with super class...");
                 factory = scanForObjectFactory(objectClass.getSuperclass());
                 if (factory != null) return factory;
                 return factories.get(DEFAULT);

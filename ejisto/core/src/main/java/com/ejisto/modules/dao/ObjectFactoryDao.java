@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 package com.ejisto.modules.dao;
 
-import com.ejisto.modules.dao.entities.ObjectFactory;
+import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -36,16 +36,17 @@ public class ObjectFactoryDao extends BaseDao {
     private static final String LOAD_ALL = "SELECT * FROM OBJECTFACTORY";
     private static final String INSERT = "INSERT INTO OBJECTFACTORY VALUES(?,?)";
 
-    public List<ObjectFactory> loadAll() {
-        return getJdbcTemplate().query(LOAD_ALL, new RowMapper<ObjectFactory>() {
+    public List<RegisteredObjectFactory> loadAll() {
+        return getJdbcTemplate().query(LOAD_ALL, new RowMapper<RegisteredObjectFactory>() {
             @Override
-            public ObjectFactory mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new ObjectFactory(rs.getString("CLASSNAME"), rs.getString("TARGETCLASSNAME"));
+            public RegisteredObjectFactory mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new RegisteredObjectFactory(rs.getString("CLASSNAME"), rs.getString("TARGETCLASSNAME"));
             }
         });
     }
 
-    public void insert(ObjectFactory objectFactory) {
-        getJdbcTemplate().update(INSERT, objectFactory.getClassName(), objectFactory.getTargetClassName());
+    public void insert(RegisteredObjectFactory registeredObjectFactory) {
+        getJdbcTemplate().update(INSERT, registeredObjectFactory.getClassName(),
+                                 registeredObjectFactory.getTargetClassName());
     }
 }

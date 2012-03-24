@@ -51,4 +51,5 @@ public class AtomicLongFactory implements ObjectFactory<AtomicLong> {
     public AtomicLong createRandomValue() {
         return new AtomicLong();
     }
+
 }

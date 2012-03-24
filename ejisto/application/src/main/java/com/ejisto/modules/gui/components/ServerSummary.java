@@ -56,6 +56,24 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
         return containerId;
     }
 
+    @Override
+    public void repaint(long tm, int x, int y, int width, int height) {
+        Dimension d = getSize();
+        boolean shrink = d.width < 700;
+        if (buttonsPanel != null) {
+            for (int i = 0; i < buttonsPanel.getComponentCount(); i++) {
+                Component c = buttonsPanel.getComponent(i);
+                if (c instanceof EnhancedButton && ((EnhancedButton) c).isShrunk() != shrink) {
+                    EnhancedButton b = (EnhancedButton) c;
+                    String text = shrink ? "" : String.valueOf(b.getAction().getValue(Action.NAME));
+                    b.setText(text);
+                    b.setShrunk(shrink);
+                }
+            }
+        }
+        super.repaint(tm, x, y, width, height);
+    }
+
     private void init() {
         setBackground(Color.WHITE);
         setLayout(new BorderLayout());
@@ -109,7 +127,7 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     }
 
     private JButton createButton(Action action) {
-        JButton button = new JButton(action);
+        JButton button = new EnhancedButton(action);
         button.setSize(new Dimension(100, 16));
         makeTransparent(button);
         button.setRolloverIcon(getIcon(((EjistoAction<?>) action).getRolloverKey()));
@@ -119,5 +137,21 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals("enabled")) updateServerStatus();
+    }
+
+    private static final class EnhancedButton extends JButton {
+        private boolean shrunk = false;
+
+        EnhancedButton(Action action) {
+            super(action);
+        }
+
+        boolean isShrunk() {
+            return shrunk;
+        }
+
+        void setShrunk(boolean shrunk) {
+            this.shrunk = shrunk;
+        }
     }
 }

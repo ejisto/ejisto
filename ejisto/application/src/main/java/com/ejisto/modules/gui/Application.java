@@ -52,6 +52,7 @@ public class Application extends javax.swing.JFrame {
         Dimension size = new Dimension(settingsManager.getIntValue(APPLICATION_WIDTH),
                                        settingsManager.getIntValue(APPLICATION_HEIGHT));
         setSize(size);
+        if (settingsManager.getBooleanValue(APPLICATION_MAXIMIZED)) setExtendedState(MAXIMIZED_BOTH);
         setPreferredSize(size);
         addWindowListener(new WindowAdapter() {
             @Override
@@ -77,6 +78,7 @@ public class Application extends javax.swing.JFrame {
     private void saveSettings() {
         settingsManager.putValue(APPLICATION_WIDTH, getWidth());
         settingsManager.putValue(APPLICATION_HEIGHT, getHeight());
+        settingsManager.putValue(APPLICATION_MAXIMIZED, getState() == MAXIMIZED_BOTH);
     }
 
 }

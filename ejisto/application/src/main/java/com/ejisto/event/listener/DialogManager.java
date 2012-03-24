@@ -50,6 +50,7 @@ public class DialogManager implements ApplicationListener<DialogRequested>, Acti
                     .withParentFrame(application)
                     .withIconKey("field.add.icon")
                     .withContent(view)
+                    .resizable(event.isResizable())
                     .build();
             controller.show(true, event.getDialogSize());
         } catch (Exception ex) {

@@ -125,6 +125,7 @@ public class DialogController {
         private Frame parent;
         private KeyListener keyListener;
         private String iconKey;
+        private boolean resizable = true;
 
         public static Builder newInstance() {
             return new Builder();
@@ -170,6 +171,11 @@ public class DialogController {
             return this;
         }
 
+        public Builder resizable(boolean resizable) {
+            this.resizable = resizable;
+            return this;
+        }
+
         public DialogController build() {
             JDialog dialog;
             if (hasText(description) || hasText(title)) {
@@ -180,6 +186,7 @@ public class DialogController {
                 dialog = new JDialog(parent);
             }
             dialog.setUndecorated(!decorated);
+            dialog.setResizable(resizable);
             if (keyListener != null) dialog.addKeyListener(keyListener);
             return new DialogController(dialog, view);
         }

@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.annotation.ElementType;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -144,6 +145,25 @@ public class PropertyManagerTest {
         insertField("booleanField", "boolean", "true");
         boolean res = PropertyManager.mockField(CTX, "booleanField", className, false);
         assertTrue(res);
+    }
+
+    @Test
+    public void testMockObjectArrayField() throws Exception {
+        insertField("stringArrayField", "java.lang.String[]", "one,two,three");
+        String[] res = PropertyManager.mockField(CTX, "stringArrayField", className, String[].class, null);
+        assertNotNull(res);
+        assertTrue(res.length == 3);
+        assertEquals("one", res[0]);
+        assertEquals("two", res[1]);
+        assertEquals("three", res[2]);
+    }
+
+    @Test
+    public void testMockObjectEnumField() throws Exception {
+        insertField("enumField", "java.lang.annotation.ElementType", "METHOD");
+        ElementType res = PropertyManager.mockField(CTX, "enumField", className, ElementType.class, null);
+        assertNotNull(res);
+        assertSame(ElementType.METHOD, res);
     }
 
     private void insertField(String fieldName, String fieldType, String fieldValue) {

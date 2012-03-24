@@ -193,7 +193,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     @Override
     public void fillWithCustomMenuItems(JPopupMenu menu, Point sourcePosition) {
         final MockedFieldNode node = getNodeAt(sourcePosition.x, sourcePosition.y);
-        if (node == null || node.isLeaf()) return;
+        if (node == null || node.isLeaf() || node.isEmpty()) return;
         Action customAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {

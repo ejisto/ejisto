@@ -20,7 +20,7 @@
 package com.ejisto.modules.repository;
 
 import com.ejisto.modules.dao.ObjectFactoryDao;
-import com.ejisto.modules.dao.entities.ObjectFactory;
+import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,7 +45,7 @@ public class ObjectFactoryRepositoryTest {
         repository = ObjectFactoryRepository.getInstance();
         repository.setDaoInstance(new ObjectFactoryDao() {
             @Override
-            public List<ObjectFactory> loadAll() {
+            public List<RegisteredObjectFactory> loadAll() {
                 return Collections.emptyList();
             }
         });
@@ -54,57 +54,65 @@ public class ObjectFactoryRepositoryTest {
     @Test
     public void testStringObjectFactory() {
         assertEquals("com.ejisto.modules.factory.impl.StringFactory",
-                     repository.getObjectFactory("java.lang.String", context));
+                     repository.getObjectFactoryClass("java.lang.String", context));
     }
 
     @Test
     public void testAtomicIntegerFactory() {
         assertEquals("com.ejisto.modules.factory.impl.AtomicIntegerFactory",
-                     repository.getObjectFactory("java.util.concurrent.atomic.AtomicInteger", context));
+                     repository.getObjectFactoryClass("java.util.concurrent.atomic.AtomicInteger", context));
     }
 
     @Test
     public void testAtomicLongFactory() {
         assertEquals("com.ejisto.modules.factory.impl.AtomicLongFactory",
-                     repository.getObjectFactory("java.util.concurrent.atomic.AtomicLong", context));
+                     repository.getObjectFactoryClass("java.util.concurrent.atomic.AtomicLong", context));
     }
 
     @Test
     public void testNumberFactory() {
         assertEquals("com.ejisto.modules.factory.impl.NumberFactory",
-                     repository.getObjectFactory("java.lang.Integer", context));
+                     repository.getObjectFactoryClass("java.lang.Integer", context));
     }
 
     @Test
     public void testCollectionFactory() {
         assertEquals("com.ejisto.modules.factory.impl.CollectionFactory",
-                     repository.getObjectFactory("java.util.Collection", context));
+                     repository.getObjectFactoryClass("java.util.Collection", context));
         assertEquals("com.ejisto.modules.factory.impl.CollectionFactory",
-                     repository.getObjectFactory("java.util.List", context));
+                     repository.getObjectFactoryClass("java.util.List", context));
     }
 
     @Test
     public void testGetMapFactory() {
         assertEquals("com.ejisto.modules.factory.impl.MapFactory",
-                     repository.getObjectFactory("java.util.Map", context));
+                     repository.getObjectFactoryClass("java.util.Map", context));
         assertEquals("com.ejisto.modules.factory.impl.MapFactory",
-                     repository.getObjectFactory("java.util.TreeMap", context));
+                     repository.getObjectFactoryClass("java.util.TreeMap", context));
     }
 
     @Test
     public void testGetDefaultObjectFactory() {
         assertEquals("com.ejisto.modules.factory.impl.DefaultObjectFactory",
-                     repository.getObjectFactory("java.lang.Object", context));
+                     repository.getObjectFactoryClass("java.lang.Object", context));
         assertEquals("com.ejisto.modules.factory.impl.DefaultObjectFactory",
-                     repository.getObjectFactory("com.ejisto.modules.cargo.CargoManager", context));
+                     repository.getObjectFactoryClass("com.ejisto.modules.cargo.CargoManager", context));
     }
 
     @Test
     public void testPrimitiveObjectFactory() {
-        assertEquals("java.lang.Integer", repository.transformPrimitiveType("int"));
-        assertEquals("java.lang.Long", repository.transformPrimitiveType("long"));
-        assertEquals("java.lang.Long", repository.transformPrimitiveType("java.lang.Long"));
-        assertEquals("com.ejisto.modules.factory.impl.NumberFactory", repository.getObjectFactory("int", context));
+        assertEquals("java.lang.Integer", repository.getActualType("int"));
+        assertEquals("java.lang.Long", repository.getActualType("long"));
+        assertEquals("java.lang.Long", repository.getActualType("java.lang.Long"));
+        assertEquals("com.ejisto.modules.factory.impl.NumberFactory", repository.getObjectFactoryClass("int", context));
+    }
+
+    @Test
+    public void testArrayObjectFactory() {
+        assertEquals("java.lang.Integer", repository.getActualType("[Lint;"));
+        assertEquals("java.lang.Long", repository.getActualType("long[]"));
+        assertEquals("java.lang.Long", repository.getActualType("java.lang.Long[]"));
+        assertEquals("java.lang.Long", repository.getActualType("[Ljava.lang.Long;"));
     }
 
 }

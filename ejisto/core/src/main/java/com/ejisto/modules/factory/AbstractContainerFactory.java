@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,13 +35,12 @@ import com.ejisto.modules.repository.ObjectFactoryRepository;
  */
 
 public abstract class AbstractContainerFactory<C, E> implements ObjectFactory<C> {
+
     @SuppressWarnings("unchecked")
     protected ObjectFactory<E> loadElementObjectFactory(String elementType, String contextPath) {
         try {
-            String objectFactoryClass = ObjectFactoryRepository.getInstance().getObjectFactory(elementType,
-                                                                                               contextPath);
-            return (ObjectFactory<E>) Thread.currentThread().getContextClassLoader().loadClass(
-                    objectFactoryClass).newInstance();
+            return ObjectFactoryRepository.getInstance().getObjectFactory(elementType,
+                                                                          contextPath);
         } catch (Exception e) {
             throw new RuntimeException("Got exception during objectFactory loading", e);
         }

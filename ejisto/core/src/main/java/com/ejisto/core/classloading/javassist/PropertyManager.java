@@ -63,7 +63,8 @@ public class PropertyManager {
                 return actualValue;
             }
         } catch (Exception e) {
-            logger.error("Property " + fieldName + " of class " + className + " not found. Returning " + actualValue,
+            logger.error(new StringBuilder("Property ").append(fieldName).append(" of class ").append(className).append(
+                    " not found. Returning ").append(actualValue).toString(),
                          e);
             return actualValue;
         }
@@ -71,11 +72,9 @@ public class PropertyManager {
 
     @SuppressWarnings("unchecked")
     private <T> T evaluateResult(MockedField mockedField, Class<T> type, T actualValue) throws Exception {
-        String objectFactoryClass = objectFactoryRepository.getObjectFactory(mockedField.getFieldType(),
-                                                                             mockedField.getContextPath());
-        ObjectFactory<T> objectFactory = (ObjectFactory<T>) Thread.currentThread().getContextClassLoader().loadClass(
-                objectFactoryClass).newInstance();
-        trace("ObjectFactory " + objectFactoryClass + " supports random values creation: " + objectFactory.supportsRandomValuesCreation());
+        ObjectFactory<T> objectFactory = objectFactoryRepository.getObjectFactory(mockedField.getFieldType(),
+                                                                                  mockedField.getContextPath());
+        trace("ObjectFactory " + objectFactory.getClass().getName() + " supports random values creation: " + objectFactory.supportsRandomValuesCreation());
         return objectFactory.create(mockedField, actualValue);
     }
 
@@ -128,6 +127,42 @@ public class PropertyManager {
     public static boolean mockField(String contextPath, String fieldName, String className, boolean actual) {
         trace("calling mockField with boolean value");
         return INSTANCE.getFieldValue(contextPath, className, fieldName, Boolean.class, actual);
+    }
+
+    public static byte[] mockField(String contextPath, String fieldName, String className, byte[] actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, byte[].class, actual);
+    }
+
+    public static short[] mockField(String contextPath, String fieldName, String className, short[] actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, short[].class, actual);
+    }
+
+    public static int[] mockField(String contextPath, String fieldName, String className, int[] actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, int[].class, actual);
+    }
+
+    public static long[] mockField(String contextPath, String fieldName, String className, long[] actual) {
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, long[].class, actual);
+    }
+
+    public static float[] mockField(String contextPath, String fieldName, String className, float[] actual) {
+        trace("calling mockField with float value");
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, float[].class, actual);
+    }
+
+    public static double[] mockField(String contextPath, String fieldName, String className, double[] actual) {
+        trace("calling mockField with double value");
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, double[].class, actual);
+    }
+
+    public static char[] mockField(String contextPath, String fieldName, String className, char[] actual) {
+        trace("calling mockField with char value");
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, char[].class, actual);
+    }
+
+    public static boolean[] mockField(String contextPath, String fieldName, String className, boolean[] actual) {
+        trace("calling mockField with boolean value");
+        return INSTANCE.getFieldValue(contextPath, className, fieldName, boolean[].class, actual);
     }
 
     private static void trace(String s) {

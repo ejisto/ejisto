@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,11 @@ package com.ejisto.modules.dao.entities;
  * Date: 7/31/11
  * Time: 7:02 PM
  */
-public class ObjectFactory {
+public class RegisteredObjectFactory {
     private final String className;
     private final String targetClassName;
 
-    public ObjectFactory(String className, String targetClassName) {
+    public RegisteredObjectFactory(String className, String targetClassName) {
         this.className = className;
         this.targetClassName = targetClassName;
     }

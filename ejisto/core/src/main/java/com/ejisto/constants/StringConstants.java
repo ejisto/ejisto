@@ -25,6 +25,7 @@ public enum StringConstants {
     MAIN_TITLE("main.title"),
     APPLICATION_WIDTH("application.dimension.width"),
     APPLICATION_HEIGHT("application.dimension.height"),
+    APPLICATION_MAXIMIZED("application.maximized"),
     LAST_FILESELECTION_PATH("fileselection.last.path"),
     EXTENSIONS_DIR("extensions.dir"),
     DB_SCRIPT("derby.script"),

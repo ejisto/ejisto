@@ -139,7 +139,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
                 mockedField.setContextPath(descriptor.getContextPath());
                 mockedField.setClassName(clazz.getName());
                 mockedField.setFieldName(field.getName());
-                mockedField.setFieldType(field.getType().getName());
+                mockedField.setFieldType(getFieldTypeAsString(field));
                 parseGenerics(clazz, field, mockedField, loader);
                 int index = mockedFields.indexOf(mockedField);
                 if (index > -1) mockedField.copyFrom(mockedFields.get(index));
@@ -151,6 +151,16 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
         } catch (Exception e) {
             addErrorDescriptor(buildErrorDescriptor(e));
         }
+    }
+
+    private String getFieldTypeAsString(CtField field) throws NotFoundException {
+        CtClass type = field.getType();
+        if (type.isArray()) {
+            //using com.custom.Class[] notation instead of [Lcom.custom.Class; in order to improve
+            //readability; standard notation is also supported.
+            return type.getComponentType().getName() + "[]";
+        }
+        return type.getName();
     }
 
     private ErrorDescriptor buildErrorDescriptor(Throwable e) {
@@ -178,11 +188,14 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
     private void deepParseGenerics(ParameterizedType type, List<String> target) {
         Type[] types = type.getActualTypeArguments();
         for (Type generic : types) {
-            if (ParameterizedType.class.isAssignableFrom(generic.getClass())) {
+            log.debug("parsing " + generic + " of class " + type);
+            if (ParameterizedType.class.isInstance(generic.getClass())) {
                 //TODO implement deep inspection
                 target.add(((ParameterizedType) generic).getRawType().getClass().getName());
-            } else {
+            } else if (Class.class.isInstance(generic)) {
                 target.add(((Class<?>) generic).getName());
+            } else {
+                target.add(generic.toString());
             }
 
         }

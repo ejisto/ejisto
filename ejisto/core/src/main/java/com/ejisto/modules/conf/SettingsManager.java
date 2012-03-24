@@ -43,6 +43,10 @@ public class SettingsManager extends ExternalizableService<SettingsDao> implemen
         return Integer.parseInt(getValue(key));
     }
 
+    public boolean getBooleanValue(StringConstants key) {
+        return Boolean.parseBoolean(getValue(key));
+    }
+
     public String getValue(StringConstants key) {
         return getValue(key.getValue());
     }

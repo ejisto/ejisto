@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,11 @@ import ch.lambdaj.Lambda;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.beans.PropertyChangeListener;
-import java.util.*;
+import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -51,7 +55,7 @@ public class TaskManager implements DisposableBean {
     }
 
     private TaskManager() {
-        this.registry = Collections.synchronizedMap(new LinkedHashMap<String, TaskEntry>());
+        this.registry = new ConcurrentHashMap<String, TaskEntry>();
         this.executorService = Executors.newCachedThreadPool();
         this.scheduler = Executors.newScheduledThreadPool(5);
         this.scheduler.scheduleAtFixedRate(new Runnable() {
@@ -156,18 +160,18 @@ public class TaskManager implements DisposableBean {
     }
 
     private class TaskEntry {
-        private final Future<?> future;
+        private final SoftReference<Future<?>> future;
         private final TaskDescriptor descriptor;
-        private final Task<?> task;
+        private final SoftReference<Task<?>> task;
 
         private TaskEntry(Future<?> future, TaskDescriptor descriptor, Task<?> task) {
-            this.future = future;
+            this.future = new SoftReference<Future<?>>(future);
             this.descriptor = descriptor;
-            this.task = task;
+            this.task = new SoftReference<Task<?>>(task);
         }
 
         public Future<?> getFuture() {
-            return future;
+            return future.get();
         }
 
         public TaskDescriptor getDescriptor() {
@@ -175,7 +179,7 @@ public class TaskManager implements DisposableBean {
         }
 
         public Task<?> getTask() {
-            return task;
+            return task.get();
         }
     }
 

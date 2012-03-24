@@ -64,6 +64,7 @@ public class MockedFieldNode extends DefaultMutableTreeNode {
 
     @Override
     public String toString() {
+        if (root && isEmpty()) return getMessage("main.propertieseditor.tree.novalues.text");
         if (root) return getMessage("wizard.properties.editor.tab.hierarchical.rootnode");
         return nodePath[nodePath.length - 1];
     }

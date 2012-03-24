@@ -98,4 +98,5 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
             else in.add(elementObjectFactory.create(target, firstValue));
         }
     }
+
 }

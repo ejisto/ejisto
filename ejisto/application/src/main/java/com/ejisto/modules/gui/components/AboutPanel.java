@@ -20,12 +20,17 @@
 package com.ejisto.modules.gui.components;
 
 import com.ejisto.util.IOUtils;
+import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.hyperlink.LinkModel;
+import org.jdesktop.swingx.hyperlink.LinkModelAction;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import static com.ejisto.util.GuiUtils.getMessage;
 
@@ -37,9 +42,10 @@ import static com.ejisto.util.GuiUtils.getMessage;
  */
 public class AboutPanel extends JXPanel {
 
-    private JPanel credits;
     private JScrollPane license;
     private JTabbedPane container;
+    private Header header;
+    private JPanel credits;
 
     public AboutPanel() {
         super(new BorderLayout(0, 0));
@@ -47,9 +53,15 @@ public class AboutPanel extends JXPanel {
     }
 
     private void init() {
-        //add(getHeader(), BorderLayout.NORTH);
+        add(getHeader(), BorderLayout.NORTH);
         add(getContainer(), BorderLayout.CENTER);
         setBackground(Color.WHITE);
+    }
+
+    private Header getHeader() {
+        if (header != null) return header;
+        header = new Header(getMessage("about.title"), getMessage("about.description"), "about.icon");
+        return header;
     }
 
     private JTabbedPane getContainer() {
@@ -64,12 +76,62 @@ public class AboutPanel extends JXPanel {
 
     private JPanel getCredits() {
         if (credits != null) return credits;
-        credits = new JXPanel(new BorderLayout(5, 5));
-        credits.setName(getMessage("about.tab.credits"));
-        credits.add(new JXLabel(getMessage("about.credits"), JXLabel.LEFT), BorderLayout.CENTER);
+        credits = new JXPanel(new GridBagLayout());
+        credits.add(buildSpacerElement(), buildConstraints(0, 0, true));
+        credits.add(buildDescriptionLabel(getMessage("about.icon.title")), buildConstraints(0, 1, false));
+        credits.add(buildDescriptionLabel(getMessage("about.icon.credits.1")), buildConstraints(0, 2, false));
+        String link = getMessage("about.icon.credits.1.link");
+        credits.add(new JXHyperlink(new LinkModelAction<LinkModel>(new LinkModel(link, null, createUrl(link)))),
+                    buildConstraints(0, 3, false));
+        credits.add(buildSpacerElement(), buildConstraints(0, 4, true));
+        credits.add(buildDescriptionLabel(getMessage("about.icon.credits.2")), buildConstraints(0, 5, false));
+        String link2 = getMessage("about.icon.credits.2.link");
+        credits.add(new JXHyperlink(new LinkModelAction<LinkModel>(new LinkModel(link2, null, createUrl(link2)))),
+                    buildConstraints(0, 6, false));
+        credits.add(buildSpacerElement(), buildConstraints(0, 7, true));
+        credits.add(new JSeparator(), buildConstraints(0, 8, true));
+        credits.add(buildSpacerElement(), buildConstraints(0, 9, true));
+        credits.add(buildDescriptionLabel(getMessage("about.credits.apache")), buildConstraints(0, 10, false));
+        credits.add(buildSpacerElement(), buildConstraints(0, 11, true));
+        credits.add(new JSeparator(), buildConstraints(0, 12, true));
+        credits.add(buildSpacerElement(), buildConstraints(0, 13, true));
+        credits.add(buildDescriptionLabel(getMessage("about.credits.thanks")), buildConstraints(0, 14, false));
+        credits.add(buildSpacerElement(), buildConstraints(0, 15, true));
+        credits.setMinimumSize(new Dimension(400, 300));
         credits.setBackground(Color.WHITE);
+        credits.setName(getMessage("about.tab.credits"));
         return credits;
     }
+
+    private JLabel buildDescriptionLabel(String text) {
+        //JXLabel label = new JXLabel(text);
+        //label.setLineWrap(true);
+        return new JXLabel(text);
+    }
+
+    private JPanel buildSpacerElement() {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        return panel;
+    }
+
+    private URL createUrl(String text) {
+        try {
+            return new URL(text);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private GridBagConstraints buildConstraints(int x, int y, boolean fill) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = x;
+        gbc.gridy = y;
+        if (fill) gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.BASELINE_LEADING;
+        return gbc;
+    }
+
 
     private JScrollPane getLicense() {
         if (license != null) return license;

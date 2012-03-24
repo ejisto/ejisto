@@ -199,14 +199,13 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         if (this.editorSelectionPanel != null) return this.editorSelectionPanel;
         editorSelectionPanel = JXRadioGroup.create(createEditorTypeButtons());
         editorSelectionPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        editorSelectionPanel.setBackground(Color.WHITE);
         return editorSelectionPanel;
     }
 
-    private AbstractButton[] createEditorTypeButtons() {
+    private Component[] createEditorTypeButtons() {
         Collection<EditorType> supportedEditorTypes = fieldsEditorContext.getSupportedEditors();
-        if (supportedEditorTypes.size() < 2) return new AbstractButton[0];
-        AbstractButton[] buttons = new AbstractButton[supportedEditorTypes.size()];
+        if (supportedEditorTypes.size() < 2) return new Component[0];
+        Component[] buttons = new Component[supportedEditorTypes.size()];
         int index = 0;
         for (EditorType editorType : supportedEditorTypes) {
             buttons[index] = createButton(editorType, index == 0);
@@ -216,10 +215,12 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     }
 
     private AbstractButton createButton(EditorType option, boolean selected) {
-        JToggleButton button = new JToggleButton(option.getLabel(), selected);
-        button.setActionCommand(option.toString());
-        button.addItemListener(this);
-        return button;
+        JRadioButton radioButton = new JRadioButton(option.getLabel(), selected);
+        radioButton.setActionCommand(option.toString());
+        radioButton.addItemListener(this);
+        radioButton.setBackground(null);
+        radioButton.setFocusPainted(false);
+        return radioButton;
     }
 
     private JPanel getTreeEditor() {
