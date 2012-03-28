@@ -82,6 +82,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
         registerObjectFactory("com.ejisto.modules.factory.impl.DefaultObjectFactory", DEFAULT, false);
         registerObjectFactory("com.ejisto.modules.factory.impl.CollectionFactory", "java.util.Collection", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.MapFactory", "java.util.Map", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.DateFactory", "java.util.Date", false);
 
         //populating primitive types map
         primitives.put("int", "java.lang.Integer");

@@ -81,10 +81,6 @@ public class IOUtils {
         FileUtils.writeByteArrayToFile(out, org.apache.commons.io.IOUtils.toByteArray(inputStream));
     }
 
-    public static void writeFile(byte[] content, String filename) throws IOException {
-        FileUtils.writeByteArrayToFile(new File(filename), content);
-    }
-
     public static byte[] readFile(File file) throws IOException {
         return FileUtils.readFileToByteArray(file);
     }
@@ -167,7 +163,8 @@ public class IOUtils {
     }
 
     public static Collection<String> findAllClassNamesInDirectory(File directory) {
-        List<String> pathNames = extractProperty(select(getAllFiles(directory, classExtension), having(on(File.class).isDirectory(), equalTo(false))),
+        List<String> pathNames = extractProperty(
+                select(getAllFiles(directory, classExtension), having(on(File.class).isDirectory(), equalTo(false))),
                 "path");
         HashSet<String> ret = new HashSet<String>();
         int index = directory.getAbsolutePath().length();
@@ -248,7 +245,8 @@ public class IOUtils {
     }
 
     public static String guessWebApplicationUri(String contextPath) {
-        return new StringBuilder("http://localhost:").append(SettingsRepository.getInstance().getSettingValue(DEFAULT_SERVER_PORT)).append(
+        return new StringBuilder("http://localhost:").append(
+                SettingsRepository.getInstance().getSettingValue(DEFAULT_SERVER_PORT)).append(
                 contextPath).append("/").toString();
     }
 

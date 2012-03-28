@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ public class SummaryTab extends JXPanel {
 
     public void renderMockedFields(Collection<MockedField> fields) {
         String classname = null;
-        StringBuffer buffer = new StringBuffer("<html>");
+        StringBuilder buffer = new StringBuilder("<html>");
         for (MockedField mockedField : fields) {
             if (classname == null || !classname.equals(mockedField.getClassName())) {
                 buffer.append(String.format(classname == null ? CLASS_START : NEXT_CLASS, mockedField.getClassName()));
@@ -80,7 +80,7 @@ public class SummaryTab extends JXPanel {
         getSummaryTextArea().setText(buffer.toString());
     }
 
-    private void renderMockedField(MockedField field, StringBuffer buffer) {
+    private void renderMockedField(MockedField field, StringBuilder buffer) {
         buffer.append(String.format(MOCKED_FIELD_TEMPLATE, field.getFieldName(),
                                     field.isSimpleValue() ? field.getFieldValue() : "**expression**"));
     }

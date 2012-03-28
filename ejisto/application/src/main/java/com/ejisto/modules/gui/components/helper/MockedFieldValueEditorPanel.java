@@ -23,8 +23,6 @@ import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.modules.validation.NumberValidator;
 import com.ejisto.util.GuiUtils;
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
 import org.jdesktop.swingx.JXCollapsiblePane;
 import org.jdesktop.swingx.JXLabel;
 
@@ -159,10 +157,10 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
      */
     private void $$$setupUI$$$() {
         createUIComponents();
-        editor.setLayout(new FormLayout(
+        editor.setLayout(new com.jgoodies.forms.layout.FormLayout(
                 "fill:max(d;4px):grow,left:4dlu:noGrow,fill:max(p;60px):grow,left:4dlu:noGrow,fill:216px:noGrow,left:9px:grow,fill:max(d;4px):noGrow",
                 "center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:5dlu:noGrow,center:max(m;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
-        CellConstraints cc = new CellConstraints();
+        com.jgoodies.forms.layout.CellConstraints cc = new com.jgoodies.forms.layout.CellConstraints();
         editor.add(type, cc.xy(3, 3));
         editor.add(genericType, cc.xy(5, 3));
         buttonsPanel = new JPanel();
@@ -171,8 +169,8 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
         buttonsPanel.add(ok);
         buttonsPanel.add(cancel);
         editor.add(size, cc.xy(3, 5));
-        editor.add(collectionSize, cc.xy(5, 5, CellConstraints.FILL, CellConstraints.DEFAULT));
-        type.setLabelFor(genericType);
+        editor.add(collectionSize, cc.xy(5, 5, com.jgoodies.forms.layout.CellConstraints.FILL,
+                                         com.jgoodies.forms.layout.CellConstraints.DEFAULT));
     }
 
     /**

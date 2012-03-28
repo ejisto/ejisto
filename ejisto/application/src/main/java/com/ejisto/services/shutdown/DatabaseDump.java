@@ -28,16 +28,20 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import static ch.lambdaj.Lambda.*;
-import static com.ejisto.util.IOUtils.writeFile;
 
 @Log4j
 public class DatabaseDump extends BaseShutdownService {
 
-    private static final String NEWLINE = "\n";
+    private static final char NEWLINE = '\n';
 
     @Resource private MockedFieldsDao mockedFieldsDao;
     @Resource private SettingsDao settingsDao;
@@ -50,51 +54,57 @@ public class DatabaseDump extends BaseShutdownService {
     @Override
     public void execute() {
         try {
+            File out = new File(System.getProperty(StringConstants.DB_SCRIPT.getValue()));
+            GZIPOutputStream file = new GZIPOutputStream(new FileOutputStream(out));
             settingsManager.flush();
-            StringBuilder file = new StringBuilder();
             dumpSettings(file);
             dumpMockedFields(file);
             dumpDescriptors(file);
             dumpDataSources(file);
             dumpContainers(file);
-            writeFile(file.toString().getBytes(), System.getProperty(StringConstants.DB_SCRIPT.getValue()));
+            file.finish();
+            file.flush();
+            file.close();
         } catch (Exception e) {
             log.error("error during db dump", e);
         }
     }
 
-    private void dumpSettings(StringBuilder file) {
+    private void dumpSettings(OutputStream file) throws IOException {
         Collection<Setting> settings = settingsDao.loadAll();
         append(file, convert(settings, new SettingDumpConverter()));
     }
 
-    private void dumpMockedFields(StringBuilder file) {
+    private void dumpMockedFields(OutputStream file) throws IOException {
         Collection<MockedField> mockedFields = mockedFieldsDao.loadAll();
         append(file, convert(mockedFields, new MockedFieldDumpConverter()));
     }
 
-    private void dumpContainers(StringBuilder file) {
+    private void dumpContainers(OutputStream file) throws IOException {
         Collection<Container> containers = containersDao.loadAll();
         append(file, convert(containers, new ContainerDumpConverter()));
     }
 
-    private void dumpDescriptors(StringBuilder file) {
+    private void dumpDescriptors(OutputStream file) throws IOException {
         List<WebApplicationDescriptor> descriptors = webApplicationDescriptorDao.loadAll();
         append(file, convert(descriptors, new DescriptorDumpConverter()));
         append(file, convert(collect(forEach(descriptors, WebApplicationDescriptor.class).getElements()),
                              new DescriptorElementDumpConverter()));
     }
 
-    private void dumpDataSources(StringBuilder file) {
+    private void dumpDataSources(OutputStream file) throws IOException {
         List<JndiDataSource> dataSources = jndiDataSourcesDao.loadAll();
         append(file, convert(dataSources, new JndiDataSourceDumpConverter()));
     }
 
-    private void append(StringBuilder file, String text) {
-        if (StringUtils.hasText(text.trim())) file.append(text).append(NEWLINE);
+    private void append(OutputStream file, String text) throws IOException {
+        if (StringUtils.hasText(text)) {
+            file.write(text.getBytes());
+            file.write(NEWLINE);
+        }
     }
 
-    private void append(StringBuilder file, List<String> rows) {
+    private void append(OutputStream file, List<String> rows) throws IOException {
         for (String s : rows) {
             append(file, s);
         }

@@ -59,7 +59,7 @@ public class ResourcesInitializer extends BaseStartupService {
     private void initDirectories(File baseDir) {
         File containersDir = new File(baseDir, "containers");
         File data = new File(baseDir, "data");
-        File dbScript = new File(data, "ejisto.sql");
+        File dbScript = new File(data, "db.ej");
         File libDir = new File(baseDir, "lib");
         File libExtDir = new File(libDir, "ext");
         File deployables = new File(baseDir, "deployables");

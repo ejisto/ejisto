@@ -31,11 +31,14 @@ import org.springframework.jdbc.datasource.AbstractDataSource;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.zip.GZIPInputStream;
 
 import static com.ejisto.constants.StringConstants.DATABASE_PORT;
 import static com.ejisto.util.IOUtils.findFirstAvailablePort;
@@ -55,7 +58,7 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
         ResourceLoader loader = new DefaultResourceLoader() {
             @Override
             protected Resource getResourceByPath(String path) {
-                return new FileSystemResource(path);
+                return new GZipResource(path);
             }
         };
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
@@ -111,6 +114,17 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
         return driverDataSource.getConnection();
+    }
+
+    private static final class GZipResource extends FileSystemResource {
+        public GZipResource(String path) {
+            super(path);
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return new GZIPInputStream(super.getInputStream());
+        }
     }
 
 }

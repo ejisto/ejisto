@@ -34,7 +34,7 @@ import static ch.lambdaj.Lambda.forEach;
  * Time: 7:05 PM
  */
 public class WebApplicationRepository {
-    private ConcurrentMap<String, Map<String, WebApplication<?>>> webApplications;
+    private final ConcurrentMap<String, Map<String, WebApplication<?>>> webApplications;
 
     public WebApplicationRepository() {
         webApplications = new ConcurrentHashMap<String, Map<String, WebApplication<?>>>();
@@ -55,13 +55,11 @@ public class WebApplicationRepository {
     }
 
     public void containerShutdown(String containerId) {
-        webApplications.remove(containerId);
+        changeWebApplicationsStatus(containerId, WebApplication.Status.STOPPED);
     }
 
     public void containerStartup(String containerId) {
-        if (!webApplications.containsKey(containerId)) return;
-        Collection<WebApplication<?>> containerApplications = webApplications.get(containerId).values();
-        forEach(containerApplications).setStatus(WebApplication.Status.STARTED);
+        changeWebApplicationsStatus(containerId, WebApplication.Status.STARTED);
     }
 
     public Map<String, List<WebApplication<?>>> getInstalledWebApplications() {
@@ -72,5 +70,12 @@ public class WebApplicationRepository {
             applications.put(serverId, serverApplications);
         }
         return applications;
+    }
+
+    private void changeWebApplicationsStatus(String containerId, WebApplication.Status status) {
+        Map<String, WebApplication<?>> map = webApplications.get(containerId);
+        if (map == null) return;
+        Collection<WebApplication<?>> containerApplications = map.values();
+        forEach(containerApplications).setStatus(status);
     }
 }
