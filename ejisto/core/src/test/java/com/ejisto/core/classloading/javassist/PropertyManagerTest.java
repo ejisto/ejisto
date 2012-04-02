@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.annotation.ElementType;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import static org.junit.Assert.*;
 
@@ -51,7 +52,7 @@ public class PropertyManagerTest {
     public static void init() throws Exception {
         File f = File.createTempFile("ejisto-script", ".tmp");
         f.deleteOnExit();
-        FileOutputStream stream = new FileOutputStream(f);
+        GZIPOutputStream stream = new GZIPOutputStream(new FileOutputStream(f));
         stream.write(sql.getBytes());
         stream.flush();
         stream.close();
