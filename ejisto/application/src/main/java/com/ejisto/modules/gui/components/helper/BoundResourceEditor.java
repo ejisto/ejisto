@@ -24,6 +24,8 @@ import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.modules.dao.entities.JndiDataSource;
 import com.ejisto.modules.gui.components.JndiResourcesEditor;
 import com.ejisto.modules.validation.NumberValidator;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXTitledSeparator;
 import org.springframework.util.CollectionUtils;
@@ -215,10 +217,10 @@ public class BoundResourceEditor {
     private void $$$setupUI$$$() {
         createUIComponents();
         boundResourceEditor = new JPanel();
-        boundResourceEditor.setLayout(new com.jgoodies.forms.layout.FormLayout(
+        boundResourceEditor.setLayout(new FormLayout(
                 "fill:max(d;4px):noGrow,left:100px:noGrow,left:3dlu:noGrow,left:70px:noGrow,left:3dlu:noGrow,fill:60px:noGrow,left:72px:noGrow",
                 "center:d:noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow,top:4dlu:noGrow,center:max(d;4px):noGrow"));
-        com.jgoodies.forms.layout.CellConstraints cc = new com.jgoodies.forms.layout.CellConstraints();
+        CellConstraints cc = new CellConstraints();
         boundResourceEditor.add(nameLabel, cc.xy(2, 1));
         resourceName = new JLabel();
         resourceName.setText("Label");
@@ -229,30 +231,22 @@ public class BoundResourceEditor {
         boundResourceEditor.add(resourceType, cc.xyw(4, 3, 4));
         boundResourceEditor.add(connectionTitle, cc.xyw(2, 5, 6));
         boundResourceEditor.add(jarPathLabel, cc.xy(2, 7));
-        boundResourceEditor.add(driverJarPath, cc.xyw(4, 7, 4, com.jgoodies.forms.layout.CellConstraints.FILL,
-                                                      com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+        boundResourceEditor.add(driverJarPath, cc.xyw(4, 7, 4, CellConstraints.FILL, CellConstraints.DEFAULT));
         boundResourceEditor.add(classNameLabel, cc.xy(2, 9));
-        boundResourceEditor.add(driverClassName, cc.xyw(4, 9, 4, com.jgoodies.forms.layout.CellConstraints.FILL,
-                                                        com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+        boundResourceEditor.add(driverClassName, cc.xyw(4, 9, 4, CellConstraints.FILL, CellConstraints.DEFAULT));
         boundResourceEditor.add(urlLabel, cc.xy(2, 11));
-        boundResourceEditor.add(url, cc.xyw(4, 11, 4, com.jgoodies.forms.layout.CellConstraints.FILL,
-                                            com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+        boundResourceEditor.add(url, cc.xyw(4, 11, 4, CellConstraints.FILL, CellConstraints.DEFAULT));
         boundResourceEditor.add(usernameLabel, cc.xy(2, 13));
-        boundResourceEditor.add(username, cc.xy(4, 13, com.jgoodies.forms.layout.CellConstraints.FILL,
-                                                com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+        boundResourceEditor.add(username, cc.xy(4, 13, CellConstraints.FILL, CellConstraints.DEFAULT));
         boundResourceEditor.add(passwordLabel, cc.xy(6, 13));
-        boundResourceEditor.add(password, cc.xy(7, 13, com.jgoodies.forms.layout.CellConstraints.FILL,
-                                                com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+        boundResourceEditor.add(password, cc.xy(7, 13, CellConstraints.FILL, CellConstraints.DEFAULT));
         boundResourceEditor.add(poolTitle, cc.xyw(2, 15, 6));
         boundResourceEditor.add(maxActiveLabel, cc.xy(2, 17));
-        boundResourceEditor.add(maxActive, cc.xy(4, 17, com.jgoodies.forms.layout.CellConstraints.FILL,
-                                                 com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+        boundResourceEditor.add(maxActive, cc.xy(4, 17, CellConstraints.FILL, CellConstraints.DEFAULT));
         boundResourceEditor.add(maxIdleLabel, cc.xy(6, 17));
-        boundResourceEditor.add(maxIdle, cc.xy(7, 17, com.jgoodies.forms.layout.CellConstraints.FILL,
-                                               com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+        boundResourceEditor.add(maxIdle, cc.xy(7, 17, CellConstraints.FILL, CellConstraints.DEFAULT));
         boundResourceEditor.add(maxWaitLabel, cc.xy(2, 19));
-        boundResourceEditor.add(maxWait, cc.xy(4, 19, com.jgoodies.forms.layout.CellConstraints.FILL,
-                                               com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+        boundResourceEditor.add(maxWait, cc.xy(4, 19, CellConstraints.FILL, CellConstraints.DEFAULT));
     }
 
     /**
