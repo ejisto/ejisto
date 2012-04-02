@@ -31,7 +31,7 @@ public class Main {
         if (!baseDir.exists() && !baseDir.mkdir()) {
             JOptionPane.showConfirmDialog(null,
                                           "Ejisto doesn't have permissions to create its home directory. Please check system configuration.",
-                                          "error", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+                                          "error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
             throw new RuntimeException("Cannot create home dir. Exiting.");
         }
         System.setProperty("ejisto.home", baseDir.getAbsolutePath());

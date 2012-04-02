@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.lang.annotation.ElementType;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
@@ -50,6 +51,8 @@ public class PropertyManagerTest {
 
     @BeforeClass
     public static void init() throws Exception {
+        System.setProperty("derby.stream.error.field",
+                           "com.ejisto.core.classloading.javassist.PropertyManagerTest.DEV_NULL");
         File f = File.createTempFile("ejisto-script", ".tmp");
         f.deleteOnExit();
         GZIPOutputStream stream = new GZIPOutputStream(new FileOutputStream(f));
@@ -190,4 +193,8 @@ public class PropertyManagerTest {
             return "";
         }
     }
+
+    public static final OutputStream DEV_NULL = new OutputStream() {
+        public void write(int b) { }
+    };
 }
