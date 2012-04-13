@@ -25,13 +25,11 @@ import com.ejisto.modules.executor.Task;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.beans.PropertyChangeEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static javax.swing.SwingWorker.StateValue.DONE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,18 +39,19 @@ import static org.junit.Assert.fail;
  */
 public class AbstractStepControllerTest {
     ApplicationScanningController applicationScanningController;
+    CyclicBarrier threadSynchronizer;
+    private static final int TASKS = 10;
 
     @Before
-    public void init() {
+    public void init() throws InvocationTargetException, InterruptedException {
+        threadSynchronizer = new CyclicBarrier(TASKS + 1);
         applicationScanningController = new ApplicationScanningController(null, null) {
             @Override
             protected Task<?> createNewTask() {
                 return new GuiTask<Object>(new Callable<Object>() {
                     @Override
                     public Object call() throws Exception {
-                        Thread.sleep(1000L);
-                        applicationScanningController.propertyChange(
-                                new PropertyChangeEvent(this, "state", null, DONE));
+                        threadSynchronizer.await();
                         return null;
                     }
                 }, "test");
@@ -61,11 +60,10 @@ public class AbstractStepControllerTest {
     }
 
     @Test
-    public void testExecutionCompleted() {
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        final CyclicBarrier barrier = new CyclicBarrier(101);
+    public void testExecutionCompleted() throws InterruptedException, BrokenBarrierException {
+        final ExecutorService executorService = Executors.newFixedThreadPool(TASKS);
         final AtomicInteger counter = new AtomicInteger();
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < TASKS; i++)
             executorService.submit(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
@@ -74,17 +72,11 @@ public class AbstractStepControllerTest {
                     } catch (Exception ex) {
                         counter.incrementAndGet();
                     }
-                    barrier.await();
+                    threadSynchronizer.await();
                     return null;
                 }
             });
-        try {
-            barrier.await(1500, TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
-            fail(e.toString());
-        }
-
-        assertEquals(99, counter.get());
-
+        threadSynchronizer.await();
+        assertEquals(TASKS - 1, counter.get());
     }
 }
