@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentMap;
  * Date: Dec 5, 2010
  * Time: 12:19:16 PM
  */
-public class ClassPoolRepository {
+public final class ClassPoolRepository {
     private static final ClassPoolRepository INSTANCE = new ClassPoolRepository();
     private final ConcurrentMap<String, ClassPool> dictionary;
 
@@ -44,11 +44,6 @@ public class ClassPoolRepository {
 
     private ClassPoolRepository() {
         dictionary = new ConcurrentHashMap<String, ClassPool>();
-    }
-
-    private void putValue(String context, ClassPool cp) {
-        if (dictionary.putIfAbsent(context, cp) != null)
-            throw new IllegalArgumentException("ClassPool for context " + context + " already defined");
     }
 
     private ClassPool getValue(String context) {

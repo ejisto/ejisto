@@ -89,7 +89,9 @@ public class MockedFieldNode extends DefaultMutableTreeNode {
 
     @Override
     public void add(MutableTreeNode newChild) {
-        Assert.isInstanceOf(MockedFieldNode.class, newChild);
+        if (!(newChild instanceof MockedFieldNode)) {
+            throw new IllegalArgumentException();
+        }
         MockedFieldNode node = (MockedFieldNode) newChild;
         Assert.state(!containsChild(node));
         Assert.isTrue(isParentOf(node), "This node allows only leaf or direct subpackages.");
@@ -124,11 +126,11 @@ public class MockedFieldNode extends DefaultMutableTreeNode {
     }
 
     public String[] getNodePath() {
-        return nodePath;
+        return nodePath.clone();
     }
 
     public void setNodePath(String[] nodePath) {
-        this.nodePath = nodePath;
+        this.nodePath = nodePath.clone();
     }
 
     private String getPathFor(MockedFieldNode node) {

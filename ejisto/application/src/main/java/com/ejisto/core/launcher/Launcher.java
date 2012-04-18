@@ -56,7 +56,7 @@ public class Launcher {
             log.info("starting application... enjoy ejisto!!");
             controller.startup();
             return 0;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             JXErrorPane.showDialog(null,
                                    new ErrorInfo("Startup error", "Startup failed", null, "SEVERE", getRootThrowable(e),
                                                  Level.SEVERE,

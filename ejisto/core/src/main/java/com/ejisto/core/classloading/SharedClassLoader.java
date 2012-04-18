@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 @Log4j
-public class SharedClassLoader extends URLClassLoader {
+public final class SharedClassLoader extends URLClassLoader {
 
     private static final SharedClassLoader INSTANCE = new SharedClassLoader();
 

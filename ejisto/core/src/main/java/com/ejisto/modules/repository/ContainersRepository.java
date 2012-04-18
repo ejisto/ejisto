@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ import java.util.List;
  * Date: 3/6/11
  * Time: 8:42 AM
  */
-public class ContainersRepository {
+public final class ContainersRepository {
     private static final ContainersRepository INSTANCE = new ContainersRepository();
     private static final String DEFAULT_ID = "__DEFAULT__";
     @Resource private ContainersDao containersDao;

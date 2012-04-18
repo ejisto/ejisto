@@ -43,7 +43,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * Date: 4/2/11
  * Time: 6:48 PM
  */
-public class TaskManager implements DisposableBean {
+public final class TaskManager implements DisposableBean {
     private static final TaskManager INSTANCE = new TaskManager();
     private ExecutorService executorService;
     private ScheduledExecutorService scheduler;
@@ -159,7 +159,7 @@ public class TaskManager implements DisposableBean {
         shutdownExecutorService(this.scheduler);
     }
 
-    private class TaskEntry {
+    private final class TaskEntry {
         private final SoftReference<Future<?>> future;
         private final TaskDescriptor descriptor;
         private final SoftReference<Task<?>> task;

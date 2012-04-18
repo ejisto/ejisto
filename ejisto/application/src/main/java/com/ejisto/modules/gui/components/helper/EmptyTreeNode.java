@@ -17,23 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto;
+package com.ejisto.modules.gui.components.helper;
 
-import java.lang.instrument.Instrumentation;
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 4/17/12
+ * Time: 8:17 AM
+ */
+public final class EmptyTreeNode extends MockedFieldNode {
+    private static final long serialVersionUID = 1L;
 
-public final class InstrumentationHolder {
-
-    private static Instrumentation instrumentation;
-
-    private InstrumentationHolder() {
+    public EmptyTreeNode() {
+        super(true);
     }
-
-    public static void premain(String agentArgs, Instrumentation inst) {
-        instrumentation = inst;
-    }
-
-    public static Instrumentation getInstrumentation() {
-        return instrumentation;
-    }
-
 }

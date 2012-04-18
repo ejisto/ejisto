@@ -125,7 +125,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
             CtClass clazz = cp.get(className);
             fillMockedFields(clazz, descriptor, loader);
             clazz.detach();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             addErrorDescriptor(buildErrorDescriptor(e));
         }
     }

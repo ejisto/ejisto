@@ -23,6 +23,7 @@ import com.ejisto.constants.StringConstants;
 import lombok.extern.log4j.Log4j;
 import org.apache.derby.drda.NetworkServerControl;
 import org.apache.derby.jdbc.ClientDriver;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -38,23 +39,26 @@ import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.zip.GZIPInputStream;
 
-import static com.ejisto.constants.StringConstants.DATABASE_PORT;
+import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.IOUtils.findFirstAvailablePort;
 import static java.lang.String.format;
 
 @Log4j
-public class EmbeddedDatabaseManager extends AbstractDataSource {
+public class EmbeddedDatabaseManager extends AbstractDataSource implements InitializingBean {
 
     private SimpleDriverDataSource driverDataSource;
     private NetworkServerControl serverControl;
     private boolean started;
+    @javax.annotation.Resource(name = "settings") private Properties settings;
+    private DatabaseConfiguration databaseConfiguration;
 
     public void initDb() throws Exception {
-        int port = findFirstAvailablePort(5555);
-        System.setProperty(DATABASE_PORT.getValue(), String.valueOf(port));
-        serverControl = new NetworkServerControl(InetAddress.getByName("localhost"), port, "ejisto", "ejisto");
+        System.setProperty(DATABASE_PORT.getValue(), String.valueOf(databaseConfiguration.port));
+        serverControl = new NetworkServerControl(InetAddress.getByName("localhost"), databaseConfiguration.port,
+                                                 databaseConfiguration.user, databaseConfiguration.password);
         ResourceLoader loader = new DefaultResourceLoader() {
             @Override
             protected Resource getResourceByPath(String path) {
@@ -68,16 +72,13 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
         serverControl.start(new PrintWriter(System.out));
         checkServerStartup();
         started = true;
-        initDatabase(port);
+        initDatabase();
         driverDataSource = new SimpleDriverDataSource(new ClientDriver(),
-                                                      format("jdbc:derby://localhost:%s/memory:ejisto", port),
-                                                      "ejisto", "ejisto");
+                                                      databaseConfiguration.url,
+                                                      databaseConfiguration.user,
+                                                      databaseConfiguration.password);
         populator.populate(getConnection());
         log.info("done");
-    }
-
-    public boolean isStarted() {
-        return started;
     }
 
     private void checkServerStartup() throws Exception {
@@ -98,11 +99,11 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
         serverControl.ping();
     }
 
-    private void initDatabase(int port) throws Exception {
+    private void initDatabase() throws Exception {
         DriverManager.registerDriver(new ClientDriver());
-        Connection con = DriverManager.getConnection(
-                format("jdbc:derby://localhost:%s/memory:ejisto;create=true", port), "ejisto",
-                "ejisto");
+        Connection con = DriverManager.getConnection(databaseConfiguration.url + ";create=true",
+                                                     databaseConfiguration.user,
+                                                     databaseConfiguration.password);
         con.close();
     }
 
@@ -116,6 +117,18 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
         return driverDataSource.getConnection();
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        int port = findFirstAvailablePort(5555);
+        this.databaseConfiguration = new DatabaseConfiguration(format("jdbc:derby://localhost:%s/memory:ejisto", port),
+                                                               settings.getProperty(DATABASE_USER.getValue()),
+                                                               settings.getProperty(DATABASE_PWD.getValue()), port);
+    }
+
+    public void setSettings(Properties settings) {
+        this.settings = settings;
+    }
+
     private static final class GZipResource extends FileSystemResource {
         public GZipResource(String path) {
             super(path);
@@ -124,6 +137,20 @@ public class EmbeddedDatabaseManager extends AbstractDataSource {
         @Override
         public InputStream getInputStream() throws IOException {
             return new GZIPInputStream(super.getInputStream());
+        }
+    }
+
+    private static final class DatabaseConfiguration {
+        final String url;
+        final String user;
+        final String password;
+        final int port;
+
+        public DatabaseConfiguration(String url, String user, String password, int port) {
+            this.url = url;
+            this.user = user;
+            this.password = password;
+            this.port = port;
         }
     }
 

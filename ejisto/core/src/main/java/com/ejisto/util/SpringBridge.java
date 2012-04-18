@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
-public class SpringBridge implements ApplicationContextAware {
+public final class SpringBridge implements ApplicationContextAware {
     private static SpringBridge instance = new SpringBridge();
     private ApplicationContext applicationContext;
     @Resource private MessageSource messageSource;

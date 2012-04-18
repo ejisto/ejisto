@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.lang.annotation.ElementType;
 import java.util.List;
+import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
 import static org.junit.Assert.*;
@@ -59,8 +60,15 @@ public class PropertyManagerTest {
         stream.write(sql.getBytes());
         stream.flush();
         stream.close();
+        Properties props = new Properties();
+        props.setProperty(StringConstants.DATABASE_USER.getValue(), "ejisto");
+        props.setProperty(StringConstants.DATABASE_PWD.getValue(), "ejisto");
+        props.setProperty(StringConstants.DATABASE_PORT.getValue(), "5555");
+
         System.setProperty(StringConstants.DB_SCRIPT.getValue(), f.getAbsolutePath());
         EmbeddedDatabaseManager dataSource = new EmbeddedDatabaseManager();
+        dataSource.setSettings(props);
+        dataSource.afterPropertiesSet();
         dataSource.initDb();
         DataSourceHolder.setDataSource(dataSource);
     }

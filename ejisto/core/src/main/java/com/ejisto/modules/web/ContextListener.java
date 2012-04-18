@@ -28,6 +28,7 @@ import javassist.LoaderClassPath;
 import org.apache.derby.jdbc.ClientDriver;
 import org.apache.log4j.*;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -76,7 +77,7 @@ public class ContextListener implements ServletContextListener {
     private void initDataSource() {
         int port = 5555;
         String portNumberProperty = System.getProperty("ejisto.database.port");
-        if (portNumberProperty != null && !portNumberProperty.isEmpty())
+        if (StringUtils.hasText(portNumberProperty))
             port = Integer.parseInt(portNumberProperty);
         DataSourceHolder.setDataSource(
                 new SimpleDriverDataSource(driver, format("jdbc:derby://localhost:%s/memory:ejisto", port), "ejisto",

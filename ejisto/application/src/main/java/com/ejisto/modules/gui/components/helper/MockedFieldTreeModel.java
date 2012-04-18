@@ -23,7 +23,6 @@ import com.ejisto.modules.dao.entities.MockedField;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,7 +37,6 @@ import java.util.TreeMap;
  */
 public class MockedFieldTreeModel extends DefaultTreeModel {
 
-    private static final TreeNode ROOT = new DefaultMutableTreeNode("root");
     private final Map<String, TreePath> treePathsCache;
 
     public MockedFieldTreeModel() {
@@ -46,24 +44,6 @@ public class MockedFieldTreeModel extends DefaultTreeModel {
         treePathsCache = new TreeMap<String, TreePath>();
     }
 
-    public void addField(MockedField field) {
-        String comparisonKey = field.getComparisonKey();
-        TreePath path = treePathsCache.get(comparisonKey);
-        if (path == null) {
-            path = new TreePath(comparisonKey);
-            treePathsCache.put(comparisonKey, path);
-        }
-        DefaultMutableTreeNode node = new MockedFieldNode(field);
-
-    }
-
-    /*
-        private MockedFieldNode getAncestorOf(MockedFieldNode newNode) {
-            for (MockedFieldNode node : getRoot().getChildren()) {
-
-            }
-        }
-    */
     @Override
     public MockedFieldNode getChild(Object parent, int index) {
         return (MockedFieldNode) super.getChild(parent, index);

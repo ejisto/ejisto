@@ -104,6 +104,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         };
 
         String uuid = TaskManager.getInstance().addNewTask(createNewGuiTask(action, "download server", this));
+        log.debug(String.format("Created download task with uuid %s", uuid));
     }
 
     private void notifyToPanel(final ContainerInstallationPanel panel, final String message) {

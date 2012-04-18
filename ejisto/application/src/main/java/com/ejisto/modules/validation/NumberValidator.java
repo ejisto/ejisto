@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,9 @@ public class NumberValidator extends InputVerifier {
 
     @Override
     public boolean verify(JComponent input) {
+        if (!(input instanceof JFormattedTextField)) {
+            return true;
+        }
         JFormattedTextField field = (JFormattedTextField) input;
         boolean valid;
         try {
@@ -59,7 +62,8 @@ public class NumberValidator extends InputVerifier {
             case UNSIGNED_INTEGER:
                 return Integer.parseInt(text) >= 0;
             case SIGNED_INTEGER:
-                return Integer.decode(text) != null;
+                Integer.parseInt(text);
+                return true;
         }
         if (validationType == ValidationType.DOUBLE) {
             return new Double(text).compareTo(0.0D) >= 0;

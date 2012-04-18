@@ -22,11 +22,9 @@ package com.ejisto.modules.gui;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.event.def.ContainerInstalled;
 import com.ejisto.event.def.StatusBarMessage;
-import com.ejisto.modules.controller.TaskController;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.gui.components.ContainerTab;
 import com.ejisto.modules.gui.components.MainPanel;
-import com.ejisto.modules.gui.components.TaskView;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXRootPane;
@@ -42,7 +40,7 @@ import static com.ejisto.util.GuiUtils.*;
 
 public class MainRootPane extends JXRootPane {
     private static final long serialVersionUID = -3265545519465961578L;
-    private TaskController taskController;
+    //    private TaskController taskController;
     private JMenu containersMenu;
     private JXLabel statusLog;
     private JTabbedPane containersTabPane;
@@ -157,10 +155,10 @@ public class MainRootPane extends JXRootPane {
         root.add(menu);
     }
 
-    private TaskView initTaskView() {
-        if (this.taskController == null) this.taskController = new TaskController();
-        return taskController.getView();
-    }
+//    private TaskView initTaskView() {
+//        if (this.taskController == null) this.taskController = new TaskController();
+//        return taskController.getView();
+//    }
 
     void logStatusMessage(String message, boolean error) {
         getStatusLog().setForeground(error ? Color.RED : Color.BLACK);

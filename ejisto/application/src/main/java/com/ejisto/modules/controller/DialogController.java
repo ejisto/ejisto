@@ -36,22 +36,22 @@ import static org.springframework.util.StringUtils.hasText;
  * Date: 3/6/11
  * Time: 2:55 PM
  */
-public class DialogController {
+public final class DialogController {
 
     private final JDialog dialog;
     private final JPanel view;
     private Lock lock = new ReentrantLock();
 
 
-    /**
-     * Constructs a new DialogController using a {@link JDialog} as container.
-     *
-     * @param parent opener Frame
-     * @param view   target JPanel
-     */
-    private DialogController(Frame parent, JPanel view) {
-        this(new JDialog(parent), view);
-    }
+//    /**
+//     * Constructs a new DialogController using a {@link JDialog} as container.
+//     *
+//     * @param parent opener Frame
+//     * @param view   target JPanel
+//     */
+//    private DialogController(Frame parent, JPanel view) {
+//        this(new JDialog(parent), view);
+//    }
 
 
     /**

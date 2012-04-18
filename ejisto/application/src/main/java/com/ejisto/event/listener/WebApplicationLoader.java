@@ -197,11 +197,6 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             log.info("stopped webapp " + contextPath);
     }
 
-    private void modifyActionState(String contextPath, boolean start) {
-        getAction(new StringBuilder(START_CONTEXT_PREFIX.getValue()).append(contextPath).toString()).setEnabled(!start);
-        getAction(new StringBuilder(STOP_CONTEXT_PREFIX.getValue()).append(contextPath).toString()).setEnabled(start);
-    }
-
     private void saveWebAppDescriptor(WebApplicationDescriptor webApplicationDescriptor) {
         try {
             webApplicationDescriptorDao.insert(webApplicationDescriptor);

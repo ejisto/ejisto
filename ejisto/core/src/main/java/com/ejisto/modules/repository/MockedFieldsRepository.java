@@ -39,8 +39,8 @@ import static org.hamcrest.Matchers.equalTo;
  * Date: Dec 3, 2010
  * Time: 7:51 PM
  */
-public class MockedFieldsRepository extends ExternalizableService<MockedFieldsDao> {
-    private static MockedFieldsRepository INSTANCE = new MockedFieldsRepository();
+public final class MockedFieldsRepository extends ExternalizableService<MockedFieldsDao> {
+    private static final MockedFieldsRepository INSTANCE = new MockedFieldsRepository();
 
     @Resource
     private MockedFieldsDao mockedFieldsDao;

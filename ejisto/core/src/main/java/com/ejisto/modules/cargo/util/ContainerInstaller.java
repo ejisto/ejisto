@@ -29,11 +29,10 @@ import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.ejisto.util.IOUtils.closeResources;
 import static com.ejisto.util.IOUtils.copyFile;
 import static java.lang.String.format;
 
@@ -63,6 +62,8 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
     }
 
     private void downloadFromNetwork() {
+        BufferedInputStream bis = null;
+        FileOutputStream out = null;
         try {
             log.debug(format("trying to download from %s", url.toString()));
             URLConnection connection = url.openConnection();
@@ -71,9 +72,8 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
             connection.setReadTimeout(10000);
             connection.connect();
             int total = connection.getContentLength();
-            BufferedInputStream bis = new BufferedInputStream(connection.getInputStream());
-            FileOutputStream out = new FileOutputStream(getDestinationFile());
-            FileChannel ch = out.getChannel();
+            bis = new BufferedInputStream(connection.getInputStream());
+            out = new FileOutputStream(getDestinationFile());
             byte[] buffer = new byte[512000];
             int read;
             int totalRead = 0;
@@ -81,17 +81,17 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
             while ((read = bis.read(buffer)) != -1) {
                 totalRead += read;
                 log.trace("read " + totalRead + " of " + total);
-                ch.write(ByteBuffer.wrap(buffer, 0, read));
+                out.write(buffer);
                 fireProgressChange(Math.max(50, totalRead / total * 100));
             }
-            ch.close();
-            out.close();
         } catch (InterruptedIOException e) {
             log.error("caught SocketTimeoutException. About to throw DownloadTimeout", e);
             throw new DownloadTimeout("cannot open connection to " + url.toString(), e);
         } catch (IOException e) {
             log.error("caught IOException. About to throw DownloadFailed", e);
             throw new DownloadFailed("cannot download from " + url.toString(), e);
+        } finally {
+            closeResources(bis, out);
         }
     }
 

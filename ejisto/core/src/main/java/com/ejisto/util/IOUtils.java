@@ -24,10 +24,7 @@ import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 import com.ejisto.modules.repository.SettingsRepository;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.DatagramSocket;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
@@ -245,9 +242,8 @@ public class IOUtils {
     }
 
     public static String guessWebApplicationUri(String contextPath) {
-        return new StringBuilder("http://localhost:").append(
-                SettingsRepository.getInstance().getSettingValue(DEFAULT_SERVER_PORT)).append(
-                contextPath).append("/").toString();
+        return String.format("http://localhost:%s%s/",
+                             SettingsRepository.getInstance().getSettingValue(DEFAULT_SERVER_PORT), contextPath);
     }
 
     public static int findFirstAvailablePort(int startPort) {
@@ -300,6 +296,22 @@ public class IOUtils {
             return f.toURI().toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void closeResources(Closeable... resources) {
+        for (Closeable resource : resources) {
+            closeResource(resource);
+        }
+    }
+
+    public static void closeResource(Closeable resource) {
+        try {
+            if (resource != null) {
+                resource.close();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 }

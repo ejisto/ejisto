@@ -45,7 +45,6 @@ import java.util.List;
 
 import static com.ejisto.modules.gui.components.helper.FillStrategies.applyStrategy;
 import static com.ejisto.modules.gui.components.helper.FillStrategies.bestStrategyFor;
-import static com.ejisto.modules.gui.components.helper.MockedFieldTreeElementsBuilder.EmptyTreeNode;
 import static com.ejisto.util.GuiUtils.getIcon;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.SpringBridge.publishApplicationEvent;

@@ -59,7 +59,9 @@ public enum StringConstants {
     DEFAULT_CONTAINER_ID("tomcat7x"),
     DEFAULT_CONTAINER_DESCRIPTION("container.default.description"),
     DEFAULT_CONTAINER_DOWNLOAD_URL("container.default.url"),
-    DATABASE_PORT("database.port");
+    DATABASE_PORT("database.port"),
+    DATABASE_USER("embedded.database.username"),
+    DATABASE_PWD("embedded.database.password");
 
     private final String value;
 

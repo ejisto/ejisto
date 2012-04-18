@@ -40,21 +40,21 @@ import static com.ejisto.util.GuiUtils.*;
 public class RegisteredContextList extends JXPanel {
 
     private static final long serialVersionUID = -157871898009911909L;
-    private final ApplicationListener<ChangeWebAppContextStatus> contextChangeListener = new ApplicationListener<ChangeWebAppContextStatus>() {
+    private transient final ApplicationListener<ChangeWebAppContextStatus> contextChangeListener = new ApplicationListener<ChangeWebAppContextStatus>() {
         @Override
         public void onApplicationEvent(ChangeWebAppContextStatus event) {
             reloadAllContexts();
         }
     };
 
-    private final ApplicationListener<ApplicationDeployed> applicationDeployListener = new ApplicationListener<ApplicationDeployed>() {
+    private transient final ApplicationListener<ApplicationDeployed> applicationDeployListener = new ApplicationListener<ApplicationDeployed>() {
         @Override
         public void onApplicationEvent(ApplicationDeployed event) {
             reloadAllContexts();
         }
     };
 
-    private final ApplicationListener<ContainerStatusChanged> serverStartListener = new ApplicationListener<ContainerStatusChanged>() {
+    private transient final ApplicationListener<ContainerStatusChanged> serverStartListener = new ApplicationListener<ContainerStatusChanged>() {
         @Override
         public void onApplicationEvent(ContainerStatusChanged event) {
             boolean started = event.isStarted();
