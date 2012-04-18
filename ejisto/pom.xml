@@ -24,7 +24,7 @@
     <groupId>com.ejisto</groupId>
     <artifactId>ejisto</artifactId>
     <packaging>pom</packaging>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
     <modules>
         <module>core</module>
         <module>agent</module>
@@ -44,8 +44,8 @@
         </repository>
     </distributionManagement>
     <scm>
-        <connection>scm:svn:https://ejisto.googlecode.com/svn/tags/ejisto-0.1</connection>
-        <url>https://ejisto.googlecode.com/svn/tags/ejisto-0.1</url>
+        <connection>scm:svn:https://ejisto.googlecode.com/svn/trunk/</connection>
+        <url>https://ejisto.googlecode.com/svn/trunk/</url>
     </scm>
     <organization>
         <name>Ejisto</name>
