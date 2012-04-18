@@ -25,7 +25,7 @@
         <groupId>com.ejisto</groupId>
         <artifactId>ejisto</artifactId>
         <relativePath>../pom.xml</relativePath>
-        <version>0.2-SNAPSHOT</version>
+        <version>0.1</version>
     </parent>
     <artifactId>ejisto-test-webapp</artifactId>
     <packaging>war</packaging>
