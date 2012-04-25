@@ -21,6 +21,8 @@ package com.ejisto.modules.cargo;
 
 import com.ejisto.core.container.ContainerManager;
 import com.ejisto.core.container.WebApplication;
+import com.ejisto.event.EventManager;
+import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.modules.cargo.logging.ServerLogger;
 import com.ejisto.modules.cargo.util.ContainerInstaller;
 import com.ejisto.modules.dao.entities.Container;
@@ -81,6 +83,8 @@ public class CargoManager implements ContainerManager {
     @Resource private ContainersRepository containersRepository;
     @Resource private SettingsRepository settingsRepository;
     @Resource private WebApplicationRepository webApplicationRepository;
+    @Resource private EventManager eventManager;
+
     private final ConcurrentMap<String, AbstractInstalledLocalContainer> installedContainers = new ConcurrentHashMap<String, AbstractInstalledLocalContainer>();
     private final ReentrantLock lifeCycleOperationLock = new ReentrantLock();
 
@@ -125,7 +129,6 @@ public class CargoManager implements ContainerManager {
         try {
             if (lifeCycleOperationLock.tryLock(30, TimeUnit.SECONDS)) {
                 owned = true;
-
                 localContainer.start();
                 serverStarted.set(true);
                 return true;
@@ -264,12 +267,19 @@ public class CargoManager implements ContainerManager {
     }
 
     private boolean deploy(WebApplicationDescriptor descriptor, LocalContainer container, String containerId) {
-        Deployable deployable = serverStarted.get() ? hotDeploy(descriptor, container) : staticDeploy(descriptor,
-                                                                                                      container);
+        boolean started = serverStarted.get();
+        if (started) {
+            eventManager.publishEventAndWait(new ChangeServerStatus(this, ChangeServerStatus.Command.SHUTDOWN));
+        }
+        //Deployable deployable = serverStarted.get() ? hotDeploy(descriptor, container) : staticDeploy(descriptor, container);
+        Deployable deployable = staticDeploy(descriptor, container);
         if (deployable == null) return false;
         webApplicationRepository.registerWebApplication(containerId,
                                                         new CargoWebApplication(descriptor.getContextPath(),
                                                                                 containerId, deployable));
+        if (started) {
+            eventManager.publishEventAndWait(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
+        }
         return true;
     }
 
@@ -285,24 +295,22 @@ public class CargoManager implements ContainerManager {
         }
     }
 
-    private Deployable hotDeploy(WebApplicationDescriptor webApplicationDescriptor, LocalContainer container) {
-        try {
-            Deployable deployable = createDeployable(webApplicationDescriptor, container);
-            Deployer deployer = getDeployerFor(container);
-            URLDeployableMonitor monitor = new URLDeployableMonitor(
-                    new URL(guessWebApplicationUri(webApplicationDescriptor)));
-            if (isAlreadyDeployed(deployable, container)) {
-                deployer.undeploy(deployable, monitor);
-                deployer.deploy(deployable, monitor);
-            } else {
-                deployer.deploy(deployable, monitor);
-            }
-            return deployable;
-        } catch (Exception ex) {
-            log.error("error during hot deploy", ex);
-            return null;
-        }
-    }
+//    private Deployable hotDeploy(WebApplicationDescriptor webApplicationDescriptor, LocalContainer container) {
+//        try {
+//            Deployable deployable = createDeployable(webApplicationDescriptor, container);
+//            Deployer deployer = getDeployerFor(container);
+//            URLDeployableMonitor monitor = new URLDeployableMonitor(
+//                    new URL(guessWebApplicationUri(webApplicationDescriptor)));
+//            if (isAlreadyDeployed(deployable, container)) {
+//                deployer.undeploy(deployable, monitor);
+//            }
+//            deployer.deploy(deployable, monitor);
+//            return deployable;
+//        } catch (Exception ex) {
+//            log.error("error during hot deploy", ex);
+//            return null;
+//        }
+//    }
 
     private boolean undeploy(String containerId, String contextPath, Deployable deployable, LocalContainer container) {
         try {
@@ -350,9 +358,9 @@ public class CargoManager implements ContainerManager {
                                                   DeployableType.WAR);
     }
 
-    private boolean isAlreadyDeployed(Deployable deployable, LocalContainer container) {
-        return findDeployable(deployable.getFile(), container.getConfiguration()) != null;
-    }
+//    private boolean isAlreadyDeployed(Deployable deployable, LocalContainer container) {
+//        return findDeployable(deployable.getFile(), container.getConfiguration()) != null;
+//    }
 
     private void replaceDeployable(Deployable replacement, LocalContainer container) {
         LocalConfiguration configuration = container.getConfiguration();

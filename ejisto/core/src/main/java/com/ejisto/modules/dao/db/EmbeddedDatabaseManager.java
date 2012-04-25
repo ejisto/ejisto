@@ -101,10 +101,16 @@ public class EmbeddedDatabaseManager extends AbstractDataSource implements Initi
 
     private void initDatabase() throws Exception {
         DriverManager.registerDriver(new ClientDriver());
-        Connection con = DriverManager.getConnection(databaseConfiguration.url + ";create=true",
-                                                     databaseConfiguration.user,
-                                                     databaseConfiguration.password);
-        con.close();
+        Connection con = null;
+        try {
+            con = DriverManager.getConnection(databaseConfiguration.url + ";create=true",
+                                              databaseConfiguration.user,
+                                              databaseConfiguration.password);
+        } finally {
+            if (con != null) {
+                con.close();
+            }
+        }
     }
 
     @Override

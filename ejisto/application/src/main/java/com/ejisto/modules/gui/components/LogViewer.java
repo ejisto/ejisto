@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,17 +19,39 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.def.ChangeServerStatus;
+import com.ejisto.util.GuiUtils;
+import lombok.extern.log4j.Log4j;
 import org.jdesktop.swingx.JXPanel;
+import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
 
 import static com.ejisto.util.GuiUtils.getMessage;
 
+@Log4j
 public class LogViewer extends JXPanel {
     private static final long serialVersionUID = 2849704565034218976L;
-    private JTextArea log;
+    private JTextArea logText;
     private JScrollPane logPanel;
+    private transient final ApplicationListener<ChangeServerStatus> listener = new ApplicationListener<ChangeServerStatus>() {
+        @Override
+        public void onApplicationEvent(ChangeServerStatus event) {
+            if (event.getCommand() == ChangeServerStatus.Command.STARTUP) {
+                try {
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run() {
+                            reset();
+                        }
+                    });
+                } catch (Exception e) {
+                    log.error("exception during log reset", e);
+                }
+            }
+        }
+    };
 
     public LogViewer() {
         super();
@@ -41,20 +63,28 @@ public class LogViewer extends JXPanel {
         setLayout(new BorderLayout());
         add(getLogPanel(), BorderLayout.CENTER);
         setBorder(BorderFactory.createEmptyBorder());
+        GuiUtils.registerEventListener(ChangeServerStatus.class, listener);
     }
 
     private JScrollPane getLogPanel() {
-        if (this.logPanel != null) return this.logPanel;
-        log = new JTextArea();
-        logPanel = new JScrollPane(log);
+        if (this.logPanel != null) {
+            return this.logPanel;
+        }
+        logText = new JTextArea();
+        logPanel = new JScrollPane(logText);
         logPanel.setMinimumSize(new Dimension(500, 100));
-        log.setEditable(false);
-        log.setFont(new java.awt.Font("Monospaced", 0, 9));
+        logText.setEditable(false);
+        logText.setFont(new java.awt.Font("Monospaced", 0, 9));
         return logPanel;
     }
 
     public void log(String message) {
-        log.append(message);
+        logText.append(message);
     }
+
+    public void reset() {
+        logText.setText("");
+    }
+
 
 }

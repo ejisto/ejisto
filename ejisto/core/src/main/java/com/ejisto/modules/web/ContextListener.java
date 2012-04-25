@@ -48,6 +48,7 @@ import static java.lang.String.format;
 public class ContextListener implements ServletContextListener {
     private Driver driver;
     private ServletContext context;
+    private ClassTransformer classTransformer;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -55,7 +56,8 @@ public class ContextListener implements ServletContextListener {
         context = sce.getServletContext();
         context.log("Ejisto initialization...");
         String targetContextPath = context.getInitParameter(StringConstants.CONTEXT_PARAM_NAME.getValue());
-        InstrumentationHolder.getInstrumentation().addTransformer(new ClassTransformer(targetContextPath));
+        classTransformer = new ClassTransformer(targetContextPath);
+        InstrumentationHolder.getInstrumentation().addTransformer(classTransformer);
         driver = new ClientDriver();
         initDataSource();
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(targetContextPath);
@@ -87,12 +89,16 @@ public class ContextListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         try {
+            context.log("driver deregistration");
             DataSourceHolder.clearDataSource();
             DriverManager.deregisterDriver(driver);
+            context.log("done");
             driver = null;
         } catch (SQLException e) {
             context.log("error during driver deregistration", e);
         }
-        //TODO notify event
+        context.log("removing instrumentation agent...");
+        InstrumentationHolder.getInstrumentation().removeTransformer(classTransformer);
+        context.log("done.");
     }
 }
