@@ -71,13 +71,15 @@ public class ObjectEditor extends ExprEditor {
                     "{ $_ = $proceed($$); $_ = ($r) com.ejisto.core.classloading.javassist.PropertyManager.mockField(");
             instruction.append("\"").append(filter.getContextPath()).append("\",");
             try {
-                if (f.getField().getType().isPrimitive())
+                if (f.getField().getType().isPrimitive()) {
                     instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(
                             f.getClassName()).append(
                             "\", $_); return $_; }");
-                else instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(
-                        f.getClassName()).append(
-                        "\", $type, $_); return $_; }");
+                } else {
+                    instruction.append("\"").append(f.getFieldName()).append("\",").append("\"").append(
+                            f.getClassName()).append(
+                            "\", $type, $_); return $_; }");
+                }
                 trace("modifying field access with expression [" + instruction.toString() + "]");
                 f.replace(instruction.toString());
                 trace("done");
@@ -104,7 +106,9 @@ public class ObjectEditor extends ExprEditor {
     }
 
     private void trace(String s) {
-        if (logger.isTraceEnabled()) logger.trace(s);
+        if (logger.isTraceEnabled()) {
+            logger.trace(s);
+        }
     }
 
 }

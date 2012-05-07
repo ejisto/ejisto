@@ -67,7 +67,9 @@ public final class TaskManager implements DisposableBean {
     }
 
     private void refreshTasksList() {
-        if (!lock.tryLock()) return;
+        if (!lock.tryLock()) {
+            return;
+        }
         try {
             List<String> toBeRemoved = new ArrayList<String>();
             Future<?> future;
@@ -75,10 +77,13 @@ public final class TaskManager implements DisposableBean {
             for (String key : registry.keySet()) {
                 entry = registry.get(key);
                 future = entry.getFuture();
-                if (future.isCancelled() || future.isDone()) toBeRemoved.add(key);
-
+                if (future.isCancelled() || future.isDone()) {
+                    toBeRemoved.add(key);
+                }
             }
-            for (String key : toBeRemoved) registry.remove(key);
+            for (String key : toBeRemoved) {
+                registry.remove(key);
+            }
         } finally {
             lock.unlock();
         }
@@ -89,18 +94,25 @@ public final class TaskManager implements DisposableBean {
         boolean locked = false;
         try {
             locked = lock.tryLock(1, SECONDS);
-            if (!locked) return null;
+            if (!locked) {
+                return null;
+            }
             String uuid = UUID.randomUUID().toString();
             Future<?> future;
-            if (task.supportsProcessChangeNotification()) future = task;
-            else future = internalAddTask(task, uuid);
+            if (task.supportsProcessChangeNotification()) {
+                future = task;
+            } else {
+                future = internalAddTask(task, uuid);
+            }
             task.work();
             registerTask(uuid, task, future);
             return uuid;
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            if (locked) lock.unlock();
+            if (locked) {
+                lock.unlock();
+            }
         }
     }
 
@@ -118,17 +130,23 @@ public final class TaskManager implements DisposableBean {
     }
 
     public void cancelTask(String uuid) {
-        if (!lock.tryLock()) return;
+        if (!lock.tryLock()) {
+            return;
+        }
         try {
             Future<?> future = registry.get(uuid).getFuture();
-            if (future != null) future.cancel(true);
+            if (future != null) {
+                future.cancel(true);
+            }
         } finally {
             lock.unlock();
         }
     }
 
     public List<TaskDescriptor> getRegisteredTasks() {
-        if (isEmpty(registry)) return emptyList();
+        if (isEmpty(registry)) {
+            return emptyList();
+        }
         return new ArrayList<TaskDescriptor>(
                 Lambda.<TaskDescriptor>collect(forEach(registry.values()).getDescriptor()));
     }
@@ -138,15 +156,21 @@ public final class TaskManager implements DisposableBean {
     }
 
     private ExecutionState getExecutionState(Future<?> future) {
-        if (future.isCancelled()) return ExecutionState.CANCELED;
-        if (future.isDone()) return ExecutionState.DONE;
+        if (future.isCancelled()) {
+            return ExecutionState.CANCELED;
+        }
+        if (future.isDone()) {
+            return ExecutionState.DONE;
+        }
         return ExecutionState.RUNNING;
     }
 
     private void shutdownExecutorService(ExecutorService service) {
         try {
             service.shutdown();
-            if (!service.awaitTermination(5L, SECONDS)) service.shutdownNow();
+            if (!service.awaitTermination(5L, SECONDS)) {
+                service.shutdownNow();
+            }
         } catch (InterruptedException e) {
             service.shutdownNow();
             Thread.currentThread().interrupt();

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,14 +65,18 @@ public class TaskView extends JXPanel {
     }
 
     private JProgressBar getProgressBar() {
-        if (progressBar != null) return progressBar;
+        if (progressBar != null) {
+            return progressBar;
+        }
         progressBar = new JProgressBar();
         progressBar.setPreferredSize(new Dimension(80, 20));
         return progressBar;
     }
 
     private void updateProgressBar() {
-        if (getProgressBar().isIndeterminate()) getProgressBar().setIndeterminate(false);
+        if (getProgressBar().isIndeterminate()) {
+            getProgressBar().setIndeterminate(false);
+        }
         getProgressBar().setMinimum(0);
         int total = totalTasks.get();
         int completed = completedTasks.get();
@@ -82,7 +86,9 @@ public class TaskView extends JXPanel {
     }
 
     private int percent(int total, int completed) {
-        if (total == 0) return 100;
+        if (total == 0) {
+            return 100;
+        }
         return (int) ((double) completed / (double) total * 100);
     }
 }

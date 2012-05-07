@@ -47,7 +47,9 @@ public class SummaryTab extends JXPanel {
     }
 
     private JScrollPane getScrollPane() {
-        if (this.scrollPane != null) return this.scrollPane;
+        if (this.scrollPane != null) {
+            return this.scrollPane;
+        }
         scrollPane = new JScrollPane(getSummaryTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                                      JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(new Dimension(500, 250));
@@ -57,7 +59,9 @@ public class SummaryTab extends JXPanel {
     }
 
     private JXLabel getSummaryTextArea() {
-        if (this.summaryTextArea != null) return this.summaryTextArea;
+        if (this.summaryTextArea != null) {
+            return this.summaryTextArea;
+        }
         summaryTextArea = new JXLabel();
         summaryTextArea.setMinimumSize(new Dimension(450, 200));
         summaryTextArea.setPreferredSize(new Dimension(450, 200));

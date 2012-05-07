@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ public class DescriptorDumpConverter implements Converter<WebApplicationDescript
 
     @Override
     public String convert(WebApplicationDescriptor from) {
-        return String.format(INSERT, from.getContextPath(), from.getInstallationPath(), from.getDeployablePath(), from.getContainerId());
+        return String.format(INSERT, from.getContextPath(), from.getInstallationPath(), from.getDeployablePath(),
+                             from.getContainerId());
     }
 }

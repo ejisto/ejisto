@@ -53,7 +53,9 @@ public class ApplicationEventDispatcher implements ApplicationListener<Applicati
 
     @Override
     public void onApplicationEvent(final ApplicationEvent event) {
-        if (!running) return;
+        if (!running) {
+            return;
+        }
         log.debug("got event of type [" + event.getClass().getName() + "]");
         if (registeredListeners.containsKey(event.getClass())) {
             notifyListeners(registeredListeners.get(event.getClass()), event);

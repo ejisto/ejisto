@@ -64,8 +64,12 @@ public class MockedFieldNode extends DefaultMutableTreeNode {
 
     @Override
     public String toString() {
-        if (root && isEmpty()) return getMessage("main.propertieseditor.tree.novalues.text");
-        if (root) return getMessage("wizard.properties.editor.tab.hierarchical.rootnode");
+        if (root && isEmpty()) {
+            return getMessage("main.propertieseditor.tree.novalues.text");
+        }
+        if (root) {
+            return getMessage("wizard.properties.editor.tab.hierarchical.rootnode");
+        }
         return nodePath[nodePath.length - 1];
     }
 
@@ -116,8 +120,9 @@ public class MockedFieldNode extends DefaultMutableTreeNode {
 
     public boolean isParentOf(MockedFieldNode node) {
         int depthDifference = 0;
-        if (!isRoot())
+        if (!isRoot()) {
             depthDifference = getNodePath().length - node.getNodePath().length;
+        }
         return isRoot() || depthDifference < 0;
     }
 

@@ -51,7 +51,9 @@ public class MainPanel extends JXPanel {
     }
 
     private MockedFieldsEditor getPropertiesEditor() {
-        if (propertiesEditor != null) return propertiesEditor.getView();
+        if (propertiesEditor != null) {
+            return propertiesEditor.getView();
+        }
         propertiesEditor = new MockedFieldsEditorController(MAIN_WINDOW);
         MockedFieldsEditor view = propertiesEditor.getView();
         view.setBorder(BorderFactory.createTitledBorder(view.getName()));

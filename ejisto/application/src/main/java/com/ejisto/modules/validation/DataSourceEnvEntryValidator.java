@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,13 +49,16 @@ public class DataSourceEnvEntryValidator implements Validator {
                                   String.valueOf(entry.getMaxActive()), String.valueOf(entry.getMaxIdle()),
                                   String.valueOf(entry.getMaxWait()), entry.getPassword(), entry.getType(),
                                   entry.getUrl(), entry.getUsername(), entry.getDriverClassName());
-        if (!res)
+        if (!res) {
             errors.rejectValue("dataSource", "datasource.env.entry.notvalid", new Object[]{entry.getName()}, "error");
+        }
     }
 
     private boolean checkFields(String... fields) {
         for (String field : fields) {
-            if (!hasText(field)) return false;
+            if (!hasText(field)) {
+                return false;
+            }
         }
         return true;
     }

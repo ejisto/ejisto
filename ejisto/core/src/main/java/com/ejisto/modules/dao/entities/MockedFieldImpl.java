@@ -102,7 +102,9 @@ public class MockedFieldImpl implements MockedField {
 
     @Override
     public void copyFrom(MockedField original) {
-        if (id != 0) throw new UnsupportedOperationException("target field is already persisted");
+        if (id != 0) {
+            throw new UnsupportedOperationException("target field is already persisted");
+        }
         setActive(original.isActive());
         setFieldValue(original.getFieldValue());
         setFieldElementType(original.getFieldElementType());
@@ -110,19 +112,36 @@ public class MockedFieldImpl implements MockedField {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         MockedFieldImpl that = (MockedFieldImpl) o;
 
-        if (id != that.id) return false;
-        if (!className.equals(that.className)) return false;
-        if (!contextPath.equals(that.contextPath)) return false;
-        if (fieldElementType != null ? !fieldElementType.equals(that.fieldElementType) : that.fieldElementType != null)
+        if (id != that.id) {
             return false;
-        if (!fieldName.equals(that.fieldName)) return false;
-        if (!fieldType.equals(that.fieldType)) return false;
-
+        }
+        if (!className.equals(that.className)) {
+            return false;
+        }
+        if (!contextPath.equals(that.contextPath)) {
+            return false;
+        }
+        if (fieldElementType == null ^ that.fieldElementType == null) {
+            return false;
+        }
+        if (fieldElementType != null && !fieldElementType.equals(that.fieldElementType)) {
+            return false;
+        }
+        if (!fieldName.equals(that.fieldName)) {
+            return false;
+        }
+        if (!fieldType.equals(that.fieldType)) {
+            return false;
+        }
         return true;
     }
 
@@ -139,7 +158,9 @@ public class MockedFieldImpl implements MockedField {
 
     @Override
     public int compareTo(MockedField o) {
-        if (id == o.getId()) return 0;
+        if (id == o.getId()) {
+            return 0;
+        }
         return getComparisonKey().compareTo(o.getComparisonKey());
     }
 }

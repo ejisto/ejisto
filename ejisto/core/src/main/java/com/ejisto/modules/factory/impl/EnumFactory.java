@@ -48,9 +48,13 @@ public class EnumFactory<T extends Enum<T>> implements ObjectFactory<Enum<T>> {
             Assert.state(clazz.isEnum());
             Enum<T>[] enums = clazz.getEnumConstants();
             for (Enum<T> en : enums) {
-                if (en.name().equals(name)) return en;
+                if (en.name().equals(name)) {
+                    return en;
+                }
             }
-            if (actualValue != null) return actualValue;
+            if (actualValue != null) {
+                return actualValue;
+            }
             return enums.length > 0 ? enums[0] : null;
         } catch (Exception ex) {
             log.warn(String.format("enum value not found for %s.", m), ex);

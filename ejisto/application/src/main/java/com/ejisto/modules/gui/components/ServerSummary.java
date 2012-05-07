@@ -83,7 +83,9 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     }
 
     private JPanel getHeader() {
-        if (header != null) return header;
+        if (header != null) {
+            return header;
+        }
         header = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         header.setBackground(Color.WHITE);
         header.add(new JXLabel(serverName));
@@ -92,7 +94,9 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     }
 
     private JPanel getButtonsPanel() {
-        if (buttonsPanel != null) return buttonsPanel;
+        if (buttonsPanel != null) {
+            return buttonsPanel;
+        }
         buttonsPanel = new JXPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         buttonsPanel.add(getServerStatus());
         buttonsPanel.add(createButton(getAction(START_CONTAINER.getValue())));
@@ -105,7 +109,9 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     }
 
     private JXLabel getServerStatus() {
-        if (serverStatus != null) return serverStatus;
+        if (serverStatus != null) {
+            return serverStatus;
+        }
         serverStatus = new JXLabel(getIcon(getServerStatusIcon()));
         return serverStatus;
     }
@@ -136,7 +142,9 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals("enabled")) updateServerStatus();
+        if (evt.getPropertyName().equals("enabled")) {
+            updateServerStatus();
+        }
     }
 
     private static final class EnhancedButton extends JButton {

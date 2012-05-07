@@ -79,14 +79,17 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         view.registerMouseLister(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if (e.getClickCount() != 2) return;
+                if (e.getClickCount() != 2) {
+                    return;
+                }
                 setCurrentEditingLocation(e.getPoint());
                 startEdit(null, e.getPoint());
             }
         });
         contextMatcher = new FieldsEditorContextMatcher(fieldsEditorContext);
-        if (fieldsEditorContext != APPLICATION_INSTALLER_WIZARD)
+        if (fieldsEditorContext != APPLICATION_INSTALLER_WIZARD) {
             view.setFields(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
+        }
         this.fieldsEditorContext = fieldsEditorContext;
         view.registerFieldEditingListener(this);
         lock = new ReentrantLock();
@@ -108,8 +111,9 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
                 runOnEDT(new Runnable() {
                     @Override
                     public void run() {
-                        if (event.getCommand() == ChangeWebAppContextStatus.WebAppContextStatusCommand.DELETE)
+                        if (event.getCommand() == ChangeWebAppContextStatus.WebAppContextStatusCommand.DELETE) {
                             notifyContextDeleted(event.getContextPath());
+                        }
                     }
                 });
             }
@@ -150,7 +154,9 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     }
 
     public List<MockedField> getSelection() {
-        if (selectedIndex == 0) return getView().getTableSelectedItems();
+        if (selectedIndex == 0) {
+            return getView().getTableSelectedItems();
+        }
         return getView().getTreeSelectedItems();
     }
 
@@ -171,7 +177,9 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     }
 
     void editingStarted() {
-        if (lock.isLocked()) return;
+        if (lock.isLocked()) {
+            return;
+        }
         lock.tryLock();
         getView().initEditorPanel(selectMockedFieldTypes(),
                                   getMessage("wizard.properties.editor.complex.title", editedField.getFieldName(),
@@ -182,7 +190,10 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     }
 
     void editingStopped() {
-        if (!lock.isLocked()) return; //probably called when panel is collapsing
+        if (!lock.isLocked()) {
+            //probably called while panel is collapsing
+            return;
+        }
         getView().expandCollapseEditorPanel(false);
         editedField.setFieldElementType(getView().getFieldType());
         editedField.setExpression(buildExpression());
@@ -198,7 +209,9 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
 
     void editingCanceled() {
         getView().expandCollapseEditorPanel(false);
-        if (lock.isLocked()) lock.unlock();
+        if (lock.isLocked()) {
+            lock.unlock();
+        }
     }
 
     private Collection<String> selectMockedFieldTypes() {
@@ -209,9 +222,13 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e == null) return;
+        if (e == null) {
+            return;
+        }
         Action action = getActionMap().get(e.getActionCommand());
-        if (action != null) action.actionPerformed(e);
+        if (action != null) {
+            action.actionPerformed(e);
+        }
     }
 
     public void setWizardFields(Collection<MockedField> wizardFields) {

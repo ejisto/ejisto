@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,9 @@ public class OgnlAdapter implements InitializingBean {
     }
 
     public void apply(Object target, List<MockedField> mockedFields) throws Exception {
-        for (MockedField mockedField : mockedFields) apply(target, mockedField);
+        for (MockedField mockedField : mockedFields) {
+            apply(target, mockedField);
+        }
     }
 
     public void apply(Object target, MockedField mockedField) throws Exception {

@@ -139,7 +139,9 @@ public class WebApplicationDescriptor implements Serializable {
     }
 
     public List<WebApplicationDescriptorElement> getClassPathElements() {
-        if (classpathEntries != null) return classpathEntries;
+        if (classpathEntries != null) {
+            return classpathEntries;
+        }
         return select(elements, having(on(WebApplicationDescriptorElement.class).getKind(), equalTo(CLASSPATH)));
     }
 

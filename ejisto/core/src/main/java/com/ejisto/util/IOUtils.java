@@ -73,8 +73,9 @@ public class IOUtils {
 
     public static void writeFile(InputStream inputStream, File baseDir, String filename) throws IOException {
         File out = new File(baseDir, filename);
-        if (!out.getParentFile().exists() && !out.getParentFile().mkdirs())
+        if (!out.getParentFile().exists() && !out.getParentFile().mkdirs()) {
             throw new IOException("Unable to write file " + out.getAbsolutePath());
+        }
         FileUtils.writeByteArrayToFile(out, org.apache.commons.io.IOUtils.toByteArray(inputStream));
     }
 
@@ -89,9 +90,9 @@ public class IOUtils {
     public static List<WebApplicationDescriptorElement> getClasspathEntries(String basePath, URL[] baseUrls) throws MalformedURLException {
         File base = new File(basePath);
         List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>();
-        for (URL url : baseUrls)
+        for (URL url : baseUrls) {
             elements.add(new WebApplicationDescriptorElement(url.getPath()));
-        //elements.add(new File(base, "WEB-INF/classes/").toURI().toURL());
+        }
         elements.addAll(toWebApplicationDescriptorElement(getAllFiles(base, jarExtension)));
         return elements;
     }
@@ -103,8 +104,9 @@ public class IOUtils {
     public static URL[] getSystemClasspathEntries() throws MalformedURLException {
         String[] paths = System.getProperty("java.class.path").split(File.pathSeparator);
         URL[] urls = new URL[paths.length];
-        for (int i = 0; i < paths.length; i++)
+        for (int i = 0; i < paths.length; i++) {
             urls[i] = new File(paths[i]).toURI().toURL();
+        }
         return urls;
     }
 
@@ -113,12 +115,16 @@ public class IOUtils {
         URL[] ret = new URL[entries.length + jars.size()];
         System.arraycopy(entries, 0, ret, 0, entries.length);
         int pos = entries.length;
-        for (File jar : jars) ret[pos++] = jar.toURI().toURL();
+        for (File jar : jars) {
+            ret[pos++] = jar.toURI().toURL();
+        }
         return ret;
     }
 
     private static Collection<File> getAllFiles(File dir, String[] extensions) {
-        if (!dir.exists() || !dir.isDirectory()) return emptyList();
+        if (!dir.exists() || !dir.isDirectory()) {
+            return emptyList();
+        }
         return FileUtils.listFiles(dir, extensions, true);
     }
 
@@ -135,7 +141,9 @@ public class IOUtils {
         File base = new File(descriptor.getInstallationPath(), "WEB-INF");
         File classes = new File(base, "classes");
         File lib = new File(base, "lib");
-        if (classes.exists()) urls.add(classes.toURI().toURL());
+        if (classes.exists()) {
+            urls.add(classes.toURI().toURL());
+        }
         for (WebApplicationDescriptorElement element : descriptor.getClassPathElements()) {
             urls.add(new File(lib, element.getPath()).toURI().toURL());
         }
@@ -143,7 +151,9 @@ public class IOUtils {
     }
 
     public static List<WebApplicationDescriptorElement> toWebApplicationDescriptorElement(Collection<File> in) {
-        if (in.isEmpty()) return emptyList();
+        if (in.isEmpty()) {
+            return emptyList();
+        }
         List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>(in.size());
         for (File file : in) {
             elements.add(new WebApplicationDescriptorElement(file.getName()));
@@ -174,7 +184,9 @@ public class IOUtils {
     public static Collection<String> findAllClassNamesInJarDirectory(File directory, WebApplicationDescriptor descriptor) throws IOException {
         HashSet<String> ret = new HashSet<String>();
         for (File file : getAllFiles(directory, jarExtension)) {
-            if (!descriptor.isBlacklistedEntry(file.getName())) ret.addAll(findAllClassesInJarFile(file));
+            if (!descriptor.isBlacklistedEntry(file.getName())) {
+                ret.addAll(findAllClassesInJarFile(file));
+            }
         }
         return ret;
     }
@@ -201,7 +213,9 @@ public class IOUtils {
     }
 
     public static boolean deleteFile(File file) {
-        if (!file.isDirectory()) return FileUtils.deleteQuietly(file);
+        if (!file.isDirectory()) {
+            return FileUtils.deleteQuietly(file);
+        }
         try {
             FileUtils.deleteDirectory(file);
         } catch (IOException e) {
@@ -225,7 +239,9 @@ public class IOUtils {
 
     public static void zipDirectory(String base, File src, ZipOutputStream out) throws IOException {
         if (src.isDirectory()) {
-            for (File file : src.listFiles()) zipDirectory(base, file, out);
+            for (File file : src.listFiles()) {
+                zipDirectory(base, file, out);
+            }
         } else {
             ZipEntry entry = new ZipEntry(normalize(src.getPath(), true).substring(base.length()));
             out.putNextEntry(entry);
@@ -247,8 +263,11 @@ public class IOUtils {
     }
 
     public static int findFirstAvailablePort(int startPort) {
-        for (int port = startPort, max = port + 100; port < max; port++)
-            if (isPortAvailable(port)) return port;
+        for (int port = startPort, max = port + 100; port < max; port++) {
+            if (isPortAvailable(port)) {
+                return port;
+            }
+        }
         throw new RuntimeException("Unable to find a port");
     }
 
@@ -265,11 +284,15 @@ public class IOUtils {
             return false;
         } finally {
             try {
-                if (tcp != null) tcp.close();
+                if (tcp != null) {
+                    tcp.close();
+                }
             } catch (IOException e) {
                 //nothing to do
             }
-            if (udp != null) udp.close();
+            if (udp != null) {
+                udp.close();
+            }
         }
     }
 

@@ -48,7 +48,9 @@ public class ResourcesInitializer extends BaseStartupService {
     public void execute() {
         log.info("executing ResourcesInitializer");
         File baseDir = new File(System.getProperty("user.home"), ".ejisto");
-        if (!baseDir.exists()) initBaseDir(baseDir);
+        if (!baseDir.exists()) {
+            initBaseDir(baseDir);
+        }
         initDirectories(baseDir);
         initDb();
         initStoredWebApps();
@@ -87,14 +89,16 @@ public class ResourcesInitializer extends BaseStartupService {
 
     private void initDirectories(File... directories) {
         for (File directory : directories) {
-            if (!directory.exists() && !directory.mkdirs())
+            if (!directory.exists() && !directory.mkdirs()) {
                 eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
+            }
         }
     }
 
     private void initBaseDir(File baseDir) {
-        if (!baseDir.mkdirs())
+        if (!baseDir.mkdirs()) {
             eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
+        }
     }
 
     private void initStoredWebApps() {

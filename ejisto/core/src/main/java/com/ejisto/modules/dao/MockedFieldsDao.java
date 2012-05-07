@@ -79,8 +79,11 @@ public class MockedFieldsDao extends BaseDao {
                                        new ResultSetExtractor<MockedField>() {
                                            @Override
                                            public MockedField extractData(ResultSet rs) throws SQLException, DataAccessException {
-                                               if (rs.next()) return loadFromResultSet(rs);
-                                               else throw new RuntimeException("No mockedFields found.");
+                                               if (rs.next()) {
+                                                   return loadFromResultSet(rs);
+                                               } else {
+                                                   throw new RuntimeException("No mockedFields found.");
+                                               }
                                            }
                                        });
     }

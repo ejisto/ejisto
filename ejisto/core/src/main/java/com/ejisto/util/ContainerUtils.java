@@ -36,10 +36,14 @@ public class ContainerUtils {
 
     public static String extractAgentJar(String classPath) {
         String systemProperty = System.getProperty("ejisto.agent.jar.path");
-        if (StringUtils.hasText(systemProperty)) return systemProperty;
+        if (StringUtils.hasText(systemProperty)) {
+            return systemProperty;
+        }
         String[] entries = classPath.split(Pattern.quote(File.pathSeparator));
         for (String entry : entries) {
-            if (AGENT_JAR.matcher(entry).matches()) return entry;
+            if (AGENT_JAR.matcher(entry).matches()) {
+                return entry;
+            }
         }
         return null;
     }

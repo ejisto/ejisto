@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,13 +73,19 @@ public class CallbackAction extends AbstractActionExt {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (callback2 != null) callback2.apply(e);
-        if (callback1 != null) callback1.apply();
+        if (callback2 != null) {
+            callback2.apply(e);
+        }
+        if (callback1 != null) {
+            callback1.apply();
+        }
     }
 
     @Override
     public boolean isEnabled() {
-        if (checkEnabled != null) return (Boolean) checkEnabled.apply();
+        if (checkEnabled != null) {
+            return (Boolean) checkEnabled.apply();
+        }
         return super.isEnabled();
     }
 

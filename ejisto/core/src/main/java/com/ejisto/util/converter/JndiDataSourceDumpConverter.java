@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,9 +33,12 @@ public class JndiDataSourceDumpConverter implements Converter<JndiDataSource, St
 
     @Override
     public String convert(JndiDataSource dataSource) {
-        return String.format(INSERT, escapeRaw(dataSource.getName()), escapeRaw(dataSource.getType()), escapeRaw(dataSource.getDriverClassName()),
-                             escapeRaw(dataSource.getUrl()), escapeRaw(dataSource.getDriverJarPath()), escapeRaw(dataSource.getUsername()),
-                             escapeRaw(dataSource.getPassword()), dataSource.getMaxActive(), dataSource.getMaxWait(), dataSource.getMaxIdle());
+        return String.format(INSERT, escapeRaw(dataSource.getName()), escapeRaw(dataSource.getType()),
+                             escapeRaw(dataSource.getDriverClassName()),
+                             escapeRaw(dataSource.getUrl()), escapeRaw(dataSource.getDriverJarPath()),
+                             escapeRaw(dataSource.getUsername()),
+                             escapeRaw(dataSource.getPassword()), dataSource.getMaxActive(), dataSource.getMaxWait(),
+                             dataSource.getMaxIdle());
     }
 
     private String escapeRaw(String in) {

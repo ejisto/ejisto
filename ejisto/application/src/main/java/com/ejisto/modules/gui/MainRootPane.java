@@ -72,8 +72,11 @@ public class MainRootPane extends JXRootPane {
     }
 
     private void reloadContainerTabs() {
-        if (containersTabPane == null) getContainersTabPane();
-        else refreshContainerTabs(getContainersTabPane());
+        if (containersTabPane == null) {
+            getContainersTabPane();
+        } else {
+            refreshContainerTabs(getContainersTabPane());
+        }
     }
 
     private void init() {
@@ -84,14 +87,18 @@ public class MainRootPane extends JXRootPane {
     }
 
     private JTabbedPane getContainersTabPane() {
-        if (containersTabPane != null) return containersTabPane;
+        if (containersTabPane != null) {
+            return containersTabPane;
+        }
         containersTabPane = new JTabbedPane();
         refreshContainerTabs(containersTabPane);
         return containersTabPane;
     }
 
     private List<ContainerTab> getContainerTabs() {
-        if (containerTabs != null) return containerTabs;
+        if (containerTabs != null) {
+            return containerTabs;
+        }
         containerTabs = getRegisteredContainers();
         return containerTabs;
     }
@@ -111,7 +118,9 @@ public class MainRootPane extends JXRootPane {
     }
 
     private JXLabel getStatusLog() {
-        if (statusLog != null) return statusLog;
+        if (statusLog != null) {
+            return statusLog;
+        }
         statusLog = new JXLabel(getMessage("main.header.description"));
         return statusLog;
     }

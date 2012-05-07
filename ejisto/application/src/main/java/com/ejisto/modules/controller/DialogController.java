@@ -94,7 +94,9 @@ public final class DialogController {
      * @param dimension window size
      */
     public void show(boolean modal, Dimension dimension) {
-        if (!lock.tryLock()) return;
+        if (!lock.tryLock()) {
+            return;
+        }
         if (view != null) {
             dialog.getContentPane().setLayout(new BorderLayout(0, 0));
             dialog.getContentPane().add(view, BorderLayout.CENTER);
@@ -187,7 +189,9 @@ public final class DialogController {
             }
             dialog.setUndecorated(!decorated);
             dialog.setResizable(resizable);
-            if (keyListener != null) dialog.addKeyListener(keyListener);
+            if (keyListener != null) {
+                dialog.addKeyListener(keyListener);
+            }
             return new DialogController(dialog, view);
         }
 

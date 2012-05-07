@@ -79,8 +79,9 @@ public class ContextListener implements ServletContextListener {
     private void initDataSource() {
         int port = 5555;
         String portNumberProperty = System.getProperty("ejisto.database.port");
-        if (StringUtils.hasText(portNumberProperty))
+        if (StringUtils.hasText(portNumberProperty)) {
             port = Integer.parseInt(portNumberProperty);
+        }
         DataSourceHolder.setDataSource(
                 new SimpleDriverDataSource(driver, format("jdbc:derby://localhost:%s/memory:ejisto", port), "ejisto",
                                            "ejisto"));

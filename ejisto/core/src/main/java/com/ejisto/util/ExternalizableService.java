@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,9 @@ public abstract class ExternalizableService<T extends BaseDao> {
 
     protected void checkDao() {
         T dao = getDaoInstance();
-        if (dao != null) return;//value injected by Spring AOP or previously created
+        if (dao != null) {
+            return;//value injected by Spring AOP or previously created
+        }
         try {
             dao = getDaoClass().newInstance();
             dao.setDataSource(getRemoteDataSource());

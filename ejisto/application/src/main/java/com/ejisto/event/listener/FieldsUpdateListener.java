@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +39,11 @@ public class FieldsUpdateListener implements ApplicationListener<MockedFieldChan
     }
 
     private void handleFieldChange(MockedField field) {
-        if (field.getId() > 0) mockedFieldsRepository.update(field);
-        else mockedFieldsRepository.insert(field);
+        if (field.getId() > 0) {
+            mockedFieldsRepository.update(field);
+        } else {
+            mockedFieldsRepository.insert(field);
+        }
     }
 
 }

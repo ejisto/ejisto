@@ -67,8 +67,9 @@ public class EmbeddedDatabaseManager extends AbstractDataSource implements Initi
         };
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(loader.getResource("classpath:sql/ejisto-schema.sql"));
-        if (!Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue()))
+        if (!Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) {
             populator.addScript(loader.getResource(System.getProperty(StringConstants.DB_SCRIPT.getValue())));
+        }
         serverControl.start(new PrintWriter(System.out));
         checkServerStartup();
         started = true;

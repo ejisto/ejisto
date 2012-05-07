@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,15 +43,17 @@ public class TaskController {
     public TaskController() {
         taskManager = TaskManager.getInstance();
         taskManager.scheduleTaskAtFixedRate(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    updateTasks();
-                                                }
-                                            }, 500, 500, SECONDS);
+            @Override
+            public void run() {
+                updateTasks();
+            }
+        }, 500, 500, SECONDS);
     }
 
     public TaskView getView() {
-        if (view == null) view = new TaskView();
+        if (view == null) {
+            view = new TaskView();
+        }
         view.setMinimized(true);
         return view;
     }
@@ -61,7 +63,8 @@ public class TaskController {
         int completed = 0;
         int total = 0;
         if (tasks.size() > 0) {
-            completed = select(tasks, having(on(TaskDescriptor.class).getExecutionState(), equalTo(ExecutionState.DONE))).size();
+            completed = select(tasks, having(on(TaskDescriptor.class).getExecutionState(),
+                                             equalTo(ExecutionState.DONE))).size();
             total = tasks.size();
         }
         getView().setCurrentStatus(completed, total);

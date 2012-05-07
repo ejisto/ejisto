@@ -54,8 +54,12 @@ public class ObjectFactoryLoader implements Runnable {
 
     @Override
     public void run() {
-        if (!initialized) init();
-        if (!initialized) return; //workaround to avoid startup failures.
+        if (!initialized) {
+            init();
+        }
+        if (!initialized) {
+            return; //workaround to avoid startup failures.
+        }
         if (!directory.exists()) {
             log.warn("directory " + directory.getAbsolutePath() + " does not exist. Exiting");
             return;
@@ -72,7 +76,9 @@ public class ObjectFactoryLoader implements Runnable {
     private void processFile(File file) throws Exception {
         CustomObjectFactory factory = customObjectFactoryDao.load(file.getName());
         String checksum = DigestUtils.shaHex(new FileInputStream(file));
-        if (factory != null && factory.getChecksum().equals(checksum)) return;
+        if (factory != null && factory.getChecksum().equals(checksum)) {
+            return;
+        }
         log.info("processing file: " + file.getAbsolutePath());
         cp.appendClassPath(file.getAbsolutePath());
         CtClass clazz;
@@ -90,7 +96,9 @@ public class ObjectFactoryLoader implements Runnable {
     }
 
     private void saveCustomObjectFactory(CustomObjectFactory factory, File file, String checksum) {
-        if (factory == null) factory = new CustomObjectFactory();
+        if (factory == null) {
+            factory = new CustomObjectFactory();
+        }
         factory.setFileName(file.getName());
         factory.setProcessed(true);
         factory.setChecksum(checksum);
@@ -99,7 +107,9 @@ public class ObjectFactoryLoader implements Runnable {
 
     public void init() {
         try {
-            if (System.getProperty(StringConstants.EXTENSIONS_DIR.getValue()) == null) return;
+            if (System.getProperty(StringConstants.EXTENSIONS_DIR.getValue()) == null) {
+                return;
+            }
             directory = new File(System.getProperty(StringConstants.EXTENSIONS_DIR.getValue()));
             cp = new ClassPool(ClassPool.getDefault());
             bazeClazz = cp.get(ObjectFactory.class.getName());

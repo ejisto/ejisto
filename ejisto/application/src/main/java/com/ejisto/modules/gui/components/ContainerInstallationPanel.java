@@ -57,13 +57,17 @@ public class ContainerInstallationPanel extends JXPanel {
     }
 
     private Header getHeader() {
-        if (this.header != null) return header;
+        if (this.header != null) {
+            return header;
+        }
         header = new Header(title, containerDescription, "container.download.icon");
         return header;
     }
 
     private ProgressPanel getProgressPanel() {
-        if (this.progressPanel != null) return progressPanel;
+        if (this.progressPanel != null) {
+            return progressPanel;
+        }
         progressPanel = new ProgressPanel();
         return progressPanel;
     }

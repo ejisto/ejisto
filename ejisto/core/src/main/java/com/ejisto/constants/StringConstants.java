@@ -80,7 +80,9 @@ public enum StringConstants {
 
     public static StringConstants fromValue(String value) {
         for (StringConstants constant : values()) {
-            if (constant.getValue().equals(value)) return constant;
+            if (constant.getValue().equals(value)) {
+                return constant;
+            }
         }
         return null;
     }

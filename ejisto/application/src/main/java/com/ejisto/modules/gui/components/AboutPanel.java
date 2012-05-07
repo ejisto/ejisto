@@ -59,13 +59,17 @@ public class AboutPanel extends JXPanel {
     }
 
     private Header getHeader() {
-        if (header != null) return header;
+        if (header != null) {
+            return header;
+        }
         header = new Header(getMessage("about.title"), getMessage("about.description"), "about.icon");
         return header;
     }
 
     private JTabbedPane getContainer() {
-        if (container != null) return container;
+        if (container != null) {
+            return container;
+        }
         container = new JTabbedPane(JTabbedPane.BOTTOM);
         container.add(getCredits());
         container.add(getLicense());
@@ -75,7 +79,9 @@ public class AboutPanel extends JXPanel {
     }
 
     private JPanel getCredits() {
-        if (credits != null) return credits;
+        if (credits != null) {
+            return credits;
+        }
         credits = new JXPanel(new GridBagLayout());
         credits.add(buildSpacerElement(), buildConstraints(0, 0, true));
         credits.add(buildDescriptionLabel(getMessage("about.icon.title")), buildConstraints(0, 1, false));
@@ -127,14 +133,18 @@ public class AboutPanel extends JXPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = x;
         gbc.gridy = y;
-        if (fill) gbc.fill = GridBagConstraints.BOTH;
+        if (fill) {
+            gbc.fill = GridBagConstraints.BOTH;
+        }
         gbc.anchor = GridBagConstraints.BASELINE_LEADING;
         return gbc;
     }
 
 
     private JScrollPane getLicense() {
-        if (license != null) return license;
+        if (license != null) {
+            return license;
+        }
         license = new JScrollPane();
         license.setName(getMessage("about.tab.license"));
         String licenseText;

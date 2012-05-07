@@ -75,7 +75,9 @@ public class GuiUtils {
     }
 
     public static ImageIcon getIcon(String key) {
-        if (!StringUtils.hasText(key)) return null;
+        if (!StringUtils.hasText(key)) {
+            return null;
+        }
         return new ImageIcon(GuiUtils.class.getResource(getMessage(key)));
     }
 
@@ -221,7 +223,9 @@ public class GuiUtils {
     }
 
     public static Throwable getRootThrowable(Throwable in) {
-        if (in.getCause() != null) return getRootThrowable(in.getCause());
+        if (in.getCause() != null) {
+            return getRootThrowable(in.getCause());
+        }
         return in;
     }
 
@@ -268,10 +272,13 @@ public class GuiUtils {
             }
         });
         if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
-            if (saveLastSelectionPath)
+            if (saveLastSelectionPath) {
                 SettingsRepository.getInstance().putSettingValue(LAST_FILESELECTION_PATH,
                                                                  fileChooser.getCurrentDirectory().getAbsolutePath());
+            }
             return fileChooser.getSelectedFile();
-        } else return null;
+        } else {
+            return null;
+        }
     }
 }

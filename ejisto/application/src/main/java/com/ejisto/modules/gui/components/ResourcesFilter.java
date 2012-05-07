@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,21 +70,27 @@ public class ResourcesFilter extends JXPanel {
     }
 
     private JScrollPane getScrollPane() {
-        if (this.scrollPane != null) return this.scrollPane;
+        if (this.scrollPane != null) {
+            return this.scrollPane;
+        }
         scrollPane = new JScrollPane(getResourcesList(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                                      JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         return scrollPane;
     }
 
     private JXList getResourcesList() {
-        if (this.resourcesList != null) return this.resourcesList;
+        if (this.resourcesList != null) {
+            return this.resourcesList;
+        }
         resourcesList = new JXList(true);
         resourcesList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         return resourcesList;
     }
 
     private JXPanel getButtonsPanel() {
-        if (this.buttonsPanel != null) return this.buttonsPanel;
+        if (this.buttonsPanel != null) {
+            return this.buttonsPanel;
+        }
         buttonsPanel = new JXPanel();
         JButton bSelectAll;
         if (selectAll == null) {
@@ -119,18 +125,28 @@ public class ResourcesFilter extends JXPanel {
     }
 
     public void select(boolean all) {
-        if (all) getResourcesList().addSelectionInterval(0, resourcesSize - 1);
-        else getResourcesList().clearSelection();
+        if (all) {
+            getResourcesList().addSelectionInterval(0, resourcesSize - 1);
+        } else {
+            getResourcesList().clearSelection();
+        }
     }
 
     public List<String> getBlacklistedObjects() {
         int[] indices = getResourcesList().getSelectedIndices();
-        if (indices.length == resourcesSize) return emptyList();
-        if (indices.length == 0) return resources;
+        if (indices.length == resourcesSize) {
+            return emptyList();
+        }
+        if (indices.length == 0) {
+            return resources;
+        }
         List<String> ret = new ArrayList<String>();
         int i = 0;
-        for (String jar : resources)
-            if (binarySearch(indices, i++) < 0) ret.add(jar);
+        for (String jar : resources) {
+            if (binarySearch(indices, i++) < 0) {
+                ret.add(jar);
+            }
+        }
         return ret;
     }
 

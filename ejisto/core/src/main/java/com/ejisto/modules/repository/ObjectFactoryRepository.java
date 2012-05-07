@@ -110,15 +110,18 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
         } else {
             message = format("rejected ObjectFactory [%s]", objectFactoryClassName);
         }
-        if (notify && eventManager != null) eventManager.publishEvent(new StatusBarMessage(this, message, error));
+        if (notify && eventManager != null) {
+            eventManager.publishEvent(new StatusBarMessage(this, message, error));
+        }
     }
 
     @SuppressWarnings("unchecked")
     public <T> ObjectFactory<T> getObjectFactory(String objectClassName, String contextPath) throws Exception {
         String objectFactoryClass = getObjectFactoryClass(objectClassName, contextPath);
         ObjectFactory<T> objectFactory = loadObjectFactory(objectFactoryClass);
-        if (isArray(objectClassName))
+        if (isArray(objectClassName)) {
             return (ObjectFactory<T>) new ArrayFactory<T>(objectFactory);
+        }
         return objectFactory;
     }
 
@@ -150,14 +153,19 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     String getActualType(String type) {
         String actualType = type;
         Matcher m = TYPE_EXTRACTOR.matcher(actualType);
-        if (m.matches()) actualType = m.group(1);
-        if (primitives.containsKey(actualType)) return primitives.get(actualType);
+        if (m.matches()) {
+            actualType = m.group(1);
+        }
+        if (primitives.containsKey(actualType)) {
+            return primitives.get(actualType);
+        }
         return actualType;
     }
 
     private void insertObjectFactory(String objectFactoryClassName, String targetClassName) {
-        if (initialized.get())
+        if (initialized.get()) {
             objectFactoryDao.insert(new RegisteredObjectFactory(objectFactoryClassName, targetClassName));
+        }
     }
 
     private synchronized void syncObjectFactories() {
@@ -189,12 +197,16 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
             trace("not found. Trying with implemented interfaces...");
             for (CtClass c : objectClass.getInterfaces()) {
                 factory = scanForObjectFactory(c);
-                if (factory != null) return factory;
+                if (factory != null) {
+                    return factory;
+                }
             }
             if (!objectClass.isInterface()) {
                 trace("not found. Trying with super class...");
                 factory = scanForObjectFactory(objectClass.getSuperclass());
-                if (factory != null) return factory;
+                if (factory != null) {
+                    return factory;
+                }
                 return factories.get(DEFAULT);
             }
             return null;
@@ -204,7 +216,9 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     }
 
     private void trace(String message) {
-        if (logger.isTraceEnabled()) logger.trace(message);
+        if (logger.isTraceEnabled()) {
+            logger.trace(message);
+        }
     }
 
     @Override

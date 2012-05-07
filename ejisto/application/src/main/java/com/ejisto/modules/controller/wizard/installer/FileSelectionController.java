@@ -97,7 +97,9 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
     }
 
     private JXPanel getFileSelectionTab() {
-        if (fileSelectionTab != null) return fileSelectionTab;
+        if (fileSelectionTab != null) {
+            return fileSelectionTab;
+        }
         fileSelectionTab = new JXPanel(new BorderLayout());
         JXPanel spacer = new JXPanel();
         spacer.setPreferredSize(new Dimension(500, 100));
@@ -123,7 +125,9 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
     }
 
     private JXLabel getSelectedFilePath() {
-        if (selectedFilePath != null) return selectedFilePath;
+        if (selectedFilePath != null) {
+            return selectedFilePath;
+        }
         selectedFilePath = new JXLabel(getMessage("wizard.file.selected.default.text"));
         selectedFilePath.setFont(new Font("Helvetica", Font.PLAIN, 10));
         selectedFilePath.setMaximumSize(new Dimension(300, 25));

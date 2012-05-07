@@ -72,7 +72,9 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         String value = String.valueOf(aValue);
         MockedField field = fields.get(rowIndex);
-        if (ctx == APPLICATION_INSTALLER_WIZARD) columnIndex += 2;
+        if (ctx == APPLICATION_INSTALLER_WIZARD) {
+            columnIndex += 2;
+        }
         switch (columnIndex) {
             case 1:
                 field.setContextPath(value);
@@ -95,7 +97,9 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
 
     @Override
     public void tableChanged(TableModelEvent e) {
-        if (notifyChanges) notifyTableChanged(e);
+        if (notifyChanges) {
+            notifyTableChanged(e);
+        }
         fieldsAsString = GuiUtils.asStringList(fields, ctx.getColumnFillStrategy());
     }
 
@@ -123,8 +127,11 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     public void replaceFields(List<MockedField> fields) {
         for (MockedField field : fields) {
             int index = this.fields.indexOf(field);
-            if (index == -1) this.fields.add(field);
-            else this.fields.set(index, field);
+            if (index == -1) {
+                this.fields.add(field);
+            } else {
+                this.fields.set(index, field);
+            }
         }
         Collections.sort(this.fields);
         fireTableDataChanged();

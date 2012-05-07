@@ -85,7 +85,9 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                     log.debug(format("downloading container from url: %s",
                                      settingsManager.getValue("container.default.url")));
                     boolean success = tryDownload(containerDescription);
-                    if (!success) throw new RuntimeException("download failed");
+                    if (!success) {
+                        throw new RuntimeException("download failed");
+                    }
                     log.debug("download completed");
                     notifyToPanel(panel, getMessage("container.installation.panel.status.2", containerDescription));
                     log.debug("notifying installation success");
@@ -94,8 +96,9 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                     eventManager.publishEvent(
                             new StatusBarMessage(this, getMessage("container.installation.ok", containerDescription),
                                                  false));
-                    if (event.isStart())
+                    if (event.isStart()) {
                         eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
+                    }
                     return null;
                 } finally {
                     showHideProgressPanel(false, controller);
@@ -152,7 +155,9 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                                       "error",
                                       JOptionPane.ERROR_MESSAGE);
         File localFile = selectFile(null, null, false, asList("zip", "gz", "bz2"));
-        if (localFile == null) return null;
+        if (localFile == null) {
+            return null;
+        }
         return fileToUrl(localFile).toString();
     }
 
@@ -160,8 +165,11 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         GuiUtils.runOnEDT(new Runnable() {
             @Override
             public void run() {
-                if (show) controller.showUndecorated(true);
-                else controller.hide();
+                if (show) {
+                    controller.showUndecorated(true);
+                } else {
+                    controller.hide();
+                }
             }
         });
 

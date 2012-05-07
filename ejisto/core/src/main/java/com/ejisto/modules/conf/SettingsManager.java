@@ -58,14 +58,18 @@ public class SettingsManager extends ExternalizableService<SettingsDao> implemen
     public String getValue(String key) {
         init();
         Setting setting = find(key);
-        if (setting != null) return setting.getValue();
+        if (setting != null) {
+            return setting.getValue();
+        }
         setting = new Setting(key, settings.getProperty(key));
         settingsList.get().add(setting);
         return setting.getValue();
     }
 
     public void flush() {
-        if (getSettingsDao().clearSettings(settingsList.get())) getSettingsDao().insertSettings(settingsList.get());
+        if (getSettingsDao().clearSettings(settingsList.get())) {
+            getSettingsDao().insertSettings(settingsList.get());
+        }
     }
 
     public void putValue(StringConstants key, Object value) {
@@ -87,8 +91,9 @@ public class SettingsManager extends ExternalizableService<SettingsDao> implemen
     }
 
     private void init() {
-        if (settingsList.get() == null)
+        if (settingsList.get() == null) {
             settingsList.compareAndSet(null, getSettingsDao().loadAll());
+        }
     }
 
     private Setting find(String key) {

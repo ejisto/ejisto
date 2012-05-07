@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,9 @@ public class SummaryController extends AbstractApplicationInstallerController {
 
     @Override
     public SummaryTab getView() {
-        if (this.summaryTab != null) return this.summaryTab;
+        if (this.summaryTab != null) {
+            return this.summaryTab;
+        }
         summaryTab = new SummaryTab();
         return summaryTab;
     }

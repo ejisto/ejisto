@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,8 +37,9 @@ public class TextComponentFocusListener extends FocusAdapter {
             @Override
             public void run() {
                 Object o = e.getSource();
-                if (o != null && JTextComponent.class.isAssignableFrom(o.getClass()))
+                if (o != null && JTextComponent.class.isAssignableFrom(o.getClass())) {
                     ((JTextComponent) e.getSource()).selectAll();
+                }
             }
         });
     }

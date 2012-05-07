@@ -79,7 +79,9 @@ public class Header extends JXPanel implements ComponentListener {
     }
 
     public void setImageKey(String imageKey) {
-        if (!hasText(imageKey)) return;
+        if (!hasText(imageKey)) {
+            return;
+        }
         this.imageKey = imageKey;
         getHeader().setIcon(getIcon(imageKey));
     }
@@ -109,13 +111,21 @@ public class Header extends JXPanel implements ComponentListener {
     }
 
     private JXHeader getHeader() {
-        if (this.header != null) return this.header;
+        if (this.header != null) {
+            return this.header;
+        }
         header = new JXHeader();
         header.setPreferredSize(new Dimension(350, 60));
         header.setMaximumSize(new Dimension(Short.MAX_VALUE, 60));
-        if (title != null) header.setTitle(title);
-        if (description != null) header.setDescription(description);
-        if (imageKey != null) header.setIcon(getIcon(imageKey));
+        if (title != null) {
+            header.setTitle(title);
+        }
+        if (description != null) {
+            header.setDescription(description);
+        }
+        if (imageKey != null) {
+            header.setIcon(getIcon(imageKey));
+        }
         header.setBackground(Color.white);
         return header;
     }

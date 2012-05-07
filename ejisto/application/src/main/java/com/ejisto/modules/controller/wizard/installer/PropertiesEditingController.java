@@ -43,7 +43,9 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
 
     @Override
     public MockedFieldsEditor getView() {
-        if (editorController != null) return editorController.getView();
+        if (editorController != null) {
+            return editorController.getView();
+        }
         editorController = new MockedFieldsEditorController();
         return editorController.getView();
     }
@@ -55,7 +57,9 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
 
     private boolean validateEnvEntries() {
         List<JndiDataSource> entries = getSession().getDataSources();
-        if (CollectionUtils.isEmpty(entries)) return true;
+        if (CollectionUtils.isEmpty(entries)) {
+            return true;
+        }
         DataSourceEnvEntryValidator validator = new DataSourceEnvEntryValidator();
         ValidationErrors errors = new ValidationErrors("JndiDataSource");
         validator.validateAll(entries, errors);

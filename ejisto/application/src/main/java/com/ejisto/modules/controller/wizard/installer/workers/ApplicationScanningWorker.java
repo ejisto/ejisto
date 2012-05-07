@@ -99,7 +99,9 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
 
     String getContextPath(String realPath) {
         Matcher matcher = contextExtractor.matcher(realPath.replaceAll(Pattern.quote("\\"), "/"));
-        if (matcher.matches()) return matcher.group(1);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        }
         return null;
     }
 
@@ -142,12 +144,15 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
                 mockedField.setFieldType(getFieldTypeAsString(field));
                 parseGenerics(clazz, field, mockedField, loader);
                 int index = mockedFields.indexOf(mockedField);
-                if (index > -1) mockedField.copyFrom(mockedFields.get(index));
+                if (index > -1) {
+                    mockedField.copyFrom(mockedFields.get(index));
+                }
                 descriptor.addField(mockedField);
             }
             CtClass zuperclazz = clazz.getSuperclass();
-            if (!zuperclazz.getName().startsWith("java"))
+            if (!zuperclazz.getName().startsWith("java")) {
                 fillMockedFields(zuperclazz, descriptor, loader);
+            }
         } catch (Exception e) {
             addErrorDescriptor(buildErrorDescriptor(e));
         }
@@ -207,10 +212,14 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
         StringBuilder webXmlPath = new StringBuilder(descriptor.getInstallationPath()).append(File.separator);
         webXmlPath.append("WEB-INF").append(File.separator).append("web.xml");
         File webXml = new File(webXmlPath.toString());
-        if (!webXml.exists()) return;
+        if (!webXml.exists()) {
+            return;
+        }
         WebXml xml = WebXmlIo.parseWebXmlFromFile(webXml, null);
         DescriptorElement param = (DescriptorElement) WebXmlUtils.getContextParam(xml, CONTEXT_PARAM_NAME.getValue());
-        if (param != null) return;
+        if (param != null) {
+            return;
+        }
         WebXmlUtils.addContextParam(xml, CONTEXT_PARAM_NAME.getValue(), descriptor.getContextPath());
         xml.getRootElement().getChildren().add(0, buildListener(xml.getRootElement().getNamespace().getURI()));
         WebXmlIo.writeDescriptor(xml, webXml);
@@ -231,8 +240,9 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
                 "lib").append(File.separator).toString();
         File dir = new File(libDir);
         List<CustomObjectFactory> jars = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
-        for (CustomObjectFactory jar : jars)
+        for (CustomObjectFactory jar : jars) {
             copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir);
+        }
         copyEjistoLibs(entries, dir);
         String deployablePath = System.getProperty(
                 DEPLOYABLES_DIR.getValue()) + File.separator + session.getWarFile().getName();

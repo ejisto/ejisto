@@ -57,6 +57,8 @@ public final class EjistoProxyFactory extends ObjectNullHandler {
     }
 
     private synchronized void init() {
-        if (mockedFieldsRepository == null) mockedFieldsRepository = MockedFieldsRepository.getInstance();
+        if (mockedFieldsRepository == null) {
+            mockedFieldsRepository = MockedFieldsRepository.getInstance();
+        }
     }
 }

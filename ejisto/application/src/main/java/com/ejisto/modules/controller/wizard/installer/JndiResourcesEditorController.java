@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,9 @@ public class JndiResourcesEditorController extends AbstractApplicationInstallerC
 
     @Override
     public JndiResourcesEditor getView() {
-        if (jndiResourcesEditor != null) return jndiResourcesEditor;
+        if (jndiResourcesEditor != null) {
+            return jndiResourcesEditor;
+        }
         jndiResourcesEditor = new JndiResourcesEditor();
         jndiResourcesEditor.setFileSelectionListener(this);
         return jndiResourcesEditor;
@@ -98,7 +100,9 @@ public class JndiResourcesEditorController extends AbstractApplicationInstallerC
     @Override
     public boolean validateInput() {
         List<JndiDataSource> entries = getView().getDataSources();
-        if (CollectionUtils.isEmpty(entries)) return true;
+        if (CollectionUtils.isEmpty(entries)) {
+            return true;
+        }
         DataSourceEnvEntryValidator validator = new DataSourceEnvEntryValidator();
         ValidationErrors errors = new ValidationErrors("JndiDataSource");
         validator.validateAll(entries, errors);

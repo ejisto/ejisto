@@ -64,12 +64,16 @@ public class MapFactory<K, V> extends AbstractContainerFactory<Map<K, V>, V> {
     }
 
     private void fillMap(Map<K, V> map, ObjectFactory<V> elementObjectFactory, MockedField m) {
-        for (int i = 0; i < map.size(); i++) map.put(null, elementObjectFactory.create(m, null));
+        for (int i = 0; i < map.size(); i++) {
+            map.put(null, elementObjectFactory.create(m, null));
+        }
     }
 
     private int extractSize(MockedField m) {
         for (String s : m.getExpression().split(";")) {
-            if (s.startsWith("size")) return Integer.parseInt(s.split("=")[1]);
+            if (s.startsWith("size")) {
+                return Integer.parseInt(s.split("=")[1]);
+            }
         }
         return 10;
     }

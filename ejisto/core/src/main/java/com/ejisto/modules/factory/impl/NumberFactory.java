@@ -73,7 +73,9 @@ public class NumberFactory implements ObjectFactory<Number> {
     }
 
     private Class<?> translateType(String type) throws ClassNotFoundException {
-        if (type.startsWith("java.")) return Class.forName(type);
+        if (type.startsWith("java.")) {
+            return Class.forName(type);
+        }
         return registeredTypes.get(type);
     }
 

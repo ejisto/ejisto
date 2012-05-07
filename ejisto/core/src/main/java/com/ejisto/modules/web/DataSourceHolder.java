@@ -36,7 +36,9 @@ public class DataSourceHolder {
     }
 
     public static void setDataSource(DataSource ds) {
-        if (dataSource.get() == null) dataSource.compareAndSet(null, ds);
+        if (dataSource.get() == null) {
+            dataSource.compareAndSet(null, ds);
+        }
     }
 
     static void clearDataSource() {

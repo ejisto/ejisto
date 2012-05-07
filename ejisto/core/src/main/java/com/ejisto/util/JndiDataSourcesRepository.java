@@ -43,8 +43,9 @@ public final class JndiDataSourcesRepository {
     }
 
     public static void store(JndiDataSource dataSource) {
-        if (!getInstance().getJndiDataSourcesDao().isAlredyRegistered(dataSource.getName()))
+        if (!getInstance().getJndiDataSourcesDao().isAlredyRegistered(dataSource.getName())) {
             getInstance().getJndiDataSourcesDao().insert(dataSource);
+        }
     }
 
     public static void update(JndiDataSource dataSource) {

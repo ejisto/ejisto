@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,9 @@ public abstract class AbstractStepController<K> implements StepController<K>, Pr
     }
 
     protected <T> String addJob(Task<T> task) {
-        if (!insertPermit.tryAcquire()) throw new IllegalStateException("no available permits");
+        if (!insertPermit.tryAcquire()) {
+            throw new IllegalStateException("no available permits");
+        }
         return taskManager.addNewTask(task);
     }
 

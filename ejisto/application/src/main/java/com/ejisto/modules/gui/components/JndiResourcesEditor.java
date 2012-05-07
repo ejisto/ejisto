@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,7 +62,9 @@ public class JndiResourcesEditor extends JXPanel {
     }
 
     private JTabbedPane getResourcesTabbedPane() {
-        if (this.tabbedPane != null) return this.tabbedPane;
+        if (this.tabbedPane != null) {
+            return this.tabbedPane;
+        }
         Closure1<ActionEvent> callActionPerformed = new Closure1<ActionEvent>() {{
             of(fileSelectionListener).actionPerformed(var(ActionEvent.class));
         }};
@@ -79,7 +81,9 @@ public class JndiResourcesEditor extends JXPanel {
     }
 
     private JXPanel getSummaryPane() {
-        if (this.summaryPane != null) return this.summaryPane;
+        if (this.summaryPane != null) {
+            return this.summaryPane;
+        }
         summaryPane = new JXPanel(new BorderLayout());
         summaryPane.add(getResourcesScrollPane(), BorderLayout.CENTER);
         return summaryPane;
@@ -90,7 +94,9 @@ public class JndiResourcesEditor extends JXPanel {
     }
 
     private JTree getResourcesTree() {
-        if (this.resourcesTree != null) return this.resourcesTree;
+        if (this.resourcesTree != null) {
+            return this.resourcesTree;
+        }
         resourcesTree = new JTree(getResourcesTreeModel()) {
             @Override
             public String getToolTipText(MouseEvent event) {
@@ -105,7 +111,9 @@ public class JndiResourcesEditor extends JXPanel {
     }
 
     private JndiResourcesTreeModel getResourcesTreeModel() {
-        if (this.resourcesTreeModel != null) return this.resourcesTreeModel;
+        if (this.resourcesTreeModel != null) {
+            return this.resourcesTreeModel;
+        }
         resourcesTreeModel = new JndiResourcesTreeModel(dataSources);
         return resourcesTreeModel;
     }

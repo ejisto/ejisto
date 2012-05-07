@@ -93,8 +93,11 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
     }
 
     private void handleInstalledWebApplicationsStatus(boolean started) {
-        if (started) webApplicationRepository.containerStartup(DEFAULT_CONTAINER_ID.getValue());
-        else webApplicationRepository.containerShutdown(DEFAULT_CONTAINER_ID.getValue());
+        if (started) {
+            webApplicationRepository.containerStartup(DEFAULT_CONTAINER_ID.getValue());
+        } else {
+            webApplicationRepository.containerShutdown(DEFAULT_CONTAINER_ID.getValue());
+        }
         ContainerStatusChanged newEvent = new ContainerStatusChanged(this, DEFAULT_CONTAINER_ID.getValue(), started);
         eventManager.publishEvent(newEvent);
     }

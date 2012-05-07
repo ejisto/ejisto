@@ -70,8 +70,11 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
                 String[] keyValue;
                 for (String exp : expressions) {
                     keyValue = exp.split("=");
-                    if (keyValue[0].equals("size")) size = Integer.parseInt(keyValue[1]);
-                    else Ognl.setValue(keyValue[0], in, keyValue[1]);
+                    if (keyValue[0].equals("size")) {
+                        size = Integer.parseInt(keyValue[1]);
+                    } else {
+                        Ognl.setValue(keyValue[0], in, keyValue[1]);
+                    }
                 }
             }
             fillCollection(in, size, elementObjectFactory, mockedField, actualValue);
@@ -90,12 +93,19 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
         target.setContextPath(mockedField.getContextPath());
         target.setActive(true);
 
-        if (emptyFields && !isEmpty(actualValue)) in.addAll(actualValue);
-        if (emptyFields && !elementObjectFactory.supportsRandomValuesCreation()) return;
+        if (emptyFields && !isEmpty(actualValue)) {
+            in.addAll(actualValue);
+        }
+        if (emptyFields && !elementObjectFactory.supportsRandomValuesCreation()) {
+            return;
+        }
         Y firstValue = isEmpty(actualValue) ? null : actualValue.iterator().next();
         for (int i = in.size(); i < size; i++) {
-            if (emptyFields) in.add(elementObjectFactory.createRandomValue());
-            else in.add(elementObjectFactory.create(target, firstValue));
+            if (emptyFields) {
+                in.add(elementObjectFactory.createRandomValue());
+            } else {
+                in.add(elementObjectFactory.create(target, firstValue));
+            }
         }
     }
 

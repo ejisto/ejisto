@@ -41,8 +41,9 @@ public class WebApplicationRepository {
     }
 
     public void registerWebApplication(String containerId, WebApplication<?> webApplication) {
-        if (!webApplications.containsKey(containerId))
+        if (!webApplications.containsKey(containerId)) {
             webApplications.putIfAbsent(containerId, new HashMap<String, WebApplication<?>>());
+        }
         webApplications.get(containerId).put(webApplication.getWebApplicationContextPath(), webApplication);
     }
 
@@ -74,7 +75,9 @@ public class WebApplicationRepository {
 
     private void changeWebApplicationsStatus(String containerId, WebApplication.Status status) {
         Map<String, WebApplication<?>> map = webApplications.get(containerId);
-        if (map == null) return;
+        if (map == null) {
+            return;
+        }
         Collection<WebApplication<?>> containerApplications = map.values();
         forEach(containerApplications).setStatus(status);
     }

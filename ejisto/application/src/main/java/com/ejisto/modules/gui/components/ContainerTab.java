@@ -55,7 +55,9 @@ public class ContainerTab extends JSplitPane {
     }
 
     private void log(LogMessage event) {
-        if (containerId.equals(event.getContainerId())) getLogViewer().log(event.getMessage());
+        if (containerId.equals(event.getContainerId())) {
+            getLogViewer().log(event.getMessage());
+        }
     }
 
     public String getContainerId() {
@@ -91,7 +93,9 @@ public class ContainerTab extends JSplitPane {
     }
 
     private void applicationDeployed(ApplicationDeployed event) {
-        if (containerId.equals(event.getContainerId())) reloadApplications();
+        if (containerId.equals(event.getContainerId())) {
+            reloadApplications();
+        }
     }
 
     private void initLeftComponent() {
@@ -109,19 +113,25 @@ public class ContainerTab extends JSplitPane {
     }
 
     private JPanel getServerSummaryPane() {
-        if (this.serverSummaryPane != null) return serverSummaryPane;
+        if (this.serverSummaryPane != null) {
+            return serverSummaryPane;
+        }
         serverSummaryPane = new ServerSummary(containerId, serverName);
         return serverSummaryPane;
     }
 
     private LogViewer getLogViewer() {
-        if (this.logViewer != null) return this.logViewer;
+        if (this.logViewer != null) {
+            return this.logViewer;
+        }
         logViewer = new LogViewer();
         return logViewer;
     }
 
     private JScrollPane getScrollableContextList() {
-        if (this.scrollableContextList != null) return this.scrollableContextList;
+        if (this.scrollableContextList != null) {
+            return this.scrollableContextList;
+        }
         scrollableContextList = new JScrollPane(getContextList(), ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                                                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollableContextList.setMinimumSize(new Dimension(250, 100));
@@ -133,7 +143,9 @@ public class ContainerTab extends JSplitPane {
     }
 
     private RegisteredContextList getContextList() {
-        if (this.contextList != null) return this.contextList;
+        if (this.contextList != null) {
+            return this.contextList;
+        }
         contextList = new RegisteredContextList();
         return contextList;
     }

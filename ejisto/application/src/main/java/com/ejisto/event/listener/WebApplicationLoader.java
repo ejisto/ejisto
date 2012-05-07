@@ -72,8 +72,11 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     @Override
     public void onApplicationEvent(LoadWebApplication event) {
         try {
-            if (event.loadStored()) loadExistingWebApplications();
-            else installNewWebApplication();
+            if (event.loadStored()) {
+                loadExistingWebApplications();
+            } else {
+                installNewWebApplication();
+            }
         } catch (NotInstalledException e) {
             showErrorMessage(application, getMessage("container.installation.required"));
             eventManager.publishEvent(new InstallContainer(this, e.getId(), false));
@@ -86,7 +89,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     private void installNewWebApplication() throws NotInstalledException {
         ApplicationInstallerWizardController controller = new ApplicationInstallerWizardController(application,
                                                                                                    containerManager.getDefaultHome());
-        if (!controller.showWizard()) return;
+        if (!controller.showWizard()) {
+            return;
+        }
         WebApplicationDescriptor webApplicationDescriptor = controller.getWebApplicationDescriptor();
         forEach(webApplicationDescriptor.getFields()).setContextPath(webApplicationDescriptor.getContextPath());
         forEach(webApplicationDescriptor.getModifiedFields()).setActive(true);
@@ -109,7 +114,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     }
 
     private void deployWebApp(WebApplicationDescriptor webApplicationDescriptor) throws NotInstalledException {
-        if (webApplicationDescriptor == null) return;
+        if (webApplicationDescriptor == null) {
+            return;
+        }
         containerManager.deployToDefaultContainer(webApplicationDescriptor);
         //undeployExistingWebapp(webApplicationDescriptor.getContextPath(), false);
         //bindAllDataSources(classLoader, webApplicationDescriptor);
@@ -149,7 +156,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
 
     private CallbackAction createAction(String command, Closure1<ActionEvent> callback, String iconKey, boolean enabled) {
         CallbackAction action = new CallbackAction(command, command, callback);
-        if (iconKey != null) action.setIcon(new ImageIcon(getClass().getResource(iconKey)));
+        if (iconKey != null) {
+            action.setIcon(new ImageIcon(getClass().getResource(iconKey)));
+        }
         action.setEnabled(enabled);
         return action;
     }
@@ -167,8 +176,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
                     stopWebapp(command[0], command[2]);
                     break;
                 case DELETE:
-                    if (showWarning(application, "webapp.context.delete.warning", command[2]))
+                    if (showWarning(application, "webapp.context.delete.warning", command[2])) {
                         undeployExistingWebapp(command[0], command[2]);
+                    }
                     break;
                 default:
                     break;
@@ -181,20 +191,23 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
 
     private void undeployExistingWebapp(String serverId, String contextPath) throws Exception {
         log.info("undeploying webapp " + contextPath);
-        if (containerManager.undeployFromDefaultContainer(contextPath))
+        if (containerManager.undeployFromDefaultContainer(contextPath)) {
             log.info("webapp " + contextPath + " undeployed");
+        }
     }
 
     private void startWebapp(String serverId, String contextPath) throws Exception {
         log.info("starting webapp " + contextPath);
-        if (containerManager.startWebApplicationOnDefaultServer(contextPath))
+        if (containerManager.startWebApplicationOnDefaultServer(contextPath)) {
             log.info("started webapp " + contextPath);
+        }
     }
 
     private void stopWebapp(String serverId, String contextPath) throws Exception {
         log.info("stopping webapp " + contextPath);
-        if (containerManager.stopWebApplicationOnDefaultServer(contextPath))
+        if (containerManager.stopWebApplicationOnDefaultServer(contextPath)) {
             log.info("stopped webapp " + contextPath);
+        }
     }
 
     private void saveWebAppDescriptor(WebApplicationDescriptor webApplicationDescriptor) {
@@ -225,7 +238,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
 
     private void startBrowser(WebApplicationDescriptor descriptor) {
         //thanks to sun, browser is not available on kde http://bugs.sun.com/view_bug.do?bug_id=6486393
-        if (!Desktop.isDesktopSupported() || !containerManager.isServerRunning()) return;
+        if (!Desktop.isDesktopSupported() || !containerManager.isServerRunning()) {
+            return;
+        }
         try {
             Desktop.getDesktop().browse(URI.create(guessWebApplicationUri(descriptor)));
         } catch (IOException e) {

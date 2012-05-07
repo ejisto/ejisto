@@ -93,7 +93,9 @@ public class EmptyRootNodeFillStrategy implements NodeFillStrategy {
     }
 
     private String[] getParentPath(int depth, String[] originalPath) {
-        if (depth == originalPath.length) return originalPath;
+        if (depth == originalPath.length) {
+            return originalPath;
+        }
         String[] newPath = new String[depth + 1];
         System.arraycopy(originalPath, 0, newPath, 0, depth + 1);
         return newPath;

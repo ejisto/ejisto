@@ -48,8 +48,9 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
         super(new MockedFieldsTableModel(Collections.<MockedField>emptyList(), fieldsEditorContext));
         this.fieldsEditorContext = fieldsEditorContext;
         addMouseListener(new PopupMenuManager());
-        if (fieldsEditorContext == ADD_FIELD)
+        if (fieldsEditorContext == ADD_FIELD) {
             setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        }
         this.helper = new MockedFieldEditingEventHelper();
     }
 
@@ -61,7 +62,9 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
     @Override
     public MockedField getFieldAt(Point point) {
         int rowIndex = rowAtPoint(point);
-        if (rowIndex == -1) return null;
+        if (rowIndex == -1) {
+            return null;
+        }
         return getModel().getMockedFieldAt(rowIndex);
     }
 
@@ -94,13 +97,17 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
     @Override
     public void selectFieldAt(Point point) {
         int rowIndex = rowAtPoint(point);
-        if (rowIndex > -1) setRowSelectionInterval(rowIndex, rowIndex);
+        if (rowIndex > -1) {
+            setRowSelectionInterval(rowIndex, rowIndex);
+        }
     }
 
     @Override
     public List<MockedField> getSelectedFields() {
         int[] selectedRows = getSelectedRows();
-        if (selectedRows.length == 0) return emptyList();
+        if (selectedRows.length == 0) {
+            return emptyList();
+        }
         List<MockedField> selectedFields = new ArrayList<MockedField>(selectedRows.length);
         for (int selectedRow : selectedRows) {
             selectedFields.add(((MockedFieldsTableModel) getModel()).getMockedFieldAt(selectedRow));

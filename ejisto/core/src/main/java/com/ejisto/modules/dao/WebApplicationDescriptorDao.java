@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,16 +65,16 @@ public class WebApplicationDescriptorDao extends BaseDao {
         delete(descriptor);
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
         getJdbcTemplate().update(new PreparedStatementCreator() {
-                                     @Override
-                                     public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                                         PreparedStatement pstm = con.prepareStatement(SQL_INSERT, new String[]{"ID"});
-                                         pstm.setString(1, descriptor.getContextPath());
-                                         pstm.setString(2, descriptor.getInstallationPath());
-                                         pstm.setString(3, descriptor.getDeployablePath());
-                                         pstm.setString(4, descriptor.getContainerId());
-                                         return pstm;
-                                     }
-                                 }, holder);
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement pstm = con.prepareStatement(SQL_INSERT, new String[]{"ID"});
+                pstm.setString(1, descriptor.getContextPath());
+                pstm.setString(2, descriptor.getInstallationPath());
+                pstm.setString(3, descriptor.getDeployablePath());
+                pstm.setString(4, descriptor.getContainerId());
+                return pstm;
+            }
+        }, holder);
         descriptor.setId(holder.getKey().intValue());
         forEach(descriptor.getElements()).setContextPath(descriptor.getContextPath());
         insertElements(descriptor);
@@ -124,7 +124,9 @@ public class WebApplicationDescriptorDao extends BaseDao {
         @Override
         public List<WebApplicationDescriptor> extractData(ResultSet rs) throws SQLException, DataAccessException {
             List<WebApplicationDescriptor> ret = new ArrayList<WebApplicationDescriptor>();
-            while (rs.next()) ret.add(buildFromResultSet(rs));
+            while (rs.next()) {
+                ret.add(buildFromResultSet(rs));
+            }
             return ret;
         }
     };
@@ -132,7 +134,9 @@ public class WebApplicationDescriptorDao extends BaseDao {
     private static final ResultSetExtractor<WebApplicationDescriptor> EXTRACTOR = new ResultSetExtractor<WebApplicationDescriptor>() {
         @Override
         public WebApplicationDescriptor extractData(ResultSet rs) throws SQLException, DataAccessException {
-            if (!rs.next()) return null;
+            if (!rs.next()) {
+                return null;
+            }
             return buildFromResultSet(rs);
         }
     };

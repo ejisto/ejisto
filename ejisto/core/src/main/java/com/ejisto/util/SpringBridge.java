@@ -39,12 +39,16 @@ public final class SpringBridge implements ApplicationContextAware {
 
     public static boolean publishApplicationEvent(ApplicationEvent e) {
         boolean ret = isApplicationInitialized();
-        if (ret) getInstance().getBean("eventManager", EventManager.class).publishEvent(e);
+        if (ret) {
+            getInstance().getBean("eventManager", EventManager.class).publishEvent(e);
+        }
         return ret;
     }
 
     static String getMessage(String key, String language, Object... values) {
-        if (!isApplicationInitialized()) return "!!Application not initialized!!";
+        if (!isApplicationInitialized()) {
+            return "!!Application not initialized!!";
+        }
         return getInstance().internalGetMessage(key, language, values);
     }
 
@@ -81,8 +85,11 @@ public final class SpringBridge implements ApplicationContextAware {
     }
 
     public <T> T getBean(String name, Class<T> type) {
-        if (this.applicationContext != null) return this.applicationContext.getBean(name, type);
-        else return null;
+        if (this.applicationContext != null) {
+            return this.applicationContext.getBean(name, type);
+        } else {
+            return null;
+        }
     }
 
     @Override

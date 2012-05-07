@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,11 +62,14 @@ public class FileExtractionWorker extends GuiTask<Void> {
 
     private String openWar(File file) throws Exception {
         String newPath = new StringBuilder(System.getProperty("java.io.tmpdir")).append(File.separator)
-                        .append(getFilenameWithoutExt(file)).append(File.separator).toString();
+                .append(getFilenameWithoutExt(file)).append(File.separator).toString();
         File baseDir = new File(newPath);
-        if (!overwriteDir(baseDir)) return null;
-        if (!initTempDir(baseDir))
+        if (!overwriteDir(baseDir)) {
+            return null;
+        }
+        if (!initTempDir(baseDir)) {
             throw new IOException("Path " + baseDir.getAbsolutePath() + " is not writable. Cannot continue.");
+        }
         getSession().clearElements();
         ZipFile war = new ZipFile(file);
         Enumeration<? extends ZipEntry> entries = war.entries();
@@ -75,10 +78,13 @@ public class FileExtractionWorker extends GuiTask<Void> {
         while (entries.hasMoreElements()) {
             entry = entries.nextElement();
             notifyJobCompleted(RUNNING, getMessage("progress.file.extraction", entry.getName()));
-            if (!entry.isDirectory()) writeFile(war.getInputStream(entry), baseDir, entry.getName());
-            if (entry.getName().endsWith(".jar"))
+            if (!entry.isDirectory()) {
+                writeFile(war.getInputStream(entry), baseDir, entry.getName());
+            }
+            if (entry.getName().endsWith(".jar")) {
                 getSession().addElement(
                         new WebApplicationDescriptorElement(retrieveFilenameFromPath(entry.getName())));
+            }
         }
         return newPath;
     }
@@ -86,16 +92,22 @@ public class FileExtractionWorker extends GuiTask<Void> {
     private boolean overwriteDir(File dir) {
         if (dir.exists() && showWarning(null, "wizard.overwrite.dir.message", dir.getAbsolutePath())) {
             boolean success = true;
-            for (File f : dir.listFiles()) success &= deleteFile(f);
+            for (File f : dir.listFiles()) {
+                success &= deleteFile(f);
+            }
             return success;
         }
         return !dir.exists();
     }
 
     private boolean initTempDir(File dir) {
-        if (dir.exists()) return true;
+        if (dir.exists()) {
+            return true;
+        }
         boolean success = dir.mkdir();
-        if (!success) return success;
+        if (!success) {
+            return success;
+        }
         dir.deleteOnExit();
         return success;
     }

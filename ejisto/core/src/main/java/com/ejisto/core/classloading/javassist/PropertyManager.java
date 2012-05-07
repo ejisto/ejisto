@@ -128,6 +128,8 @@ public final class PropertyManager {
     }
 
     private static void trace(String s) {
-        if (logger.isTraceEnabled()) logger.trace(s);
+        if (logger.isTraceEnabled()) {
+            logger.trace(s);
+        }
     }
 }

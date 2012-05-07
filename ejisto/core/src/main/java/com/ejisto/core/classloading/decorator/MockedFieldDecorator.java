@@ -59,7 +59,9 @@ public class MockedFieldDecorator implements MockedField {
             targetClazz = cp.get(target.getFieldType());
             for (String complexType : COMPLEX_TYPES) {
                 clazz = cp.get(complexType);
-                if (targetClazz.subtypeOf(clazz)) return false;
+                if (targetClazz.subtypeOf(clazz)) {
+                    return false;
+                }
                 clazz.detach();
             }
             return true;
@@ -81,8 +83,9 @@ public class MockedFieldDecorator implements MockedField {
 
     @Override
     public String getCompleteFieldType() {
-        if (StringUtils.hasText(target.getFieldElementType()))
+        if (StringUtils.hasText(target.getFieldElementType())) {
             return target.getFieldType() + "<" + cleanFieldElementType(target.getFieldElementType()) + ">";
+        }
         return target.getFieldType();
     }
 
@@ -92,7 +95,9 @@ public class MockedFieldDecorator implements MockedField {
     }
 
     private String evaluateFieldValue() {
-        if (isSimpleValue()) return getFieldValue();
+        if (isSimpleValue()) {
+            return getFieldValue();
+        }
         return "**expression**";
     }
 

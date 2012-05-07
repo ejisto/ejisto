@@ -128,7 +128,9 @@ public class InspectionBasedNodeFillStrategyTest {
         MockedFieldNode root1 = new MockedFieldNode(true) {
             @Override
             public void add(MutableTreeNode newChild) {
-                if (counter.incrementAndGet() == 2) fail();
+                if (counter.incrementAndGet() == 2) {
+                    fail();
+                }
                 super.add(newChild);
             }
         };
@@ -156,7 +158,9 @@ public class InspectionBasedNodeFillStrategyTest {
         MockedFieldNode root1 = new MockedFieldNode(true) {
             @Override
             public void add(MutableTreeNode newChild) {
-                if (counter.incrementAndGet() == 2) fail();
+                if (counter.incrementAndGet() == 2) {
+                    fail();
+                }
                 super.add(newChild);
             }
         };
@@ -189,7 +193,9 @@ public class InspectionBasedNodeFillStrategyTest {
         MockedFieldNode root1 = new MockedFieldNode(true) {
             @Override
             public void add(MutableTreeNode newChild) {
-                if (counter.incrementAndGet() == 3) fail();
+                if (counter.incrementAndGet() == 3) {
+                    fail();
+                }
                 super.add(newChild);
             }
         };

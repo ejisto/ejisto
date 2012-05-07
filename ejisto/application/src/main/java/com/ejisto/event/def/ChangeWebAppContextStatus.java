@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,9 @@ public class ChangeWebAppContextStatus extends BaseApplicationEvent {
 
         public static WebAppContextStatusCommand fromString(String commandAsString) {
             for (WebAppContextStatusCommand statusCommand : values()) {
-                if (statusCommand.command.getValue().equals(commandAsString)) return statusCommand;
+                if (statusCommand.command.getValue().equals(commandAsString)) {
+                    return statusCommand;
+                }
             }
             return null;
         }

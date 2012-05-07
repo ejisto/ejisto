@@ -48,7 +48,9 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
 
     @Override
     public ProgressPanel getView() {
-        if (applicationScanningTab != null) return applicationScanningTab;
+        if (applicationScanningTab != null) {
+            return applicationScanningTab;
+        }
         applicationScanningTab = new ProgressPanel();
         return applicationScanningTab;
     }
@@ -134,7 +136,9 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     private void syncProgressState(ProgressDescriptor.ProgressState current) {
         ProgressDescriptor.ProgressState previous = progressState.get();
         boolean success = previous != current && progressState.compareAndSet(previous, current);
-        if (success && current == INDETERMINATE) getView().reset();
+        if (success && current == INDETERMINATE) {
+            getView().reset();
+        }
     }
 
 }

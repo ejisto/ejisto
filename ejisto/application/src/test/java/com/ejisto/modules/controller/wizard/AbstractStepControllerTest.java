@@ -63,7 +63,7 @@ public class AbstractStepControllerTest {
     public void testExecutionCompleted() throws InterruptedException, BrokenBarrierException {
         final ExecutorService executorService = Executors.newFixedThreadPool(TASKS);
         final AtomicInteger counter = new AtomicInteger();
-        for (int i = 0; i < TASKS; i++)
+        for (int i = 0; i < TASKS; i++) {
             executorService.submit(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
@@ -76,6 +76,7 @@ public class AbstractStepControllerTest {
                     return null;
                 }
             });
+        }
         threadSynchronizer.await();
         assertEquals(TASKS - 1, counter.get());
     }

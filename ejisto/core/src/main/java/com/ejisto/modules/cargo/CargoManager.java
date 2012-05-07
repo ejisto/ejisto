@@ -137,14 +137,18 @@ public class CargoManager implements ContainerManager {
             log.error("caught InterruptedException", e);
             Thread.currentThread().interrupt();
         } finally {
-            if (owned) lifeCycleOperationLock.unlock();
+            if (owned) {
+                lifeCycleOperationLock.unlock();
+            }
         }
         return false;
     }
 
     @SuppressWarnings("unchecked")
     private boolean stop(String id, LocalContainer localContainer) {
-        if (!serverStarted.get()) return true;
+        if (!serverStarted.get()) {
+            return true;
+        }
         boolean owned = false;
         try {
             if (lifeCycleOperationLock.tryLock(30, TimeUnit.SECONDS)) {
@@ -163,7 +167,9 @@ public class CargoManager implements ContainerManager {
             log.error("caught InterruptedException", e);
             Thread.currentThread().interrupt();
         } finally {
-            if (owned) lifeCycleOperationLock.unlock();
+            if (owned) {
+                lifeCycleOperationLock.unlock();
+            }
         }
         return false;
     }
@@ -176,7 +182,9 @@ public class CargoManager implements ContainerManager {
     @SuppressWarnings("unchecked")
     private AbstractInstalledLocalContainer loadContainer(Container installedContainer, boolean addStartupOptions) {
         String containerId = installedContainer.getCargoId();
-        if (installedContainers.containsKey(containerId)) return installedContainers.get(containerId);
+        if (installedContainers.containsKey(containerId)) {
+            return installedContainers.get(containerId);
+        }
         //container creation
         File configurationDir = new File(installedContainer.getHomeDir());
         Configuration configuration;
@@ -189,7 +197,9 @@ public class CargoManager implements ContainerManager {
 
         //if (addStartupOptions) jvmArgs.append(" -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005");
         String existingConfiguration = configuration.getPropertyValue(GeneralPropertySet.JVMARGS);
-        if (StringUtils.hasText(existingConfiguration)) jvmArgs.append(" ").append(existingConfiguration);
+        if (StringUtils.hasText(existingConfiguration)) {
+            jvmArgs.append(" ").append(existingConfiguration);
+        }
         configuration.setProperty(GeneralPropertySet.JVMARGS, jvmArgs.append(" ").toString());
         DefaultContainerFactory containerFactory = new DefaultContainerFactory();
         AbstractInstalledLocalContainer container = (AbstractInstalledLocalContainer) containerFactory.createContainer(
@@ -273,7 +283,9 @@ public class CargoManager implements ContainerManager {
         }
         //Deployable deployable = serverStarted.get() ? hotDeploy(descriptor, container) : staticDeploy(descriptor, container);
         Deployable deployable = staticDeploy(descriptor, container);
-        if (deployable == null) return false;
+        if (deployable == null) {
+            return false;
+        }
         webApplicationRepository.registerWebApplication(containerId,
                                                         new CargoWebApplication(descriptor.getContextPath(),
                                                                                 containerId, deployable));
@@ -365,7 +377,9 @@ public class CargoManager implements ContainerManager {
     private void replaceDeployable(Deployable replacement, LocalContainer container) {
         LocalConfiguration configuration = container.getConfiguration();
         Deployable old = findDeployable(replacement.getFile(), configuration);
-        if (old != null) configuration.getDeployables().remove(old);
+        if (old != null) {
+            configuration.getDeployables().remove(old);
+        }
         configuration.addDeployable(replacement);
     }
 

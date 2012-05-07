@@ -3,7 +3,7 @@
 <!--
   ~ Ejisto, a powerful developer assistant
   ~
-  ~ Copyright (C) 2010-2011  Celestino Bellone
+  ~ Copyright (C) 2010-2012  Celestino Bellone
   ~
   ~ Ejisto is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
   -->
 
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
-         xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          id="WebApp_ID" version="2.5">
     <display-name>simpleWarProject</display-name>

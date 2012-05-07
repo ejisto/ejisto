@@ -53,7 +53,9 @@ public class StringFactory implements ObjectFactory<String> {
     public String createRandomValue() {
         StringBuilder builder = new StringBuilder();
         int size = random.nextInt(1024);
-        for (int i = 0; i < size; i++) builder.append("a");
+        for (int i = 0; i < size; i++) {
+            builder.append("a");
+        }
         return builder.toString();
     }
 

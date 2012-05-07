@@ -83,7 +83,9 @@ public class RegisteredContextList extends JXPanel {
     }
 
     private void internalReloadAllContexts(boolean removeAll) {
-        if (removeAll) removeAll();
+        if (removeAll) {
+            removeAll();
+        }
         for (WebApplication<?> context : getAllRegisteredWebApplications()) {
             add(buildContextControlPanel(context));
         }

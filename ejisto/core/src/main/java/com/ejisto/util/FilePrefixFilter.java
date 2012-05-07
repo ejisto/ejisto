@@ -39,7 +39,9 @@ public class FilePrefixFilter implements FileFilter {
     @Override
     public boolean accept(File pathName) {
         for (String prefix : prefixes) {
-            if (pathName.getName().startsWith(prefix)) return true;
+            if (pathName.getName().startsWith(prefix)) {
+                return true;
+            }
         }
         return false;
     }

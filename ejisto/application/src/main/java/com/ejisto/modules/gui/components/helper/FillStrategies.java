@@ -35,9 +35,11 @@ public class FillStrategies {
 
     public static MockedFieldNode applyStrategy(NodeFillStrategy strategy, MockedFieldNode root, MockedField field) {
         if (!field.isActive()) //field deleted
+        {
             return strategy.removeField(root, field);
-        else
+        } else {
             return strategy.insertField(root, field);
+        }
     }
 
     public static MockedFieldNode findChild(MockedFieldNode root, MockedField child) {

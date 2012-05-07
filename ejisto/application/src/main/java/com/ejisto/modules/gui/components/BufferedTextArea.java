@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,6 +60,8 @@ class BufferedTextArea extends JTextArea implements DocumentListener {
 
     private synchronized void checkBufferSize() throws BadLocationException {
         Element root = getDocument().getDefaultRootElement();
-        while (root.getElementCount() > bufferSize) getDocument().remove(0, root.getElement(0).getEndOffset());
+        while (root.getElementCount() > bufferSize) {
+            getDocument().remove(0, root.getElement(0).getEndOffset());
+        }
     }
 }

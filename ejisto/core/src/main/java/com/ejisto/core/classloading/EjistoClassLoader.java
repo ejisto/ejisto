@@ -49,7 +49,9 @@ public class EjistoClassLoader extends URLClassLoader {
         try {
             boolean instrumentableClass = isInstrumentableClass(name);
             log.debug(name + " is mockable class: " + instrumentableClass);
-            if (instrumentableClass) return loadInstrumentableClass(name);
+            if (instrumentableClass) {
+                return loadInstrumentableClass(name);
+            }
             return null;//should never happen...
         } catch (Exception e) {
             throw new ClassNotFoundException("Unable to load class [" + name + "]", e);
@@ -76,9 +78,13 @@ public class EjistoClassLoader extends URLClassLoader {
     private void addLibExt() {
         try {
             File directory = new File(System.getProperty(StringConstants.EXTENSIONS_DIR.getValue()));
-            if (!directory.exists() || !directory.isDirectory()) return;
+            if (!directory.exists() || !directory.isDirectory()) {
+                return;
+            }
             for (File f : directory.listFiles()) {
-                if (f.getName().endsWith(".jar")) addURL(f.toURI().toURL());
+                if (f.getName().endsWith(".jar")) {
+                    addURL(f.toURI().toURL());
+                }
             }
         } catch (Exception e) {
             log.error("unable to load extra classpath", e);

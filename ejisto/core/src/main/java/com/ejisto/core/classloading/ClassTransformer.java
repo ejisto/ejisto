@@ -69,18 +69,25 @@ public class ClassTransformer implements ClassFileTransformer {
 
     private CtClass load(String className) throws Exception {
         CtClass clazz = classPool.get(className.replaceAll("/", "."));
-        if (clazz.isFrozen()) clazz.defrost();
+        if (clazz.isFrozen()) {
+            clazz.defrost();
+        }
         return clazz;
     }
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (!isInstrumentableClass(className)) return null;
+        if (!isInstrumentableClass(className)) {
+            return null;
+        }
         trace(className + " is instrumentable. Loading fields...");
         List<MockedField> fields = getFieldsFor(getCanonicalClassName(className));
         trace(className + " has registered fields: " + !CollectionUtils.isEmpty(fields));
-        if (CollectionUtils.isEmpty(fields)) return null;
-        else return transform(className, fields);
+        if (CollectionUtils.isEmpty(fields)) {
+            return null;
+        } else {
+            return transform(className, fields);
+        }
     }
 
     private void removeFinalModifier(CtClass clazz) {
@@ -138,6 +145,8 @@ public class ClassTransformer implements ClassFileTransformer {
     }
 
     private void trace(String s) {
-        if (logger.isTraceEnabled()) logger.trace(s);
+        if (logger.isTraceEnabled()) {
+            logger.trace(s);
+        }
     }
 }

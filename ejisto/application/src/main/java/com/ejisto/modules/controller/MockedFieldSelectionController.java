@@ -51,8 +51,12 @@ public class MockedFieldSelectionController {
     }
 
     private void initClosures() {
-        closeAction = new Closure0() {{of(MockedFieldSelectionController.this).close();}};
-        okAction = new Closure0() {{of(MockedFieldSelectionController.this).ok();}};
+        closeAction = new Closure0() {{
+            of(MockedFieldSelectionController.this).close();
+        }};
+        okAction = new Closure0() {{
+            of(MockedFieldSelectionController.this).ok();
+        }};
     }
 
     void close() {

@@ -57,8 +57,11 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
     @Override
     protected void download() {
         log.debug("called download()");
-        if (url.getProtocol().equals("file")) copyFromLocalFile();
-        else downloadFromNetwork();
+        if (url.getProtocol().equals("file")) {
+            copyFromLocalFile();
+        } else {
+            downloadFromNetwork();
+        }
     }
 
     private void downloadFromNetwork() {

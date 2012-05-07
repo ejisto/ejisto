@@ -77,7 +77,9 @@ public class EjistoDialog extends JDialog {
     }
 
     public void setActions(Collection<Action> actions) {
-        if (CollectionUtils.isEmpty(actions)) return;
+        if (CollectionUtils.isEmpty(actions)) {
+            return;
+        }
         this.actions.clear();
         for (Action action : actions) {
             registerAction(action);
@@ -91,7 +93,9 @@ public class EjistoDialog extends JDialog {
 
     @Override
     public void setVisible(boolean b) {
-        if (b) init();
+        if (b) {
+            init();
+        }
         super.setVisible(b);
     }
 
@@ -112,8 +116,11 @@ public class EjistoDialog extends JDialog {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                if (isVisible() && !isFreelyCloseable()) handleClose(e);
-                else close();
+                if (isVisible() && !isFreelyCloseable()) {
+                    handleClose(e);
+                } else {
+                    close();
+                }
             }
         });
     }
@@ -141,7 +148,9 @@ public class EjistoDialog extends JDialog {
     }
 
     protected JPanel getButtonsBar() {
-        if (this.buttonsBar != null) return this.buttonsBar;
+        if (this.buttonsBar != null) {
+            return this.buttonsBar;
+        }
         buttonsBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonsBar.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.gray));
         JButton button;
@@ -161,7 +170,9 @@ public class EjistoDialog extends JDialog {
     }
 
     protected Header getHeader() {
-        if (this.header != null) return this.header;
+        if (this.header != null) {
+            return this.header;
+        }
         header = new Header();
         header.setImageKey(iconKey);
         return header;

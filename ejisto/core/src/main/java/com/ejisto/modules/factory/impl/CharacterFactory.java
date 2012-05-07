@@ -42,7 +42,9 @@ public class CharacterFactory implements ObjectFactory<Character> {
 
     @Override
     public Character create(MockedField m, Character actualValue) {
-        if (StringUtils.hasText(m.getFieldValue())) return m.getFieldValue().charAt(0);
+        if (StringUtils.hasText(m.getFieldValue())) {
+            return m.getFieldValue().charAt(0);
+        }
         return actualValue != null ? actualValue : ' ';
     }
 

@@ -175,7 +175,9 @@ public class BoundResourceEditor {
     }
 
     private void initClosures() {
-        if (!CollectionUtils.isEmpty(actionMap)) return;
+        if (!CollectionUtils.isEmpty(actionMap)) {
+            return;
+        }
         actionMap.put("driverClassName", new Closure1<String>() {{
             of(dataSource).setDriverClassName(var(String.class));
         }});

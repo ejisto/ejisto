@@ -68,7 +68,9 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
     }
 
     private MockedFieldNode handleNodeModification(MockedFieldNode parent, MockedField child, NodeOperationHelper operationHelper) {
-        if (!containsChild(parent, child)) throw new IllegalArgumentException("child not compatible.");
+        if (!containsChild(parent, child)) {
+            throw new IllegalArgumentException("child not compatible.");
+        }
         int depthDifference = calcDepthDifference(parent, child);
         Assert.isTrue(depthDifference <= 0);
         if (depthDifference == 0) {
@@ -78,17 +80,22 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
         Enumeration<MockedFieldNode> en = parent.children();
         while (en.hasMoreElements()) {
             MockedFieldNode candidate = en.nextElement();
-            if (containsChild(candidate, child)) return handleNodeModification(candidate, child, operationHelper);
+            if (containsChild(candidate, child)) {
+                return handleNodeModification(candidate, child, operationHelper);
+            }
         }
-        if (operationHelper.whenNotFound != null)
+        if (operationHelper.whenNotFound != null) {
             operationHelper.whenNotFound.doAction(parent, child, depthDifference);
+        }
         return parent;
     }
 
     void insertNode(MockedFieldNode parent, MockedField child) {
         MockedFieldNode node = new MockedFieldNode(child);
         node.setNodePath(child.getPath());
-        if (!parent.containsChild(node)) parent.add(node);
+        if (!parent.containsChild(node)) {
+            parent.add(node);
+        }
     }
 
     void deleteNode(MockedFieldNode parent, MockedField child) {
@@ -96,7 +103,9 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
     }
 
     private int calcDepthDifference(MockedFieldNode parent, MockedField child) {
-        if (parent.isRoot()) return -(child.getParentClassPath().length);
+        if (parent.isRoot()) {
+            return -(child.getParentClassPath().length);
+        }
         return parent.getNodePath().length - child.getParentClassPath().length;
     }
 
@@ -120,7 +129,9 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
     public boolean containsChild(MockedFieldNode parent, MockedField child) {
         Assert.notNull(parent, "parent can't be null");
         Assert.notNull(child, "child can't be null");
-        if (!parent.isRoot()) Assert.notNull(parent.getUserObject(), "parent.userObject can't be null");
+        if (!parent.isRoot()) {
+            Assert.notNull(parent.getUserObject(), "parent.userObject can't be null");
+        }
         return parent.isRoot() || child.getParentClassPathAsString().startsWith(encodeTreePath(parent.getNodePath()));
     }
 

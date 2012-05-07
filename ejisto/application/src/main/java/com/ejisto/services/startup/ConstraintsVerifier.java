@@ -42,8 +42,9 @@ public class ConstraintsVerifier extends BaseStartupService {
         log.info("checking if there is another process already running");
         File lockFile = new File(System.getProperty("ejisto.home"), ".lock");
         try {
-            if (!lockFile.exists() && !lockFile.createNewFile())
+            if (!lockFile.exists() && !lockFile.createNewFile()) {
                 throw new RuntimeException("Unable to create lock file.");
+            }
             FileLock lock = new RandomAccessFile(lockFile, "rw").getChannel().tryLock();
             if (lock == null) {
                 throw new RuntimeException("There is another instance already running. Ejisto won't start.");

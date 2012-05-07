@@ -118,7 +118,9 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
     }
 
     private void initClosures() {
-        if (callActionPerformed != null) return;
+        if (callActionPerformed != null) {
+            return;
+        }
         callActionPerformed = new Closure1<ActionEvent>() {{
             of(ApplicationInstallerWizardController.this).actionPerformed(var(ActionEvent.class));
         }};
@@ -149,25 +151,35 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
 
     private void navigate(final boolean fwd) {
         if ((fwd && !isNextAvailable()) || (!fwd && !isPreviousAvailable())) {
-            if (fwd) confirm();
+            if (fwd) {
+                confirm();
+            }
             return;
         }
-        StepController<WebApplicationDescriptor> controller = fwd ? nextController() : previousController();
-        if (currentController != null && currentController.equals(controller)) return;
+        StepController<WebApplicationDescriptor> controller = getNextController(fwd);
+        if (currentController != null && currentController.equals(controller)) {
+            return;
+        }
         if (fwd && !controller.isForwardEnabled()) {
             currentIndex.incrementAndGet();
             navigate(true);
         }
         if (currentController != null) {
-            if (!currentController.validateInput()) return;
+            if (!currentController.validateInput()) {
+                return;
+            }
             currentController.beforeNext();
         }
-        if (fwd && !controller.canProceed()) return;
+        if (fwd && !controller.canProceed()) {
+            return;
+        }
         dialog.getActionFor(PREVIOUS_STEP_COMMAND.getValue()).setEnabled(false);
         dialog.getActionFor(NEXT_STEP_COMMAND.getValue()).setEnabled(false);
         dialog.getActionFor(CONFIRM.getValue()).setEnabled(false);
         currentController = controller;
-        if (fwd) currentIndex.incrementAndGet();
+        if (fwd) {
+            currentIndex.incrementAndGet();
+        }
         currentController.activate();
         wizard.goToStep(currentController.getStep());
         dialog.setHeaderTitle(getMessage(currentController.getTitleKey()));
@@ -176,6 +188,10 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
         dialog.getActionFor(PREVIOUS_STEP_COMMAND.getValue()).setEnabled(isPreviousAvailable());
         dialog.getActionFor(NEXT_STEP_COMMAND.getValue()).setEnabled(!isSummaryStep());
         dialog.getActionFor(CONFIRM.getValue()).setEnabled(isSummaryStep());
+    }
+
+    private StepController<WebApplicationDescriptor> getNextController(boolean fwd) {
+        return fwd ? nextController() : previousController();
     }
 
     private void executeStep(boolean fwd) {
@@ -207,14 +223,20 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
     }
 
     private StepController<WebApplicationDescriptor> nextController() {
-        if (!isNextAvailable()) return currentController;
+        if (!isNextAvailable()) {
+            return currentController;
+        }
         return controllers.get(currentIndex.get() + 1);
     }
 
     private StepController<WebApplicationDescriptor> previousController() {
-        if (!isPreviousAvailable()) return currentController;
+        if (!isPreviousAvailable()) {
+            return currentController;
+        }
         StepController<WebApplicationDescriptor> controller = controllers.get(currentIndex.decrementAndGet());
-        if (!controller.isBackEnabled()) return previousController();
+        if (!controller.isBackEnabled()) {
+            return previousController();
+        }
         return controller;
     }
 
@@ -228,6 +250,5 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

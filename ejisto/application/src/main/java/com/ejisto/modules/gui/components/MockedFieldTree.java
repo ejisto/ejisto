@@ -78,11 +78,16 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
 
     @Override
     public String convertValueToText(Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        if (!isMockedFieldNode(value)) return super.convertValueToText(value, selected, expanded, leaf, row, hasFocus);
+        if (!isMockedFieldNode(value)) {
+            return super.convertValueToText(value, selected, expanded, leaf, row, hasFocus);
+        }
         MockedFieldNode node = (MockedFieldNode) value;
-        if (EmptyTreeNode.class.isInstance(node))
+        if (EmptyTreeNode.class.isInstance(node)) {
             return getMessage("main.propertieseditor.tree.novalues.text");
-        if (!leaf) return node.toString();
+        }
+        if (!leaf) {
+            return node.toString();
+        }
         return node.getUserObject().getCompleteDescription();
     }
 
@@ -111,8 +116,11 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     @Override
     public void editFieldAt(Point point) {
         MockedField field = getFieldAt(point);
-        if (field.isSimpleValue()) startEditingAtPath(getPathForLocation(point.x, point.y));
-        else fireEditingStarted(field, point);
+        if (field.isSimpleValue()) {
+            startEditingAtPath(getPathForLocation(point.x, point.y));
+        } else {
+            fireEditingStarted(field, point);
+        }
     }
 
     private void fireEditingStarted(MockedField field, Point point) {
@@ -125,7 +133,9 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     @Override
     public void selectFieldAt(Point point) {
         TreePath path = getPathForLocation(point.x, point.y);
-        if (path != null) setSelectionPath(path);
+        if (path != null) {
+            setSelectionPath(path);
+        }
     }
 
     @Override
@@ -184,15 +194,21 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
         while (!found && e.hasMoreElements()) {
             MockedFieldNode current = (MockedFieldNode) e.nextElement();
             found = contextPath.equals(current.getUserObject().getContextPath());
-            if (found) deleted = current;
+            if (found) {
+                deleted = current;
+            }
         }
-        if (deleted != null) deleted.removeFromParent();
+        if (deleted != null) {
+            deleted.removeFromParent();
+        }
     }
 
     @Override
     public void fillWithCustomMenuItems(JPopupMenu menu, Point sourcePosition) {
         final MockedFieldNode node = getNodeAt(sourcePosition.x, sourcePosition.y);
-        if (node == null || node.isLeaf() || node.isEmpty()) return;
+        if (node == null || node.isLeaf() || node.isEmpty()) {
+            return;
+        }
         Action customAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -214,7 +230,9 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
 
     @Override
     public boolean isPathEditable(TreePath path) {
-        if (!isEditable() || !getModel().isLeaf(path.getLastPathComponent())) return false;
+        if (!isEditable() || !getModel().isLeaf(path.getLastPathComponent())) {
+            return false;
+        }
         MockedFieldNode node = (MockedFieldNode) path.getLastPathComponent();
         return node != null && node.getUserObject().isSimpleValue();
     }
@@ -227,9 +245,13 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     @Override
     public void editingStopped(ChangeEvent e) {
         TreePath editingPath = getSelectionPath();
-        if (editingPath == null) return;
+        if (editingPath == null) {
+            return;
+        }
         MockedFieldNode node = (MockedFieldNode) editingPath.getLastPathComponent();
-        if (node == null) return;
+        if (node == null) {
+            return;
+        }
         MockedField mf = node.getUserObject();
         String previousType = mf.getFieldType();
         String previousValue = mf.getFieldValue();
@@ -258,9 +280,13 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     }
 
     private void toggleExpandCollapse(MockedFieldNode parent, boolean expand) {
-        if (parent.isLeaf()) return;
+        if (parent.isLeaf()) {
+            return;
+        }
         changeNodeState(parent, expand);
-        if (!expand) return;
+        if (!expand) {
+            return;
+        }
         Enumeration<MockedFieldNode> e = parent.children();
         while (e.hasMoreElements()) {
             MockedFieldNode node = e.nextElement();
@@ -270,7 +296,9 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     }
 
     private void changeNodeState(MockedFieldNode node, boolean expand) {
-        if (node.isLeaf()) return;
+        if (node.isLeaf()) {
+            return;
+        }
         TreePath path = new TreePath(getModel().getPathToRoot(node));
         if (expand) {
             expandPath(path);
@@ -291,7 +319,9 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     }
 
     private JTextField getTextField() {
-        if (this.textField != null) return this.textField;
+        if (this.textField != null) {
+            return this.textField;
+        }
         textField = new JTextField();
         textField.setPreferredSize(new Dimension(300, 20));
         return textField;
@@ -311,13 +341,17 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     @Override
     public MockedField getFieldAt(int x, int y) {
         MockedFieldNode node = getNodeAt(x, y);
-        if (node == null) return null;
+        if (node == null) {
+            return null;
+        }
         return node.getUserObject();
     }
 
     private MockedFieldNode getNodeAt(int x, int y) {
         TreePath path = getPathForLocation(x, y);
-        if (path == null) return null;
+        if (path == null) {
+            return null;
+        }
         return (MockedFieldNode) path.getLastPathComponent();
     }
 
@@ -336,8 +370,9 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
         @Override
         public Component getTreeCellEditorComponent(JTree tree, Object value, boolean isSelected, boolean expanded, boolean leaf, int row) {
             MockedFieldNode node = (MockedFieldNode) value;
-            if (node.getUserObject() == null)
+            if (node.getUserObject() == null) {
                 return super.getTreeCellEditorComponent(tree, value, isSelected, expanded, leaf, row);
+            }
             super.delegate.setValue(node.getUserObject().getFieldValue());
             return super.editorComponent;
         }

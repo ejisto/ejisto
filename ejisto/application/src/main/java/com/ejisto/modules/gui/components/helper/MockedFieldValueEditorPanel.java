@@ -69,7 +69,9 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
     }
 
     public void setFocusOnFirstField() {
-        if (genericType != null) genericType.requestFocus();
+        if (genericType != null) {
+            genericType.requestFocus();
+        }
     }
 
     public void setTypes(Collection<String> types) {
@@ -140,19 +142,24 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
         addPropertyChangeListener("collapsed", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                if (!((Boolean) evt.getNewValue()))
+                if (!((Boolean) evt.getNewValue())) {
                     type.grabFocus();
+                }
             }
         });
     }
 
     public void onTypeSelected() {
         fieldType = getSelectedType();
-        if (fieldType != null) genericType.setToolTipText(fieldType);
+        if (fieldType != null) {
+            genericType.setToolTipText(fieldType);
+        }
     }
 
     private String getSelectedType() {
-        if (genericType == null || genericType.getSelectedItem() == null) return null;
+        if (genericType == null || genericType.getSelectedItem() == null) {
+            return null;
+        }
         return ((TypeEntry) genericType.getSelectedItem()).type;
     }
 
@@ -163,15 +170,21 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
     @Override
     public void actionPerformed(ActionEvent e) {
         Action action = getActionMap().get(e.getActionCommand());
-        if (action != null) action.actionPerformed(e);
+        if (action != null) {
+            action.actionPerformed(e);
+        }
     }
 
     static String abbreviate(String type) {
         String[] elements = type.split("\\.");
         int length = elements.length;
-        if (length < 4) return type;
+        if (length < 4) {
+            return type;
+        }
         StringBuilder out = new StringBuilder("[..]");
-        for (int i = length - 2; i < length; i++) out.append(".").append(elements[i]);
+        for (int i = length - 2; i < length; i++) {
+            out.append(".").append(elements[i]);
+        }
         return out.toString();
     }
 

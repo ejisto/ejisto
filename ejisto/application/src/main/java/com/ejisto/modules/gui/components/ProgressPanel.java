@@ -91,8 +91,12 @@ public class ProgressPanel extends JXPanel {
     }
 
     public void jobCompleted(String newText) {
-        if (!progress.isIndeterminate()) progress.setValue(++jobsCompleted);
-        if (newText != null) title.setText(newText);
+        if (!progress.isIndeterminate()) {
+            progress.setValue(++jobsCompleted);
+        }
+        if (newText != null) {
+            title.setText(newText);
+        }
     }
 
     public void jobCompleted() {
@@ -118,12 +122,15 @@ public class ProgressPanel extends JXPanel {
         getEventTable().packColumn(0, 2);
         getEventTable().getColumn(0).setPreferredWidth(50);
         getEventTable().packColumn(1, -1);
-        if (getCollapsiblePane().isCollapsed())
+        if (getCollapsiblePane().isCollapsed()) {
             getCollapsiblePane().setCollapsed(false);
+        }
     }
 
     private JXCollapsiblePane getCollapsiblePane() {
-        if (collapsiblePane != null) return collapsiblePane;
+        if (collapsiblePane != null) {
+            return collapsiblePane;
+        }
         collapsiblePane = new JXCollapsiblePane();
         collapsiblePane.setCollapsed(true);
         JScrollPane scrollPane = new JScrollPane(getEventTable());
@@ -134,7 +141,9 @@ public class ProgressPanel extends JXPanel {
     }
 
     private JXTable getEventTable() {
-        if (eventTable != null) return eventTable;
+        if (eventTable != null) {
+            return eventTable;
+        }
         eventTable = new JXTable();
         return eventTable;
     }
@@ -180,7 +189,9 @@ public class ProgressPanel extends JXPanel {
 
         @Override
         public Class<?> getColumnClass(int columnIndex) {
-            if (columnIndex == 0) return Icon.class;
+            if (columnIndex == 0) {
+                return Icon.class;
+            }
             return String.class;
         }
     }
