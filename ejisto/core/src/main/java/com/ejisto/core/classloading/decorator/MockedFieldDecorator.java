@@ -29,7 +29,7 @@ import lombok.Delegate;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import static com.ejisto.core.classloading.util.ReflectionUtils.detach;
 import static com.ejisto.modules.repository.ClassPoolRepository.getRegisteredClassPool;
@@ -77,13 +77,12 @@ public class MockedFieldDecorator implements MockedField {
 
     @Override
     public String getCompleteDescription() {
-        return new StringBuilder(getFieldName()).append(" [").append(getCompleteFieldType()).append("]: ").append(
-                evaluateFieldValue()).toString();
+        return String.format("%s [%s]: %s", getFieldName(), getCompleteFieldType(), evaluateFieldValue());
     }
 
     @Override
     public String getCompleteFieldType() {
-        if (StringUtils.hasText(target.getFieldElementType())) {
+        if (StringUtils.isNotBlank(target.getFieldElementType())) {
             return target.getFieldType() + "<" + cleanFieldElementType(target.getFieldElementType()) + ">";
         }
         return target.getFieldType();

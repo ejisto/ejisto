@@ -19,14 +19,17 @@
 
 package com.ejisto.modules.dao.entities;
 
+import java.io.Serializable;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
  * Date: Dec 5, 2010
  * Time: 10:39:18 AM
  */
-public interface MockedField extends ComplexValuesAware, Comparable<MockedField> {
-    static final String PATH_SEPARATOR = ">";
+public interface MockedField extends ComplexValuesAware, Comparable<MockedField>, Serializable {
+
+    String PATH_SEPARATOR = ">";
 
     long getId();
 

@@ -19,7 +19,7 @@
 
 package com.ejisto.util;
 
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.regex.Pattern;
@@ -36,7 +36,7 @@ public class ContainerUtils {
 
     public static String extractAgentJar(String classPath) {
         String systemProperty = System.getProperty("ejisto.agent.jar.path");
-        if (StringUtils.hasText(systemProperty)) {
+        if (StringUtils.isNotBlank(systemProperty)) {
             return systemProperty;
         }
         String[] entries = classPath.split(Pattern.quote(File.pathSeparator));

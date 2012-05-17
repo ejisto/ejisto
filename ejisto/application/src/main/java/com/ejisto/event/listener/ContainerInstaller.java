@@ -50,7 +50,7 @@ import static com.ejisto.util.GuiUtils.*;
 import static com.ejisto.util.IOUtils.fileToUrl;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static org.springframework.util.StringUtils.hasText;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Created by IntelliJ IDEA.
@@ -60,10 +60,10 @@ import static org.springframework.util.StringUtils.hasText;
  */
 @Log4j
 public class ContainerInstaller implements ApplicationListener<InstallContainer>, PropertyChangeListener {
-    @Resource Application application;
-    @Resource CargoManager cargoManager;
-    @Resource SettingsManager settingsManager;
-    @Resource EventManager eventManager;
+    @Resource private Application application;
+    @Resource private CargoManager cargoManager;
+    @Resource private SettingsManager settingsManager;
+    @Resource private EventManager eventManager;
 
     @Override
     public void onApplicationEvent(final InstallContainer event) {
@@ -86,7 +86,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                                      settingsManager.getValue("container.default.url")));
                     boolean success = tryDownload(containerDescription);
                     if (!success) {
-                        throw new RuntimeException("download failed");
+                        throw new IllegalStateException("download failed");
                     }
                     log.debug("download completed");
                     notifyToPanel(panel, getMessage("container.installation.panel.status.2", containerDescription));
@@ -133,7 +133,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                 log.debug("got DownloadFailed exception");
                 //there was an error while downloading resource
                 url = JOptionPane.showInputDialog(null, getMessage("container.download.failed", containerDescription));
-                tryDownload = hasText(url);
+                tryDownload = isNotBlank(url);
                 if (!tryDownload) {
                     url = selectFileFromDisk(containerDescription, "container.download.canceled");
                     tryDownload = url != null;
@@ -144,7 +144,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                 tryDownload = url != null;
             } catch (Exception e) {
                 log.error("got exception", e);
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         }
         return false;

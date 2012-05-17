@@ -21,8 +21,8 @@ package com.ejisto.modules.gui.components.helper;
 
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.closure.Closure1;
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.action.AbstractActionExt;
-import org.springframework.util.StringUtils;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -32,9 +32,9 @@ public class CallbackAction extends AbstractActionExt {
 
     private static final long serialVersionUID = -7329435808055315105L;
 
-    private final Closure1<ActionEvent> callback2;
-    private final Closure0 checkEnabled;
-    private final Closure0 callback1;
+    private final transient Closure1<ActionEvent> callback2;
+    private final transient Closure0 checkEnabled;
+    private final transient Closure0 callback1;
 
     public CallbackAction(String name, Closure1<ActionEvent> callback) {
         this(name, null, callback, null);
@@ -92,7 +92,7 @@ public class CallbackAction extends AbstractActionExt {
     @Override
     public String getActionCommand() {
         String actionCommand = String.valueOf(super.getValue(ACTION_COMMAND_KEY));
-        if (StringUtils.hasText(actionCommand) || actionCommand.equals("null")) {
+        if (StringUtils.isNotBlank(actionCommand) || actionCommand.equals("null")) {
             actionCommand = UUID.randomUUID().toString();
             super.putValue(ACTION_COMMAND_KEY, actionCommand);
         }

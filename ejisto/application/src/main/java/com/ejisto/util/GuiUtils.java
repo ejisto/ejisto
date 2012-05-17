@@ -34,10 +34,10 @@ import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -54,10 +54,14 @@ import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
 import static org.hamcrest.Matchers.equalTo;
 
 @Log4j
-public class GuiUtils {
+public abstract class GuiUtils {
 
     private static ActionMap actionMap = new ActionMap();
     private static Font defaultFont;
+
+    private GuiUtils() {
+
+    }
 
     public static void centerOnScreen(Window window) {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -75,7 +79,7 @@ public class GuiUtils {
     }
 
     public static ImageIcon getIcon(String key) {
-        if (!StringUtils.hasText(key)) {
+        if (!StringUtils.isNotBlank(key)) {
             return null;
         }
         return new ImageIcon(GuiUtils.class.getResource(getMessage(key)));
@@ -210,7 +214,7 @@ public class GuiUtils {
         try {
             return SpringBridge.loadExistingContainer(id);
         } catch (NotInstalledException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -218,7 +222,7 @@ public class GuiUtils {
         return new ContainerTab(container.getDescription(), container.getCargoId());
     }
 
-    public static abstract class EditorColumnFillStrategy {
+    public abstract static class EditorColumnFillStrategy {
         public abstract void fillRow(List<List<String>> rows, MockedField row);
     }
 

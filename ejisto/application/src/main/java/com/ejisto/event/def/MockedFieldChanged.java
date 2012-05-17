@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import java.util.List;
 public class MockedFieldChanged extends BaseApplicationEvent {
     private static final long serialVersionUID = -1695827582666783071L;
 
-    private List<MockedField> mockedFields;
+    private final List<MockedField> mockedFields;
 
     public MockedFieldChanged(Object source, MockedField mockedField) {
         this(source, Arrays.asList(mockedField));

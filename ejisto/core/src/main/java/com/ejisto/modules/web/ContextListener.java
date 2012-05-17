@@ -25,10 +25,10 @@ import com.ejisto.core.classloading.ClassTransformer;
 import com.ejisto.modules.repository.ClassPoolRepository;
 import javassist.ClassPool;
 import javassist.LoaderClassPath;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.derby.jdbc.ClientDriver;
 import org.apache.log4j.*;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -79,7 +79,7 @@ public class ContextListener implements ServletContextListener {
     private void initDataSource() {
         int port = 5555;
         String portNumberProperty = System.getProperty("ejisto.database.port");
-        if (StringUtils.hasText(portNumberProperty)) {
+        if (StringUtils.isNotBlank(portNumberProperty)) {
             port = Integer.parseInt(portNumberProperty);
         }
         DataSourceHolder.setDataSource(

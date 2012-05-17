@@ -25,7 +25,7 @@ import org.springframework.validation.Validator;
 
 import java.util.List;
 
-import static org.springframework.util.StringUtils.hasText;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class DataSourceEnvEntryValidator implements Validator {
     @Override
@@ -56,7 +56,7 @@ public class DataSourceEnvEntryValidator implements Validator {
 
     private boolean checkFields(String... fields) {
         for (String field : fields) {
-            if (!hasText(field)) {
+            if (!isNotEmpty(field)) {
                 return false;
             }
         }

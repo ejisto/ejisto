@@ -52,7 +52,7 @@ import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 @Log4j
 public class MockedFieldTree extends JTree implements CellEditorListener, MockedFieldsEditorComponent {
     private static final long serialVersionUID = 3542351125591491996L;
-    private MockedFieldValidator validator;
+    private transient MockedFieldValidator validator;
     private JTextField textField;
     private FieldsEditorContext fieldsEditorContext;
     private final List<FieldEditingListener> editingListeners = new ArrayList<FieldEditingListener>();

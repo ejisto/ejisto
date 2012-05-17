@@ -44,6 +44,7 @@ public class ProgressPanel extends JXPanel {
     private JXCollapsiblePane collapsiblePane;
     private JXTable eventTable;
     private final List<ErrorDescriptor> errors = new ArrayList<ErrorDescriptor>();
+    private static final ErrorTableModel errorTableModel = new ErrorTableModel();
 
     /**
      * This method initializes
@@ -147,8 +148,6 @@ public class ProgressPanel extends JXPanel {
         eventTable = new JXTable();
         return eventTable;
     }
-
-    private final static ErrorTableModel errorTableModel = new ErrorTableModel();
 
     private static final class ErrorTableModel extends AbstractTableModel {
 

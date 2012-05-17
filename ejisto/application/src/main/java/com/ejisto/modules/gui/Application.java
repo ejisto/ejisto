@@ -38,8 +38,8 @@ import static com.ejisto.util.GuiUtils.*;
 public class Application extends javax.swing.JFrame {
 
     private static final long serialVersionUID = -3746366232127903518L;
-    @Resource private EventManager eventManager;
-    @Resource private SettingsManager settingsManager;
+    @Resource private transient EventManager eventManager;
+    @Resource private transient SettingsManager settingsManager;
 
     public Application() {
     }

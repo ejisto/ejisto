@@ -20,6 +20,8 @@
 package com.ejisto.modules.dao.entities;
 
 import lombok.Data;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import static ch.lambdaj.Lambda.join;
 import static java.util.Arrays.asList;
@@ -112,48 +114,37 @@ public class MockedFieldImpl implements MockedField {
 
     @Override
     public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (getClass() != o.getClass()) {
             return false;
         }
 
         MockedFieldImpl that = (MockedFieldImpl) o;
-
-        if (id != that.id) {
-            return false;
-        }
-        if (!className.equals(that.className)) {
-            return false;
-        }
-        if (!contextPath.equals(that.contextPath)) {
-            return false;
-        }
-        if (fieldElementType == null ^ that.fieldElementType == null) {
-            return false;
-        }
-        if (fieldElementType != null && !fieldElementType.equals(that.fieldElementType)) {
-            return false;
-        }
-        if (!fieldName.equals(that.fieldName)) {
-            return false;
-        }
-        if (!fieldType.equals(that.fieldType)) {
-            return false;
-        }
-        return true;
+        return new EqualsBuilder()
+                .append(id, that.id)
+                .append(className, that.className)
+                .append(contextPath, that.contextPath)
+                .append(fieldElementType, that.fieldElementType)
+                .append(fieldName, that.fieldName)
+                .append(fieldType, that.fieldType)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + contextPath.hashCode();
-        result = 31 * result + className.hashCode();
-        result = 31 * result + fieldName.hashCode();
-        result = 31 * result + fieldType.hashCode();
-        result = 31 * result + (fieldElementType != null ? fieldElementType.hashCode() : 0);
-        return result;
+        return new HashCodeBuilder(13, 37)
+                .append(id)
+                .append(className)
+                .append(contextPath)
+                .append(fieldElementType)
+                .append(fieldName)
+                .append(fieldType)
+                .build();
     }
 
     @Override

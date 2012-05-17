@@ -36,8 +36,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 @Log4j
 public class TaskInitializer extends BaseStartupService {
-    @Resource TaskManager taskManager;
-    @Resource List<TaskDescriptor> taskDescriptors;
+    @Resource private TaskManager taskManager;
+    @Resource private List<TaskDescriptor> taskDescriptors;
 
     @Override
     public void execute() {

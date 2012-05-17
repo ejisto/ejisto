@@ -25,7 +25,7 @@ import com.ejisto.modules.dao.*;
 import com.ejisto.modules.dao.entities.*;
 import com.ejisto.util.converter.*;
 import lombok.extern.log4j.Log4j;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -98,7 +98,7 @@ public class DatabaseDump extends BaseShutdownService {
     }
 
     private void append(OutputStream file, String text) throws IOException {
-        if (StringUtils.hasText(text)) {
+        if (StringUtils.isNotBlank(text)) {
             file.write(text.getBytes());
             file.write(NEWLINE);
         }

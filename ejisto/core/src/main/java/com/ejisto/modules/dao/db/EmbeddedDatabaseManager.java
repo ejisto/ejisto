@@ -51,7 +51,6 @@ public class EmbeddedDatabaseManager extends AbstractDataSource implements Initi
 
     private SimpleDriverDataSource driverDataSource;
     private NetworkServerControl serverControl;
-    private boolean started;
     @javax.annotation.Resource(name = "settings") private Properties settings;
     private DatabaseConfiguration databaseConfiguration;
 
@@ -72,7 +71,6 @@ public class EmbeddedDatabaseManager extends AbstractDataSource implements Initi
         }
         serverControl.start(new PrintWriter(System.out));
         checkServerStartup();
-        started = true;
         initDatabase();
         driverDataSource = new SimpleDriverDataSource(new ClientDriver(),
                                                       databaseConfiguration.url,
@@ -148,10 +146,10 @@ public class EmbeddedDatabaseManager extends AbstractDataSource implements Initi
     }
 
     private static final class DatabaseConfiguration {
-        final String url;
-        final String user;
-        final String password;
-        final int port;
+        private final String url;
+        private final String user;
+        private final String password;
+        private final int port;
 
         public DatabaseConfiguration(String url, String user, String password, int port) {
             this.url = url;

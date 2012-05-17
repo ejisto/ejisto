@@ -31,7 +31,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import static com.ejisto.util.GuiUtils.getIcon;
-import static org.springframework.util.StringUtils.hasText;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class Header extends JXPanel implements ComponentListener {
 
@@ -79,7 +79,7 @@ public class Header extends JXPanel implements ComponentListener {
     }
 
     public void setImageKey(String imageKey) {
-        if (!hasText(imageKey)) {
+        if (!isNotBlank(imageKey)) {
             return;
         }
         this.imageKey = imageKey;

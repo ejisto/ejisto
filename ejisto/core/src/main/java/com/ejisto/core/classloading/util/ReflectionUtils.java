@@ -24,7 +24,7 @@ import javassist.CtClass;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.springframework.util.StringUtils.uncapitalize;
+import static org.apache.commons.lang3.StringUtils.uncapitalize;
 
 public class ReflectionUtils {
 

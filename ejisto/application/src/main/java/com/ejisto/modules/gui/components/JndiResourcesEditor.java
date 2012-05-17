@@ -42,7 +42,7 @@ public class JndiResourcesEditor extends JXPanel {
     private List<JndiDataSource> dataSources;
     private JTabbedPane tabbedPane;
     private JXPanel summaryPane;
-    private JndiResourcesEditorController fileSelectionListener;
+    private transient JndiResourcesEditorController fileSelectionListener;
     private JndiResourcesTreeModel resourcesTreeModel;
     private JTree resourcesTree;
 

@@ -21,7 +21,7 @@ package com.ejisto.modules.factory.impl;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.ObjectFactory;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Random;
 
@@ -42,7 +42,7 @@ public class CharacterFactory implements ObjectFactory<Character> {
 
     @Override
     public Character create(MockedField m, Character actualValue) {
-        if (StringUtils.hasText(m.getFieldValue())) {
+        if (StringUtils.isNotBlank(m.getFieldValue())) {
             return m.getFieldValue().charAt(0);
         }
         return actualValue != null ? actualValue : ' ';

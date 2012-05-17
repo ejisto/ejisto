@@ -21,7 +21,6 @@ package com.ejisto.event.def;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.MockedFieldsEditorComponent;
-import com.ejisto.modules.gui.components.helper.MockedFieldNode;
 
 /**
  * Created by IntelliJ IDEA.
@@ -31,9 +30,8 @@ import com.ejisto.modules.gui.components.helper.MockedFieldNode;
  */
 public class MockedFieldOperation extends BaseApplicationEvent {
 
-    private OperationType operationType;
-    private MockedField mockedField;
-    private MockedFieldNode source;
+    private final OperationType operationType;
+    private final MockedField mockedField;
 
     public enum OperationType {
         CREATE("propertieseditor.popup.add", "propertieseditor.popup.add.icon"),

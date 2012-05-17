@@ -32,6 +32,7 @@ import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import com.ejisto.util.ContainerUtils;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.cargo.container.ContainerType;
 import org.codehaus.cargo.container.LocalContainer;
 import org.codehaus.cargo.container.configuration.Configuration;
@@ -50,7 +51,6 @@ import org.codehaus.cargo.generic.deployable.DefaultDeployableFactory;
 import org.codehaus.cargo.generic.deployable.DeployableFactory;
 import org.codehaus.cargo.generic.deployer.DefaultDeployerFactory;
 import org.codehaus.cargo.generic.deployer.DeployerFactory;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -197,7 +197,7 @@ public class CargoManager implements ContainerManager {
 
         //if (addStartupOptions) jvmArgs.append(" -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005");
         String existingConfiguration = configuration.getPropertyValue(GeneralPropertySet.JVMARGS);
-        if (StringUtils.hasText(existingConfiguration)) {
+        if (StringUtils.isNotBlank(existingConfiguration)) {
             jvmArgs.append(" ").append(existingConfiguration);
         }
         configuration.setProperty(GeneralPropertySet.JVMARGS, jvmArgs.append(" ").toString());

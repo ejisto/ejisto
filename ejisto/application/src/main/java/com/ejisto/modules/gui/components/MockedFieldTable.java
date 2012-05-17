@@ -41,8 +41,8 @@ import static java.util.Collections.emptyList;
  */
 public class MockedFieldTable extends JXTable implements MockedFieldsEditorComponent {
 
-    private FieldsEditorContext fieldsEditorContext;
-    private final MockedFieldEditingEventHelper helper;
+    private final FieldsEditorContext fieldsEditorContext;
+    private final transient MockedFieldEditingEventHelper helper;
 
     public MockedFieldTable(FieldsEditorContext fieldsEditorContext) {
         super(new MockedFieldsTableModel(Collections.<MockedField>emptyList(), fieldsEditorContext));

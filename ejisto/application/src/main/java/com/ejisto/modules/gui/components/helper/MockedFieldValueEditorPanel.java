@@ -220,8 +220,8 @@ public class MockedFieldValueEditorPanel extends JXCollapsiblePane implements Ac
 
     private static final class TypeEntry {
 
-        final String description;
-        final String type;
+        private final String description;
+        private final String type;
 
         TypeEntry(String type, String description) {
             this.type = type;

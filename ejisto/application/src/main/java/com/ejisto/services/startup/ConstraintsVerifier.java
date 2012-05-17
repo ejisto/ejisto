@@ -21,7 +21,7 @@ package com.ejisto.services.startup;
 
 import com.ejisto.util.ContainerUtils;
 import lombok.extern.log4j.Log4j;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,19 +43,19 @@ public class ConstraintsVerifier extends BaseStartupService {
         File lockFile = new File(System.getProperty("ejisto.home"), ".lock");
         try {
             if (!lockFile.exists() && !lockFile.createNewFile()) {
-                throw new RuntimeException("Unable to create lock file.");
+                throw new IllegalStateException("Unable to create lock file.");
             }
             FileLock lock = new RandomAccessFile(lockFile, "rw").getChannel().tryLock();
             if (lock == null) {
-                throw new RuntimeException("There is another instance already running. Ejisto won't start.");
+                throw new IllegalStateException("There is another instance already running. Ejisto won't start.");
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
         log.info("checking System properties");
         String agentPath = ContainerUtils.extractAgentJar(System.getProperty("java.class.path"));
-        if (!StringUtils.hasText(agentPath)) {
+        if (!StringUtils.isNotBlank(agentPath)) {
             log.warn("**************************************************");
             log.warn("**       ejisto-agent not found in path.        **");
             log.warn("**          Check your configuration!           **");

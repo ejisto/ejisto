@@ -56,7 +56,7 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     private MockedFieldTree tree;
     private JPanel editorSelectionPanel;
     private JPanel editorPanel;
-    private MockedFieldsEditorController controller;
+    private transient MockedFieldsEditorController controller;
     private FieldsEditorContext fieldsEditorContext;
 
     public MockedFieldsEditor(FieldsEditorContext fieldsEditorContext, ActionMap actionMap) {

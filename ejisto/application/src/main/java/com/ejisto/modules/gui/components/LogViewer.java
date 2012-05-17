@@ -35,7 +35,7 @@ public class LogViewer extends JXPanel {
     private static final long serialVersionUID = 2849704565034218976L;
     private JTextArea logText;
     private JScrollPane logPanel;
-    private transient final ApplicationListener<ChangeServerStatus> listener = new ApplicationListener<ChangeServerStatus>() {
+    private final transient ApplicationListener<ChangeServerStatus> listener = new ApplicationListener<ChangeServerStatus>() {
         @Override
         public void onApplicationEvent(ChangeServerStatus event) {
             if (event.getCommand() == ChangeServerStatus.Command.STARTUP) {

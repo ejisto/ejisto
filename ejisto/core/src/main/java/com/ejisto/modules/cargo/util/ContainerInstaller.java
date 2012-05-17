@@ -102,7 +102,7 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
         try {
             copyFile(new File(url.toURI()), getDestinationFile().getParentFile());
         } catch (Exception e) {
-            throw new RuntimeException("local file URL is not valid ", e);
+            throw new IllegalArgumentException("local file URL is not valid ", e);
         }
     }
 

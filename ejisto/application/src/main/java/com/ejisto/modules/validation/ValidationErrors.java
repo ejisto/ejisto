@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,12 +32,12 @@ import static com.ejisto.util.GuiUtils.getMessage;
 public class ValidationErrors extends AbstractErrors {
     private static final long serialVersionUID = -1318814109330110578L;
     private String name;
+    private List<String> errors = new ArrayList<String>();
 
     public ValidationErrors(String name) {
         this.name = name;
     }
 
-    List<String> errors = new ArrayList<String>();
 
     @Override
     public String getObjectName() {

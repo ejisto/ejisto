@@ -28,7 +28,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.ejisto.util.GuiUtils.centerOnScreen;
-import static org.springframework.util.StringUtils.hasText;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Created by IntelliJ IDEA.
@@ -180,7 +180,7 @@ public final class DialogController {
 
         public DialogController build() {
             JDialog dialog;
-            if (hasText(description) || hasText(title)) {
+            if (isNotBlank(description) || isNotBlank(title)) {
                 dialog = new EjistoDialog(parent, title, view, true, iconKey, actions);
                 ((EjistoDialog) dialog).setHeaderTitle(title);
                 ((EjistoDialog) dialog).setHeaderDescription(description);
