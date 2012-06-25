@@ -21,6 +21,9 @@ package com.ejisto.core.classloading.proxy;
 
 import com.ejisto.core.classloading.javassist.EjistoMethodHandler;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.factory.ObjectFactory;
+import com.ejisto.modules.repository.ObjectFactoryRepository;
+import lombok.extern.log4j.Log4j;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
@@ -31,6 +34,7 @@ import static ch.lambdaj.Lambda.*;
 import static com.ejisto.core.classloading.util.ReflectionUtils.*;
 import static org.hamcrest.Matchers.equalTo;
 
+@Log4j
 public class EjistoProxy implements MethodInterceptor {
     private List<MockedField> mockedFields;
     private EjistoMethodHandler methodHandler;
@@ -55,6 +59,14 @@ public class EjistoProxy implements MethodInterceptor {
         MockedField mockedField = getMockedFieldFor(method.getName());
         if (mockedField == null) {
             return proxy.invokeSuper(obj, args);
+        }
+        log.trace("mockedField is not null. Handling getter.");
+        ObjectFactory<?> factory = ObjectFactoryRepository.getInstance().getObjectFactory(
+                method.getReturnType().getName(),
+                mockedField.getContextPath());
+        if (factory != null) {
+            log.trace(String.format("got %s for %s", factory, mockedField));
+            return factory.create(mockedField, null);
         }
         return methodHandler.invoke(obj, method, null, args);
     }

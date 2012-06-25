@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 
 package com.ejisto.modules.executor;
 
+import lombok.extern.log4j.Log4j;
+
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Date: 11/22/11
  * Time: 7:14 PM
  */
+@Log4j
 public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
 
     private Callable<T> target;
@@ -112,7 +115,7 @@ public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
                 }
             });
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("error during addErrorDescriptor", e);
         }
     }
 }

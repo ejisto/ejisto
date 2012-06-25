@@ -24,8 +24,8 @@ import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.helper.EditorType;
 import com.ejisto.modules.gui.components.helper.FieldEditingListener;
+import com.ejisto.modules.gui.components.helper.FieldEditorPanel;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
-import com.ejisto.modules.gui.components.helper.MockedFieldValueEditorPanel;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXRadioGroup;
@@ -52,7 +52,7 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     private JScrollPane flattenTableContainer;
     private JPanel treeEditor;
     private JScrollPane treeContainer;
-    private MockedFieldValueEditorPanel valueEditorPanel;
+    private FieldEditorPanel valueEditorPanel;
     private MockedFieldTree tree;
     private JPanel editorSelectionPanel;
     private JPanel editorPanel;
@@ -98,7 +98,7 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     }
 
     public String getFieldType() {
-        return getValueEditorPanel().getFieldType();
+        return getValueEditorPanel().getFieldClass();
     }
 
     public MockedField getMockedFieldAt(int x, int y, boolean fromTree) {
@@ -248,11 +248,11 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         return treeEditor;
     }
 
-    private MockedFieldValueEditorPanel getValueEditorPanel() {
+    private FieldEditorPanel getValueEditorPanel() {
         if (this.valueEditorPanel != null) {
             return valueEditorPanel;
         }
-        valueEditorPanel = new MockedFieldValueEditorPanel(getActionMap());
+        valueEditorPanel = new FieldEditorPanel(getActionMap(), fieldsEditorContext);
         valueEditorPanel.setCollapsed(true);
         valueEditorPanel.setPreferredSize(new Dimension(200, 150));
         return valueEditorPanel;
@@ -322,6 +322,6 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     }
 
     public void requestFocusOnActiveEditor(EditorType editorType) {
-        ((Component) getEditorComponent(editorType)).requestFocus();
+        getEditorComponent(editorType).toComponent().requestFocus();
     }
 }

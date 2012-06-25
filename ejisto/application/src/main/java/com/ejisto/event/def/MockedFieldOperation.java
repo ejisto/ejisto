@@ -34,7 +34,8 @@ public class MockedFieldOperation extends BaseApplicationEvent {
     private final MockedField mockedField;
 
     public enum OperationType {
-        CREATE("propertieseditor.popup.add", "propertieseditor.popup.add.icon"),
+        ADD("propertieseditor.popup.add", "propertieseditor.popup.add.icon"),
+        CREATE("propertieseditor.popup.create", "propertieseditor.popup.create.icon"),
         UPDATE("propertieseditor.popup.edit", "propertieseditor.popup.edit.icon"),
         DELETE("propertieseditor.popup.delete", "propertieseditor.popup.delete.icon");
         private final String key;

@@ -51,15 +51,14 @@ public class PopupMenuManager extends MouseAdapter {
 
     private void handleClick(final MouseEvent e) {
         if (e.isPopupTrigger()) {
-            final Component component = e.getComponent();
-            final MockedFieldsEditorComponent editor = (MockedFieldsEditorComponent) component;
+            final MockedFieldsEditorComponent editor = (MockedFieldsEditorComponent) e.getComponent();
             editor.selectFieldAt(e.getPoint());
             JPopupMenu menu = new JPopupMenu();
-            menu.setInvoker(component);
+            menu.setInvoker(editor.toComponent());
             editor.fillWithCustomMenuItems(menu, e.getPoint());
-            menu.add(buildEjistoAction(component, CREATE, null));
-            if (isEditingAllowed(component, e.getPoint())) {
-                MockedField target = getFieldAt(component, e.getPoint());
+            fillWithAddActions(menu, editor);
+            if (isLocationEditable(editor, e.getPoint())) {
+                MockedField target = getFieldAt(editor, e.getPoint());
                 //update button
                 menu.add(new AbstractAction(getMessage(UPDATE.getKey()), getIcon(UPDATE.getIcon())) {
                     @Override
@@ -68,26 +67,28 @@ public class PopupMenuManager extends MouseAdapter {
                         editor.editFieldAt(point);
                     }
                 });
-                menu.add(buildEjistoAction(component, DELETE, target));
+                menu.add(buildEjistoAction(editor, DELETE, target));
             }
             menu.show(e.getComponent(), e.getX(), e.getY());
         }
     }
 
-    private boolean isEditingAllowed(Component component, Point p) {
-        return MockedFieldsEditorComponent.class.isInstance(component)
-                && isLocationEditable(component, p);
+    private void fillWithAddActions(JPopupMenu menu, MockedFieldsEditorComponent editor) {
+        if (editor.getCurrentEditorContext() != FieldsEditorContext.ADD_FIELD) {
+            menu.add(buildEjistoAction(editor, ADD, null));
+        }
+        menu.add(buildEjistoAction(editor, CREATE, null));
     }
 
-    private MockedField getFieldAt(Component component, Point p) {
-        return ((MockedFieldsEditorComponent) component).getFieldAt(p);
+    private MockedField getFieldAt(MockedFieldsEditorComponent component, Point p) {
+        return component.getFieldAt(p);
     }
 
-    private boolean isLocationEditable(Component component, Point p) {
-        return ((MockedFieldsEditorComponent) component).hasEditableFieldAtLocation(p);
+    private boolean isLocationEditable(MockedFieldsEditorComponent component, Point p) {
+        return component.hasEditableFieldAtLocation(p);
     }
 
-    private EjistoAction<MockedFieldOperation> buildEjistoAction(Component component, MockedFieldOperation.OperationType operationType, MockedField field) {
+    private EjistoAction<MockedFieldOperation> buildEjistoAction(MockedFieldsEditorComponent component, MockedFieldOperation.OperationType operationType, MockedField field) {
         return new EjistoAction<MockedFieldOperation>(new MockedFieldOperation(component, operationType, field));
     }
 

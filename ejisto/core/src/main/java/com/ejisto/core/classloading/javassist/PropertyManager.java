@@ -20,6 +20,7 @@
 package com.ejisto.core.classloading.javassist;
 
 import com.ejisto.core.classloading.proxy.EjistoProxyFactory;
+import com.ejisto.core.classloading.util.ReflectionUtils;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.MockedFieldsRepository;
@@ -27,18 +28,17 @@ import com.ejisto.modules.repository.ObjectFactoryRepository;
 import org.apache.log4j.Logger;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
+import static com.ejisto.core.classloading.util.ReflectionUtils.getActualType;
 
 public final class PropertyManager {
 
     private static final PropertyManager INSTANCE = new PropertyManager();
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private MockedFieldsRepository mockedFieldsRepository;
-    private EjistoProxyFactory ejistoProxyFactory;
     //    private OgnlAdapter ognlAdapter;
     private ObjectFactoryRepository objectFactoryRepository;
 
     private PropertyManager() {
-        this.ejistoProxyFactory = EjistoProxyFactory.getInstance();
 //        this.ognlAdapter = new OgnlAdapter(new OgnlContext(), ejistoProxyFactory);
         this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
         this.objectFactoryRepository = ObjectFactoryRepository.getInstance();
@@ -51,6 +51,30 @@ public final class PropertyManager {
     private <T> T getFieldValue(String contextPath, String className, String fieldName, Class<T> type, T actualValue) {
         try {
             trace(String.format("loading fields for %s@%s - %s", fieldName, className, contextPath));
+            if (ReflectionUtils.getActualType(type.getName()).matches("^javax?\\..*?$")) {
+                return getConcreteFieldValue(contextPath, className, fieldName, type, actualValue);
+            } else {
+                return getProxyOfFieldValue(contextPath, className, fieldName, type, actualValue);
+            }
+        } catch (Exception e) {
+            logger.error(
+                    String.format("Property %s of class %s not found. Returning %s", fieldName, className, actualValue),
+                    e);
+            return actualValue;
+        }
+    }
+
+    private <T> T getProxyOfFieldValue(String contextPath, String className, String fieldName, Class<T> type, T actualValue) {
+        try {
+            String actualType = getActualType(type.getName());
+            return EjistoProxyFactory.getInstance().proxyClass(actualType, contextPath);
+        } catch (ClassNotFoundException e) {
+            return actualValue;
+        }
+    }
+
+    private <T> T getConcreteFieldValue(String contextPath, String className, String fieldName, Class<T> type, T actualValue) {
+        try {
             MockedField mockedField = mockedFieldsRepository.load(contextPath, className, fieldName);
             trace("found " + mockedField);
             if (mockedField != null && mockedField.isActive()) {
@@ -66,6 +90,7 @@ public final class PropertyManager {
                     e);
             return actualValue;
         }
+
     }
 
     @SuppressWarnings("unchecked")

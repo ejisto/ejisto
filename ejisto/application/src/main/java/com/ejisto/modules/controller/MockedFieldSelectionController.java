@@ -19,9 +19,7 @@
 
 package com.ejisto.modules.controller;
 
-import ch.lambdaj.function.closure.Closure0;
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.gui.components.helper.CallbackAction;
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
@@ -38,47 +36,29 @@ import static java.util.Collections.emptyList;
  * Date: 11/8/11
  * Time: 5:48 PM
  */
-public class MockedFieldSelectionController {
+public class MockedFieldSelectionController extends AbstractDialogManager {
 
     private MockedFieldsEditorController controller;
-    private Closure0 closeAction;
-    private Closure0 okAction;
-    private DialogController dialogController;
     private List<MockedField> selectedFields;
 
     public MockedFieldSelectionController() {
+        super();
         this.controller = new MockedFieldsEditorController(ADD_FIELD);
     }
 
-    private void initClosures() {
-        closeAction = new Closure0() {{
-            of(MockedFieldSelectionController.this).close();
-        }};
-        okAction = new Closure0() {{
-            of(MockedFieldSelectionController.this).ok();
-        }};
-    }
-
-    void close() {
+    @Override
+    void onAbort() {
         this.selectedFields = emptyList();
-        dialogController.hide();
     }
 
-    void ok() {
+    @Override
+    void onConfirm() {
         this.selectedFields = controller.getSelection();
-        dialogController.hide();
     }
 
     public void showSelectionDialog() {
-        initClosures();
-        dialogController = DialogController.Builder.newInstance()
-                .withActions(new CallbackAction(getMessage("field.create.dialog.ok"), okAction),
-                             new CallbackAction(getMessage("field.create.dialog.cancel"), closeAction))
-                .withContent(createPanel())
-                .withHeader(getMessage("field.create.dialog.title"), getMessage("field.create.dialog.description"))
-                .withIconKey("field.add.icon")
-                .build();
-        dialogController.show(true, new Dimension(500, 400));
+        openDialog(createPanel(), getMessage("field.add.dialog.title"),
+                   getMessage("field.add.dialog.description"), "field.add.icon", new Dimension(500, 400));
     }
 
     private JPanel createPanel() {

@@ -56,7 +56,7 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
 
     @Override
     public boolean hasEditableFieldAtLocation(Point point) {
-        return getFieldAt(point) != null;
+        return fieldsEditorContext.isEditable() && getFieldAt(point) != null;
     }
 
     @Override
@@ -147,6 +147,16 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
 
     @Override
     public void fillWithCustomMenuItems(JPopupMenu menu, Point sourcePosition) {
+    }
+
+    @Override
+    public Component toComponent() {
+        return this;
+    }
+
+    @Override
+    public FieldsEditorContext getCurrentEditorContext() {
+        return fieldsEditorContext;
     }
 
     private void fireEditingStarted(MockedField field, Point point) {

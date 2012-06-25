@@ -21,6 +21,7 @@ package com.ejisto.modules.gui.components.helper;
 
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.closure.Closure1;
+import lombok.extern.log4j.Log4j;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -36,6 +37,7 @@ import java.util.Map;
  * Date: 2/12/11
  * Time: 7:34 PM
  */
+@Log4j
 public class ClosurePropertyChangeListener implements PropertyChangeListener, DocumentListener {
 
     private final String propertyName;
@@ -65,7 +67,7 @@ public class ClosurePropertyChangeListener implements PropertyChangeListener, Do
         try {
             firePropertyChange(evt.getDocument().getText(0, evt.getDocument().getLength()));
         } catch (BadLocationException e) {
-            e.printStackTrace();
+            log.error("error during property change notification", e);
         }
     }
 
@@ -74,7 +76,7 @@ public class ClosurePropertyChangeListener implements PropertyChangeListener, Do
         try {
             firePropertyChange(evt.getDocument().getText(0, evt.getDocument().getLength()));
         } catch (BadLocationException e) {
-            e.printStackTrace();
+            log.error("error during property change notification", e);
         }
     }
 
@@ -83,7 +85,7 @@ public class ClosurePropertyChangeListener implements PropertyChangeListener, Do
         try {
             firePropertyChange(evt.getDocument().getText(0, evt.getDocument().getLength()));
         } catch (BadLocationException e) {
-            e.printStackTrace();
+            log.error("error during property change notification", e);
         }
     }
 

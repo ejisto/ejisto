@@ -54,7 +54,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     private static final long serialVersionUID = 3542351125591491996L;
     private transient MockedFieldValidator validator;
     private JTextField textField;
-    private FieldsEditorContext fieldsEditorContext;
+    private final FieldsEditorContext fieldsEditorContext;
     private final List<FieldEditingListener> editingListeners = new ArrayList<FieldEditingListener>();
 
     public MockedFieldTree(FieldsEditorContext fieldsEditorContext) {
@@ -227,6 +227,16 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
         menu.add(new JPopupMenu.Separator());
     }
 
+    @Override
+    public Component toComponent() {
+        return this;
+    }
+
+    @Override
+    public FieldsEditorContext getCurrentEditorContext() {
+        return fieldsEditorContext;
+    }
+
 
     @Override
     public boolean isPathEditable(TreePath path) {
@@ -329,6 +339,9 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
 
     @Override
     public boolean hasEditableFieldAtLocation(Point point) {
+        if (!fieldsEditorContext.isEditable()) {
+            return false;
+        }
         MockedFieldNode node = getNodeAt(point.x, point.y);
         return node != null && node.isLeaf();
     }

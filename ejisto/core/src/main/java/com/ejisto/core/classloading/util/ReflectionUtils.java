@@ -21,15 +21,33 @@ package com.ejisto.core.classloading.util;
 
 import javassist.CtClass;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.uncapitalize;
 
-public class ReflectionUtils {
+public abstract class ReflectionUtils {
 
     private static final Pattern GETTER = Pattern.compile("^((get)|(is)).*?$");
     private static final Pattern FIELD_EXTRACTOR = Pattern.compile("^((get)|(is)|(set)).*?$");
+    private static final Pattern ARRAY_MATCHER = Pattern.compile("(\\[L([a-zA-Z0-9\\.]+);)|([a-zA-Z0-9\\.]+\\[\\])");
+    private static final Pattern TYPE_EXTRACTOR = Pattern.compile("\\[?L?([a-zA-Z0-9\\.]+);?\\[?\\]?");
+    private static final Map<String, String> primitives = new HashMap<String, String>();
+
+    static {
+        //populating primitive types map. By hand autoboxing/unboxing
+        primitives.put("int", "java.lang.Integer");
+        primitives.put("long", "java.lang.Long");
+        primitives.put("char", "java.lang.Character");
+        primitives.put("byte", "java.lang.Byte");
+        primitives.put("boolean", "java.lang.Boolean");
+        primitives.put("double", "java.lang.Double");
+        primitives.put("float", "java.lang.Float");
+        primitives.put("short", "java.lang.Short");
+    }
+
 
     public static String getFieldName(String methodName) {
         if (isGetter(methodName) || isSetter(methodName)) {
@@ -65,6 +83,22 @@ public class ReflectionUtils {
             clazz.detach();
         } catch (Exception ignore) {
         }
+    }
+
+    public static boolean isArray(String type) {
+        return ARRAY_MATCHER.matcher(type).matches();
+    }
+
+    public static String getActualType(String type) {
+        String actualType = type;
+        Matcher m = TYPE_EXTRACTOR.matcher(actualType);
+        if (m.matches()) {
+            actualType = m.group(1);
+        }
+        if (primitives.containsKey(actualType)) {
+            return primitives.get(actualType);
+        }
+        return actualType;
     }
 
     private static String extractFieldName(String methodName) {

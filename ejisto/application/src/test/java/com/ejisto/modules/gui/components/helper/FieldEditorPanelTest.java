@@ -21,7 +21,7 @@ package com.ejisto.modules.gui.components.helper;
 
 import org.junit.Test;
 
-import static com.ejisto.modules.gui.components.helper.MockedFieldValueEditorPanel.abbreviate;
+import static com.ejisto.modules.gui.components.helper.FieldEditorPanel.abbreviate;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
  * Date: 4/2/12
  * Time: 8:05 AM
  */
-public class MockedFieldValueEditorPanelTest {
+public class FieldEditorPanelTest {
     @Test
     public void testAbbreviate() {
         assertEquals("[..].package2.Test", abbreviate("com.test.package1.package2.Test"));

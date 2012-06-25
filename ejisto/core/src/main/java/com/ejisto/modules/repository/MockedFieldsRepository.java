@@ -59,6 +59,10 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
         return convert(allFields, mockedFieldConverter);
     }
 
+    public List<MockedField> loadAll() {
+        return convert(getMockedFieldsDao().loadAll(), mockedFieldConverter);
+    }
+
     public List<MockedField> loadActiveFields(Matcher<MockedField> matcher) {
         return select(loadAll(matcher), having(on(MockedField.class).isActive(), equalTo(true)));
     }

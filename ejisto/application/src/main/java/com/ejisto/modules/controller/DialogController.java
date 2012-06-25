@@ -43,17 +43,6 @@ public final class DialogController {
     private Lock lock = new ReentrantLock();
 
 
-//    /**
-//     * Constructs a new DialogController using a {@link JDialog} as container.
-//     *
-//     * @param parent opener Frame
-//     * @param view   target JPanel
-//     */
-//    private DialogController(Frame parent, JPanel view) {
-//        this(new JDialog(parent), view);
-//    }
-
-
     /**
      * Constructs a new DialogController using a user-defined {@link JDialog} instance as container.
      *

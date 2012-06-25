@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.repository;
 
+import com.ejisto.core.classloading.util.ReflectionUtils;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.ObjectFactoryDao;
@@ -35,8 +36,6 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
 import static java.lang.String.format;
@@ -51,16 +50,13 @@ import static java.lang.String.format;
 public class ObjectFactoryRepository extends ExternalizableService<ObjectFactoryDao> implements InitializingBean {
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private static final String DEFAULT = "java.lang.Object";
-    private static final Pattern TYPE_EXTRACTOR = Pattern.compile("\\[?L?([a-zA-Z0-9\\.]+);?\\[?\\]?");
-    private static final Pattern ARRAY_MATCHER = Pattern.compile("(\\[L([a-zA-Z0-9\\.]+);)|([a-zA-Z0-9\\.]+\\[\\])");
     private static final ObjectFactoryRepository INSTANCE = new ObjectFactoryRepository();
     private static final String ENUM_FACTORY_CLASS_NAME = "com.ejisto.modules.factory.impl.EnumFactory";
     private final Map<String, String> factories = new HashMap<String, String>();
-    private final Map<String, String> primitives = new HashMap<String, String>();
     private final AtomicBoolean initialized = new AtomicBoolean(false);
 
     enum ObjectType {
-        ARRAY, ENUM, OBJECT;
+        ARRAY, ENUM, OBJECT
     }
 
 
@@ -83,17 +79,6 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
         registerObjectFactory("com.ejisto.modules.factory.impl.CollectionFactory", "java.util.Collection", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.MapFactory", "java.util.Map", false);
         registerObjectFactory("com.ejisto.modules.factory.impl.DateFactory", "java.util.Date", false);
-
-        //populating primitive types map
-        primitives.put("int", "java.lang.Integer");
-        primitives.put("long", "java.lang.Long");
-        primitives.put("char", "java.lang.Character");
-        primitives.put("byte", "java.lang.Byte");
-        primitives.put("boolean", "java.lang.Boolean");
-        primitives.put("double", "java.lang.Double");
-        primitives.put("float", "java.lang.Float");
-        primitives.put("short", "java.lang.Short");
-
     }
 
     public void registerObjectFactory(String objectFactoryClassName, String targetClassName) {
@@ -147,19 +132,11 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     }
 
     boolean isArray(String type) {
-        return ARRAY_MATCHER.matcher(type).matches();
+        return ReflectionUtils.isArray(type);
     }
 
     String getActualType(String type) {
-        String actualType = type;
-        Matcher m = TYPE_EXTRACTOR.matcher(actualType);
-        if (m.matches()) {
-            actualType = m.group(1);
-        }
-        if (primitives.containsKey(actualType)) {
-            return primitives.get(actualType);
-        }
-        return actualType;
+        return ReflectionUtils.getActualType(type);
     }
 
     private void insertObjectFactory(String objectFactoryClassName, String targetClassName) {

@@ -41,6 +41,7 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -233,21 +234,26 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
         return listener;
     }
 
-    private void packageWar(WebApplicationDescriptor session) throws Exception {
-        notifyJobCompleted(0, getMessage("wizard.resource.war.packaging"));
-        String libDir = new StringBuilder(session.getInstallationPath()).append(File.separator).append(
-                "WEB-INF").append(File.separator).append(
-                "lib").append(File.separator).toString();
-        File dir = new File(libDir);
-        List<CustomObjectFactory> jars = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
-        for (CustomObjectFactory jar : jars) {
-            copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir);
+    private void packageWar(WebApplicationDescriptor session) {
+        try {
+            notifyJobCompleted(0, getMessage("wizard.resource.war.packaging"));
+            String libDir = String.format("%sWEB-INF%slib%s", session.getInstallationPath(), File.separator,
+                                          File.separator);
+            File dir = new File(libDir);
+            List<CustomObjectFactory> jars = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
+            for (CustomObjectFactory jar : jars) {
+                copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir);
+            }
+            copyEjistoLibs(entries, dir);
+            String deployablePath = System.getProperty(
+                    DEPLOYABLES_DIR.getValue()) + File.separator + session.getWarFile().getName();
+            zipDirectory(session.getInstallationPath(), deployablePath);
+            session.setDeployablePath(deployablePath);
+        } catch (InterruptedException e) {
+            log.error("got interruptedException: ", e);
+        } catch (InvocationTargetException e) {
+            log.error("got invocationTargetException", e);
         }
-        copyEjistoLibs(entries, dir);
-        String deployablePath = System.getProperty(
-                DEPLOYABLES_DIR.getValue()) + File.separator + session.getWarFile().getName();
-        zipDirectory(session.getInstallationPath(), deployablePath);
-        session.setDeployablePath(deployablePath);
     }
 
     private WebApplicationDescriptor getSession() {

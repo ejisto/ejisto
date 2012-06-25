@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,8 +55,11 @@ public class MockedFieldOperationController {
             case DELETE:
                 deleteField();
                 break;
-            case CREATE:
+            case ADD:
                 activateFields();
+                break;
+            case CREATE:
+                createField();
                 break;
             default:
                 break;
@@ -78,6 +81,11 @@ public class MockedFieldOperationController {
             forEach(selectedFields).setActive(true);
             SpringBridge.publishApplicationEvent(new MockedFieldChanged(container, selectedFields));
         }
+    }
+
+    private void createField() {
+        MockedFieldCreationController controller = new MockedFieldCreationController();
+        controller.showCreateDialog();
     }
 
 }

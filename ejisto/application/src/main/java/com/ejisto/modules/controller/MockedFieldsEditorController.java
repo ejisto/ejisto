@@ -54,7 +54,6 @@ import static com.ejisto.util.GuiUtils.*;
  * Time: 5:22 PM
  */
 public class MockedFieldsEditorController implements ActionListener, FieldEditingListener {
-    public static final String START_EDITING = "START_EDITING";
     public static final String STOP_EDITING = "STOP_EDITING";
     public static final String CANCEL_EDITING = "CANCEL_EDITING";
     private MockedField editedField;

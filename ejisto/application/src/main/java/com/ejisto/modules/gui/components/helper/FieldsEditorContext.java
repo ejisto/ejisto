@@ -27,8 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
-import static java.util.EnumSet.allOf;
-import static java.util.EnumSet.of;
+import static java.util.EnumSet.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -47,7 +46,7 @@ public enum FieldsEditorContext {
                             row.getFieldType(),
                             row.getFieldValue()));
         }
-    }, true, true, allOf(EditorType.class)) {
+    }, true, true, allOf(EditorType.class), 3) {
         @Override
         public boolean isAdmitted(MockedField mockedField) {
             return mockedField.isActive();
@@ -63,7 +62,7 @@ public enum FieldsEditorContext {
                                                          row.getFieldType(),
                                                          row.getFieldValue()));
                                      }
-                                 }, false, true, allOf(EditorType.class)) {
+                                 }, false, true, allOf(EditorType.class), 3) {
         @Override
         public boolean isAdmitted(MockedField mockedField) {
             return true;
@@ -78,26 +77,36 @@ public enum FieldsEditorContext {
                             row.getFieldType(),
                             row.getFieldValue()));
         }
-    }, false, false, of(EditorType.FLATTEN)) {
+    }, false, false, of(EditorType.FLATTEN), 0) {
         @Override
         public boolean isAdmitted(MockedField mockedField) {
             return !mockedField.isActive();
         }
+    },
+
+    CREATE_FIELD("fields.table.model.ADD_FIELD.columns", null, false, false, noneOf(EditorType.class), 6) {
+        @Override
+        public boolean isAdmitted(MockedField mockedField) {
+            return true;
+        }
     };
 
-    private String tableColumnsKey;
-    private transient GuiUtils.EditorColumnFillStrategy editorColumnFillStrategy;
-    private boolean notifyChangeNeeded;
-    private boolean editable;
-    private Set<EditorType> supportedEditors;
+    private final String tableColumnsKey;
+    private final transient GuiUtils.EditorColumnFillStrategy editorColumnFillStrategy;
+    private final boolean notifyChangeNeeded;
+    private final boolean editable;
+    private final Set<EditorType> supportedEditors;
+    private final int complexEditorRows;
 
     private FieldsEditorContext(String tableColumnsKey, GuiUtils.EditorColumnFillStrategy editorColumnFillStrategy,
-                                boolean notifyChangeNeeded, boolean editable, Set<EditorType> supportedEditors) {
+                                boolean notifyChangeNeeded, boolean editable, Set<EditorType> supportedEditors,
+                                int complexEditorRows) {
         this.tableColumnsKey = tableColumnsKey;
         this.editorColumnFillStrategy = editorColumnFillStrategy;
         this.notifyChangeNeeded = notifyChangeNeeded;
         this.editable = editable;
         this.supportedEditors = supportedEditors;
+        this.complexEditorRows = complexEditorRows;
     }
 
     public abstract boolean isAdmitted(MockedField mockedField);
@@ -120,6 +129,10 @@ public enum FieldsEditorContext {
 
     public Collection<EditorType> getSupportedEditors() {
         return supportedEditors;
+    }
+
+    public int getComplexEditorRows() {
+        return complexEditorRows;
     }
 
 }

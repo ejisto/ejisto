@@ -47,6 +47,11 @@ public final class EjistoProxyFactory extends ObjectNullHandler {
         return (T) enhancer.create();
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T proxyClass(String targetClassName, String contextPath) throws ClassNotFoundException {
+        return (T) proxyClass(Class.forName(targetClassName), contextPath);
+    }
+
     public <T> T proxyClass(Class<T> target, MockedField mockedField) {
         return proxyClass(target, mockedField.getContextPath());
     }

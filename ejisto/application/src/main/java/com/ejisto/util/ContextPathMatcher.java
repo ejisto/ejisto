@@ -38,9 +38,6 @@ public class ContextPathMatcher extends FieldsEditorContextMatcher {
 
     @Override
     public boolean matches(Object o) {
-        if (super.matches(o)) {
-            return ((MockedField) o).getContextPath().equals(contextPath);
-        }
-        return false;
+        return super.matches(o) && ((MockedField) o).getContextPath().equals(contextPath);
     }
 }
