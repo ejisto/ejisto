@@ -219,7 +219,7 @@ public class FieldEditorPanel extends JXCollapsiblePane implements ActionListene
         contextPathSelector = new JComboBox();
         contextPathSelector.addActionListener(this);
         contextPathSelector.setActionCommand(MockedFieldCreationController.CTX_SELECTION);
-        fieldType = new JTextField();
+        fieldType = new JTextField("java.lang.String");
         fieldType.setPreferredSize(new Dimension(200, 20));
         fieldType.setMaximumSize(new Dimension(200, 20));
         editor.add(valueTitle, cc.xy(2, 5));

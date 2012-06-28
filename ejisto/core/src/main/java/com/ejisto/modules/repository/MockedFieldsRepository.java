@@ -23,10 +23,12 @@ import ch.lambdaj.function.convert.Converter;
 import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.web.MockedFieldRequest;
 import com.ejisto.util.ExternalizableService;
 import org.hamcrest.Matcher;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -121,6 +123,13 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     public List<MockedField> loadActiveFields(String contextPath, String className) {
         return select(mockedFieldsDao.loadByContextPathAndClassName(contextPath, className),
                       having(on(MockedField.class).isActive(), equalTo(true)));
+    }
+
+    public List<MockedField> load(MockedFieldRequest request) {
+        if (request.areAllClassPropertiesRequested()) {
+            return loadActiveFields(request.getContextPath(), request.getClassName());
+        }
+        return Arrays.asList(load(request.getContextPath(), request.getClassName(), request.getFieldName()));
     }
 
     private static final class MockedFieldConverter implements Converter<MockedField, MockedField> {

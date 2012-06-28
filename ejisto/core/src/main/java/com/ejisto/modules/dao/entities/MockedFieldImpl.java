@@ -113,6 +113,11 @@ public class MockedFieldImpl implements MockedField {
     }
 
     @Override
+    public MockedField unwrap() {
+        return this;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null) {
             return false;

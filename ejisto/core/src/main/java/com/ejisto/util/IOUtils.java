@@ -29,6 +29,7 @@ import java.net.DatagramSocket;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -81,6 +82,11 @@ public class IOUtils {
 
     public static byte[] readFile(File file) throws IOException {
         return FileUtils.readFileToByteArray(file);
+    }
+
+    public static String readInputStream(InputStream inputStream, String characterSet) throws IOException {
+        byte[] read = org.apache.commons.io.IOUtils.toByteArray(inputStream);
+        return new String(read, Charset.forName(characterSet));
     }
 
     public static String getFilenameWithoutExt(File file) {

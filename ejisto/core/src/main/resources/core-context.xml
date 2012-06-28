@@ -46,6 +46,7 @@
     <bean id="jndiDataSourcesDao" class="com.ejisto.modules.dao.JndiDataSourcesDao" parent="baseDao" lazy-init="true"/>
     <bean id="containersDao" class="com.ejisto.modules.dao.ContainersDao" parent="baseDao" lazy-init="true"/>
     <bean id="dataSource" class="com.ejisto.modules.dao.db.EmbeddedDatabaseManager"/>
+    <bean id="httpServer" class="com.ejisto.modules.web.HTTPServer" factory-method="getInstance"/>
     <bean id="mockedFieldRepository" class="com.ejisto.modules.repository.MockedFieldsRepository"
           factory-method="getInstance"/>
     <bean id="settingsRepository" class="com.ejisto.modules.repository.SettingsRepository"

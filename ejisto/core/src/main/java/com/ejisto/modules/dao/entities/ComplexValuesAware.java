@@ -19,6 +19,8 @@
 
 package com.ejisto.modules.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -27,9 +29,14 @@ package com.ejisto.modules.dao.entities;
  */
 public interface ComplexValuesAware {
 
+    @JsonIgnore
     boolean isSimpleValue();
 
+    @JsonIgnore
     String getCompleteDescription();
 
+    @JsonIgnore
     String getCompleteFieldType();
+
+    MockedField unwrap();
 }

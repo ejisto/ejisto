@@ -19,6 +19,8 @@
 
 package com.ejisto.modules.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 
 /**
@@ -63,21 +65,27 @@ public interface MockedField extends ComplexValuesAware, Comparable<MockedField>
 
     void setExpression(String expression);
 
-    String getComparisonKey();
-
-    String[] getParentClassPath();
-
-    String[] getPath();
-
-    String getParentClassPathAsString();
-
-    String getPackageName();
-
-    String getClassSimpleName();
-
     String getFieldElementType();
 
     void setFieldElementType(String fieldElementType);
+
+    @JsonIgnore
+    String getComparisonKey();
+
+    @JsonIgnore
+    String[] getParentClassPath();
+
+    @JsonIgnore
+    String[] getPath();
+
+    @JsonIgnore
+    String getParentClassPathAsString();
+
+    @JsonIgnore
+    String getPackageName();
+
+    @JsonIgnore
+    String getClassSimpleName();
 
     void copyFrom(MockedField original);
 }

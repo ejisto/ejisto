@@ -61,7 +61,8 @@ public enum StringConstants {
     DEFAULT_CONTAINER_DOWNLOAD_URL("container.default.url"),
     DATABASE_PORT("database.port"),
     DATABASE_USER("embedded.database.username"),
-    DATABASE_PWD("embedded.database.password");
+    DATABASE_PWD("embedded.database.password"),
+    HTTP_LISTEN_PORT("http.listen.port");
 
     private final String value;
 

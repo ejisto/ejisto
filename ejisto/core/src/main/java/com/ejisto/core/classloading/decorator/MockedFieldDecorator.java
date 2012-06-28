@@ -88,6 +88,11 @@ public class MockedFieldDecorator implements MockedField {
         return target.getFieldType();
     }
 
+    @Override
+    public MockedField unwrap() {
+        return target;
+    }
+
     private String cleanFieldElementType(String fieldElementType) {
         String[] path = fieldElementType.split("\\.");
         return path[path.length - 1];
