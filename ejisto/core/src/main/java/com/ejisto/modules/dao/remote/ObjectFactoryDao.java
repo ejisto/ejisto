@@ -17,29 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao;
+package com.ejisto.modules.dao.remote;
 
-import com.ejisto.modules.dao.entities.CustomObjectFactory;
+import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
+import com.ejisto.modules.web.util.JSONUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 7/3/12
- * Time: 9:36 PM
+ * Date: 7/4/12
+ * Time: 11:38 AM
  */
-public interface CustomObjectFactoryDao extends Dao {
+public class ObjectFactoryDao extends BaseRemoteDao implements com.ejisto.modules.dao.ObjectFactoryDao {
 
-    List<CustomObjectFactory> loadAll();
+    @Override
+    public List<RegisteredObjectFactory> loadAll() {
+        return JSONUtil.decode(remoteCall(encodeRequest("loadAll"), "/getObjectFactory"),
+                               new TypeReference<List<RegisteredObjectFactory>>() {
+                               });
+    }
 
-    CustomObjectFactory load(String fileName);
-
-    boolean insert(CustomObjectFactory customObjectFactory);
-
-    boolean update(CustomObjectFactory customObjectFactory);
-
-    boolean exists(CustomObjectFactory customObjectFactory);
-
-    boolean save(CustomObjectFactory customObjectFactory);
+    @Override
+    public void insert(RegisteredObjectFactory registeredObjectFactory) {
+        throw new UnsupportedOperationException("Remote dao is read-only");
+    }
 }

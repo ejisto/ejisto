@@ -116,8 +116,8 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     }
 
     @Override
-    protected Class<MockedFieldsDao> getDaoClass() {
-        return MockedFieldsDao.class;
+    protected MockedFieldsDao newRemoteDaoInstance() {
+        return new com.ejisto.modules.dao.remote.MockedFieldsDao();
     }
 
     public List<MockedField> loadActiveFields(String contextPath, String className) {
@@ -126,7 +126,9 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     }
 
     public List<MockedField> load(MockedFieldRequest request) {
-        if (request.areAllClassPropertiesRequested()) {
+        if (request.areAllFieldsRequested()) {
+            return loadAll();
+        } else if (request.areAllClassPropertiesRequested()) {
             return loadActiveFields(request.getContextPath(), request.getClassName());
         }
         return Arrays.asList(load(request.getContextPath(), request.getClassName(), request.getFieldName()));

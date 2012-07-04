@@ -21,8 +21,11 @@ package com.ejisto.services.shutdown;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.conf.SettingsManager;
-import com.ejisto.modules.dao.*;
+import com.ejisto.modules.dao.CustomObjectFactoryDao;
 import com.ejisto.modules.dao.entities.*;
+import com.ejisto.modules.dao.jdbc.ContainersDao;
+import com.ejisto.modules.dao.jdbc.JndiDataSourcesDao;
+import com.ejisto.modules.dao.jdbc.WebApplicationDescriptorDao;
 import com.ejisto.util.converter.*;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
@@ -43,8 +46,8 @@ public class DatabaseDump extends BaseShutdownService {
 
     private static final char NEWLINE = '\n';
 
-    @Resource private MockedFieldsDao mockedFieldsDao;
-    @Resource private SettingsDao settingsDao;
+    @Resource private com.ejisto.modules.dao.MockedFieldsDao mockedFieldsDao;
+    @Resource private com.ejisto.modules.dao.SettingsDao settingsDao;
     @Resource private JndiDataSourcesDao jndiDataSourcesDao;
     @Resource private SettingsManager settingsManager;
     @Resource private WebApplicationDescriptorDao webApplicationDescriptorDao;

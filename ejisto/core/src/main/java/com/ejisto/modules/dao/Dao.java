@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,21 +19,13 @@
 
 package com.ejisto.modules.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import javax.sql.DataSource;
-
-public abstract class BaseDao {
-    private JdbcTemplate jdbcTemplate;
-
-    JdbcTemplate getJdbcTemplate() {
-        return jdbcTemplate;
-    }
-
-    @Autowired
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
-
+/**
+ * Marker interface
+ * <p/>
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 6/30/12
+ * Time: 11:21 AM
+ */
+public interface Dao {
 }

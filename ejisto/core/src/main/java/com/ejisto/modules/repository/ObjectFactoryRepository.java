@@ -61,7 +61,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
 
 
     @Resource private EventManager eventManager;
-    @Resource private ObjectFactoryDao objectFactoryDao;
+    @Resource private com.ejisto.modules.dao.ObjectFactoryDao objectFactoryDao;
 
     public static ObjectFactoryRepository getInstance() {
         return INSTANCE;
@@ -199,18 +199,18 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     }
 
     @Override
-    protected ObjectFactoryDao getDaoInstance() {
+    protected com.ejisto.modules.dao.ObjectFactoryDao getDaoInstance() {
         return objectFactoryDao;
     }
 
     @Override
-    protected void setDaoInstance(ObjectFactoryDao daoInstance) {
+    protected void setDaoInstance(com.ejisto.modules.dao.ObjectFactoryDao daoInstance) {
         this.objectFactoryDao = daoInstance;
     }
 
     @Override
-    protected Class<ObjectFactoryDao> getDaoClass() {
-        return ObjectFactoryDao.class;
+    protected ObjectFactoryDao newRemoteDaoInstance() {
+        return new com.ejisto.modules.dao.remote.ObjectFactoryDao();
     }
 
     @Override

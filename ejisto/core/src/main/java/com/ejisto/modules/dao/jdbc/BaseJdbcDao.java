@@ -17,29 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao;
+package com.ejisto.modules.dao.jdbc;
 
-import com.ejisto.modules.dao.entities.CustomObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.List;
+import javax.sql.DataSource;
 
-/**
- * Created by IntelliJ IDEA.
- * User: celestino
- * Date: 7/3/12
- * Time: 9:36 PM
- */
-public interface CustomObjectFactoryDao extends Dao {
+public abstract class BaseJdbcDao {
+    private JdbcTemplate jdbcTemplate;
 
-    List<CustomObjectFactory> loadAll();
+    JdbcTemplate getJdbcTemplate() {
+        return jdbcTemplate;
+    }
 
-    CustomObjectFactory load(String fileName);
+    @Autowired
+    public void setDataSource(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
-    boolean insert(CustomObjectFactory customObjectFactory);
-
-    boolean update(CustomObjectFactory customObjectFactory);
-
-    boolean exists(CustomObjectFactory customObjectFactory);
-
-    boolean save(CustomObjectFactory customObjectFactory);
 }

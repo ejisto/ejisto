@@ -20,19 +20,20 @@
 package com.ejisto.core.classloading.javassist;
 
 import com.ejisto.constants.StringConstants;
-import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import com.ejisto.modules.web.DataSourceHolder;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.lang.annotation.ElementType;
 import java.util.List;
-import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
 import static org.junit.Assert.*;
@@ -44,6 +45,9 @@ import static org.junit.Assert.*;
  * Date: 1/2/12
  * Time: 7:10 PM
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ActiveProfiles(value = {"test", "server"})
+@ContextConfiguration(value = {"classpath:/core-context.xml"})
 public class PropertyManagerTest {
 
     private static final String CTX = "/ejisto";
@@ -60,17 +64,7 @@ public class PropertyManagerTest {
         stream.write(sql.getBytes());
         stream.flush();
         stream.close();
-        Properties props = new Properties();
-        props.setProperty(StringConstants.DATABASE_USER.getValue(), "ejisto");
-        props.setProperty(StringConstants.DATABASE_PWD.getValue(), "ejisto");
-        props.setProperty(StringConstants.DATABASE_PORT.getValue(), "5555");
-
         System.setProperty(StringConstants.DB_SCRIPT.getValue(), f.getAbsolutePath());
-        EmbeddedDatabaseManager dataSource = new EmbeddedDatabaseManager();
-        dataSource.setSettings(props);
-        dataSource.afterPropertiesSet();
-        dataSource.initDb();
-        DataSourceHolder.setDataSource(dataSource);
     }
 
     @Test

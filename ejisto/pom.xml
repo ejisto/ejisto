@@ -128,6 +128,11 @@
                 <version>${org.springframework.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.googlecode.lambdaj</groupId>
                 <artifactId>lambdaj</artifactId>
                 <version>2.3.3</version>

@@ -128,6 +128,10 @@ public class EmbeddedDatabaseManager extends AbstractDataSource implements Initi
         this.databaseConfiguration = new DatabaseConfiguration(format("jdbc:derby://localhost:%s/memory:ejisto", port),
                                                                settings.getProperty(DATABASE_USER.getValue()),
                                                                settings.getProperty(DATABASE_PWD.getValue()), port);
+        if (Boolean.getBoolean("force.db.init")) {
+            //since we're in a Test environment, we need to force db initialization
+            initDb();
+        }
     }
 
     public void setSettings(Properties settings) {

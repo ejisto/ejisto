@@ -19,33 +19,26 @@
 
 package com.ejisto.util;
 
-import com.ejisto.modules.dao.Dao;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 2/26/11
- * Time: 6:38 PM
+ * Date: 6/30/12
+ * Time: 11:39 AM
  */
-public abstract class ExternalizableService<T extends Dao> {
+public class DaoProxy implements InvocationHandler {
 
-    protected void checkDao() {
-        T dao = getDaoInstance();
-        if (dao != null) {
-            return;//value injected by Spring AOP or previously created
-        }
-        try {
-            dao = newRemoteDaoInstance();
-            setDaoInstance(dao);
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to load dao for [" + this.getClass() + "]", e);
-        }
+
+    @SuppressWarnings("unchecked")
+    static <T> T newDaoProxy(Class<T> daoClass) {
+        return (T) Proxy.newProxyInstance(DaoProxy.class.getClassLoader(), new Class<?>[]{daoClass}, new DaoProxy());
     }
 
-    protected abstract T getDaoInstance();
-
-    protected abstract void setDaoInstance(T daoInstance);
-
-    protected abstract T newRemoteDaoInstance();
-
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        return null;
+    }
 }

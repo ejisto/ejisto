@@ -19,8 +19,8 @@
 
 package com.ejisto.util;
 
-import com.ejisto.modules.dao.JndiDataSourcesDao;
 import com.ejisto.modules.dao.entities.JndiDataSource;
+import com.ejisto.modules.dao.jdbc.JndiDataSourcesDao;
 
 import javax.annotation.Resource;
 import java.util.List;

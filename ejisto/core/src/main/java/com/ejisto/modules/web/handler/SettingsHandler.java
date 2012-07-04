@@ -17,25 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao;
+package com.ejisto.modules.web.handler;
 
+import com.ejisto.modules.dao.SettingsDao;
 import com.ejisto.modules.dao.entities.Setting;
+import com.ejisto.modules.web.util.JSONUtil;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 7/3/12
- * Time: 9:45 PM
+ * Date: 7/4/12
+ * Time: 12:29 PM
  */
-public interface SettingsDao extends Dao {
+public class SettingsHandler implements HttpHandler {
 
-    List<Setting> loadAll();
+    @Resource private SettingsDao settingsDao;
 
-    Setting getSetting(String key);
-
-    boolean insertSettings(List<Setting> settings);
-
-    boolean clearSettings(List<Setting> settings);
+    @Override
+    public void handle(HttpExchange httpExchange) throws IOException {
+        List<Setting> factories = settingsDao.loadAll();
+        String response = JSONUtil.encode(factories);
+        httpExchange.sendResponseHeaders(200, response.length());
+        OutputStream os = httpExchange.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
+    }
 }

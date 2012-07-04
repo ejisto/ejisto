@@ -19,8 +19,8 @@
 
 package com.ejisto.modules.repository;
 
-import com.ejisto.modules.dao.ObjectFactoryDao;
 import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
+import com.ejisto.modules.dao.jdbc.ObjectFactoryDao;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -20,8 +20,8 @@
 package com.ejisto.modules.repository;
 
 import com.ejisto.modules.cargo.NotInstalledException;
-import com.ejisto.modules.dao.ContainersDao;
 import com.ejisto.modules.dao.entities.Container;
+import com.ejisto.modules.dao.jdbc.ContainersDao;
 import org.springframework.dao.DataAccessException;
 
 import javax.annotation.Resource;

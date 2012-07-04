@@ -23,8 +23,7 @@ import com.ejisto.core.classloading.SharedClassLoader;
 import lombok.extern.log4j.Log4j;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
 
 import javax.swing.*;
 import java.util.logging.Level;
@@ -50,7 +49,10 @@ public class Launcher {
             log.info("setting dynamic ClassLoader");
             Thread.currentThread().setContextClassLoader(SharedClassLoader.getInstance());
             log.info("initializing Spring framework");
-            AbstractApplicationContext context = new ClassPathXmlApplicationContext("/spring-context.xml");
+            GenericXmlApplicationContext context = new GenericXmlApplicationContext();
+            context.getEnvironment().setActiveProfiles("server");
+            context.load("classpath:/spring-context.xml");
+            context.refresh();
             context.registerShutdownHook();
             ApplicationController controller = context.getBean("applicationController", ApplicationController.class);
             log.info("starting application... enjoy ejisto!!");

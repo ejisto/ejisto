@@ -34,6 +34,7 @@ import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
 
 public class SettingsManager extends ExternalizableService<SettingsDao> implements InitializingBean {
+
     @Resource(name = "settings") private Properties settings;
     @Resource private SettingsDao settingsDao;
 
@@ -100,23 +101,23 @@ public class SettingsManager extends ExternalizableService<SettingsDao> implemen
         return selectFirst(settingsList.get(), having(on(Setting.class).getKey(), equalTo(key)));
     }
 
-    private SettingsDao getSettingsDao() {
+    private com.ejisto.modules.dao.SettingsDao getSettingsDao() {
         checkDao();
         return settingsDao;
     }
 
     @Override
-    protected SettingsDao getDaoInstance() {
+    protected com.ejisto.modules.dao.SettingsDao getDaoInstance() {
         return settingsDao;
     }
 
     @Override
-    protected void setDaoInstance(SettingsDao daoInstance) {
+    protected void setDaoInstance(com.ejisto.modules.dao.SettingsDao daoInstance) {
         this.settingsDao = daoInstance;
     }
 
     @Override
-    protected Class<SettingsDao> getDaoClass() {
-        return SettingsDao.class;
+    protected SettingsDao newRemoteDaoInstance() {
+        return new com.ejisto.modules.dao.remote.SettingsDao();
     }
 }

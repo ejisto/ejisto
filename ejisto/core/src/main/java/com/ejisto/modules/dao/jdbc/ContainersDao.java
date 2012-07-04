@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao;
+package com.ejisto.modules.dao.jdbc;
 
 import com.ejisto.modules.dao.entities.Container;
 import org.springframework.jdbc.core.RowMapper;
@@ -32,7 +32,7 @@ import java.util.List;
  * Date: 3/6/11
  * Time: 8:54 AM
  */
-public class ContainersDao extends BaseDao {
+public class ContainersDao extends BaseJdbcDao {
     private static final String LOAD_ALL = "SELECT * FROM CONTAINER";
     private static final String LOAD = "SELECT * FROM CONTAINER WHERE ID=?";
     private static final String INSERT = "INSERT INTO CONTAINER (ID, CARGOID, HOMEDIR, DESCRIPTION) VALUES(?,?,?,?)";

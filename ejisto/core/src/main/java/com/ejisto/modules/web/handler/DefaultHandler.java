@@ -17,35 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.util;
+package com.ejisto.modules.web.handler;
 
-import com.ejisto.modules.dao.Dao;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 2/26/11
- * Time: 6:38 PM
+ * Date: 7/4/12
+ * Time: 10:59 AM
  */
-public abstract class ExternalizableService<T extends Dao> {
-
-    protected void checkDao() {
-        T dao = getDaoInstance();
-        if (dao != null) {
-            return;//value injected by Spring AOP or previously created
-        }
-        try {
-            dao = newRemoteDaoInstance();
-            setDaoInstance(dao);
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to load dao for [" + this.getClass() + "]", e);
-        }
+public class DefaultHandler implements HttpHandler {
+    @Override
+    public void handle(HttpExchange httpExchange) throws IOException {
+        String response = "Hi, I'm ejisto. How can I help you? :)";
+        httpExchange.sendResponseHeaders(200, response.length());
+        OutputStream os = httpExchange.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
     }
-
-    protected abstract T getDaoInstance();
-
-    protected abstract void setDaoInstance(T daoInstance);
-
-    protected abstract T newRemoteDaoInstance();
-
 }

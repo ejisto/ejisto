@@ -44,9 +44,7 @@
     </bean>
 
     <bean id="applicationController" class="com.ejisto.core.launcher.ApplicationController" depends-on="dataSource"/>
-    <bean id="eventManager" class="com.ejisto.event.EventManager"/>
     <bean id="application" class="com.ejisto.modules.gui.Application" depends-on="settingsManager"/>
-    <bean id="settingsManager" class="com.ejisto.modules.conf.SettingsManager"/>
 
     <bean id="serverController" class="com.ejisto.event.listener.ServerController"/>
     <bean id="applicationLoader" class="com.ejisto.event.listener.WebApplicationLoader"/>

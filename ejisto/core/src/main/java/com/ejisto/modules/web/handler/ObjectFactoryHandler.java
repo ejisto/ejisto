@@ -17,21 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao;
+package com.ejisto.modules.web.handler;
 
+import com.ejisto.modules.dao.ObjectFactoryDao;
 import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
+import com.ejisto.modules.web.util.JSONUtil;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 7/3/12
- * Time: 9:42 PM
+ * Date: 7/4/12
+ * Time: 11:09 AM
  */
-public interface ObjectFactoryDao extends Dao {
+public class ObjectFactoryHandler implements HttpHandler {
 
-    List<RegisteredObjectFactory> loadAll();
+    @Resource ObjectFactoryDao objectFactoryDao;
 
-    void insert(RegisteredObjectFactory registeredObjectFactory);
+    @Override
+    public void handle(HttpExchange httpExchange) throws IOException {
+        List<RegisteredObjectFactory> factories = objectFactoryDao.loadAll();
+        String response = JSONUtil.encode(factories);
+        httpExchange.sendResponseHeaders(200, response.length());
+        OutputStream os = httpExchange.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
+    }
 }

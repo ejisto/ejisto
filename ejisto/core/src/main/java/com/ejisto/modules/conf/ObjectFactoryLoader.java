@@ -20,7 +20,6 @@
 package com.ejisto.modules.conf;
 
 import com.ejisto.constants.StringConstants;
-import com.ejisto.modules.dao.CustomObjectFactoryDao;
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
@@ -47,7 +46,7 @@ import static com.ejisto.util.IOUtils.findAllClassesInJarFile;
 public class ObjectFactoryLoader implements Runnable {
     private boolean initialized = false;
     @Resource private ObjectFactoryRepository objectFactoryRepository;
-    @Resource private CustomObjectFactoryDao customObjectFactoryDao;
+    @Resource private com.ejisto.modules.dao.CustomObjectFactoryDao customObjectFactoryDao;
     private File directory;
     private ClassPool cp;
     private CtClass bazeClazz;

@@ -70,7 +70,7 @@ import static com.ejisto.util.IOUtils.*;
 @Log4j
 public class ApplicationScanningWorker extends GuiTask<Void> {
     private static final Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
-    private static final String[] entries = {"derbyclient", "derbynet", "ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "spring", "cglib", "commons", "asm"};
+    private static final String[] entries = {"ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "spring", "cglib", "commons", "asm", "jackson"};
     private WebApplicationDescriptor session;
     private String containerHome;
 

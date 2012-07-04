@@ -41,7 +41,7 @@ public class JSONUtilTest {
     public void testEncodeMockedFieldRequest() throws Exception {
         MockedFieldRequest request = new MockedFieldRequest("/ejisto-test", "com.test.TestClass",
                                                             "name");
-        String result = JSONUtil.encodeMockedFieldRequest(request);
+        String result = JSONUtil.encode(request);
         assertNotNull(result);
         assertEquals("{\"contextPath\":\"/ejisto-test\",\"className\":\"com.test.TestClass\",\"fieldName\":\"name\"}",
                      result);
@@ -50,7 +50,7 @@ public class JSONUtilTest {
     @Test
     public void testDecodeMockedFieldRequest() throws Exception {
         String requestBody = "{\"contextPath\":\"/ejisto-test\",\"className\":\"com.test.TestClass\",\"fieldName\":\"name\"}";
-        MockedFieldRequest request = JSONUtil.decodeMockedFieldRequest(requestBody);
+        MockedFieldRequest request = JSONUtil.decode(requestBody, MockedFieldRequest.class);
         assertNotNull(request);
         assertEquals(request.getClassName(), "com.test.TestClass");
         assertEquals(request.getContextPath(), "/ejisto-test");

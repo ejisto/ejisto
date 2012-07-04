@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,8 @@ public class CustomObjectFactoryRepository extends ExternalizableService<CustomO
     }
 
     @Override
-    protected Class<CustomObjectFactoryDao> getDaoClass() {
-        return CustomObjectFactoryDao.class;
+    protected CustomObjectFactoryDao newRemoteDaoInstance() {
+        return new com.ejisto.modules.dao.remote.CustomObjectFactoryDao();
     }
+
 }

@@ -20,21 +20,13 @@
 package com.ejisto.modules.web;
 
 import com.ejisto.constants.StringConstants;
-import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.repository.MockedFieldsRepository;
-import com.ejisto.modules.web.util.JSONUtil;
-import com.ejisto.util.IOUtils;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.springframework.beans.factory.InitializingBean;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import javax.annotation.Resource;
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.util.Map;
 
 import static com.ejisto.util.IOUtils.findFirstAvailablePort;
 
@@ -44,54 +36,28 @@ import static com.ejisto.util.IOUtils.findFirstAvailablePort;
  * Date: 6/26/12
  * Time: 4:24 PM
  */
-public class HTTPServer {
+public class HTTPServer implements InitializingBean {
 
     private static final HTTPServer INSTANCE = new HTTPServer();
+
+    @Resource(name = "httpHandlers") private Map<String, HttpHandler> handlersMap;
 
     public static HTTPServer getInstance() {
         return INSTANCE;
     }
 
     private HTTPServer() {
-        try {
-            int port = findFirstAvailablePort(1706);
-            HttpServer server = HttpServer.create(new InetSocketAddress(port), 1024);
-            server.createContext("/", new DefaultHandler());
-            server.createContext("/getField", new MockedFieldRequestHandler());
-            server.setExecutor(null);
-            server.start();
-            System.setProperty(StringConstants.HTTP_LISTEN_PORT.getValue(), String.valueOf(port));
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
-    class DefaultHandler implements HttpHandler {
-        @Override
-        public void handle(HttpExchange httpExchange) throws IOException {
-            String response = "Hi, I'm ejisto. How can I help you? :)";
-            httpExchange.sendResponseHeaders(200, response.length());
-            OutputStream os = httpExchange.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        int port = findFirstAvailablePort(1706);
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 1024);
+        for (Map.Entry<String, HttpHandler> entry : handlersMap.entrySet()) {
+            server.createContext(entry.getKey(), entry.getValue());
         }
-    }
-
-    class MockedFieldRequestHandler implements HttpHandler {
-
-        @Override
-        public void handle(HttpExchange httpExchange) throws IOException {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            ObjectReader fieldReader = mapper.reader(MockedField.class);
-            String requestBody = IOUtils.readInputStream(httpExchange.getRequestBody(), "UTF-8");
-            MockedFieldRequest request = JSONUtil.decodeMockedFieldRequest(requestBody);
-            List<MockedField> found = MockedFieldsRepository.getInstance().load(request);
-            String response = JSONUtil.encodeMockedFields(found);
-            httpExchange.sendResponseHeaders(200, response.length());
-            OutputStream os = httpExchange.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
-        }
+        server.setExecutor(null);
+        server.start();
+        System.setProperty(StringConstants.HTTP_LISTEN_PORT.getValue(), String.valueOf(port));
     }
 }

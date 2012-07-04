@@ -17,29 +17,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao;
+package com.ejisto.modules.web.handler;
 
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
+import com.ejisto.modules.repository.CustomObjectFactoryRepository;
+import com.ejisto.modules.web.util.JSONUtil;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 7/3/12
- * Time: 9:36 PM
+ * Date: 7/4/12
+ * Time: 11:09 AM
  */
-public interface CustomObjectFactoryDao extends Dao {
+public class CustomObjectFactoryHandler implements HttpHandler {
 
-    List<CustomObjectFactory> loadAll();
-
-    CustomObjectFactory load(String fileName);
-
-    boolean insert(CustomObjectFactory customObjectFactory);
-
-    boolean update(CustomObjectFactory customObjectFactory);
-
-    boolean exists(CustomObjectFactory customObjectFactory);
-
-    boolean save(CustomObjectFactory customObjectFactory);
+    @Override
+    public void handle(HttpExchange httpExchange) throws IOException {
+        List<CustomObjectFactory> factories = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
+        String response = JSONUtil.encode(factories);
+        httpExchange.sendResponseHeaders(200, response.length());
+        OutputStream os = httpExchange.getResponseBody();
+        os.write(response.getBytes());
+        os.close();
+    }
 }

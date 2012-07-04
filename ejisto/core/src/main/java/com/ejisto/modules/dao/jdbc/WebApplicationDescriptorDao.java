@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao;
+package com.ejisto.modules.dao.jdbc;
 
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
@@ -37,7 +37,7 @@ import java.util.List;
 
 import static ch.lambdaj.Lambda.forEach;
 
-public class WebApplicationDescriptorDao extends BaseDao {
+public class WebApplicationDescriptorDao extends BaseJdbcDao {
 
     private static final String SQL_LOAD = "SELECT * FROM WEBAPPLICATIONDESCRIPTOR WHERE CONTEXTPATH = ?";
     private static final String SQL_LOAD_ALL = "SELECT * FROM WEBAPPLICATIONDESCRIPTOR";

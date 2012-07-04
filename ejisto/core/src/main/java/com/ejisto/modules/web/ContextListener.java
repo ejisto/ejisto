@@ -25,19 +25,11 @@ import com.ejisto.core.classloading.ClassTransformer;
 import com.ejisto.modules.repository.ClassPoolRepository;
 import javassist.ClassPool;
 import javassist.LoaderClassPath;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.derby.jdbc.ClientDriver;
 import org.apache.log4j.*;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
-import static java.lang.String.format;
 
 /**
  * Created by IntelliJ IDEA.
@@ -46,7 +38,6 @@ import static java.lang.String.format;
  * Time: 6:13 PM
  */
 public class ContextListener implements ServletContextListener {
-    private Driver driver;
     private ServletContext context;
     private ClassTransformer classTransformer;
 
@@ -58,8 +49,6 @@ public class ContextListener implements ServletContextListener {
         String targetContextPath = context.getInitParameter(StringConstants.CONTEXT_PARAM_NAME.getValue());
         classTransformer = new ClassTransformer(targetContextPath);
         InstrumentationHolder.getInstrumentation().addTransformer(classTransformer);
-        driver = new ClientDriver();
-        initDataSource();
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(targetContextPath);
         cp.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
         context.log("Ejisto successfully initialized!");
@@ -76,28 +65,8 @@ public class ContextListener implements ServletContextListener {
         }
     }
 
-    private void initDataSource() {
-        int port = 5555;
-        String portNumberProperty = System.getProperty("ejisto.database.port");
-        if (StringUtils.isNotBlank(portNumberProperty)) {
-            port = Integer.parseInt(portNumberProperty);
-        }
-        DataSourceHolder.setDataSource(
-                new SimpleDriverDataSource(driver, format("jdbc:derby://localhost:%s/memory:ejisto", port), "ejisto",
-                                           "ejisto"));
-    }
-
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        try {
-            context.log("driver deregistration");
-            DataSourceHolder.clearDataSource();
-            DriverManager.deregisterDriver(driver);
-            context.log("done");
-            driver = null;
-        } catch (SQLException e) {
-            context.log("error during driver deregistration", e);
-        }
         context.log("removing instrumentation agent...");
         InstrumentationHolder.getInstrumentation().removeTransformer(classTransformer);
         context.log("done.");

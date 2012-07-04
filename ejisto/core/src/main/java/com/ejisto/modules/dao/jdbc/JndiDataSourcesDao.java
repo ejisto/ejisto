@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao;
+package com.ejisto.modules.dao.jdbc;
 
 import com.ejisto.modules.dao.entities.JndiDataSource;
 import org.springframework.dao.DataAccessException;
@@ -29,7 +29,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import java.sql.*;
 import java.util.List;
 
-public class JndiDataSourcesDao extends BaseDao {
+public class JndiDataSourcesDao extends BaseJdbcDao {
     private static final String LOAD_ALL = "SELECT * FROM JNDI_DATASOURCE";
     private static final String LOAD_ONE = "SELECT * FROM JNDI_DATASOURCE WHERE RESOURCENAME=?";
     private static final String INSERT = "INSERT INTO JNDI_DATASOURCE (RESOURCENAME,RESOURCETYPE,DRIVERCLASSNAME,CONNECTIONURL,DRIVERJAR,USERNAME,PASSWORD,MAXACTIVE,MAXWAIT,MAXIDLE) VALUES(?,?,?,?,?,?,?,?,?,?)";

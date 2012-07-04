@@ -58,4 +58,8 @@ public final class MockedFieldRequest {
         return fieldName == null;
     }
 
+    public boolean areAllFieldsRequested() {
+        return fieldName == null && contextPath == null && className == null;
+    }
+
 }
