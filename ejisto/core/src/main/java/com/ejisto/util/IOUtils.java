@@ -77,7 +77,9 @@ public class IOUtils {
         if (!out.getParentFile().exists() && !out.getParentFile().mkdirs()) {
             throw new IOException("Unable to write file " + out.getAbsolutePath());
         }
-        FileUtils.writeByteArrayToFile(out, org.apache.commons.io.IOUtils.toByteArray(inputStream));
+        FileOutputStream outputStream = new FileOutputStream(out);
+        org.apache.commons.io.IOUtils.copy(inputStream, outputStream);
+        org.apache.commons.io.IOUtils.closeQuietly(outputStream);
     }
 
     public static byte[] readFile(File file) throws IOException {

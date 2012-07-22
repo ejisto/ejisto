@@ -31,6 +31,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.ejisto.util.GuiUtils.publishError;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public abstract class AbstractStepController<K> implements StepController<K>, PropertyChangeListener, TaskExecutionListener {
@@ -45,6 +46,7 @@ public abstract class AbstractStepController<K> implements StepController<K>, Pr
             insertPermit.release();
         }
     });
+    private String currentTaskUUID;
 
     protected AbstractStepController(EjistoDialog dialog) {
         this.dialog = dialog;
@@ -83,7 +85,14 @@ public abstract class AbstractStepController<K> implements StepController<K>, Pr
 
     @Override
     public final void propertyChange(PropertyChangeEvent evt) {
-        handlePropertyChange(evt);
+        String propertyName = evt.getPropertyName();
+        if (propertyName.equals("exception")) {
+            taskManager.cancelTask(currentTaskUUID);
+            publishError(this, (Throwable) evt.getNewValue());
+            dialog.setVisible(false);//close the dialog
+        } else {
+            handlePropertyChange(evt);
+        }
 //        if (evt.getPropertyName().equalsIgnoreCase("state") &&
 //                evt.getNewValue() == DONE) {
 //            try {
@@ -102,7 +111,7 @@ public abstract class AbstractStepController<K> implements StepController<K>, Pr
         Task<?> task = createNewTask();
         if (task != null) {
             task.addTaskExecutionListener(this);
-            addJob(task);
+            this.currentTaskUUID = addJob(task);
             try {
                 barrier.await();
                 return true;

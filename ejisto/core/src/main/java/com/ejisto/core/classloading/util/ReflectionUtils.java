@@ -21,12 +21,14 @@ package com.ejisto.core.classloading.util;
 
 import javassist.CtClass;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.apache.commons.lang3.StringUtils.uncapitalize;
+import static org.apache.commons.lang3.StringUtils.*;
 
 public abstract class ReflectionUtils {
 
@@ -89,6 +91,28 @@ public abstract class ReflectionUtils {
         return ARRAY_MATCHER.matcher(type).matches();
     }
 
+    private static Pattern GENERIC_ELEMENT_EXTRACTOR = Pattern.compile(
+            "\\??\\s?(extends)?(super)?\\s?([A-Za-z0-9\\._<>]*)");
+    private static Pattern JAVASSIST_GENERIC_SIGNATURE = Pattern.compile("[A-Za-z0-9\\._]+\\s?<(.+?)>");
+
+    public static String cleanGenericSignature(String signature) {
+        String genericSignature = signature.trim();
+        Matcher m = JAVASSIST_GENERIC_SIGNATURE.matcher(genericSignature);
+        if (m.matches()) {
+            genericSignature = m.group(1);
+        }
+        m = GENERIC_ELEMENT_EXTRACTOR.matcher(genericSignature);
+        List<String> result = new ArrayList<String>();
+        String match;
+        while (m.find()) {
+            match = m.group(3);
+            if (isNotBlank(match)) {
+                result.add(m.group(3));
+            }
+        }
+        return join(result, ", ");
+    }
+
     public static String getActualType(String type) {
         String actualType = type;
         Matcher m = TYPE_EXTRACTOR.matcher(actualType);
@@ -108,5 +132,6 @@ public abstract class ReflectionUtils {
         }
         return uncapitalize(methodName.substring(m.end(1)));
     }
+
 
 }

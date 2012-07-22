@@ -33,11 +33,11 @@ import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.SELECT_ALL;
 import static com.ejisto.constants.StringConstants.SELECT_NONE;
 import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.showWarning;
 
 public class ClassesFilteringController extends AbstractApplicationInstallerController {
 
     private ResourcesFilter classesFilteringTab;
-    private Closure1<ActionEvent> selectAllOrNone;
 
     public ClassesFilteringController(EjistoDialog dialog) {
         super(dialog);
@@ -48,7 +48,7 @@ public class ClassesFilteringController extends AbstractApplicationInstallerCont
         if (classesFilteringTab != null) {
             return classesFilteringTab;
         }
-        selectAllOrNone = new Closure1<ActionEvent>() {{
+        Closure1<ActionEvent> selectAllOrNone = new Closure1<ActionEvent>() {{
             of(ClassesFilteringController.this).actionPerformed(var(ActionEvent.class));
         }};
         CallbackAction c1 = new CallbackAction(getMessage("wizard.jarfilter.selectall.text"), SELECT_ALL.getValue(),
@@ -80,7 +80,12 @@ public class ClassesFilteringController extends AbstractApplicationInstallerCont
     }
 
     void actionPerformed(ActionEvent ev) {
-        getView().select(ev.getActionCommand().equals(SELECT_ALL.getValue()));
+        boolean selectAll = ev.getActionCommand().equals(SELECT_ALL.getValue());
+        int libs = getSession().getIncludedJars().size();
+        if (selectAll && libs > 10 && !showWarning(getView(), "wizard.classesfiltering.warning", libs)) {
+            return;
+        }
+        getView().select(selectAll);
     }
 
     @Override

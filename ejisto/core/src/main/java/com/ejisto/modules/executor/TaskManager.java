@@ -26,7 +26,6 @@ import java.beans.PropertyChangeListener;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
@@ -48,7 +47,7 @@ public final class TaskManager implements DisposableBean {
     private ExecutorService executorService;
     private ScheduledExecutorService scheduler;
     private final ReentrantLock lock = new ReentrantLock();
-    private final Map<String, TaskEntry> registry;
+    private final ConcurrentMap<String, TaskEntry> registry;
 
     public static TaskManager getInstance() {
         return INSTANCE;
@@ -134,7 +133,11 @@ public final class TaskManager implements DisposableBean {
             return;
         }
         try {
-            Future<?> future = registry.get(uuid).getFuture();
+            TaskEntry entry = registry.get(uuid);
+            if (entry == null) {
+                return;
+            }
+            Future<?> future = entry.getFuture();
             if (future != null) {
                 future.cancel(true);
             }

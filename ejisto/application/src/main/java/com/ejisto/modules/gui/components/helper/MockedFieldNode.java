@@ -23,6 +23,7 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.util.IteratorEnumeration;
 import org.springframework.util.Assert;
 
+import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 import java.util.Enumeration;
@@ -136,6 +137,36 @@ public class MockedFieldNode extends DefaultMutableTreeNode {
 
     public void setNodePath(String[] nodePath) {
         this.nodePath = nodePath.clone();
+    }
+
+    public MockedFieldNode findMatchingNode(String expr, Position.Bias bias) {
+        if (bias == Position.Bias.Forward) {
+            return findMatchingChild(expr);
+        }
+        return findMatchingParent(expr);
+    }
+
+    private MockedFieldNode findMatchingParent(String expr) {
+        MockedFieldNode parent = ((MockedFieldNode) getParent());
+        if (parent == null) {
+            return null;
+        }
+        return parent.findMatchingParent(expr);
+    }
+
+    private MockedFieldNode findMatchingChild(String expr) {
+        for (Map.Entry<String, MockedFieldNode> entry : children.entrySet()) {
+            if (entry.getKey().contains(expr)) {
+                return entry.getValue();
+            }
+        }
+        for (MockedFieldNode child : children.values()) {
+            MockedFieldNode match = child.findMatchingChild(expr);
+            if (match != null) {
+                return match;
+            }
+        }
+        return null;
     }
 
     private String getPathFor(MockedFieldNode node) {

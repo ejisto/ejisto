@@ -39,8 +39,7 @@ public abstract class AbstractContainerFactory<C, E> implements ObjectFactory<C>
     @SuppressWarnings("unchecked")
     protected ObjectFactory<E> loadElementObjectFactory(String elementType, String contextPath) {
         try {
-            return ObjectFactoryRepository.getInstance().getObjectFactory(elementType,
-                                                                          contextPath);
+            return ObjectFactoryRepository.getInstance().getObjectFactory(elementType, contextPath);
         } catch (Exception e) {
             throw new RuntimeException("Got exception during objectFactory loading", e);
         }

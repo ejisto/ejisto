@@ -22,6 +22,7 @@ package com.ejisto.util;
 import ch.lambdaj.Lambda;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.core.container.WebApplication;
+import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.event.listener.ApplicationEventDispatcher;
 import com.ejisto.modules.cargo.NotInstalledException;
@@ -30,6 +31,7 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.ContainerTab;
+import com.ejisto.modules.gui.components.helper.MockedFieldNode;
 import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import lombok.extern.log4j.Log4j;
@@ -41,13 +43,12 @@ import org.springframework.util.Assert;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
@@ -284,5 +285,18 @@ public abstract class GuiUtils {
         } else {
             return null;
         }
+    }
+
+    public static TreePath getNodePath(MockedFieldNode node) {
+        Deque<MockedFieldNode> path = new ArrayDeque<MockedFieldNode>();
+        path.add(node);
+        while ((node = (MockedFieldNode) node.getParent()) != null) {
+            path.addFirst(node);
+        }
+        return new TreePath(path.toArray());
+    }
+
+    public static void publishError(Object source, Throwable e) {
+        SpringBridge.publishApplicationEvent(new ApplicationError(source, ApplicationError.Priority.FATAL, e));
     }
 }

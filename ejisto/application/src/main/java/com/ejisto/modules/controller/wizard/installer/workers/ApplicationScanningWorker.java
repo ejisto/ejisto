@@ -20,6 +20,7 @@
 package com.ejisto.modules.controller.wizard.installer.workers;
 
 import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
+import com.ejisto.core.classloading.util.ReflectionUtils;
 import com.ejisto.modules.controller.wizard.installer.ApplicationScanningController;
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -30,7 +31,9 @@ import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import javassist.*;
+import javassist.bytecode.SignatureAttribute;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.cargo.module.DescriptorElement;
 import org.codehaus.cargo.module.webapp.WebXml;
 import org.codehaus.cargo.module.webapp.WebXmlIo;
@@ -40,19 +43,16 @@ import org.jdom.Element;
 import org.springframework.util.Assert;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static ch.lambdaj.Lambda.join;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.modules.executor.ErrorDescriptor.Category.ERROR;
 import static com.ejisto.modules.executor.ErrorDescriptor.Category.WARN;
@@ -82,7 +82,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
     }
 
     @Override
-    protected Void doInBackground() throws Exception {
+    protected Void internalDoInBackground() throws Exception {
         processWebApplication();
         return null;
     }
@@ -124,12 +124,16 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
     }
 
     private void loadClass(String className, ClassPool cp, WebApplicationDescriptor descriptor, ClassLoader loader) {
+        CtClass clazz = null;
         try {
-            CtClass clazz = cp.get(className);
+            clazz = cp.get(className);
             fillMockedFields(clazz, descriptor, loader);
-            clazz.detach();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             addErrorDescriptor(buildErrorDescriptor(e));
+        } finally {
+            if (clazz != null) {
+                clazz.detach();
+            }
         }
     }
 
@@ -172,19 +176,19 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
     private ErrorDescriptor buildErrorDescriptor(Throwable e) {
         Class<?> c = e.getClass();
         boolean classIssue = NotFoundException.class.isAssignableFrom(c) ||
-                NoClassDefFoundError.class.isAssignableFrom(c);
+                LinkageError.class.isAssignableFrom(c);
         return new ErrorDescriptor(e, classIssue ? WARN : ERROR);
     }
 
     private void parseGenerics(CtClass clazz, CtField field, MockedField mockedField, ClassLoader loader) {
         try {
-            Class<?> cl = loader.loadClass(clazz.getName());
-            Field f = cl.getDeclaredField(field.getName());
-            Type type = f.getGenericType();
-            if (ParameterizedType.class.isAssignableFrom(type.getClass())) {
-                List<String> generics = new ArrayList<String>();
-                deepParseGenerics((ParameterizedType) type, generics);
-                mockedField.setFieldElementType(join(generics));
+            String encodedSignature = field.getGenericSignature();
+            if (StringUtils.isNotEmpty(encodedSignature)) {
+                SignatureAttribute.ObjectType decoded = SignatureAttribute.toFieldSignature(encodedSignature);
+                if (!SignatureAttribute.TypeVariable.class.isInstance(decoded)) {
+                    String signature = decoded.toString();
+                    mockedField.setFieldElementType(ReflectionUtils.cleanGenericSignature(signature));
+                }
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

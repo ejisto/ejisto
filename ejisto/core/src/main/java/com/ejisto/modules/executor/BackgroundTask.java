@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import java.util.concurrent.FutureTask;
 public class BackgroundTask<T> extends FutureTask<T> implements Task<T> {
 
     private static final ProgressDescriptor NO_PROGRESS = new ProgressDescriptor(0, "");
+    private String id;
 
     public BackgroundTask(Callable<T> callable) {
         super(callable);
@@ -62,6 +63,16 @@ public class BackgroundTask<T> extends FutureTask<T> implements Task<T> {
     @Override
     public void addTaskExecutionListener(TaskExecutionListener listener) {
         throw new UnsupportedOperationException("not implemented.");
+    }
+
+    @Override
+    public String getId() {
+        return this.id;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
     }
 
 }

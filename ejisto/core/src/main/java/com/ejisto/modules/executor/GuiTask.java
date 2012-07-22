@@ -41,6 +41,7 @@ public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
     private String description;
     private final AtomicReference<ProgressDescriptor> progressDescriptor = new AtomicReference<ProgressDescriptor>();
     private final List<TaskExecutionListener> taskExecutionListeners = new ArrayList<TaskExecutionListener>();
+    private String id;
 
     public GuiTask(Callable<T> target, String description) {
         this.target = target;
@@ -52,7 +53,16 @@ public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
     }
 
     @Override
-    protected T doInBackground() throws Exception {
+    protected final T doInBackground() throws Exception {
+        try {
+            return internalDoInBackground();
+        } catch (Throwable e) {
+            firePropertyChange("exception", null, e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected T internalDoInBackground() throws Exception {
         return target.call();
     }
 
@@ -79,6 +89,16 @@ public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
     @Override
     public void addTaskExecutionListener(TaskExecutionListener listener) {
         this.taskExecutionListeners.add(listener);
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     @Override

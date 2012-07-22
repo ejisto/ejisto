@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ package com.ejisto.core.classloading.util;
 
 import org.junit.Test;
 
+import static com.ejisto.core.classloading.util.ReflectionUtils.cleanGenericSignature;
 import static com.ejisto.core.classloading.util.ReflectionUtils.getFieldName;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
@@ -32,5 +33,14 @@ public class ReflectionUtilsTest {
         assertEquals("pippoBaudo", getFieldName("isPippoBaudo"));
         assertEquals("pippoBaudo", getFieldName("setPippoBaudo"));
         assertNull(getFieldName("whoIsPippoBaudo"));
+    }
+
+    @Test
+    public void testGenericSignatureCleaning() {
+        assertEquals("com.test.EjistoTest", cleanGenericSignature("? extends com.test.EjistoTest"));
+        assertEquals("com.test.EjistoTest",
+                     cleanGenericSignature("com.test.EjistoTest <? extends com.test.EjistoTest>"));
+        assertEquals("com.test.EjistoTest, com.test.EjistoTest<com.test.EjistoTest>",
+                     cleanGenericSignature("? extends com.test.EjistoTest, com.test.EjistoTest<com.test.EjistoTest>"));
     }
 }

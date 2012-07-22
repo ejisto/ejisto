@@ -32,12 +32,15 @@ import org.springframework.validation.Errors;
 import javax.swing.*;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -45,13 +48,13 @@ import java.util.List;
 
 import static com.ejisto.modules.gui.components.helper.FillStrategies.applyStrategy;
 import static com.ejisto.modules.gui.components.helper.FillStrategies.bestStrategyFor;
-import static com.ejisto.util.GuiUtils.getIcon;
-import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.*;
 import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
 @Log4j
 public class MockedFieldTree extends JTree implements CellEditorListener, MockedFieldsEditorComponent {
     private static final long serialVersionUID = 3542351125591491996L;
+    private static final int EXPAND_ALL_LIMIT = 20;
     private transient MockedFieldValidator validator;
     private JTextField textField;
     private final FieldsEditorContext fieldsEditorContext;
@@ -65,6 +68,12 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
         this.fieldsEditorContext = fieldsEditorContext;
         addMouseListener(new PopupMenuManager());
         initCellRenderer();
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                e.consume();
+            }
+        });
     }
 
     private void initCellRenderer() {
@@ -87,8 +96,22 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
         }
         if (!leaf) {
             return node.toString();
+        } else if (node.isRoot()) {
+            return node.toString();
         }
         return node.getUserObject().getCompleteDescription();
+    }
+
+    @Override
+    public TreePath getNextMatch(String prefix, int startingRow, Position.Bias bias) {
+        MockedFieldNode searchRoot = (MockedFieldNode) getPathForRow(startingRow).getLastPathComponent();
+        MockedFieldNode match = searchRoot.findMatchingNode(prefix, bias);
+        if (match == null) {
+            return null;
+        }
+        TreePath matchingPath = getNodePath(match);
+        setExpandedState(matchingPath, true);
+        return matchingPath;
     }
 
     @Override
@@ -294,7 +317,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
             return;
         }
         changeNodeState(parent, expand);
-        if (!expand) {
+        if (!expand || getModel().getChildCount(parent) > EXPAND_ALL_LIMIT) {
             return;
         }
         Enumeration<MockedFieldNode> e = parent.children();
