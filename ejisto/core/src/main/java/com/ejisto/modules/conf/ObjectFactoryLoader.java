@@ -24,14 +24,17 @@ import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
 import com.ejisto.util.FileExtensionFilter;
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.NotFoundException;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Collection;
 
 import static com.ejisto.util.IOUtils.findAllClassesInJarFile;
@@ -72,7 +75,7 @@ public class ObjectFactoryLoader implements Runnable {
         }
     }
 
-    private void processFile(File file) throws Exception {
+    private void processFile(File file) throws IOException, NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException {
         CustomObjectFactory factory = customObjectFactoryDao.load(file.getName());
         String checksum = DigestUtils.shaHex(new FileInputStream(file));
         if (factory != null && factory.getChecksum().equals(checksum)) {

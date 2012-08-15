@@ -29,16 +29,18 @@ import java.awt.*;
  * Date: 3/6/11
  * Time: 1:03 PM
  */
-public class ContainerInstallationPanel extends JXPanel {
+public class ProgressWithHeader extends JXPanel {
 
     private String containerDescription;
     private String title;
     private Header header;
     private ProgressPanel progressPanel;
+    private String iconKey;
 
-    public ContainerInstallationPanel(String title, String containerDescription) {
+    public ProgressWithHeader(String title, String containerDescription, String iconKey) {
         this.title = title;
         this.containerDescription = containerDescription;
+        this.iconKey = iconKey;
         init();
     }
 
@@ -60,7 +62,7 @@ public class ContainerInstallationPanel extends JXPanel {
         if (this.header != null) {
             return header;
         }
-        header = new Header(title, containerDescription, "container.download.icon");
+        header = new Header(title, containerDescription, iconKey);
         return header;
     }
 

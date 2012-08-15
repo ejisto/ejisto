@@ -142,7 +142,7 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
     synchronized void actionPerformed(final ActionEvent e) {
         TaskManager.getInstance().addNewTask(createNewGuiTask(new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 navigate(e.getActionCommand().equals(NEXT_STEP_COMMAND.getValue()));
                 return null;
             }

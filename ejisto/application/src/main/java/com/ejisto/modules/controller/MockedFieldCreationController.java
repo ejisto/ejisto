@@ -21,6 +21,7 @@ package com.ejisto.modules.controller;
 
 import ch.lambdaj.function.convert.PropertyExtractor;
 import com.ejisto.event.def.MockedFieldChanged;
+import com.ejisto.event.def.ServerRestartRequired;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.gui.components.helper.FieldEditorPanel;
@@ -94,6 +95,7 @@ public class MockedFieldCreationController extends AbstractDialogManager {
                                                                                                     mf.getClassName(),
                                                                                                     mf.getFieldName()));
         publishApplicationEvent(event);
+        publishApplicationEvent(new ServerRestartRequired(this));
     }
 
     private void setTypes(String selectedContextPath) {

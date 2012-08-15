@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.controller.wizard;
 
+import com.ejisto.core.ApplicationException;
 import com.ejisto.modules.executor.ExecutionState;
 import com.ejisto.modules.executor.Task;
 import com.ejisto.modules.executor.TaskExecutionListener;
@@ -116,7 +117,7 @@ public abstract class AbstractStepController<K> implements StepController<K>, Pr
                 barrier.await();
                 return true;
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new ApplicationException(e);
             }
         }
         return true;

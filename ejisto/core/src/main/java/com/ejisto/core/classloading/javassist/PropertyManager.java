@@ -94,7 +94,7 @@ public final class PropertyManager {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T evaluateResult(MockedField mockedField, Class<T> type, T actualValue) throws Exception {
+    private <T> T evaluateResult(MockedField mockedField, Class<T> type, T actualValue) {
         ObjectFactory<T> objectFactory = objectFactoryRepository.getObjectFactory(mockedField.getFieldType(),
                                                                                   mockedField.getContextPath());
         trace("ObjectFactory " + objectFactory.getClass().getName() + " supports random values creation: " + objectFactory.supportsRandomValuesCreation());

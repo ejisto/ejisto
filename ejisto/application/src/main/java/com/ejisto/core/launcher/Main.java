@@ -19,6 +19,8 @@
 
 package com.ejisto.core.launcher;
 
+import com.ejisto.core.ApplicationException;
+
 import javax.swing.*;
 import java.io.File;
 import java.io.OutputStream;
@@ -32,7 +34,7 @@ public class Main {
             JOptionPane.showConfirmDialog(null,
                                           "Ejisto doesn't have permissions to create its home directory. Please check system configuration.",
                                           "error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
-            throw new RuntimeException("Cannot create home dir. Exiting.");
+            throw new ApplicationException("Cannot create home dir. Exiting.");
         }
         System.setProperty("ejisto.home", baseDir.getAbsolutePath());
         System.setProperty("java.net.preferIPv4Stack", "true");

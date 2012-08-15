@@ -25,6 +25,7 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.util.CollectionUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
 import static java.nio.charset.Charset.forName;
+import static java.util.Collections.emptyList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -72,7 +74,12 @@ public abstract class JSONUtil {
 
     public static String encodeMockedFields(List<MockedField> mockedFields) {
         try {
-            List<? extends MockedField> unwrapped = collect(forEach(mockedFields).unwrap());
+            List<? extends MockedField> unwrapped;
+            if (CollectionUtils.isEmpty(mockedFields)) {
+                unwrapped = emptyList();
+            } else {
+                unwrapped = collect(forEach(mockedFields).unwrap());
+            }
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ObjectMapper mapper = new ObjectMapper();
             mapper.writeValue(out, unwrapped);

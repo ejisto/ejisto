@@ -21,6 +21,8 @@ package com.ejisto.core.classloading;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.repository.MockedFieldsRepository;
+import javassist.CannotCompileException;
+import javassist.NotFoundException;
 import lombok.extern.log4j.Log4j;
 
 import java.io.File;
@@ -37,7 +39,7 @@ public class EjistoClassLoader extends URLClassLoader {
     private String installationPath;
     private MockedFieldsRepository mockedFieldsRepository;
 
-    public EjistoClassLoader(String installationPath/*, WebAppContext context*/) throws IOException {
+    public EjistoClassLoader(String installationPath) throws IOException {
         super(SharedClassLoader.getInstance().getURLs());
         this.installationPath = installationPath;
         this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
@@ -58,7 +60,7 @@ public class EjistoClassLoader extends URLClassLoader {
         }
     }
 
-    public Class<?> loadInstrumentableClass(String name) throws Exception {
+    public Class<?> loadInstrumentableClass(String name) throws NotFoundException, CannotCompileException {
         log.debug("loading instrumentable class: " + name);
         return transformer.transform(name);
     }

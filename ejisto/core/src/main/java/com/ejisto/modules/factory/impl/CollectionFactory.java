@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.factory.impl;
 
+import com.ejisto.core.ApplicationException;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.factory.AbstractContainerFactory;
@@ -79,7 +80,7 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
             }
             fillCollection(in, size, elementObjectFactory, mockedField, actualValue);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ApplicationException(e);
         }
     }
 

@@ -31,7 +31,7 @@ import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
-import com.ejisto.modules.gui.components.ContainerInstallationPanel;
+import com.ejisto.modules.gui.components.ProgressWithHeader;
 import com.ejisto.util.GuiUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.context.ApplicationListener;
@@ -69,17 +69,17 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
     public void onApplicationEvent(final InstallContainer event) {
         log.info("about to install " + event.getDescription() + " container");
         final String containerDescription = settingsManager.getValue("container.default.description");
-        final ContainerInstallationPanel panel = new ContainerInstallationPanel(
+        final ProgressWithHeader panel = new ProgressWithHeader(
                 getMessage("container.installation.panel.title"),
                 getMessage("container.installation.panel.description",
-                           containerDescription));
+                           containerDescription), "container.download.icon");
         final DialogController controller = DialogController.Builder.newInstance().withContent(panel).withParentFrame(
                 application).withDecorations(
                 false).withIconKey("container.download.icon").build();
         showHideProgressPanel(true, controller);
         Callable<Void> action = new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 try {
                     notifyToPanel(panel, getMessage("container.installation.panel.status.1", containerDescription));
                     log.debug(format("downloading container from url: %s",
@@ -110,7 +110,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         log.debug(String.format("Created download task with uuid %s", uuid));
     }
 
-    private void notifyToPanel(final ContainerInstallationPanel panel, final String message) {
+    private void notifyToPanel(final ProgressWithHeader panel, final String message) {
         runOnEDT(new Runnable() {
             @Override
             public void run() {

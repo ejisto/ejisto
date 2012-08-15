@@ -23,7 +23,6 @@ import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.services.Service;
 import com.ejisto.services.ServiceType;
 import lombok.extern.log4j.Log4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
@@ -33,7 +32,7 @@ import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
 
 @Log4j
-public class ApplicationController implements InitializingBean, ApplicationListener<ShutdownRequest> {
+public class ApplicationController implements ApplicationListener<ShutdownRequest> {
 
     @Resource
     private Collection<Service> services;
@@ -53,10 +52,6 @@ public class ApplicationController implements InitializingBean, ApplicationListe
                 Service.class).execute();
         log.info("Application shutdown successfully completed. Invoking shutdown hooks via System.exit(0)");
         System.exit(0);
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
     }
 
     @Override

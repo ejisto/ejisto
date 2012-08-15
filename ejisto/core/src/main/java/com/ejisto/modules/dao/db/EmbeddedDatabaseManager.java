@@ -98,7 +98,7 @@ public class EmbeddedDatabaseManager extends AbstractDataSource implements Initi
         serverControl.ping();
     }
 
-    private void initDatabase() throws Exception {
+    private void initDatabase() throws SQLException {
         DriverManager.registerDriver(new ClientDriver());
         Connection con = null;
         try {
@@ -132,10 +132,6 @@ public class EmbeddedDatabaseManager extends AbstractDataSource implements Initi
             //since we're in a Test environment, we need to force db initialization
             initDb();
         }
-    }
-
-    public void setSettings(Properties settings) {
-        this.settings = settings;
     }
 
     private static final class GZipResource extends FileSystemResource {

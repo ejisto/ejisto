@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.dao.jdbc;
 
+import com.ejisto.core.ApplicationException;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import org.springframework.dao.DataAccessException;
@@ -87,7 +88,7 @@ public class MockedFieldsDao extends BaseJdbcDao implements com.ejisto.modules.d
                                                if (rs.next()) {
                                                    return loadFromResultSet(rs);
                                                } else {
-                                                   throw new RuntimeException("No mockedFields found.");
+                                                   throw new ApplicationException("No mockedFields found.");
                                                }
                                            }
                                        });

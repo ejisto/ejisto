@@ -19,6 +19,7 @@
 
 package com.ejisto.services.startup;
 
+import com.ejisto.core.ApplicationException;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.*;
 import com.ejisto.event.def.ChangeServerStatus.Command;
@@ -83,7 +84,7 @@ public class ResourcesInitializer extends BaseStartupService {
         try {
             dataSource.initDb();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ApplicationException(e);
         }
     }
 

@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.repository;
 
+import com.ejisto.core.ApplicationException;
 import com.ejisto.core.classloading.util.ReflectionUtils;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.StatusBarMessage;
@@ -29,6 +30,7 @@ import com.ejisto.modules.factory.impl.ArrayFactory;
 import com.ejisto.util.ExternalizableService;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.NotFoundException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -101,7 +103,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     }
 
     @SuppressWarnings("unchecked")
-    public <T> ObjectFactory<T> getObjectFactory(String objectClassName, String contextPath) throws Exception {
+    public <T> ObjectFactory<T> getObjectFactory(String objectClassName, String contextPath) {
         String objectFactoryClass = getObjectFactoryClass(objectClassName, contextPath);
         ObjectFactory<T> objectFactory = loadObjectFactory(objectFactoryClass);
         if (isArray(objectClassName)) {
@@ -116,7 +118,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
         try {
             return (ObjectFactory<T>) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ApplicationException(e);
         }
     }
 
@@ -159,7 +161,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
         return ClassPoolRepository.getRegisteredClassPool(contextPath);
     }
 
-    private String scanForObjectFactory(CtClass objectClass) throws Exception {
+    private String scanForObjectFactory(CtClass objectClass) throws NotFoundException {
         try {
             trace(format("Searching for a factory for [%s]", objectClass.getName()));
             if (objectClass.isEnum()) {
@@ -214,7 +216,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         initialized.compareAndSet(false, true);
     }
 }

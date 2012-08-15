@@ -24,6 +24,7 @@ import com.ejisto.constants.StringConstants;
 import com.ejisto.core.classloading.ClassTransformer;
 import com.ejisto.modules.repository.ClassPoolRepository;
 import javassist.ClassPool;
+import javassist.CtClass;
 import javassist.LoaderClassPath;
 import org.apache.log4j.*;
 
@@ -40,6 +41,19 @@ import javax.servlet.ServletContextListener;
 public class ContextListener implements ServletContextListener {
     private ServletContext context;
     private ClassTransformer classTransformer;
+
+    static {
+        String debugPath = System.getProperty(StringConstants.CLASS_DEBUG_PATH.getValue());
+        if (debugPath != null) {
+            System.out.println("setting javassist.CtClass.debugPath to: " + debugPath);
+            CtClass.debugDump = debugPath;
+        }
+    }
+
+    public ContextListener() {
+        this.context = null;
+        this.classTransformer = null;
+    }
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {

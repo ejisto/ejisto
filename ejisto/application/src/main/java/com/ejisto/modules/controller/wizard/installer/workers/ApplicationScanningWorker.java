@@ -19,8 +19,6 @@
 
 package com.ejisto.modules.controller.wizard.installer.workers;
 
-import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
-import com.ejisto.core.classloading.util.ReflectionUtils;
 import com.ejisto.modules.controller.wizard.installer.ApplicationScanningController;
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -29,33 +27,33 @@ import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.executor.GuiTask;
 import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
-import com.ejisto.modules.repository.MockedFieldsRepository;
-import javassist.*;
-import javassist.bytecode.SignatureAttribute;
+import javassist.ClassPool;
+import javassist.LoaderClassPath;
+import jsr166y.ForkJoinPool;
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.lang3.StringUtils;
 import org.codehaus.cargo.module.DescriptorElement;
 import org.codehaus.cargo.module.webapp.WebXml;
 import org.codehaus.cargo.module.webapp.WebXmlIo;
 import org.codehaus.cargo.module.webapp.WebXmlType;
 import org.codehaus.cargo.module.webapp.WebXmlUtils;
 import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.springframework.util.Assert;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.modules.executor.ErrorDescriptor.Category.ERROR;
-import static com.ejisto.modules.executor.ErrorDescriptor.Category.WARN;
 import static com.ejisto.modules.executor.ProgressDescriptor.ProgressState.COMPLETED;
 import static com.ejisto.modules.executor.ProgressDescriptor.ProgressState.INDETERMINATE;
 import static com.ejisto.util.GuiUtils.getMessage;
@@ -68,9 +66,11 @@ import static com.ejisto.util.IOUtils.*;
  * Time: 5:45 PM
  */
 @Log4j
-public class ApplicationScanningWorker extends GuiTask<Void> {
+public class ApplicationScanningWorker extends GuiTask<Void> implements ProgressListener {
     private static final Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
     private static final String[] entries = {"ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "spring", "cglib", "commons", "asm", "jackson"};
+    private static final ForkJoinPool forkJoinPool = new ForkJoinPool();
+    private final AtomicInteger counter = new AtomicInteger();
     private WebApplicationDescriptor session;
     private String containerHome;
 
@@ -82,19 +82,19 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
     }
 
     @Override
-    protected Void internalDoInBackground() throws Exception {
+    protected Void internalDoInBackground() throws JDOMException, IOException, InvocationTargetException, InterruptedException {
         processWebApplication();
         return null;
     }
 
-    private void processWebApplication() throws Exception {
+    private void processWebApplication() throws IOException, JDOMException, InvocationTargetException, InterruptedException {
         Assert.notNull(getSession().getInstallationPath());
         String basePath = getSession().getInstallationPath();
         getSession().setContextPath(getContextPath(basePath));
         getSession().setClassPathElements(getClasspathEntries(basePath));
         loadAllClasses(findAllWebApplicationClasses(basePath, getSession()), getSession());
         processWebXmlDescriptor(getSession());
-        packageWar(getSession());
+        createDeployable(getSession());
         notifyJobCompleted(COMPLETED, getMessage("progress.scan.end"));
     }
 
@@ -106,7 +106,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
         return null;
     }
 
-    private void loadAllClasses(Collection<String> classNames, WebApplicationDescriptor descriptor) throws Exception {
+    private void loadAllClasses(Collection<String> classNames, WebApplicationDescriptor descriptor) throws MalformedURLException {
         firePropertyChange("startProgress", 0, classNames.size());
         descriptor.deleteAllFields();
         URL[] descriptorEntries = toUrlArray(descriptor);
@@ -115,104 +115,16 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
         String contextPath = descriptor.getContextPath();
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(contextPath);
         cp.appendClassPath(new LoaderClassPath(loader));
-        int progressCounter = 0;
-        for (String className : classNames) {
-            notifyJobCompleted(++progressCounter, className);
-            loadClass(className, cp, descriptor, loader);
+        List<MockedField> fields = forkJoinPool.invoke(
+                new LoadClassAction(new ArrayList<String>(classNames), loader, descriptor, this));
+        for (MockedField field : fields) {
+            descriptor.addField(field);
         }
         log.info("just finished processing " + descriptor.getInstallationPath());
     }
 
-    private void loadClass(String className, ClassPool cp, WebApplicationDescriptor descriptor, ClassLoader loader) {
-        CtClass clazz = null;
-        try {
-            clazz = cp.get(className);
-            fillMockedFields(clazz, descriptor, loader);
-        } catch (Throwable e) {
-            addErrorDescriptor(buildErrorDescriptor(e));
-        } finally {
-            if (clazz != null) {
-                clazz.detach();
-            }
-        }
-    }
-
-    private void fillMockedFields(CtClass clazz, WebApplicationDescriptor descriptor, ClassLoader loader) throws NotFoundException {
-        try {
-            List<MockedField> mockedFields = MockedFieldsRepository.getInstance().load(descriptor.getContextPath(),
-                                                                                       clazz.getName());
-            for (CtField field : clazz.getDeclaredFields()) {
-                MockedField mockedField = new MockedFieldDecorator();
-                mockedField.setContextPath(descriptor.getContextPath());
-                mockedField.setClassName(clazz.getName());
-                mockedField.setFieldName(field.getName());
-                mockedField.setFieldType(getFieldTypeAsString(field));
-                parseGenerics(clazz, field, mockedField, loader);
-                int index = mockedFields.indexOf(mockedField);
-                if (index > -1) {
-                    mockedField.copyFrom(mockedFields.get(index));
-                }
-                descriptor.addField(mockedField);
-            }
-            CtClass zuperclazz = clazz.getSuperclass();
-            if (!zuperclazz.getName().startsWith("java")) {
-                fillMockedFields(zuperclazz, descriptor, loader);
-            }
-        } catch (Exception e) {
-            addErrorDescriptor(buildErrorDescriptor(e));
-        }
-    }
-
-    private String getFieldTypeAsString(CtField field) throws NotFoundException {
-        CtClass type = field.getType();
-        if (type.isArray()) {
-            //using com.custom.Class[] notation instead of [Lcom.custom.Class; in order to improve
-            //readability; standard notation is also supported.
-            return type.getComponentType().getName() + "[]";
-        }
-        return type.getName();
-    }
-
-    private ErrorDescriptor buildErrorDescriptor(Throwable e) {
-        Class<?> c = e.getClass();
-        boolean classIssue = NotFoundException.class.isAssignableFrom(c) ||
-                LinkageError.class.isAssignableFrom(c);
-        return new ErrorDescriptor(e, classIssue ? WARN : ERROR);
-    }
-
-    private void parseGenerics(CtClass clazz, CtField field, MockedField mockedField, ClassLoader loader) {
-        try {
-            String encodedSignature = field.getGenericSignature();
-            if (StringUtils.isNotEmpty(encodedSignature)) {
-                SignatureAttribute.ObjectType decoded = SignatureAttribute.toFieldSignature(encodedSignature);
-                if (!SignatureAttribute.TypeVariable.class.isInstance(decoded)) {
-                    String signature = decoded.toString();
-                    mockedField.setFieldElementType(ReflectionUtils.cleanGenericSignature(signature));
-                }
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-    }
-
-    private void deepParseGenerics(ParameterizedType type, List<String> target) {
-        Type[] types = type.getActualTypeArguments();
-        for (Type generic : types) {
-            log.debug("parsing " + generic + " of class " + type);
-            if (ParameterizedType.class.isInstance(generic.getClass())) {
-                //TODO implement deep inspection
-                target.add(((ParameterizedType) generic).getRawType().getClass().getName());
-            } else if (Class.class.isInstance(generic)) {
-                target.add(((Class<?>) generic).getName());
-            } else {
-                target.add(generic.toString());
-            }
-
-        }
-    }
-
     @SuppressWarnings("unchecked")
-    private void processWebXmlDescriptor(WebApplicationDescriptor descriptor) throws Exception {
+    private void processWebXmlDescriptor(WebApplicationDescriptor descriptor) throws InvocationTargetException, InterruptedException, JDOMException, IOException {
         notifyJobCompleted(INDETERMINATE, getMessage("wizard.resource.web.xml.processing"));
         StringBuilder webXmlPath = new StringBuilder(descriptor.getInstallationPath()).append(File.separator);
         webXmlPath.append("WEB-INF").append(File.separator).append("web.xml");
@@ -238,7 +150,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
         return listener;
     }
 
-    private void packageWar(WebApplicationDescriptor session) {
+    private void createDeployable(WebApplicationDescriptor session) {
         try {
             notifyJobCompleted(0, getMessage("wizard.resource.war.packaging"));
             String libDir = String.format("%sWEB-INF%slib%s", session.getInstallationPath(), File.separator,
@@ -250,8 +162,10 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
             }
             copyEjistoLibs(entries, dir);
             String deployablePath = System.getProperty(
-                    DEPLOYABLES_DIR.getValue()) + File.separator + session.getWarFile().getName();
-            zipDirectory(session.getInstallationPath(), deployablePath);
+                    DEPLOYABLES_DIR.getValue()) + File.separator + getFilenameWithoutExt(
+                    session.getWarFile()) + File.separator;
+            deleteFile(deployablePath);
+            copyDirContent(session.getInstallationPath(), deployablePath);
             session.setDeployablePath(deployablePath);
         } catch (InterruptedException e) {
             log.error("got interruptedException: ", e);
@@ -265,4 +179,17 @@ public class ApplicationScanningWorker extends GuiTask<Void> {
     }
 
 
+    @Override
+    public void progressChanged(int progress, String message) {
+        try {
+            notifyJobCompleted(counter.addAndGet(progress), message);
+        } catch (Exception e) {
+            log.error("an exception occurred while dispatching progress changed event", e);
+        }
+    }
+
+    @Override
+    public void errorOccurred(ErrorDescriptor errorDescriptor) {
+        addErrorDescriptor(errorDescriptor);
+    }
 }

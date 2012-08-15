@@ -19,22 +19,15 @@
 
 package com.ejisto.modules.cargo.util;
 
-import com.ejisto.util.PropertyChangePublisher;
 import lombok.extern.log4j.Log4j;
+import org.codehaus.cargo.container.ContainerException;
 import org.codehaus.cargo.container.installer.ZipURLInstaller;
 
-import javax.swing.*;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.*;
+import java.io.File;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
 
-import static com.ejisto.util.IOUtils.closeResources;
 import static com.ejisto.util.IOUtils.copyFile;
-import static java.lang.String.format;
 
 /**
  * Created by IntelliJ IDEA.
@@ -43,15 +36,13 @@ import static java.lang.String.format;
  * Time: 10:40 PM
  */
 @Log4j
-public class ContainerInstaller extends ZipURLInstaller implements PropertyChangePublisher {
+public class ContainerInstaller extends ZipURLInstaller {
     private final URL url;
-    private final List<PropertyChangeListener> propertyChangeListeners;
 
     public ContainerInstaller(URL remoteLocation, String installDir) {
         super(remoteLocation, System.getProperty("java.io.tmpdir"), installDir);
         log.debug("super constructor called");
         this.url = remoteLocation;
-        this.propertyChangeListeners = new ArrayList<PropertyChangeListener>();
     }
 
     @Override
@@ -65,36 +56,14 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
     }
 
     private void downloadFromNetwork() {
-        BufferedInputStream bis = null;
-        FileOutputStream out = null;
         try {
-            log.debug(format("trying to download from %s", url.toString()));
-            URLConnection connection = url.openConnection();
-            log.debug(format("trying to download from %s", url.toString()));
-            connection.setConnectTimeout(1000);
-            connection.setReadTimeout(10000);
-            connection.connect();
-            int total = connection.getContentLength();
-            bis = new BufferedInputStream(connection.getInputStream());
-            out = new FileOutputStream(getDestinationFile());
-            byte[] buffer = new byte[512000];
-            int read;
-            int totalRead = 0;
-            fireProgressChange(0);
-            while ((read = bis.read(buffer)) != -1) {
-                totalRead += read;
-                log.trace("read " + totalRead + " of " + total);
-                out.write(buffer);
-                fireProgressChange(Math.max(50, totalRead / total * 100));
-            }
-        } catch (InterruptedIOException e) {
-            log.error("caught SocketTimeoutException. About to throw DownloadTimeout", e);
-            throw new DownloadTimeout("cannot open connection to " + url.toString(), e);
-        } catch (IOException e) {
-            log.error("caught IOException. About to throw DownloadFailed", e);
+            super.download();
+        } catch (ContainerException e) {
+            log.error("caught ContainerException. About to throw DownloadFailed", e);
             throw new DownloadFailed("cannot download from " + url.toString(), e);
-        } finally {
-            closeResources(bis, out);
+        } catch (Exception e) {
+            log.error("caught Exception. About to throw DownloadTimeout", e);
+            throw new DownloadTimeout("cannot open connection to " + url.toString(), e);
         }
     }
 
@@ -111,22 +80,6 @@ public class ContainerInstaller extends ZipURLInstaller implements PropertyChang
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        this.propertyChangeListeners.add(listener);
-    }
-
-    private void fireProgressChange(int progress) {
-        for (PropertyChangeListener listener : propertyChangeListeners) {
-            firePropertyChange(listener, new PropertyChangeEvent(this, "progress", -1, progress));
-        }
-    }
-
-    private void firePropertyChange(final PropertyChangeListener listener, final PropertyChangeEvent event) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                listener.propertyChange(event);
-            }
-        });
     }
 
 }

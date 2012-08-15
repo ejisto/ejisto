@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.factory;
 
+import com.ejisto.core.ApplicationException;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
 
 /**
@@ -41,7 +42,7 @@ public abstract class AbstractContainerFactory<C, E> implements ObjectFactory<C>
         try {
             return ObjectFactoryRepository.getInstance().getObjectFactory(elementType, contextPath);
         } catch (Exception e) {
-            throw new RuntimeException("Got exception during objectFactory loading", e);
+            throw new ApplicationException("Got exception during objectFactory loading", e);
         }
     }
 }

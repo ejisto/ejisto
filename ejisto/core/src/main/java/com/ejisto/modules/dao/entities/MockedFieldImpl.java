@@ -74,7 +74,10 @@ public class MockedFieldImpl implements MockedField {
 
     @Override
     public String getPackageName() {
-        return className.substring(0, className.lastIndexOf('.'));
+        if (className.lastIndexOf('.') > -1) {
+            return className.substring(0, className.lastIndexOf('.'));
+        }
+        return "0";
     }
 
     @Override

@@ -64,11 +64,8 @@ public class EjistoProxy implements MethodInterceptor {
         ObjectFactory<?> factory = ObjectFactoryRepository.getInstance().getObjectFactory(
                 method.getReturnType().getName(),
                 mockedField.getContextPath());
-        if (factory != null) {
-            log.trace(String.format("got %s for %s", factory, mockedField));
-            return factory.create(mockedField, null);
-        }
-        return methodHandler.invoke(obj, method, null, args);
+        log.trace(String.format("got %s for %s", factory, mockedField));
+        return factory.create(mockedField, null);
     }
 
     private Object handleSetter(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {

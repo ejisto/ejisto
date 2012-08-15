@@ -25,6 +25,7 @@ import com.sun.net.httpserver.HttpServer;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class HTTPServer implements InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() throws IOException {
         int port = findFirstAvailablePort(1706);
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 1024);
         for (Map.Entry<String, HttpHandler> entry : handlersMap.entrySet()) {

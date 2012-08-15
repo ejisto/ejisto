@@ -19,9 +19,11 @@
 
 package com.ejisto.modules.cargo;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.core.container.ContainerManager;
 import com.ejisto.core.container.WebApplication;
 import com.ejisto.event.EventManager;
+import com.ejisto.event.def.ApplicationScanRequired;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.modules.cargo.logging.ServerLogger;
 import com.ejisto.modules.cargo.util.ContainerInstaller;
@@ -32,6 +34,7 @@ import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import com.ejisto.util.ContainerUtils;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.cargo.container.ContainerType;
 import org.codehaus.cargo.container.LocalContainer;
@@ -40,6 +43,7 @@ import org.codehaus.cargo.container.configuration.ConfigurationType;
 import org.codehaus.cargo.container.configuration.LocalConfiguration;
 import org.codehaus.cargo.container.deployable.Deployable;
 import org.codehaus.cargo.container.deployable.DeployableType;
+import org.codehaus.cargo.container.deployable.WAR;
 import org.codehaus.cargo.container.deployer.Deployer;
 import org.codehaus.cargo.container.deployer.URLDeployableMonitor;
 import org.codehaus.cargo.container.property.GeneralPropertySet;
@@ -195,8 +199,9 @@ public class CargoManager implements ContainerManager {
         jvmArgs.append(" -Djava.net.preferIPv4Stack=true -Dejisto.database.port=");
         jvmArgs.append(System.getProperty(DATABASE_PORT.getValue()));
         jvmArgs.append(" -Dejisto.http.port=").append(System.getProperty(HTTP_LISTEN_PORT.getValue()));
+        jvmArgs.append(" -D").append(StringConstants.CLASS_DEBUG_PATH.getValue()).append("=").append(
+                FilenameUtils.normalize(System.getProperty("java.io.tmpdir") + "/"));
 
-        //if (addStartupOptions) jvmArgs.append(" -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005");
         String existingConfiguration = configuration.getPropertyValue(GeneralPropertySet.JVMARGS);
         if (StringUtils.isNotBlank(existingConfiguration)) {
             jvmArgs.append(" ").append(existingConfiguration);
@@ -282,6 +287,7 @@ public class CargoManager implements ContainerManager {
         if (started) {
             eventManager.publishEventAndWait(new ChangeServerStatus(this, ChangeServerStatus.Command.SHUTDOWN));
         }
+        eventManager.publishEventAndWait(new ApplicationScanRequired(this, descriptor));
         //Deployable deployable = serverStarted.get() ? hotDeploy(descriptor, container) : staticDeploy(descriptor, container);
         Deployable deployable = staticDeploy(descriptor, container);
         if (deployable == null) {
@@ -367,8 +373,11 @@ public class CargoManager implements ContainerManager {
 
     private Deployable createDeployable(WebApplicationDescriptor webApplicationDescriptor, LocalContainer container) {
         DeployableFactory deployableFactory = new DefaultDeployableFactory();
-        return deployableFactory.createDeployable(container.getId(), webApplicationDescriptor.getDeployablePath(),
-                                                  DeployableType.WAR);
+        Deployable deployable = deployableFactory.createDeployable(container.getId(),
+                                                                   webApplicationDescriptor.getDeployablePath(),
+                                                                   DeployableType.WAR);
+        ((WAR) deployable).setContext(webApplicationDescriptor.getContextPath());
+        return deployable;
     }
 
 //    private boolean isAlreadyDeployed(Deployable deployable, LocalContainer container) {

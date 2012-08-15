@@ -28,7 +28,7 @@ import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATE
 
 public class ObjectEditor extends ExprEditor {
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
-    private EjistoMethodFilter filter;
+    private final EjistoMethodFilter filter;
 
     public ObjectEditor(EjistoMethodFilter filter) {
         super();
@@ -68,7 +68,7 @@ public class ObjectEditor extends ExprEditor {
             }
             trace("editing field [" + f.getFieldName() + "]");
             StringBuilder instruction = new StringBuilder(
-                    "{ $_ = $proceed($$); $_ = ($r) com.ejisto.core.classloading.javassist.PropertyManager.mockField(");
+                    "{ $_ = $proceed($$); $_ = ($r) com.ejisto.core.classloading.javassist.PropertyManager#mockField(");
             instruction.append("\"").append(filter.getContextPath()).append("\",");
             try {
                 if (f.getField().getType().isPrimitive()) {
@@ -84,9 +84,8 @@ public class ObjectEditor extends ExprEditor {
                 f.replace(instruction.toString());
                 trace("done");
             } catch (NotFoundException e) {
-                e.printStackTrace();
+                logger.error("not found error", e);
             }
-
         }
     }
 

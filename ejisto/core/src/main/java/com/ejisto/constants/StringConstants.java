@@ -62,7 +62,8 @@ public enum StringConstants {
     DATABASE_PORT("database.port"),
     DATABASE_USER("embedded.database.username"),
     DATABASE_PWD("embedded.database.password"),
-    HTTP_LISTEN_PORT("http.listen.port");
+    HTTP_LISTEN_PORT("http.listen.port"),
+    CLASS_DEBUG_PATH("ejisto-class-debug-path");
 
     private final String value;
 

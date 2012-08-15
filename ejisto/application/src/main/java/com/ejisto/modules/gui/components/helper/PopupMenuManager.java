@@ -74,10 +74,10 @@ public class PopupMenuManager extends MouseAdapter {
     }
 
     private void fillWithAddActions(JPopupMenu menu, MockedFieldsEditorComponent editor) {
-        if (editor.getCurrentEditorContext() != FieldsEditorContext.ADD_FIELD) {
+        if (editor.getCurrentEditorContext() == FieldsEditorContext.MAIN_WINDOW) {
             menu.add(buildEjistoAction(editor, ADD, null));
+            menu.add(buildEjistoAction(editor, CREATE, null));
         }
-        menu.add(buildEjistoAction(editor, CREATE, null));
     }
 
     private MockedField getFieldAt(MockedFieldsEditorComponent component, Point p) {

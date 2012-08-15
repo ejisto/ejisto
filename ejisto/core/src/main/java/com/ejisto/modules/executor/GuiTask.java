@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.executor;
 
+import com.ejisto.core.ApplicationException;
 import lombok.extern.log4j.Log4j;
 
 import javax.swing.*;
@@ -53,12 +54,12 @@ public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
     }
 
     @Override
-    protected final T doInBackground() throws Exception {
+    protected final T doInBackground() {
         try {
             return internalDoInBackground();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             firePropertyChange("exception", null, e);
-            throw new RuntimeException(e);
+            throw new ApplicationException(e);
         }
     }
 

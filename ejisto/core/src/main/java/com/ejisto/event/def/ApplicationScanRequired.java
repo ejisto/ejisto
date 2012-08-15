@@ -17,36 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.util;
+package com.ejisto.event.def;
 
-import com.ejisto.core.ApplicationException;
-import com.ejisto.modules.dao.Dao;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 2/26/11
- * Time: 6:38 PM
+ * Date: 8/3/12
+ * Time: 6:35 PM
  */
-public abstract class ExternalizableService<T extends Dao> {
+public class ApplicationScanRequired extends BaseApplicationEvent {
 
-    protected void checkDao() {
-        T dao = getDaoInstance();
-        if (dao != null) {
-            return;//value injected by Spring AOP or previously created
-        }
-        try {
-            dao = newRemoteDaoInstance();
-            setDaoInstance(dao);
-        } catch (Exception e) {
-            throw new ApplicationException("Unable to load dao for [" + this.getClass() + "]", e);
-        }
+    private WebApplicationDescriptor webApplicationDescriptor;
+
+    public ApplicationScanRequired(Object source, WebApplicationDescriptor webApplicationDescriptor) {
+        super(source);
+        this.webApplicationDescriptor = webApplicationDescriptor;
     }
 
-    protected abstract T getDaoInstance();
+    @Override
+    public String getDescription() {
+        return "Application scan requested";
+    }
 
-    protected abstract void setDaoInstance(T daoInstance);
+    @Override
+    public String getKey() {
+        return "scan";
+    }
 
-    protected abstract T newRemoteDaoInstance();
-
+    public WebApplicationDescriptor getWebApplicationDescriptor() {
+        return webApplicationDescriptor;
+    }
 }

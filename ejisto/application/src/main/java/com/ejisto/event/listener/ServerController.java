@@ -103,7 +103,12 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
     }
 
     @Override
-    public void destroy() throws Exception {
-        containerManager.stopDefault();
+    public void destroy() {
+        try {
+            containerManager.stopDefault();
+        } catch (NotInstalledException e) {
+            //just log exception since we're exiting
+            log.warn("containerManager.stopDefault threw exception", e);
+        }
     }
 }

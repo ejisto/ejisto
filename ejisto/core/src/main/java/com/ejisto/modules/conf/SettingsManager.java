@@ -23,7 +23,6 @@ import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.dao.SettingsDao;
 import com.ejisto.modules.dao.entities.Setting;
 import com.ejisto.util.ExternalizableService;
-import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -33,7 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
 
-public class SettingsManager extends ExternalizableService<SettingsDao> implements InitializingBean {
+public class SettingsManager extends ExternalizableService<SettingsDao> {
 
     @Resource(name = "settings") private Properties settings;
     @Resource private SettingsDao settingsDao;
@@ -85,10 +84,6 @@ public class SettingsManager extends ExternalizableService<SettingsDao> implemen
             setting = new Setting(key, value);
             settingsList.get().add(setting);
         }
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
     }
 
     private void init() {

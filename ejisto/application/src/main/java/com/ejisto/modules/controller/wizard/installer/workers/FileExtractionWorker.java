@@ -26,6 +26,7 @@ import com.ejisto.modules.executor.GuiTask;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -52,7 +53,7 @@ public class FileExtractionWorker extends GuiTask<Void> {
     }
 
     @Override
-    protected Void internalDoInBackground() throws Exception {
+    protected Void internalDoInBackground() throws IOException, InvocationTargetException, InterruptedException {
         File war = getSession().getWarFile();
         String path = openWar(war);
         getSession().setInstallationPath(path);
@@ -60,7 +61,7 @@ public class FileExtractionWorker extends GuiTask<Void> {
         return null;
     }
 
-    private String openWar(File file) throws Exception {
+    private String openWar(File file) throws IOException, InvocationTargetException, InterruptedException {
         String newPath = System.getProperty("java.io.tmpdir") + File.separator + getFilenameWithoutExt(
                 file) + File.separator;
         File baseDir = new File(newPath);

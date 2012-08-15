@@ -17,36 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.util;
-
-import com.ejisto.core.ApplicationException;
-import com.ejisto.modules.dao.Dao;
+package com.ejisto.event.def;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 2/26/11
- * Time: 6:38 PM
+ * Date: 7/31/12
+ * Time: 8:12 AM
  */
-public abstract class ExternalizableService<T extends Dao> {
+public class ServerRestartRequired extends BaseApplicationEvent {
 
-    protected void checkDao() {
-        T dao = getDaoInstance();
-        if (dao != null) {
-            return;//value injected by Spring AOP or previously created
-        }
-        try {
-            dao = newRemoteDaoInstance();
-            setDaoInstance(dao);
-        } catch (Exception e) {
-            throw new ApplicationException("Unable to load dao for [" + this.getClass() + "]", e);
-        }
+    public ServerRestartRequired(Object source) {
+        super(source);
     }
 
-    protected abstract T getDaoInstance();
+    @Override
+    public String getDescription() {
+        return "Server restart required";
+    }
 
-    protected abstract void setDaoInstance(T daoInstance);
-
-    protected abstract T newRemoteDaoInstance();
-
+    @Override
+    public String getKey() {
+        return "server.restart.required";
+    }
 }

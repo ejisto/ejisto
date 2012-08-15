@@ -17,36 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.util;
-
-import com.ejisto.core.ApplicationException;
-import com.ejisto.modules.dao.Dao;
+package com.ejisto.core;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 2/26/11
- * Time: 6:38 PM
+ * Date: 8/14/12
+ * Time: 9:22 PM
  */
-public abstract class ExternalizableService<T extends Dao> {
+public class ApplicationException extends RuntimeException {
 
-    protected void checkDao() {
-        T dao = getDaoInstance();
-        if (dao != null) {
-            return;//value injected by Spring AOP or previously created
-        }
-        try {
-            dao = newRemoteDaoInstance();
-            setDaoInstance(dao);
-        } catch (Exception e) {
-            throw new ApplicationException("Unable to load dao for [" + this.getClass() + "]", e);
-        }
+    public ApplicationException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    protected abstract T getDaoInstance();
+    public ApplicationException(Throwable cause) {
+        super(cause);
+    }
 
-    protected abstract void setDaoInstance(T daoInstance);
-
-    protected abstract T newRemoteDaoInstance();
-
+    public ApplicationException(String message) {
+        super(message);
+    }
 }

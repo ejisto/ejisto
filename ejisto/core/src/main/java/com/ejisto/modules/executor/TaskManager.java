@@ -20,6 +20,7 @@
 package com.ejisto.modules.executor;
 
 import ch.lambdaj.Lambda;
+import com.ejisto.core.ApplicationException;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.beans.PropertyChangeListener;
@@ -107,7 +108,7 @@ public final class TaskManager implements DisposableBean {
             registerTask(uuid, task, future);
             return uuid;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ApplicationException(e);
         } finally {
             if (locked) {
                 lock.unlock();
@@ -181,7 +182,7 @@ public final class TaskManager implements DisposableBean {
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         shutdownExecutorService(this.executorService);
         shutdownExecutorService(this.scheduler);
     }

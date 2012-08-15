@@ -67,7 +67,9 @@ public class EjistoDialog extends JDialog {
     }
 
     public void setActions(Action... actions) {
-        setActions(Arrays.asList(actions));
+        if (actions != null && actions.length > 0) {
+            setActions(Arrays.asList(actions));
+        }
     }
 
     public void registerAction(Action action) {

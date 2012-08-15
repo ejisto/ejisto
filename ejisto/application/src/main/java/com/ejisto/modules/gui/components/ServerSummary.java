@@ -19,9 +19,12 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.def.ContainerStatusChanged;
+import com.ejisto.event.def.ServerRestartRequired;
 import com.ejisto.modules.gui.EjistoAction;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
+import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,6 +48,7 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     private String serverName;
     private JPanel buttonsPanel;
     private JXLabel serverStatus;
+    private JXLabel info;
 
     public ServerSummary(String containerId, String serverName) {
         this.containerId = containerId;
@@ -80,7 +84,22 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
         add(getHeader(), BorderLayout.WEST);
         add(getButtonsPanel(), BorderLayout.EAST);
         getAction(START_CONTAINER.getValue()).addPropertyChangeListener(this);
+        registerEventListener(ServerRestartRequired.class, new ApplicationListener<ServerRestartRequired>() {
+            @Override
+            public void onApplicationEvent(ServerRestartRequired event) {
+                getInfo().setVisible(!getAction(START_CONTAINER.getValue()).isEnabled());
+            }
+        });
+        registerEventListener(ContainerStatusChanged.class, new ApplicationListener<ContainerStatusChanged>() {
+            @Override
+            public void onApplicationEvent(ContainerStatusChanged event) {
+                if (event.isStarted()) {
+                    getInfo().setVisible(false);
+                }
+            }
+        });
     }
+
 
     private JPanel getHeader() {
         if (header != null) {
@@ -98,6 +117,7 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
             return buttonsPanel;
         }
         buttonsPanel = new JXPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+        buttonsPanel.add(getInfo());
         buttonsPanel.add(getServerStatus());
         buttonsPanel.add(createButton(getAction(START_CONTAINER.getValue())));
         Action stop = getAction(STOP_CONTAINER.getValue());
@@ -106,6 +126,16 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
         buttonsPanel.setBackground(Color.WHITE);
         updateStatusIndicatorTooltip();
         return buttonsPanel;
+    }
+
+    private JXLabel getInfo() {
+        if (info != null) {
+            return info;
+        }
+        info = new JXLabel(getIcon(getMessage("icon.warn")));
+        info.setVisible(false);
+        info.setToolTipText(getMessage("server.restart.required"));
+        return info;
     }
 
     private JXLabel getServerStatus() {

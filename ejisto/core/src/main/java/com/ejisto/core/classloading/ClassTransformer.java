@@ -24,6 +24,8 @@ import com.ejisto.core.classloading.javassist.ObjectEditor;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import javassist.*;
+import javassist.bytecode.AccessFlag;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
@@ -33,6 +35,7 @@ import java.security.ProtectionDomain;
 import java.util.List;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
+import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 
 public class ClassTransformer implements ClassFileTransformer {
@@ -52,22 +55,58 @@ public class ClassTransformer implements ClassFileTransformer {
         classPool.appendClassPath(new LoaderClassPath(currentThread().getContextClassLoader()));
     }
 
-    public Class<?> transform(String className) throws Exception {
+    public Class<?> transform(String className) throws CannotCompileException, NotFoundException {
         CtClass clazz = instrument(className);
         Class<?> transformedClass = clazz.toClass();
         clazz.detach();
         return transformedClass;
     }
 
-    private CtClass instrument(String className) throws Exception {
+    private CtClass instrument(String className) throws NotFoundException, CannotCompileException {
         CtClass clazz = load(className);
         removeFinalModifier(clazz);
         addDefaultConstructor(clazz);
-        clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, getFieldsFor(className))));
+        List<MockedField> configuredFields = getFieldsFor(className);
+        addMissingProperties(clazz, configuredFields);
+        ObjectEditor editor = new ObjectEditor(new EjistoMethodFilter(contextPath, configuredFields));
+        clazz.instrument(editor);
         return clazz;
     }
 
-    private CtClass load(String className) throws Exception {
+    public void addMissingProperties(CtClass clazz, List<MockedField> configuredFields) throws CannotCompileException, NotFoundException {
+        trace("trying to add missing properties");
+        for (MockedField field : configuredFields) {
+            createPropertyIfNotFound(clazz, field);
+        }
+    }
+
+    private void createPropertyIfNotFound(CtClass clazz, MockedField field) throws CannotCompileException, NotFoundException {
+        try {
+            clazz.getField(field.getFieldName());
+        } catch (NotFoundException e) {
+            createMissingProperty(clazz, field);
+        }
+    }
+
+    private void createMissingProperty(CtClass clazz, MockedField mockedField) throws CannotCompileException, NotFoundException {
+        trace("creating property " + mockedField.getFieldName());
+        CtField ctField = new CtField(load(mockedField.getFieldType()), mockedField.getFieldName(), clazz);
+        ctField.setModifiers(AccessFlag.PRIVATE);
+        clazz.addField(ctField);
+        String methodSuffix = StringUtils.capitalize(mockedField.getFieldName());
+        trace("creating getter: get" + methodSuffix);
+        CtMethod getter = CtNewMethod.getter("get" + methodSuffix, ctField);
+        trace(format("created [%s]", getter.getSignature()));
+        clazz.addMethod(getter);
+        trace("creating setter...");
+        CtMethod setter = CtNewMethod.setter("set" + methodSuffix, ctField);
+        trace(format("created [%s]", setter.getSignature()));
+        clazz.addMethod(setter);
+        trace("done.");
+    }
+
+
+    private CtClass load(String className) throws NotFoundException {
         CtClass clazz = classPool.get(className.replaceAll("/", "."));
         if (clazz.isFrozen()) {
             clazz.defrost();
@@ -117,6 +156,7 @@ public class ClassTransformer implements ClassFileTransformer {
         try {
             trace("retrieving " + className + " from pool");
             CtClass clazz = classPool.get(getCanonicalClassName(className));
+            addMissingProperties(clazz, mockedFields);
             trace("instrumenting " + className);
             clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, mockedFields)));
             trace("removing final modifier (if present)");

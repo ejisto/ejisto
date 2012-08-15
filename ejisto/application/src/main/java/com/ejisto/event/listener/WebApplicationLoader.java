@@ -189,21 +189,21 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         }
     }
 
-    private void undeployExistingWebapp(String serverId, String contextPath) throws Exception {
+    private void undeployExistingWebapp(String serverId, String contextPath) throws NotInstalledException {
         log.info("undeploying webapp " + contextPath);
         if (containerManager.undeployFromDefaultContainer(contextPath)) {
             log.info("webapp " + contextPath + " undeployed");
         }
     }
 
-    private void startWebapp(String serverId, String contextPath) throws Exception {
+    private void startWebapp(String serverId, String contextPath) throws NotInstalledException {
         log.info("starting webapp " + contextPath);
         if (containerManager.startWebApplicationOnDefaultServer(contextPath)) {
             log.info("started webapp " + contextPath);
         }
     }
 
-    private void stopWebapp(String serverId, String contextPath) throws Exception {
+    private void stopWebapp(String serverId, String contextPath) throws NotInstalledException {
         log.info("stopping webapp " + contextPath);
         if (containerManager.stopWebApplicationOnDefaultServer(contextPath)) {
             log.info("stopped webapp " + contextPath);

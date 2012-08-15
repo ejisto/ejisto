@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.core.ApplicationException;
 import com.ejisto.util.IOUtils;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXLabel;
@@ -125,7 +126,7 @@ public class AboutPanel extends JXPanel {
         try {
             return new URL(text);
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            throw new ApplicationException(e);
         }
     }
 

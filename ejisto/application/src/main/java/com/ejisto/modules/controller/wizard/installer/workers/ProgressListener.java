@@ -17,36 +17,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.util;
+package com.ejisto.modules.controller.wizard.installer.workers;
 
-import com.ejisto.core.ApplicationException;
-import com.ejisto.modules.dao.Dao;
+import com.ejisto.modules.executor.ErrorDescriptor;
 
 /**
+ * Interfaces for tasks that notify a progress to the user.
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 2/26/11
- * Time: 6:38 PM
+ * Date: 8/9/12
+ * Time: 8:06 AM
  */
-public abstract class ExternalizableService<T extends Dao> {
+public interface ProgressListener {
 
-    protected void checkDao() {
-        T dao = getDaoInstance();
-        if (dao != null) {
-            return;//value injected by Spring AOP or previously created
-        }
-        try {
-            dao = newRemoteDaoInstance();
-            setDaoInstance(dao);
-        } catch (Exception e) {
-            throw new ApplicationException("Unable to load dao for [" + this.getClass() + "]", e);
-        }
-    }
+    /**
+     * Notifies a "job done" message
+     *
+     * @param progress jobs completed by caller task
+     * @param message  message to display
+     */
+    void progressChanged(int progress, String message);
 
-    protected abstract T getDaoInstance();
-
-    protected abstract void setDaoInstance(T daoInstance);
-
-    protected abstract T newRemoteDaoInstance();
-
+    /**
+     * Notifies an error event
+     *
+     * @param errorDescriptor the error detail
+     */
+    void errorOccurred(ErrorDescriptor errorDescriptor);
 }

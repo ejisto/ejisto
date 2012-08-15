@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.factory.impl;
 
+import com.ejisto.core.ApplicationException;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.factory.ObjectFactory;
@@ -78,7 +79,7 @@ public class ArrayFactory<T> implements ObjectFactory<T[]> {
             Class<T> clazz = (Class<T>) Class.forName(elementClassName);
             return (T[]) Array.newInstance(clazz, length);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new ApplicationException(e);
         }
     }
 }

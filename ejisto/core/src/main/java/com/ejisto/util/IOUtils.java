@@ -19,6 +19,7 @@
 
 package com.ejisto.util;
 
+import com.ejisto.core.ApplicationException;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 import com.ejisto.modules.repository.SettingsRepository;
@@ -60,13 +61,18 @@ public class IOUtils {
             FileUtils.copyFile(original, copy);
             return copy.getName();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ApplicationException(e);
         }
+    }
+
+    public static void copyDirContent(String srcPath, String targetPath) {
+        copyDirContent(new File(srcPath), new File(targetPath), null);
     }
 
     public static void copyDirContent(File srcDir, File targetDir, String[] prefixes) {
         try {
-            FileUtils.copyDirectory(srcDir, targetDir, new FilePrefixFilter(prefixes));
+            FileFilter filter = prefixes == null ? null : new FilePrefixFilter(prefixes);
+            FileUtils.copyDirectory(srcDir, targetDir, filter);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -220,6 +226,10 @@ public class IOUtils {
         return translatePath(in, File.separator);
     }
 
+    public static boolean deleteFile(String path) {
+        return deleteFile(new File(path));
+    }
+
     public static boolean deleteFile(File file) {
         if (!file.isDirectory()) {
             return FileUtils.deleteQuietly(file);
@@ -230,19 +240,6 @@ public class IOUtils {
             return false;
         }
         return true;
-    }
-
-    public static boolean zipDirectory(String path, String destinationFilePath) {
-        try {
-            File src = new File(path);
-            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(destinationFilePath));
-            zipDirectory(path, src, out);
-            out.flush();
-            out.close();
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
     }
 
     public static void zipDirectory(String base, File src, ZipOutputStream out) throws IOException {
@@ -327,22 +324,6 @@ public class IOUtils {
             return f.toURI().toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public static void closeResources(Closeable... resources) {
-        for (Closeable resource : resources) {
-            closeResource(resource);
-        }
-    }
-
-    public static void closeResource(Closeable resource) {
-        try {
-            if (resource != null) {
-                resource.close();
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
         }
     }
 }

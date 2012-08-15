@@ -26,6 +26,7 @@ import org.codehaus.cargo.util.log.LogLevel;
 public class ServerLogger implements org.codehaus.cargo.util.log.Logger {
 
     private static final Logger logger = Logger.getLogger("serverLogger");
+
     private static final String SPACE = " ";
 
     @Override
@@ -41,6 +42,7 @@ public class ServerLogger implements org.codehaus.cargo.util.log.Logger {
     @Override
     public void info(String message, String category) {
         if (logger.isInfoEnabled()) {
+
             logger.info(message);
         }
     }
