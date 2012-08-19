@@ -89,7 +89,7 @@ public class PopupMenuManager extends MouseAdapter {
     }
 
     private EjistoAction<MockedFieldOperation> buildEjistoAction(MockedFieldsEditorComponent component, MockedFieldOperation.OperationType operationType, MockedField field) {
-        return new EjistoAction<MockedFieldOperation>(new MockedFieldOperation(component, operationType, field));
+        return new EjistoAction<>(new MockedFieldOperation(component, operationType, field));
     }
 
 }

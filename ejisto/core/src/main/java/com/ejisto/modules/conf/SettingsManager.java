@@ -37,7 +37,7 @@ public class SettingsManager extends ExternalizableService<SettingsDao> {
     @Resource(name = "settings") private Properties settings;
     @Resource private SettingsDao settingsDao;
 
-    private AtomicReference<List<Setting>> settingsList = new AtomicReference<List<Setting>>();
+    private AtomicReference<List<Setting>> settingsList = new AtomicReference<>();
 
     public int getIntValue(StringConstants key) {
         return Integer.parseInt(getValue(key));

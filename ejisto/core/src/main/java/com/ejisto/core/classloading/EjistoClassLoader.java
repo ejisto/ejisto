@@ -83,6 +83,7 @@ public class EjistoClassLoader extends URLClassLoader {
             if (!directory.exists() || !directory.isDirectory()) {
                 return;
             }
+
             for (File f : directory.listFiles()) {
                 if (f.getName().endsWith(".jar")) {
                     addURL(f.toURI().toURL());

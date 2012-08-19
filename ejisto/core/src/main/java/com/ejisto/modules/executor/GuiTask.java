@@ -40,8 +40,8 @@ public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
 
     private Callable<T> target;
     private String description;
-    private final AtomicReference<ProgressDescriptor> progressDescriptor = new AtomicReference<ProgressDescriptor>();
-    private final List<TaskExecutionListener> taskExecutionListeners = new ArrayList<TaskExecutionListener>();
+    private final AtomicReference<ProgressDescriptor> progressDescriptor = new AtomicReference<>();
+    private final List<TaskExecutionListener> taskExecutionListeners = new ArrayList<>();
     private String id;
 
     public GuiTask(Callable<T> target, String description) {

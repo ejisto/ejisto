@@ -36,7 +36,7 @@ public abstract class ReflectionUtils {
     private static final Pattern FIELD_EXTRACTOR = Pattern.compile("^((get)|(is)|(set)).*?$");
     private static final Pattern ARRAY_MATCHER = Pattern.compile("(\\[L([a-zA-Z0-9\\.]+);)|([a-zA-Z0-9\\.]+\\[\\])");
     private static final Pattern TYPE_EXTRACTOR = Pattern.compile("\\[?L?([a-zA-Z0-9\\.]+);?\\[?\\]?");
-    private static final Map<String, String> primitives = new HashMap<String, String>();
+    private static final Map<String, String> primitives = new HashMap<>();
 
     static {
         //populating primitive types map. By hand autoboxing/unboxing
@@ -102,7 +102,7 @@ public abstract class ReflectionUtils {
             genericSignature = m.group(1);
         }
         m = GENERIC_ELEMENT_EXTRACTOR.matcher(genericSignature);
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         String match;
         while (m.find()) {
             match = m.group(3);

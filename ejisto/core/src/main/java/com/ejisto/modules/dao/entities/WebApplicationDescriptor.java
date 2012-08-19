@@ -35,7 +35,7 @@ import static org.hamcrest.Matchers.equalTo;
 @Log4j
 public class WebApplicationDescriptor implements Serializable {
     private static final long serialVersionUID = 7454195671017831484L;
-    private List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>();
+    private List<WebApplicationDescriptorElement> elements = new ArrayList<>();
     private int id = -1;
     private String installationPath;
     private String containerId;
@@ -47,7 +47,7 @@ public class WebApplicationDescriptor implements Serializable {
     private transient List<WebApplicationDescriptorElement> classpathEntries;
 
     public WebApplicationDescriptor() {
-        this.fields = new TreeSet<MockedField>(new Comparator<MockedField>() {
+        this.fields = new TreeSet<>(new Comparator<MockedField>() {
             @Override
             public int compare(MockedField o1, MockedField o2) {
                 return o1.getComparisonKey().compareTo(o2.getComparisonKey());

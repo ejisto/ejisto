@@ -48,7 +48,7 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
     @Override
     public Collection<Y> create(MockedField m, Collection<Y> actualValue) {
         ObjectFactory<Y> elementObjectFactory = loadElementObjectFactory(m.getFieldElementType(), m.getContextPath());
-        Collection<Y> value = new ArrayList<Y>();
+        Collection<Y> value = new ArrayList<>();
         applyExpressions(value, m.getExpression(), elementObjectFactory, m, actualValue);
         return value;
     }

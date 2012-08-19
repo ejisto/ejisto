@@ -48,7 +48,7 @@ public class MapFactory<K, V> extends AbstractContainerFactory<Map<K, V>, V> {
     public Map<K, V> create(MockedField m, Map<K, V> actualValue) {
         ObjectFactory<V> elementObjectFactory = loadElementObjectFactory(extractValueClass(m), m.getContextPath());
         int size = extractSize(m);
-        FakeMap<K, V> map = new FakeMap<K, V>(size);
+        FakeMap<K, V> map = new FakeMap<>(size);
         fillMap(map, elementObjectFactory, m);
         return map;
     }
@@ -89,7 +89,7 @@ public class MapFactory<K, V> extends AbstractContainerFactory<Map<K, V>, V> {
         private SecureRandom random;
 
         public FakeMap(int size) {
-            randomValues = new AutoGrowingList<V>();
+            randomValues = new AutoGrowingList<>();
             this.size = size;
             this.random = new SecureRandom();
         }

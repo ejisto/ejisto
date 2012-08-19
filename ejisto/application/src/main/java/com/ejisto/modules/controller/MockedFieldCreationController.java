@@ -100,15 +100,15 @@ public class MockedFieldCreationController extends AbstractDialogManager {
 
     private void setTypes(String selectedContextPath) {
         ContextPathMatcher matcher = new ContextPathMatcher(selectedContextPath, FieldsEditorContext.CREATE_FIELD);
-        HashSet<String> contexts = new HashSet<String>(convert(MockedFieldsRepository.getInstance().loadAll(matcher),
-                                                               new PropertyExtractor<Object, String>("className")));
+        HashSet<String> contexts = new HashSet<>(convert(MockedFieldsRepository.getInstance().loadAll(matcher),
+                                                         new PropertyExtractor<Object, String>("className")));
         fieldEditorPanel.setTypes(contexts);
     }
 
     private String setAllAvailableContextPaths() {
         List<String> ctxPaths = convert(MockedFieldsRepository.getInstance().loadAll(),
                                         new PropertyExtractor<Object, String>("contextPath"));
-        fieldEditorPanel.setAvailableContextPaths(new HashSet<String>(ctxPaths));
+        fieldEditorPanel.setAvailableContextPaths(new HashSet<>(ctxPaths));
         return ctxPaths.get(0);
     }
 }

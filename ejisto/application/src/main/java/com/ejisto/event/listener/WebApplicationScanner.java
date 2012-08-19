@@ -31,12 +31,12 @@ import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.ContextPathMatcher;
-import jsr166y.ForkJoinPool;
 import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ForkJoinPool;
 
 import static ch.lambdaj.Lambda.group;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;

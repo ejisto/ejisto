@@ -69,7 +69,7 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
     }
 
     private void initAndSortControllers(EjistoDialog dialog) {
-        controllers = new ArrayList<StepController<WebApplicationDescriptor>>();
+        controllers = new ArrayList<>();
         controllers.add(new FileSelectionController(dialog));
         controllers.add(new FileExtractionController(dialog));
         controllers.add(new ClassesFilteringController(dialog));

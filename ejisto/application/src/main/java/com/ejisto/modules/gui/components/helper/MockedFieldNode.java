@@ -60,7 +60,7 @@ public class MockedFieldNode extends DefaultMutableTreeNode {
         super(userObject);
         this.field = userObject;
         this.head = head;
-        this.children = new TreeMap<String, MockedFieldNode>();
+        this.children = new TreeMap<>();
     }
 
     @Override
@@ -112,7 +112,7 @@ public class MockedFieldNode extends DefaultMutableTreeNode {
 
     @Override
     public Enumeration<MockedFieldNode> children() {
-        return new IteratorEnumeration<MockedFieldNode>(children.values().iterator());
+        return new IteratorEnumeration<>(children.values().iterator());
     }
 
     public boolean containsChild(MockedFieldNode child) {

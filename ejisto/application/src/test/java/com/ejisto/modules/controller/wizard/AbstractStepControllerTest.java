@@ -48,7 +48,7 @@ public class AbstractStepControllerTest {
         applicationScanningController = new ApplicationScanningController(null, null) {
             @Override
             protected Task<?> createNewTask() {
-                return new GuiTask<Object>(new Callable<Object>() {
+                return new GuiTask<>(new Callable<Object>() {
                     @Override
                     public Object call() throws Exception {
                         threadSynchronizer.await();

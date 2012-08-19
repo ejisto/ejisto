@@ -28,7 +28,6 @@ import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
-import jsr166y.RecursiveAction;
 import lombok.extern.log4j.Log4j;
 import org.springframework.util.CollectionUtils;
 
@@ -36,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.RecursiveAction;
 
 import static org.apache.commons.io.FilenameUtils.normalize;
 
@@ -70,7 +70,7 @@ public final class ScanAction extends RecursiveAction {
             toBeScanned = groupedFields.subList(0, SIZE_THRESHOLD);
             toBeForked = groupedFields.subList(SIZE_THRESHOLD, groupedFields.size());
         } else {
-            toBeScanned = new ArrayList<Group<MockedField>>(groupedFields);
+            toBeScanned = new ArrayList<>(groupedFields);
             toBeForked = null;
         }
         invokeAll(new ScanAction(descriptor, toBeForked));

@@ -36,7 +36,7 @@ public class EventOutputStream extends OutputStream {
 
     public EventOutputStream(String containerId) {
         super();
-        this.queue = new LinkedBlockingQueue<LogMessage>();
+        this.queue = new LinkedBlockingQueue<>();
         this.buffer = new StringBuffer();
         this.containerId = containerId;
     }

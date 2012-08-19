@@ -29,7 +29,6 @@ import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import javassist.ClassPool;
 import javassist.LoaderClassPath;
-import jsr166y.ForkJoinPool;
 import lombok.extern.log4j.Log4j;
 import org.codehaus.cargo.module.DescriptorElement;
 import org.codehaus.cargo.module.webapp.WebXml;
@@ -49,6 +48,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -116,7 +116,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(contextPath);
         cp.appendClassPath(new LoaderClassPath(loader));
         List<MockedField> fields = forkJoinPool.invoke(
-                new LoadClassAction(new ArrayList<String>(classNames), loader, descriptor, this));
+                new LoadClassAction(new ArrayList<>(classNames), loader, descriptor, this));
         for (MockedField field : fields) {
             descriptor.addField(field);
         }

@@ -214,9 +214,9 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     }
 
     private Collection<String> selectMockedFieldTypes() {
-        Collection<MockedField> fields = new ArrayList<MockedField>(wizardFields);
+        Collection<MockedField> fields = new ArrayList<>(wizardFields);
         fields.addAll(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
-        return new HashSet<String>(convert(fields, new PropertyExtractor<Object, String>("className")));
+        return new HashSet<>(convert(fields, new PropertyExtractor<Object, String>("className")));
     }
 
     @Override

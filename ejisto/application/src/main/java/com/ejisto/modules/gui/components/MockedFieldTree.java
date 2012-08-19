@@ -58,7 +58,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     private transient MockedFieldValidator validator;
     private JTextField textField;
     private final FieldsEditorContext fieldsEditorContext;
-    private final List<FieldEditingListener> editingListeners = new ArrayList<FieldEditingListener>();
+    private final List<FieldEditingListener> editingListeners = new ArrayList<>();
 
     public MockedFieldTree(FieldsEditorContext fieldsEditorContext) {
         super(new MockedFieldNode(true));

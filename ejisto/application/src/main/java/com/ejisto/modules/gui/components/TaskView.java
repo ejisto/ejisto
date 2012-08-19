@@ -47,6 +47,10 @@ public class TaskView extends JXPanel {
         this.minimized = minimized;
     }
 
+    public boolean isMinimized() {
+        return minimized;
+    }
+
     public synchronized void setCurrentStatus(int completedTasks, int totalTasks) {
         this.completedTasks.set(completedTasks);
         this.totalTasks.set(totalTasks);

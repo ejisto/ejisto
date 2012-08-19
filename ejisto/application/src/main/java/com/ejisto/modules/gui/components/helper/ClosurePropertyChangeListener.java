@@ -52,7 +52,7 @@ public class ClosurePropertyChangeListener implements PropertyChangeListener, Do
 
     public ClosurePropertyChangeListener(String propertyName, Closure1<String> action, Closure0 callBackAction) {
         this.propertyName = propertyName;
-        this.actionMap = new HashMap<String, Closure1<String>>();
+        this.actionMap = new HashMap<>();
         this.actionMap.put(propertyName, action);
         this.callBackAction = callBackAction;
     }

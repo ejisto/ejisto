@@ -138,10 +138,10 @@ public class ResourcesInitializer extends BaseStartupService {
     }
 
     private void initDefaultActions() {
-        putAction(new EjistoAction<LoadWebApplication>(new LoadWebApplication(this), true));
-        putAction(new EjistoAction<ShutdownRequest>(new ShutdownRequest(this)));
-        putAction(new EjistoAction<ChangeServerStatus>(new ChangeServerStatus(this, Command.STARTUP)));
-        putAction(new EjistoAction<ChangeServerStatus>(new ChangeServerStatus(this, Command.SHUTDOWN)));
-        putAction(new EjistoAction<DialogRequested>(new DialogRequested(this, DialogRequested.DialogType.ABOUT)));
+        putAction(new EjistoAction<>(new LoadWebApplication(this), true));
+        putAction(new EjistoAction<>(new ShutdownRequest(this)));
+        putAction(new EjistoAction<>(new ChangeServerStatus(this, Command.STARTUP)));
+        putAction(new EjistoAction<>(new ChangeServerStatus(this, Command.SHUTDOWN)));
+        putAction(new EjistoAction<>(new DialogRequested(this, DialogRequested.DialogType.ABOUT)));
     }
 }

@@ -38,7 +38,7 @@ import static com.ejisto.util.GuiUtils.runOnEDT;
 public class ApplicationScanningController extends AbstractApplicationInstallerController {
     private ProgressPanel applicationScanningTab;
     private final String containerHome;
-    private AtomicReference<ProgressDescriptor.ProgressState> progressState = new AtomicReference<ProgressDescriptor.ProgressState>(
+    private AtomicReference<ProgressDescriptor.ProgressState> progressState = new AtomicReference<>(
             INDETERMINATE);
 
     public ApplicationScanningController(EjistoDialog dialog, String containerHome) {
@@ -110,26 +110,30 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     @Override
     protected void handlePropertyChange(final PropertyChangeEvent event) {
         String propertyName = event.getPropertyName();
-        if (propertyName.equals("startProgress")) {
-            notifyStart((Integer) event.getNewValue());
-        } else if (propertyName.equals("progressDescriptor")) {
-            ProgressDescriptor descriptor = (ProgressDescriptor) event.getNewValue();
-            syncProgressState(descriptor.getProgressState());
-            if (descriptor.isTaskCompleted()) {
-                getView().processCompleted(getMessage("progress.scan.end"));
-            } else if (descriptor.isIndeterminate()) {
-                writeProgress(descriptor.getMessage());
-            } else {
-                notifyJobCompleted(descriptor.getMessage());
-            }
-
-        } else if (propertyName.equals("error")) {
-            runOnEDT(new Runnable() {
-                @Override
-                public void run() {
-                    getView().addError((ErrorDescriptor) event.getNewValue());
+        switch (propertyName) {
+            case "startProgress":
+                notifyStart((Integer) event.getNewValue());
+                break;
+            case "progressDescriptor":
+                ProgressDescriptor descriptor = (ProgressDescriptor) event.getNewValue();
+                syncProgressState(descriptor.getProgressState());
+                if (descriptor.isTaskCompleted()) {
+                    getView().processCompleted(getMessage("progress.scan.end"));
+                } else if (descriptor.isIndeterminate()) {
+                    writeProgress(descriptor.getMessage());
+                } else {
+                    notifyJobCompleted(descriptor.getMessage());
                 }
-            });
+
+                break;
+            case "error":
+                runOnEDT(new Runnable() {
+                    @Override
+                    public void run() {
+                        getView().addError((ErrorDescriptor) event.getNewValue());
+                    }
+                });
+                break;
         }
     }
 

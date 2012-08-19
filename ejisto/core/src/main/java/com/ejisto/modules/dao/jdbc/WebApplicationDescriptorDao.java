@@ -123,7 +123,7 @@ public class WebApplicationDescriptorDao extends BaseJdbcDao {
     private static final ResultSetExtractor<List<WebApplicationDescriptor>> LIST_EXTRACTOR = new ResultSetExtractor<List<WebApplicationDescriptor>>() {
         @Override
         public List<WebApplicationDescriptor> extractData(ResultSet rs) throws SQLException, DataAccessException {
-            List<WebApplicationDescriptor> ret = new ArrayList<WebApplicationDescriptor>();
+            List<WebApplicationDescriptor> ret = new ArrayList<>();
             while (rs.next()) {
                 ret.add(buildFromResultSet(rs));
             }

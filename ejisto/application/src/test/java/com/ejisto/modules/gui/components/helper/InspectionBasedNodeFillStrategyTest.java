@@ -79,8 +79,8 @@ public class InspectionBasedNodeFillStrategyTest {
 
 
         when(root.getUserObject()).thenReturn(field2);
-        when(root.children()).thenReturn(new IteratorEnumeration<MockedFieldNode>(asList(createNode(field3, true,
-                                                                                                    new String[]{"/ejisto-test", "this"})).iterator()));
+        when(root.children()).thenReturn(new IteratorEnumeration<>(asList(createNode(field3, true,
+                                                                                     new String[]{"/ejisto-test", "this"})).iterator()));
         NodeFillStrategy strategy = new InspectionBasedNodeFillStrategy();
         MockedFieldNode node = strategy.insertField(root, field1);
         verify(root, never()).add(any(MockedFieldNode.class));
@@ -123,7 +123,7 @@ public class InspectionBasedNodeFillStrategyTest {
         when(field1.getPath()).thenReturn(
                 new String[]{"/ejisto-test", "this", "is", "a", "test", "TestClass", "testProperty"});
         when(root.children()).thenReturn(
-                new IteratorEnumeration<MockedFieldNode>(Collections.<MockedFieldNode>emptyList().iterator()));
+                new IteratorEnumeration<>(Collections.<MockedFieldNode>emptyList().iterator()));
         final AtomicInteger counter = new AtomicInteger();
         MockedFieldNode root1 = new MockedFieldNode(true) {
             @Override

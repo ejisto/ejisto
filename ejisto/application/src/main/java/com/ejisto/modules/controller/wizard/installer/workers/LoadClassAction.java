@@ -27,13 +27,13 @@ import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import javassist.*;
 import javassist.bytecode.SignatureAttribute;
-import jsr166y.RecursiveTask;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.RecursiveTask;
 
 import static com.ejisto.modules.executor.ErrorDescriptor.Category.ERROR;
 import static com.ejisto.modules.executor.ErrorDescriptor.Category.WARN;
@@ -69,7 +69,7 @@ public class LoadClassAction extends RecursiveTask<List<MockedField>> {
             return doParallelWork();
         } else {
             log.debug("attempting to load " + classes.size() + " classes.");
-            List<MockedField> results = new ArrayList<MockedField>();
+            List<MockedField> results = new ArrayList<>();
             ClassPool classPool = new ClassPool();
             classPool.appendClassPath(new LoaderClassPath(classLoader));
             for (String className : classes) {
@@ -85,8 +85,8 @@ public class LoadClassAction extends RecursiveTask<List<MockedField>> {
         int collectionSize = classes.size();
         int jobs = collectionSize / THRESHOLD + (collectionSize % THRESHOLD == 0 ? 0 : 1);
         log.debug("about to fork " + jobs + " tasks");
-        List<LoadClassAction> forkedTasks = new ArrayList<LoadClassAction>(jobs);
-        List<MockedField> results = new ArrayList<MockedField>();
+        List<LoadClassAction> forkedTasks = new ArrayList<>(jobs);
+        List<MockedField> results = new ArrayList<>();
         for (int i = 0; i < jobs; i++) {
             int start = THRESHOLD * i;
             int end = Math.min(collectionSize, start + THRESHOLD);
@@ -119,7 +119,7 @@ public class LoadClassAction extends RecursiveTask<List<MockedField>> {
     }
 
     private List<MockedField> getMockedFields(CtClass clazz, WebApplicationDescriptor descriptor) throws NotFoundException {
-        List<MockedField> results = new ArrayList<MockedField>();
+        List<MockedField> results = new ArrayList<>();
         try {
             List<MockedField> mockedFields = MockedFieldsRepository.getInstance().load(descriptor.getContextPath(),
                                                                                        clazz.getName());

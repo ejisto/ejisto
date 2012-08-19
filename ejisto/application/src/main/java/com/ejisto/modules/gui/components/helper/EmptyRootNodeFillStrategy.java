@@ -37,7 +37,7 @@ public class EmptyRootNodeFillStrategy implements NodeFillStrategy {
     private final Map<String, MockedFieldNode> map;
 
     public EmptyRootNodeFillStrategy() {
-        this.map = new TreeMap<String, MockedFieldNode>();
+        this.map = new TreeMap<>();
     }
 
     @Override

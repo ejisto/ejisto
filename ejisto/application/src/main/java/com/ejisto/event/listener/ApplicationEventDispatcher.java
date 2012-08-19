@@ -43,7 +43,7 @@ public class ApplicationEventDispatcher implements ApplicationListener<Applicati
     private volatile boolean running = true;
 
     public ApplicationEventDispatcher() {
-        registeredListeners = new ConcurrentHashMap<Class<?>, List<ApplicationListener<ApplicationEvent>>>();
+        registeredListeners = new ConcurrentHashMap<>();
     }
 
     public void registerApplicationEventListener(Class<?> eventClass, ApplicationListener<ApplicationEvent> applicationListener) {

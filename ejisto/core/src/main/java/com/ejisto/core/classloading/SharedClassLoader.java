@@ -42,7 +42,7 @@ public final class SharedClassLoader extends URLClassLoader {
 
     private SharedClassLoader() {
         super(new URL[0]);
-        entries = new CopyOnWriteArraySet<String>();
+        entries = new CopyOnWriteArraySet<>();
     }
 
     public void addEntry(String entry) {

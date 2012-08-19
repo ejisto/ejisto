@@ -103,7 +103,7 @@ public class IOUtils {
 
     public static List<WebApplicationDescriptorElement> getClasspathEntries(String basePath, URL[] baseUrls) throws MalformedURLException {
         File base = new File(basePath);
-        List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>();
+        List<WebApplicationDescriptorElement> elements = new ArrayList<>();
         for (URL url : baseUrls) {
             elements.add(new WebApplicationDescriptorElement(url.getPath()));
         }
@@ -143,7 +143,7 @@ public class IOUtils {
     }
 
     public static List<String> listJarFiles(String dir) {
-        List<String> files = new ArrayList<String>();
+        List<String> files = new ArrayList<>();
         for (File file : getAllFiles(new File(dir), jarExtension)) {
             files.add(file.getAbsolutePath());
         }
@@ -151,7 +151,7 @@ public class IOUtils {
     }
 
     public static URL[] toUrlArray(WebApplicationDescriptor descriptor) throws MalformedURLException {
-        List<URL> urls = new ArrayList<URL>();
+        List<URL> urls = new ArrayList<>();
         File base = new File(descriptor.getInstallationPath(), "WEB-INF");
         File classes = new File(base, "classes");
         File lib = new File(base, "lib");
@@ -168,7 +168,7 @@ public class IOUtils {
         if (in.isEmpty()) {
             return emptyList();
         }
-        List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>(in.size());
+        List<WebApplicationDescriptorElement> elements = new ArrayList<>(in.size());
         for (File file : in) {
             elements.add(new WebApplicationDescriptorElement(file.getName()));
         }
@@ -176,7 +176,7 @@ public class IOUtils {
     }
 
     public static Collection<String> findAllWebApplicationClasses(String basePath, WebApplicationDescriptor descriptor) throws IOException {
-        HashSet<String> ret = new HashSet<String>();
+        HashSet<String> ret = new HashSet<>();
         File webInf = new File(basePath, "WEB-INF");
         ret.addAll(findAllClassNamesInDirectory(new File(webInf, "classes")));
         ret.addAll(findAllClassNamesInJarDirectory(new File(webInf, "lib"), descriptor));
@@ -187,7 +187,7 @@ public class IOUtils {
         List<String> pathNames = extractProperty(
                 select(getAllFiles(directory, classExtension), having(on(File.class).isDirectory(), equalTo(false))),
                 "path");
-        HashSet<String> ret = new HashSet<String>();
+        HashSet<String> ret = new HashSet<>();
         int index = directory.getAbsolutePath().length();
         for (String path : pathNames) {
             ret.add(translatePath(path.substring(index + 1, path.length() - 6)));
@@ -196,7 +196,7 @@ public class IOUtils {
     }
 
     public static Collection<String> findAllClassNamesInJarDirectory(File directory, WebApplicationDescriptor descriptor) throws IOException {
-        HashSet<String> ret = new HashSet<String>();
+        HashSet<String> ret = new HashSet<>();
         for (File file : getAllFiles(directory, jarExtension)) {
             if (!descriptor.isBlacklistedEntry(file.getName())) {
                 ret.addAll(findAllClassesInJarFile(file));
@@ -208,7 +208,7 @@ public class IOUtils {
     public static Collection<String> findAllClassesInJarFile(File jarFile) throws IOException {
         ZipFile jar = new ZipFile(jarFile);
         ZipEntry entry;
-        ArrayList<String> ret = new ArrayList<String>();
+        ArrayList<String> ret = new ArrayList<>();
         for (Enumeration<? extends ZipEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
             entry = entries.nextElement();
             if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
@@ -278,11 +278,9 @@ public class IOUtils {
 
     public static boolean isPortAvailable(int port) {
         ServerSocket tcp = null;
-        DatagramSocket udp = null;
-        try {
+        try (DatagramSocket udp = new DatagramSocket(port)) {
             tcp = new ServerSocket(port);
             tcp.setReuseAddress(true);
-            udp = new DatagramSocket(port);
             udp.setReuseAddress(true);
             return true;
         } catch (IOException ex) {
@@ -294,9 +292,6 @@ public class IOUtils {
                 }
             } catch (IOException e) {
                 //nothing to do
-            }
-            if (udp != null) {
-                udp.close();
             }
         }
     }

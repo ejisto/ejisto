@@ -43,7 +43,7 @@ public class ProgressPanel extends JXPanel {
     private int jobsCompleted = 0;
     private JXCollapsiblePane collapsiblePane;
     private JXTable eventTable;
-    private final List<ErrorDescriptor> errors = new ArrayList<ErrorDescriptor>();
+    private final List<ErrorDescriptor> errors = new ArrayList<>();
     private static final ErrorTableModel errorTableModel = new ErrorTableModel();
 
     /**
@@ -156,7 +156,7 @@ public class ProgressPanel extends JXPanel {
 
         public ErrorTableModel() {
             super();
-            this.data = new ArrayList<ErrorDescriptor>();
+            this.data = new ArrayList<>();
 
         }
 

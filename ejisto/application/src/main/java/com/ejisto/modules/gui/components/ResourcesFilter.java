@@ -56,7 +56,7 @@ public class ResourcesFilter extends JXPanel {
     }
 
     public void setResources(List<String> resources) {
-        Vector<String> vector = new Vector<String>(resources);
+        Vector<String> vector = new Vector<>(resources);
         Collections.sort(vector);
         getResourcesList().setListData(vector);
         this.resourcesSize = vector.size();
@@ -140,7 +140,7 @@ public class ResourcesFilter extends JXPanel {
         if (indices.length == 0) {
             return resources;
         }
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
         int i = 0;
         for (String jar : resources) {
             if (binarySearch(indices, i++) < 0) {

@@ -43,7 +43,7 @@ public final class ClassPoolRepository {
     }
 
     private ClassPoolRepository() {
-        dictionary = new ConcurrentHashMap<String, ClassPool>();
+        dictionary = new ConcurrentHashMap<>();
     }
 
     private ClassPool getValue(String context) {

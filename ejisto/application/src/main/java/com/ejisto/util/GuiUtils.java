@@ -107,7 +107,7 @@ public abstract class GuiUtils {
     }
 
     public static List<List<String>> asStringList(Collection<MockedField> fields, EditorColumnFillStrategy fillStrategy) {
-        List<List<String>> fieldsAsString = new ArrayList<List<String>>();
+        List<List<String>> fieldsAsString = new ArrayList<>();
         for (MockedField mockedField : fields) {
             fillStrategy.fillRow(fieldsAsString, mockedField);
         }
@@ -153,7 +153,7 @@ public abstract class GuiUtils {
     }
 
     public static String buildCommand(StringConstants commandPrefix, String containerId, String contextPath) {
-        return new StringBuilder(containerId).append(commandPrefix.getValue()).append(contextPath).toString();
+        return containerId + commandPrefix.getValue() + contextPath;
     }
 
     public static void synchronousRunInEDT(Runnable action) throws InvocationTargetException {
@@ -200,7 +200,7 @@ public abstract class GuiUtils {
 
     public static List<ContainerTab> getRegisteredContainers() {
         List<com.ejisto.modules.dao.entities.Container> containers = SpringBridge.loadExistingContainers();
-        List<ContainerTab> containerTabs = new ArrayList<ContainerTab>();
+        List<ContainerTab> containerTabs = new ArrayList<>();
         for (Container container : containers) {
             containerTabs.add(buildContainerTab(container));
         }
@@ -288,7 +288,7 @@ public abstract class GuiUtils {
     }
 
     public static TreePath getNodePath(MockedFieldNode node) {
-        Deque<MockedFieldNode> path = new ArrayDeque<MockedFieldNode>();
+        Deque<MockedFieldNode> path = new ArrayDeque<>();
         path.add(node);
         while ((node = (MockedFieldNode) node.getParent()) != null) {
             path.addFirst(node);

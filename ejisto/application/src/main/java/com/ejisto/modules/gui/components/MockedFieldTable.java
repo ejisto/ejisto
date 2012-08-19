@@ -108,9 +108,9 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
         if (selectedRows.length == 0) {
             return emptyList();
         }
-        List<MockedField> selectedFields = new ArrayList<MockedField>(selectedRows.length);
+        List<MockedField> selectedFields = new ArrayList<>(selectedRows.length);
         for (int selectedRow : selectedRows) {
-            selectedFields.add(((MockedFieldsTableModel) getModel()).getMockedFieldAt(selectedRow));
+            selectedFields.add(getModel().getMockedFieldAt(selectedRow));
         }
         return selectedFields;
     }

@@ -88,12 +88,12 @@ public class AboutPanel extends JXPanel {
         credits.add(buildDescriptionLabel(getMessage("about.icon.title")), buildConstraints(0, 1, false));
         credits.add(buildDescriptionLabel(getMessage("about.icon.credits.1")), buildConstraints(0, 2, false));
         String link = getMessage("about.icon.credits.1.link");
-        credits.add(new JXHyperlink(new LinkModelAction<LinkModel>(new LinkModel(link, null, createUrl(link)))),
+        credits.add(new JXHyperlink(new LinkModelAction<>(new LinkModel(link, null, createUrl(link)))),
                     buildConstraints(0, 3, false));
         credits.add(buildSpacerElement(), buildConstraints(0, 4, true));
         credits.add(buildDescriptionLabel(getMessage("about.icon.credits.2")), buildConstraints(0, 5, false));
         String link2 = getMessage("about.icon.credits.2.link");
-        credits.add(new JXHyperlink(new LinkModelAction<LinkModel>(new LinkModel(link2, null, createUrl(link2)))),
+        credits.add(new JXHyperlink(new LinkModelAction<>(new LinkModel(link2, null, createUrl(link2)))),
                     buildConstraints(0, 6, false));
         credits.add(buildSpacerElement(), buildConstraints(0, 7, true));
         credits.add(new JSeparator(), buildConstraints(0, 8, true));

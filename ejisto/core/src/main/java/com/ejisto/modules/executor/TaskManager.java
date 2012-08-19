@@ -55,7 +55,7 @@ public final class TaskManager implements DisposableBean {
     }
 
     private TaskManager() {
-        this.registry = new ConcurrentHashMap<String, TaskEntry>();
+        this.registry = new ConcurrentHashMap<>();
         this.executorService = Executors.newCachedThreadPool();
         this.scheduler = Executors.newScheduledThreadPool(5);
         this.scheduler.scheduleAtFixedRate(new Runnable() {
@@ -71,7 +71,7 @@ public final class TaskManager implements DisposableBean {
             return;
         }
         try {
-            List<String> toBeRemoved = new ArrayList<String>();
+            List<String> toBeRemoved = new ArrayList<>();
             Future<?> future;
             TaskEntry entry;
             for (String key : registry.keySet()) {
@@ -151,7 +151,7 @@ public final class TaskManager implements DisposableBean {
         if (isEmpty(registry)) {
             return emptyList();
         }
-        return new ArrayList<TaskDescriptor>(
+        return new ArrayList<>(
                 Lambda.<TaskDescriptor>collect(forEach(registry.values()).getDescriptor()));
     }
 
@@ -212,7 +212,7 @@ public final class TaskManager implements DisposableBean {
     }
 
     public static <T> GuiTask<T> createNewGuiTask(Callable<T> callable, String description, PropertyChangeListener... listeners) {
-        GuiTask<T> task = new GuiTask<T>(callable, description);
+        GuiTask<T> task = new GuiTask<>(callable, description);
         for (PropertyChangeListener listener : listeners) {
             task.addPropertyChangeListener(listener);
         }
@@ -220,7 +220,7 @@ public final class TaskManager implements DisposableBean {
     }
 
     public static <T> BackgroundTask<T> createNewBackgroundTask(Callable<T> callable, String description) {
-        return new BackgroundTask<T>(callable);
+        return new BackgroundTask<>(callable);
     }
 
 }

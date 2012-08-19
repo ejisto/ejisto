@@ -37,7 +37,7 @@ public class WebApplicationRepository {
     private final ConcurrentMap<String, Map<String, WebApplication<?>>> webApplications;
 
     public WebApplicationRepository() {
-        webApplications = new ConcurrentHashMap<String, Map<String, WebApplication<?>>>();
+        webApplications = new ConcurrentHashMap<>();
     }
 
     public void registerWebApplication(String containerId, WebApplication<?> webApplication) {
@@ -64,10 +64,10 @@ public class WebApplicationRepository {
     }
 
     public Map<String, List<WebApplication<?>>> getInstalledWebApplications() {
-        Map<String, List<WebApplication<?>>> applications = new TreeMap<String, List<WebApplication<?>>>();
+        Map<String, List<WebApplication<?>>> applications = new TreeMap<>();
         List<WebApplication<?>> serverApplications;
         for (String serverId : webApplications.keySet()) {
-            serverApplications = new ArrayList<WebApplication<?>>(webApplications.get(serverId).values());
+            serverApplications = new ArrayList<>(webApplications.get(serverId).values());
             applications.put(serverId, serverApplications);
         }
         return applications;

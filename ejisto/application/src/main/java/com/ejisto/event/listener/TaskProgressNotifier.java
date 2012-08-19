@@ -48,13 +48,13 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
 
     @Resource private Application application;
     @Resource TaskManager taskManager;
-    private final ConcurrentMap<String, DialogController> activeControllers = new ConcurrentHashMap<String, DialogController>();
-    private final AtomicReference<DialogController> currentController = new AtomicReference<DialogController>();
+    private final ConcurrentMap<String, DialogController> activeControllers = new ConcurrentHashMap<>();
+    private final AtomicReference<DialogController> currentController = new AtomicReference<>();
 
     @Override
     public void onApplicationEvent(final BlockingTaskProgress event) {
         if (event.isRunning()) {
-            taskManager.addNewTask(new BackgroundTask<Void>(new Callable<Void>() {
+            taskManager.addNewTask(new BackgroundTask<>(new Callable<Void>() {
                 @Override
                 public Void call() throws InterruptedException {
                     DialogController controller = DialogController.Builder.newInstance().
@@ -74,7 +74,7 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
                 }
             }));
         } else {
-            taskManager.addNewTask(new BackgroundTask<Void>(new Callable<Void>() {
+            taskManager.addNewTask(new BackgroundTask<>(new Callable<Void>() {
                 @Override
                 public Void call() throws InterruptedException {
                     DialogController controller = activeControllers.get(event.getId());

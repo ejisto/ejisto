@@ -89,7 +89,7 @@ public class CargoManager implements ContainerManager {
     @Resource private WebApplicationRepository webApplicationRepository;
     @Resource private EventManager eventManager;
 
-    private final ConcurrentMap<String, AbstractInstalledLocalContainer> installedContainers = new ConcurrentHashMap<String, AbstractInstalledLocalContainer>();
+    private final ConcurrentMap<String, AbstractInstalledLocalContainer> installedContainers = new ConcurrentHashMap<>();
     private final ReentrantLock lifeCycleOperationLock = new ReentrantLock();
 
     @Override

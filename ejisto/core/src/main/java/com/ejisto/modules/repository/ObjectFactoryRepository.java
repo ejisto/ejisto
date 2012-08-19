@@ -54,7 +54,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     private static final String DEFAULT = "java.lang.Object";
     private static final ObjectFactoryRepository INSTANCE = new ObjectFactoryRepository();
     private static final String ENUM_FACTORY_CLASS_NAME = "com.ejisto.modules.factory.impl.EnumFactory";
-    private final Map<String, String> factories = new HashMap<String, String>();
+    private final Map<String, String> factories = new HashMap<>();
     private final AtomicBoolean initialized = new AtomicBoolean(false);
 
     enum ObjectType {
@@ -107,7 +107,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
         String objectFactoryClass = getObjectFactoryClass(objectClassName, contextPath);
         ObjectFactory<T> objectFactory = loadObjectFactory(objectFactoryClass);
         if (isArray(objectClassName)) {
-            return (ObjectFactory<T>) new ArrayFactory<T>(objectFactory);
+            return (ObjectFactory<T>) new ArrayFactory<>(objectFactory);
         }
         return objectFactory;
     }

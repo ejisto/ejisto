@@ -47,7 +47,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     public MockedFieldsTableModel(List<MockedField> fields, FieldsEditorContext ctx) {
         this.ctx = ctx;
         columnHeaders = ctx.getTableColumns();
-        this.fields = new ArrayList<MockedField>(fields);
+        this.fields = new ArrayList<>(fields);
         Collections.sort(this.fields);
         this.fieldsAsString = GuiUtils.asStringList(this.fields, ctx.getColumnFillStrategy());
         addTableModelListener(this);

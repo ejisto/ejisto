@@ -32,7 +32,7 @@ import static com.ejisto.util.GuiUtils.getMessage;
 public class ValidationErrors extends AbstractErrors {
     private static final long serialVersionUID = -1318814109330110578L;
     private String name;
-    private List<String> errors = new ArrayList<String>();
+    private List<String> errors = new ArrayList<>();
 
     public ValidationErrors(String name) {
         this.name = name;

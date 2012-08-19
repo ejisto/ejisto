@@ -73,7 +73,7 @@ public class BoundResourceEditor {
 
     public BoundResourceEditor(JndiDataSource dataSource, JndiResourcesEditor container, int index) {
         this.dataSource = dataSource;
-        this.actionMap = new HashMap<String, Closure1<String>>();
+        this.actionMap = new HashMap<>();
         this.container = container;
         this.index = index;
         initClosures();

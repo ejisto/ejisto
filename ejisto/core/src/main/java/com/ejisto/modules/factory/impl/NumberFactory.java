@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public class NumberFactory implements ObjectFactory<Number> {
 
-    private Map<String, Class<?>> registeredTypes = new HashMap<String, Class<?>>();
+    private Map<String, Class<?>> registeredTypes = new HashMap<>();
 
     public NumberFactory() {
         //hand-made autoboxing...

@@ -22,7 +22,6 @@ package com.ejisto.modules.controller.wizard.installer;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.dao.entities.JndiDataSource;
-import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.Step;
@@ -79,7 +78,7 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
     @Override
     public void activate() {
         editorController.setWizardFields(getSession().getFields());
-        getView().setFields(new ArrayList<MockedField>(getSession().getFields()));
+        getView().setFields(new ArrayList<>(getSession().getFields()));
     }
 
     @Override

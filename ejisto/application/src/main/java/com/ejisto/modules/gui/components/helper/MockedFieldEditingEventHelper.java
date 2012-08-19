@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ public class MockedFieldEditingEventHelper {
     private List<FieldEditingListener> listeners;
 
     public MockedFieldEditingEventHelper() {
-        this.listeners = new ArrayList<FieldEditingListener>();
+        this.listeners = new ArrayList<>();
     }
 
     public void addFieldEditingListener(FieldEditingListener fieldEditingListener) {
