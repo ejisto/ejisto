@@ -63,7 +63,7 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
 
     private void handleEvent(final ChangeServerStatus event) {
         try {
-            boolean started = false;
+            boolean started;
             if (event.getCommand() == ChangeServerStatus.Command.STARTUP) {
                 log.info("Starting server:");
                 containerManager.startDefault();

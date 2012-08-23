@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2011  Celestino Bellone
+ * Copyright (C) 2010-2012  Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@ package com.ejisto.modules.dao.entities;
 
 import lombok.Data;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -33,5 +35,20 @@ public class Container {
     private String cargoId;
     private String homeDir;
     private String description;
+    private transient int port = 8080;
+    private transient final AtomicBoolean running = new AtomicBoolean(false);
 
+    public boolean isRunning() {
+        return running.get();
+    }
+
+    @Deprecated
+    public AtomicBoolean getRunning() {
+        throw new UnsupportedOperationException(
+                "you can't modify 'running' field, use isRunning() or setRunningState()");
+    }
+
+    public boolean setRunningState(boolean runningState) {
+        return running.compareAndSet(!runningState, runningState);
+    }
 }

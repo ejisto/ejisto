@@ -277,22 +277,13 @@ public class IOUtils {
     }
 
     public static boolean isPortAvailable(int port) {
-        ServerSocket tcp = null;
-        try (DatagramSocket udp = new DatagramSocket(port)) {
-            tcp = new ServerSocket(port);
+        try (DatagramSocket udp = new DatagramSocket(port);
+             ServerSocket tcp = new ServerSocket(port)) {
             tcp.setReuseAddress(true);
             udp.setReuseAddress(true);
             return true;
         } catch (IOException ex) {
             return false;
-        } finally {
-            try {
-                if (tcp != null) {
-                    tcp.close();
-                }
-            } catch (IOException e) {
-                //nothing to do
-            }
         }
     }
 

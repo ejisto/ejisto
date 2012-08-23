@@ -236,7 +236,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         cp.appendClassPath(new LoaderClassPath(new URLClassLoader(IOUtils.toUrlArray(descriptor))));
     }
 
-    private void startBrowser(WebApplicationDescriptor descriptor) {
+    private void startBrowser(WebApplicationDescriptor descriptor) throws NotInstalledException {
         //thanks to sun, browser is not available on kde http://bugs.sun.com/view_bug.do?bug_id=6486393
         if (!Desktop.isDesktopSupported() || !containerManager.isServerRunning()) {
             return;
