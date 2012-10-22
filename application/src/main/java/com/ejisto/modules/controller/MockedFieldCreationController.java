@@ -35,8 +35,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static ch.lambdaj.Lambda.convert;
+import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
@@ -95,13 +97,13 @@ public class MockedFieldCreationController extends AbstractDialogManager {
                                                                                                     mf.getClassName(),
                                                                                                     mf.getFieldName()));
         publishApplicationEvent(event);
-        publishApplicationEvent(new ServerRestartRequired(this));
+        publishApplicationEvent(new ServerRestartRequired(DEFAULT_CONTAINER_ID.getValue(), this));
     }
 
     private void setTypes(String selectedContextPath) {
         ContextPathMatcher matcher = new ContextPathMatcher(selectedContextPath, FieldsEditorContext.CREATE_FIELD);
-        HashSet<String> contexts = new HashSet<>(convert(MockedFieldsRepository.getInstance().loadAll(matcher),
-                                                         new PropertyExtractor<Object, String>("className")));
+        Set<String> contexts = new HashSet<>(convert(MockedFieldsRepository.getInstance().loadAll(matcher),
+                                                     new PropertyExtractor<Object, String>("className")));
         fieldEditorPanel.setTypes(contexts);
     }
 

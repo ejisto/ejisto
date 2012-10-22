@@ -20,7 +20,8 @@
 package com.ejisto.modules.web;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -29,14 +30,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Time: 7:01 PM
  */
 public final class MockedFieldRequest {
+
+    private static final MockedFieldRequest ALL_FIELDS = new MockedFieldRequest(null, null, null, false);
+
     private final String contextPath;
     private final String className;
     private final String fieldName;
 
-    @JsonCreator
-    public MockedFieldRequest(@JsonProperty("contextPath") String contextPath,
-                              @JsonProperty("className") String className,
-                              @JsonProperty("fieldName") String fieldName) {
+    private MockedFieldRequest(String contextPath,
+                               String className,
+                               String fieldName,
+                               boolean allClasses) {
         this.contextPath = contextPath;
         this.className = className;
         this.fieldName = fieldName;
@@ -58,8 +62,38 @@ public final class MockedFieldRequest {
         return fieldName == null;
     }
 
+    public boolean areAllContextPathFieldsRequested() {
+        return contextPath != null && fieldName == null && className == null;
+    }
+
     public boolean areAllFieldsRequested() {
         return fieldName == null && contextPath == null && className == null;
+    }
+
+    public static MockedFieldRequest requestAllFields() {
+        return ALL_FIELDS;
+    }
+
+    public static MockedFieldRequest requestAllFieldsOf(String contextPath, String className) {
+        return new MockedFieldRequest(contextPath, className, null, false);
+    }
+
+    public static MockedFieldRequest requestAllClasses(String contextPath) {
+        return new MockedFieldRequest(contextPath, null, null, true);
+    }
+
+    public static MockedFieldRequest requestSingleField(String contextPath, String className, String fieldName) {
+        return new MockedFieldRequest(contextPath, className, fieldName, false);
+    }
+
+    @JsonCreator
+    public static MockedFieldRequest deserialize(Map<String, Object> delegate) {
+        String contextPath = (String) delegate.get("contextPath");
+        String className = (String) delegate.get("className");
+        if (contextPath == null && className == null) {
+            return ALL_FIELDS;
+        }
+        return requestSingleField(contextPath, className, (String) delegate.get("fieldName"));
     }
 
 }

@@ -220,7 +220,7 @@ public abstract class GuiUtils {
     }
 
     private static ContainerTab buildContainerTab(Container container) {
-        return new ContainerTab(container.getDescription(), container.getCargoId());
+        return new ContainerTab(container.getDescription(), container.getId());
     }
 
     public abstract static class EditorColumnFillStrategy {
@@ -298,5 +298,9 @@ public abstract class GuiUtils {
 
     public static void publishError(Object source, Throwable e) {
         SpringBridge.publishApplicationEvent(new ApplicationError(source, ApplicationError.Priority.FATAL, e));
+    }
+
+    public static void publishEvent(ApplicationEvent event) {
+        SpringBridge.publishApplicationEvent(event);
     }
 }

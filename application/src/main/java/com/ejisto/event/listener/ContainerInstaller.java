@@ -97,7 +97,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                             new StatusBarMessage(this, getMessage("container.installation.ok", containerDescription),
                                                  false));
                     if (event.isStart()) {
-                        eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.STARTUP));
+                        eventManager.publishEvent(new ChangeServerStatus(this, event.getContainerId(), ChangeServerStatus.Command.STARTUP));
                     }
                     return null;
                 } finally {

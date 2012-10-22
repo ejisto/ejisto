@@ -29,6 +29,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
@@ -72,7 +73,7 @@ public abstract class JSONUtil {
         }
     }
 
-    public static String encodeMockedFields(List<MockedField> mockedFields) {
+    public static String encodeMockedFields(Collection<MockedField> mockedFields) {
         try {
             List<? extends MockedField> unwrapped;
             if (CollectionUtils.isEmpty(mockedFields)) {

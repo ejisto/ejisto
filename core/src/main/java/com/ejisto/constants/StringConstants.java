@@ -56,14 +56,19 @@ public enum StringConstants {
     DEFAULT_SERVER_PORT("ejisto.default.server.port"),
     EJISTO_VERSION("ejisto.version"),
     EJISTO_CLASS_TRANSFORMER_CATEGORY("EjistoClassTransformer"),
-    DEFAULT_CONTAINER_ID("tomcat7x"),
+    DEFAULT_CARGO_ID("tomcat7x"),
     DEFAULT_CONTAINER_DESCRIPTION("container.default.description"),
     DEFAULT_CONTAINER_DOWNLOAD_URL("container.default.url"),
     DATABASE_PORT("database.port"),
     DATABASE_USER("embedded.database.username"),
     DATABASE_PWD("embedded.database.password"),
     HTTP_LISTEN_PORT("http.listen.port"),
-    CLASS_DEBUG_PATH("ejisto-class-debug-path");
+    CLASS_DEBUG_PATH("ejisto-class-debug-path"),
+    SESSION_RECORDING_ACTIVE("ejisto-session-recording-active"),
+    SESSION_RECORDING_FILTER_NAME("ejisto-session-recording-filter"),
+    GUI_TASK_EXCEPTION_PROPERTY("exception"),
+    CONTAINER_ID("container-id"),
+    DEFAULT_CONTAINER_ID("__DEFAULT__");
 
     private final String value;
 

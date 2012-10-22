@@ -19,6 +19,7 @@
 
 package com.ejisto.services.startup;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.core.ApplicationException;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.*;
@@ -140,8 +141,10 @@ public class ResourcesInitializer extends BaseStartupService {
     private void initDefaultActions() {
         putAction(new EjistoAction<>(new LoadWebApplication(this), true));
         putAction(new EjistoAction<>(new ShutdownRequest(this)));
-        putAction(new EjistoAction<>(new ChangeServerStatus(this, Command.STARTUP)));
-        putAction(new EjistoAction<>(new ChangeServerStatus(this, Command.SHUTDOWN)));
+        putAction(new EjistoAction<>(
+                new ChangeServerStatus(this, StringConstants.DEFAULT_CONTAINER_ID.getValue(), Command.STARTUP)));
+        putAction(new EjistoAction<>(
+                new ChangeServerStatus(this, StringConstants.DEFAULT_CONTAINER_ID.getValue(), Command.SHUTDOWN)));
         putAction(new EjistoAction<>(new DialogRequested(this, DialogRequested.DialogType.ABOUT)));
     }
 }

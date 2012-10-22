@@ -17,29 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.web.handler;
+package com.ejisto.core.classloading.javassist;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-
-import java.io.IOException;
-import java.io.OutputStream;
+import org.junit.Test;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 7/4/12
- * Time: 10:59 AM
+ * Date: 10/17/12
+ * Time: 8:26 AM
  */
-public class DefaultHandler implements HttpHandler {
+public class JavassistStackMapTest {
 
-    private static final byte[] GREETINGS = "Hi, I'm ejisto. How can I help you? :)".getBytes();
+    public static void main(String[] args) {
 
-    @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
-        httpExchange.sendResponseHeaders(200, GREETINGS.length);
-        OutputStream os = httpExchange.getResponseBody();
-        os.write(GREETINGS);
-        os.close();
     }
+
 }

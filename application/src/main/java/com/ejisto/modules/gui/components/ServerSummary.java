@@ -87,13 +87,15 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
         registerEventListener(ServerRestartRequired.class, new ApplicationListener<ServerRestartRequired>() {
             @Override
             public void onApplicationEvent(ServerRestartRequired event) {
-                getInfo().setVisible(!getAction(START_CONTAINER.getValue()).isEnabled());
+                if (containerId.equals(event.getContainerId())) {
+                    getInfo().setVisible(!getAction(START_CONTAINER.getValue()).isEnabled());
+                }
             }
         });
         registerEventListener(ContainerStatusChanged.class, new ApplicationListener<ContainerStatusChanged>() {
             @Override
             public void onApplicationEvent(ContainerStatusChanged event) {
-                if (event.isStarted()) {
+                if (containerId.equals(event.getContainerId()) && event.isStarted()) {
                     getInfo().setVisible(false);
                 }
             }

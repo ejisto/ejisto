@@ -80,7 +80,7 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
         sort(controllers, new StepControllerComparator());
         //setTypes session object
         WebApplicationDescriptor session = new WebApplicationDescriptor();
-        session.setContainerId(DEFAULT_CONTAINER_ID.getValue());//todo choose server instance
+        session.setContainerId(DEFAULT_CONTAINER_ID.getValue());
         forEach(controllers).setSession(session);
     }
 

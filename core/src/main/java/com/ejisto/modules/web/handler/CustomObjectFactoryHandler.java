@@ -24,6 +24,7 @@ import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import lombok.extern.log4j.Log4j;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,15 +36,19 @@ import java.util.List;
  * Date: 7/4/12
  * Time: 11:09 AM
  */
+@Log4j
 public class CustomObjectFactoryHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-        List<CustomObjectFactory> factories = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
-        String response = JSONUtil.encode(factories);
-        httpExchange.sendResponseHeaders(200, response.length());
-        OutputStream os = httpExchange.getResponseBody();
-        os.write(response.getBytes());
-        os.close();
+        try (OutputStream os = httpExchange.getResponseBody()) {
+            List<CustomObjectFactory> factories = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
+            String response = JSONUtil.encode(factories);
+            httpExchange.sendResponseHeaders(200, response.length());
+            os.write(response.getBytes());
+            os.close();
+        } catch (Exception e) {
+            log.error("error during customObjectFactory handling", e);
+        }
     }
 }

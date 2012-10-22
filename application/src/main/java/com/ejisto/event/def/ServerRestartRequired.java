@@ -27,8 +27,11 @@ package com.ejisto.event.def;
  */
 public class ServerRestartRequired extends BaseApplicationEvent {
 
-    public ServerRestartRequired(Object source) {
+    private final String containerId;
+
+    public ServerRestartRequired(String containerId, Object source) {
         super(source);
+        this.containerId = containerId;
     }
 
     @Override
@@ -39,5 +42,9 @@ public class ServerRestartRequired extends BaseApplicationEvent {
     @Override
     public String getKey() {
         return "server.restart.required";
+    }
+
+    public String getContainerId() {
+        return containerId;
     }
 }

@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.event.def.ApplicationDeployed;
 import com.ejisto.event.def.LogMessage;
 import org.jdesktop.swingx.JXPanel;
@@ -27,6 +28,7 @@ import org.springframework.context.ApplicationListener;
 import javax.swing.*;
 import java.awt.*;
 
+import static com.ejisto.constants.StringConstants.DEFAULT_CARGO_ID;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.registerEventListener;
 import static java.lang.String.format;
@@ -69,7 +71,8 @@ public class ContainerTab extends JSplitPane {
     }
 
     public Icon getIcon() {
-        return new ImageIcon(getClass().getResource(getMessage(format("container.%s.icon", containerId))));
+        //loading default icon
+        return new ImageIcon(getClass().getResource(getMessage(format("container.%s.icon", DEFAULT_CARGO_ID.getValue()))));
     }
 
     private void init() {
@@ -87,7 +90,9 @@ public class ContainerTab extends JSplitPane {
         registerEventListener(LogMessage.class, new ApplicationListener<LogMessage>() {
             @Override
             public void onApplicationEvent(final LogMessage event) {
-                log(event);
+                if (containerId.equals(event.getContainerId())) {
+                    log(event);
+                }
             }
         });
     }

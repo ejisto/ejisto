@@ -56,7 +56,7 @@ public class ApplicationEventDispatcher implements ApplicationListener<Applicati
         if (!running) {
             return;
         }
-        log.debug("got event of type [" + event.getClass().getName() + "]");
+        log.trace("got event of type [" + event.getClass().getName() + "]");
         if (registeredListeners.containsKey(event.getClass())) {
             notifyListeners(registeredListeners.get(event.getClass()), event);
         }
@@ -67,7 +67,7 @@ public class ApplicationEventDispatcher implements ApplicationListener<Applicati
 
     private void notifyListeners(List<ApplicationListener<ApplicationEvent>> listeners, final ApplicationEvent applicationEvent) {
         for (final ApplicationListener<ApplicationEvent> listener : listeners) {
-            log.debug("forwarding event to listener " + listener);
+            log.trace("forwarding event to listener " + listener);
             if (BaseApplicationEvent.class.isInstance(
                     applicationEvent) && ((BaseApplicationEvent) applicationEvent).isRunOnEDT()) {
                 GuiUtils.runOnEDT(new Runnable() {

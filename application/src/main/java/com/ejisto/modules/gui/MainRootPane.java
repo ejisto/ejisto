@@ -21,6 +21,7 @@ package com.ejisto.modules.gui;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.event.def.ContainerInstalled;
+import com.ejisto.event.def.SessionRecorderStart;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.gui.components.ContainerTab;
@@ -34,6 +35,9 @@ import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 import static com.ejisto.util.GuiUtils.*;
@@ -132,12 +136,23 @@ public class MainRootPane extends JXRootPane {
         JMenuItem open = new JMenuItem(getAction(StringConstants.LOAD_WEB_APP.getValue()));
         open.setText("Open");
         open.setAccelerator(
-                javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+                javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
         jMenuFile.add(open);
+
+        JMenuItem record = new JMenuItem(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                GuiUtils.publishEvent(new SessionRecorderStart(this, "/ejisto-test"));
+            }
+        });
+        record.setText("-TEST- Record");
+        record.setAccelerator(
+                javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK));
+        jMenuFile.add(record);
 
         JMenuItem jMenuItemExit = new JMenuItem(getAction(StringConstants.SHUTDOWN.getValue()));
         jMenuItemExit.setAccelerator(
-                javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
+                javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_MASK));
         jMenuItemExit.setText("Exit");
         jMenuFile.add(jMenuItemExit);
         createContainerMenus(containersMenu);

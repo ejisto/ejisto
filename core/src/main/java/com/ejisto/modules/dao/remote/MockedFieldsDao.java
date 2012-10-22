@@ -26,6 +26,8 @@ import com.ejisto.modules.web.util.JSONUtil;
 import java.util.Collection;
 import java.util.List;
 
+import static com.ejisto.modules.web.MockedFieldRequest.*;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -38,27 +40,27 @@ public class MockedFieldsDao extends BaseRemoteDao implements com.ejisto.modules
 
     @Override
     public List<MockedField> loadAll() {
-        return callAndDecodeResponse(new MockedFieldRequest(null, null, null));
+        return callAndDecodeResponse(requestAllFields());
     }
 
     @Override
     public Collection<MockedField> loadContextPathFields(String contextPath) {
-        return callAndDecodeResponse(new MockedFieldRequest(contextPath, null, null));
+        return loadByContextPathAndClassName(contextPath, null);
     }
 
     @Override
     public List<MockedField> loadByContextPathAndClassName(String contextPath, String className) {
-        return callAndDecodeResponse(new MockedFieldRequest(contextPath, className, null));
+        return callAndDecodeResponse(requestAllFieldsOf(contextPath, className));
     }
 
     @Override
     public int countByContextPathAndClassName(String contextPath, String className) {
-        return callAndDecodeResponse(new MockedFieldRequest(contextPath, className, null)).size();
+        return loadByContextPathAndClassName(contextPath, className).size();
     }
 
     @Override
     public MockedField getMockedField(String contextPath, String className, String fieldName) {
-        List<MockedField> fields = callAndDecodeResponse(new MockedFieldRequest(contextPath, className, fieldName));
+        List<MockedField> fields = callAndDecodeResponse(requestSingleField(contextPath, className, fieldName));
         if (fields == null || fields.size() == 0) {
             return null;
         }

@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.executor;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.core.ApplicationException;
 import lombok.extern.log4j.Log4j;
 
@@ -28,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.ejisto.constants.StringConstants.GUI_TASK_EXCEPTION_PROPERTY;
 
 /**
  * Created by IntelliJ IDEA.
@@ -58,7 +61,7 @@ public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
         try {
             return internalDoInBackground();
         } catch (Exception e) {
-            firePropertyChange("exception", null, e);
+            firePropertyChange(GUI_TASK_EXCEPTION_PROPERTY.getValue(), null, e);
             throw new ApplicationException(e);
         }
     }

@@ -24,6 +24,8 @@ import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -64,5 +66,7 @@ public interface ContainerManager {
 
     String getHome(Container container);
 
-    Container startStandaloneInstance() throws NotInstalledException, IOException;
+    Container startStandaloneInstance(Map<String, String> additionalJavaSystemProperties, List<WebApplicationDescriptor> webApplications) throws NotInstalledException, IOException;
+
+
 }

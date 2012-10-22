@@ -65,30 +65,37 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
                             withHeader(getMessage(event.getPanelTitle()), getMessage(event.getPanelDescription())).
                             build();
                     activeControllers.put(event.getId(), controller);
-                    while (activeControllers.containsKey(event.getId()) && !currentController.compareAndSet(null,
-                                                                                                            controller)) {
+                    while (activeControllers.containsKey(event.getId()) &&
+                           !currentController.compareAndSet(null, controller)) {
                         Thread.sleep(100L);
                     }
-                    controller.showUndecorated(true);
+                    //controller.showUndecorated(true);
                     return null;
                 }
             }));
         } else {
-            taskManager.addNewTask(new BackgroundTask<>(new Callable<Void>() {
-                @Override
-                public Void call() throws InterruptedException {
-                    DialogController controller = activeControllers.get(event.getId());
-                    while (controller == null || controller != currentController.get()) {
-                        Thread.sleep(100L);
-                        controller = activeControllers.get(event.getId());
-                    }
-                    currentController.compareAndSet(controller, null);
-                    activeControllers.remove(event.getId());
-                    controller.hide();
-                    return null;
-                }
-            }));
+            closeActiveProgress(event);
+        }
+    }
 
+    private void closeActiveProgress(BlockingTaskProgress event) {
+        try {
+            log.debug("trying to close active progress for event id: "+event.getId());
+            DialogController controller = activeControllers.get(event.getId());
+            log.debug("found controller: "+controller);
+            while (controller == null || controller != currentController.get()) {
+                log.debug("sleeping 50ms...");
+                Thread.sleep(50L);
+                controller = activeControllers.get(event.getId());
+            }
+            currentController.compareAndSet(controller, null);
+            activeControllers.remove(event.getId());
+            log.debug("hiding controller");
+            //controller.hide();
+            log.debug("hidden");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("got InterruptedException: ", e);
         }
     }
 

@@ -171,6 +171,12 @@ public class EjistoDialog extends JDialog {
         return content;
     }
 
+    @Override
+    public void setUndecorated(boolean undecorated) {
+        super.setUndecorated(undecorated);
+        ((JPanel)getContentPane()).setBorder(BorderFactory.createLineBorder(Color.BLACK, 1, true));
+    }
+
     protected Header getHeader() {
         if (this.header != null) {
             return this.header;

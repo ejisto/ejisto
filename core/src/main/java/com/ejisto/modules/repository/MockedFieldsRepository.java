@@ -125,8 +125,10 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
                       having(on(MockedField.class).isActive(), equalTo(true)));
     }
 
-    public List<MockedField> load(MockedFieldRequest request) {
-        if (request.areAllFieldsRequested()) {
+    public Collection<MockedField> load(MockedFieldRequest request) {
+        if(request.areAllContextPathFieldsRequested()) {
+            return getMockedFieldsDao().loadContextPathFields(request.getContextPath());
+        } else if (request.areAllFieldsRequested()) {
             return loadAll();
         } else if (request.areAllClassPropertiesRequested()) {
             return loadActiveFields(request.getContextPath(), request.getClassName());

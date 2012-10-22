@@ -24,6 +24,7 @@ import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import lombok.extern.log4j.Log4j;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -36,17 +37,21 @@ import java.util.List;
  * Date: 7/4/12
  * Time: 11:09 AM
  */
+@Log4j
 public class ObjectFactoryHandler implements HttpHandler {
 
     @Resource ObjectFactoryDao objectFactoryDao;
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-        List<RegisteredObjectFactory> factories = objectFactoryDao.loadAll();
-        String response = JSONUtil.encode(factories);
-        httpExchange.sendResponseHeaders(200, response.length());
-        OutputStream os = httpExchange.getResponseBody();
-        os.write(response.getBytes());
-        os.close();
+        try (OutputStream os = httpExchange.getResponseBody()) {
+            List<RegisteredObjectFactory> factories = objectFactoryDao.loadAll();
+            String response = JSONUtil.encode(factories);
+            httpExchange.sendResponseHeaders(200, response.length());
+            os.write(response.getBytes());
+            os.close();
+        } catch (Exception e) {
+            log.error("error during objectFactory handling", e);
+        }
     }
 }

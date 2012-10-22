@@ -37,4 +37,6 @@ public class HelloWorldBean implements Serializable {
     private int hits = 0;
     private long timestamp = 0L;
 
+    private ImmutableObject immutableObject;
+
 }

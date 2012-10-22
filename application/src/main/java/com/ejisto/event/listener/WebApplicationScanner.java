@@ -31,6 +31,7 @@ import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.ContextPathMatcher;
+import lombok.extern.log4j.Log4j;
 import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
@@ -47,6 +48,7 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
  * Date: 8/3/12
  * Time: 9:35 PM
  */
+@Log4j
 public class WebApplicationScanner implements ApplicationListener<ApplicationScanRequired> {
 
     @Resource private EventManager eventManager;
@@ -68,10 +70,11 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
                                                            "icon.work.in.progress", true));
         Group<MockedField> groupedByClassName = group(fields, "className");
         ScanAction action = new ScanAction(descriptor, groupedByClassName.subgroups());
-        forkJoinPool.invoke(action);
         try {
+            forkJoinPool.invoke(action);
             action.get();
         } catch (Exception ex) {
+            log.error("exception during scan", ex);
             eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, ex));
         }
         eventManager.publishEventAndWait(new BlockingTaskProgress(this, id, null, null, null, false));

@@ -32,6 +32,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import static com.ejisto.constants.StringConstants.SESSION_RECORDING_ACTIVE;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -45,7 +47,6 @@ public class ContextListener implements ServletContextListener {
     static {
         String debugPath = System.getProperty(StringConstants.CLASS_DEBUG_PATH.getValue());
         if (debugPath != null) {
-            System.out.println("setting javassist.CtClass.debugPath to: " + debugPath);
             CtClass.debugDump = debugPath;
         }
     }
@@ -57,15 +58,19 @@ public class ContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        initLog();
         context = sce.getServletContext();
-        context.log("Ejisto initialization...");
+        if(Boolean.getBoolean(SESSION_RECORDING_ACTIVE.getValue())) {
+            context.log("<Ejisto> Session recording is active, thus ClassTransformer won't be initialized.");
+            return;
+        }
+        initLog();
+        context.log("<Ejisto> initialization...");
         String targetContextPath = context.getInitParameter(StringConstants.CONTEXT_PARAM_NAME.getValue());
         classTransformer = new ClassTransformer(targetContextPath);
         InstrumentationHolder.getInstrumentation().addTransformer(classTransformer);
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(targetContextPath);
         cp.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
-        context.log("Ejisto successfully initialized!");
+        context.log("<Ejisto> successfully initialized!");
     }
 
     private void initLog() {

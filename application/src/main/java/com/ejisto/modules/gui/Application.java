@@ -71,7 +71,7 @@ public class Application extends javax.swing.JFrame {
         boolean shutdown = event.getCommand() == Command.SHUTDOWN;
         if (shutdown) {
             eventManager.publishEvent(new LogMessage(this, getMessage("default.server.shutdown.log", new Date()),
-                                                     DEFAULT_CONTAINER_ID.getValue()));
+                                                     event.getContainerId()));
         }
         getAction(START_CONTAINER.getValue()).setEnabled(shutdown);
         getAction(STOP_CONTAINER.getValue()).setEnabled(!shutdown);

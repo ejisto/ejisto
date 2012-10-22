@@ -28,6 +28,7 @@ import com.ejisto.event.def.InstallContainer;
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
+import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.DisposableBean;
@@ -39,6 +40,7 @@ import java.util.concurrent.Callable;
 import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
 import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 import static com.ejisto.util.GuiUtils.runOnEDT;
+import static java.lang.String.format;
 
 @Log4j
 public class ServerController implements ApplicationListener<ChangeServerStatus>, DisposableBean {
@@ -48,6 +50,7 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
     @Resource private Application application;
     @Resource private TaskManager taskManager;
     @Resource private WebApplicationRepository webApplicationRepository;
+    @Resource private ContainersRepository containersRepository;
 
     @Override
     public void onApplicationEvent(final ChangeServerStatus event) {
@@ -64,14 +67,15 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
     private void handleEvent(final ChangeServerStatus event) {
         try {
             boolean started;
+            String containerId = event.getContainerId();
             if (event.getCommand() == ChangeServerStatus.Command.STARTUP) {
-                log.info("Starting server:");
-                containerManager.startDefault();
+                log.info(format("Starting server %s:", containerId));
+                containerManager.start(containersRepository.loadContainer(event.getContainerId()));
                 started = true;
                 log.info("done");
             } else {
-                log.info("Stopping server:");
-                containerManager.stopDefault();
+                log.info(format("Stopping server %s:", containerId));
+                containerManager.stop(containersRepository.loadContainer(containerId));
                 started = false;
                 log.info("done");
             }

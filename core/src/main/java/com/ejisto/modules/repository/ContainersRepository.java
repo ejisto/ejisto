@@ -23,9 +23,14 @@ import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.jdbc.ContainersDao;
 import org.springframework.dao.DataAccessException;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
 
 /**
  * Created by IntelliJ IDEA.
@@ -35,8 +40,8 @@ import java.util.List;
  */
 public final class ContainersRepository {
     private static final ContainersRepository INSTANCE = new ContainersRepository();
-    private static final String DEFAULT_ID = "__DEFAULT__";
     @Resource private ContainersDao containersDao;
+    private final ConcurrentMap<String, Container> temporaryContainers = new ConcurrentHashMap<>();
 
     public static ContainersRepository getInstance() {
         return INSTANCE;
@@ -49,11 +54,16 @@ public final class ContainersRepository {
     }
 
     public Container loadDefault() throws NotInstalledException {
-        return loadContainer(DEFAULT_ID);
+        return loadContainer(DEFAULT_CONTAINER_ID.getValue());
     }
 
     public Container registerDefaultContainer(String cargoId, String homeDir, String description) {
-        return registerContainer(DEFAULT_ID, cargoId, homeDir, description);
+        return registerContainer(DEFAULT_CONTAINER_ID.getValue(), cargoId, homeDir, description);
+    }
+
+    public void registerTemporaryContainer(Container container) {
+        Container existing = temporaryContainers.putIfAbsent(container.getId(), container);
+        Assert.isNull(existing);
     }
 
     public Container registerContainer(String id, String cargoId, String homeDir, String description) {
@@ -68,14 +78,18 @@ public final class ContainersRepository {
 
     /**
      * loads a container.
-     * Currently this method has a private access
      *
      * @param id container's id
      * @return Container
      * @throws NotInstalledException if container is not installed
      */
-    private Container loadContainer(String id) throws NotInstalledException {
+    public Container loadContainer(String id) throws NotInstalledException {
         try {
+            Assert.notNull(id, "container id can't be null");
+            Container result = temporaryContainers.get(id);
+            if (result != null) {
+                return result;
+            }
             return containersDao.load(id);
         } catch (DataAccessException e) {
             throw new NotInstalledException(id, e);

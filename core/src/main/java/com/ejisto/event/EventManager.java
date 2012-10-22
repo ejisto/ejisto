@@ -19,6 +19,7 @@
 
 package com.ejisto.event;
 
+import com.ejisto.event.def.ApplicationError;
 import com.ejisto.modules.executor.TaskManager;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.BeansException;
@@ -27,9 +28,13 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 
 import javax.annotation.Resource;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.concurrent.Callable;
 
-import static com.ejisto.modules.executor.TaskManager.createNewBackgroundTask;
+import static com.ejisto.constants.StringConstants.GUI_TASK_EXCEPTION_PROPERTY;
+import static com.ejisto.event.def.ApplicationError.Priority.HIGH;
+import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 
 @Log4j
 public class EventManager implements ApplicationContextAware {
@@ -42,13 +47,13 @@ public class EventManager implements ApplicationContextAware {
             log.warn("discarded event from " + event.getSource() + " " + event);
             return;
         }
-        taskManager.addNewTask(createNewBackgroundTask(new Callable<Void>() {
+        taskManager.addNewTask(createNewGuiTask(new Callable<Void>() {
             @Override
             public Void call() {
                 publishEventAndWait(event);
                 return null;
             }
-        }, event.toString()));
+        }, event.toString(), listener));
     }
 
     public void publishEventAndWait(ApplicationEvent event) {
@@ -60,4 +65,14 @@ public class EventManager implements ApplicationContextAware {
         this.applicationContext = applicationContext;
         this.initialized = true;
     }
+
+    private final PropertyChangeListener listener = new PropertyChangeListener() {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (evt.getPropertyName().equals(GUI_TASK_EXCEPTION_PROPERTY.getValue())) {
+                publishEventAndWait(new ApplicationError(this, HIGH, (Exception) evt.getNewValue()));
+            }
+        }
+    };
+
 }

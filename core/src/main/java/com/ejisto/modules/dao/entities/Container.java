@@ -37,6 +37,15 @@ public class Container {
     private String description;
     private transient int port = 8080;
     private transient final AtomicBoolean running = new AtomicBoolean(false);
+    private transient final boolean standalone;
+
+    public Container() {
+        this(false);
+    }
+
+    public Container(boolean standalone) {
+        this.standalone=standalone;
+    }
 
     public boolean isRunning() {
         return running.get();
@@ -51,4 +60,6 @@ public class Container {
     public boolean setRunningState(boolean runningState) {
         return running.compareAndSet(!runningState, runningState);
     }
+
+
 }

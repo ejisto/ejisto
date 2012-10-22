@@ -24,6 +24,7 @@ import com.ejisto.constants.StringConstants;
 public class ChangeServerStatus extends BaseApplicationEvent {
     private static final long serialVersionUID = 62223689929514687L;
     private final Command command;
+    private final String containerId;
 
     public enum Command {
         STARTUP("start.default.server", "server.start.icon"),
@@ -45,9 +46,10 @@ public class ChangeServerStatus extends BaseApplicationEvent {
         }
     }
 
-    public ChangeServerStatus(Object source, Command command) {
+    public ChangeServerStatus(Object source, String containerId, Command command) {
         super(source);
         this.command = command;
+        this.containerId = containerId;
     }
 
     public Command getCommand() {
@@ -72,5 +74,9 @@ public class ChangeServerStatus extends BaseApplicationEvent {
     @Override
     public String getKey() {
         return command == Command.STARTUP ? StringConstants.START_CONTAINER.getValue() : StringConstants.STOP_CONTAINER.getValue();
+    }
+
+    public String getContainerId() {
+        return containerId;
     }
 }

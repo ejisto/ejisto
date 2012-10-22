@@ -24,6 +24,6 @@ import org.apache.log4j.WriterAppender;
 
 public class LogAppender extends WriterAppender {
     public LogAppender() {
-        super(new PatternLayout("%m%n"), new EventOutputStream("tomcat7x"));
+        super(new PatternLayout("%m%n"), new EventOutputStream());
     }
 }

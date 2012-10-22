@@ -42,7 +42,7 @@ public class WebApplicationDescriptor implements Serializable {
     private String contextPath;
     private Collection<MockedField> fields;
     private String deployablePath;
-    private transient WebApplicationDescriptorHelper helper;
+    private transient final WebApplicationDescriptorHelper helper;
     private transient File warFile;
     private transient List<WebApplicationDescriptorElement> classpathEntries;
 
@@ -167,5 +167,17 @@ public class WebApplicationDescriptor implements Serializable {
 
     public void setContainerId(String containerId) {
         this.containerId = containerId;
+    }
+
+    public static WebApplicationDescriptor copyFrom(WebApplicationDescriptor src) {
+        WebApplicationDescriptor target = new WebApplicationDescriptor();
+        target.elements.addAll(src.elements);
+        target.installationPath = src.installationPath;
+        target.containerId = src.containerId;
+        target.contextPath = src.contextPath;
+        target.fields.addAll(src.fields);
+        target.deployablePath = src.deployablePath;
+        target.setClassPathElements(src.getClassPathElements());
+        return target;
     }
 }

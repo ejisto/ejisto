@@ -25,6 +25,9 @@ import lombok.extern.log4j.Log4j;
 
 import javax.annotation.Resource;
 
+import static com.ejisto.constants.StringConstants.DEFAULT_CARGO_ID;
+import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
+
 @Log4j
 public class ContainerShutdown extends BaseShutdownService {
 
@@ -34,7 +37,7 @@ public class ContainerShutdown extends BaseShutdownService {
     @Override
     public void execute() {
         try {
-            eventManager.publishEvent(new ChangeServerStatus(this, ChangeServerStatus.Command.SHUTDOWN));
+            eventManager.publishEvent(new ChangeServerStatus(this, DEFAULT_CONTAINER_ID.getValue(), ChangeServerStatus.Command.SHUTDOWN));
         } catch (Exception e) {
             log.error("error during server shutdown", e);
         }

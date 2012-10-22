@@ -70,7 +70,7 @@ public final class SpringBridge implements ApplicationContextAware {
     }
 
     public static Container loadExistingContainer(String id) throws NotInstalledException {
-        return getInstance().getBean("containersRepository", ContainersRepository.class).loadDefault();
+        return getInstance().getBean("containersRepository", ContainersRepository.class).loadContainer(id);
     }
 
     public static SpringBridge getInstance() {

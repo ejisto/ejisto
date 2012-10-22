@@ -19,12 +19,15 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.def.SessionRecorderStart;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.Collection;
 
 public class SummaryTab extends JXPanel {
@@ -35,6 +38,7 @@ public class SummaryTab extends JXPanel {
     private static final String FIELDS_END = "</ul></div><br/></html>";
     private JXLabel summaryTextArea;
     private JScrollPane scrollPane;
+    private JPanel buttonsPanel;
 
     public SummaryTab() {
         super();
@@ -44,7 +48,24 @@ public class SummaryTab extends JXPanel {
     private void initialize() {
         setLayout(new BorderLayout());
         add(getScrollPane(), BorderLayout.CENTER);
+//        add(getButtonsPanel(), BorderLayout.SOUTH);
     }
+
+//    private JPanel getButtonsPanel() {
+//        if(this.buttonsPanel != null) {
+//            return this.buttonsPanel;
+//        }
+//        buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+//        JButton b = new JButton(new AbstractAction() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                GuiUtils.publishEvent(new SessionRecorderStart(this, null));
+//            }
+//        });
+//        b.setText("start");
+//        buttonsPanel.add(b);
+//        return buttonsPanel;
+//    }
 
     private JScrollPane getScrollPane() {
         if (this.scrollPane != null) {

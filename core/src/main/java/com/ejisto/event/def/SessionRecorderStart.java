@@ -17,29 +17,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.web.handler;
-
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-
-import java.io.IOException;
-import java.io.OutputStream;
+package com.ejisto.event.def;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 7/4/12
- * Time: 10:59 AM
+ * Date: 9/14/12
+ * Time: 7:59 AM
  */
-public class DefaultHandler implements HttpHandler {
+public class SessionRecorderStart extends BaseApplicationEvent {
 
-    private static final byte[] GREETINGS = "Hi, I'm ejisto. How can I help you? :)".getBytes();
+    private String webApplicationContextPath;
+
+    public SessionRecorderStart(Object source, String webApplicationContextPath) {
+        super(source);
+        this.webApplicationContextPath = webApplicationContextPath;
+    }
 
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
-        httpExchange.sendResponseHeaders(200, GREETINGS.length);
-        OutputStream os = httpExchange.getResponseBody();
-        os.write(GREETINGS);
-        os.close();
+    public String getDescription() {
+        return "Temporary Server start";
+    }
+
+    @Override
+    public String getKey() {
+        return "temp.server.start";
+    }
+
+    public String getWebApplicationContextPath() {
+        return webApplicationContextPath;
     }
 }

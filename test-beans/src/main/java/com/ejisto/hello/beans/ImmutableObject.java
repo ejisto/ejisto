@@ -17,29 +17,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.web.handler;
-
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-
-import java.io.IOException;
-import java.io.OutputStream;
+package com.ejisto.hello.beans;
 
 /**
+ * Simple but meaningful immutable Object.
+ *
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 7/4/12
- * Time: 10:59 AM
+ * Date: 8/24/12
+ * Time: 8:21 AM
  */
-public class DefaultHandler implements HttpHandler {
+public class ImmutableObject {
 
-    private static final byte[] GREETINGS = "Hi, I'm ejisto. How can I help you? :)".getBytes();
+    private final String finalString;
+    private final boolean finalBoolean;
+    private final int finalInt;
 
-    @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
-        httpExchange.sendResponseHeaders(200, GREETINGS.length);
-        OutputStream os = httpExchange.getResponseBody();
-        os.write(GREETINGS);
-        os.close();
+    public ImmutableObject(String finalString, boolean finalBoolean, int finalInt) {
+        this.finalString = finalString;
+        this.finalBoolean = finalBoolean;
+        this.finalInt = finalInt;
+    }
+
+    public String getFinalString() {
+        return finalString;
+    }
+
+    public boolean isFinalBoolean() {
+        return finalBoolean;
+    }
+
+    public int getFinalInt() {
+        return finalInt;
     }
 }

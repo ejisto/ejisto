@@ -19,8 +19,10 @@
 
 package com.ejisto.modules.cargo.logging;
 
+import com.ejisto.constants.StringConstants;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.MDC;
 import org.codehaus.cargo.util.log.LogLevel;
 
 public class ServerLogger implements org.codehaus.cargo.util.log.Logger {
@@ -28,6 +30,11 @@ public class ServerLogger implements org.codehaus.cargo.util.log.Logger {
     private static final Logger logger = Logger.getLogger("serverLogger");
 
     private static final String SPACE = " ";
+    private final String containerId;
+
+    public ServerLogger(String containerId) {
+        this.containerId = containerId;
+    }
 
     @Override
     public void setLevel(LogLevel logLevel) {
@@ -42,20 +49,33 @@ public class ServerLogger implements org.codehaus.cargo.util.log.Logger {
     @Override
     public void info(String message, String category) {
         if (logger.isInfoEnabled()) {
-
+            initContainerProperty();
             logger.info(message);
+            clearContainerProperty();
         }
     }
 
     @Override
     public void warn(String message, String category) {
+        initContainerProperty();
         logger.warn(message);
+        clearContainerProperty();
     }
 
     @Override
     public void debug(String message, String category) {
         if (logger.isDebugEnabled()) {
+            initContainerProperty();
             logger.debug(message);
+            clearContainerProperty();
         }
+    }
+
+    private void initContainerProperty() {
+        MDC.put(StringConstants.CONTAINER_ID.getValue(), containerId);
+    }
+
+    private void clearContainerProperty() {
+        MDC.remove(StringConstants.CONTAINER_ID.getValue());
     }
 }

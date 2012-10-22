@@ -19,10 +19,12 @@
 
 package com.ejisto.core.classloading;
 
+import ch.lambdaj.Lambda;
 import com.ejisto.core.classloading.javassist.EjistoMethodFilter;
 import com.ejisto.core.classloading.javassist.ObjectEditor;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.modules.web.MockedFieldRequest;
 import javassist.*;
 import javassist.bytecode.AccessFlag;
 import org.apache.commons.lang3.StringUtils;
@@ -32,9 +34,13 @@ import org.springframework.util.CollectionUtils;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
+import static com.ejisto.modules.web.MockedFieldRequest.requestAllClasses;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 
@@ -44,9 +50,11 @@ public class ClassTransformer implements ClassFileTransformer {
     //    private EjistoClassLoader classLoader;
     private ClassPool classPool;
     private final String contextPath;
+    private final Collection<String> registeredClassNames;
 
     public ClassTransformer(String contextPath) {
         this.contextPath = contextPath;
+        this.registeredClassNames = loadAllRegisteredClassNames(contextPath);
         initClassPool();
     }
 
@@ -105,7 +113,6 @@ public class ClassTransformer implements ClassFileTransformer {
         trace("done.");
     }
 
-
     private CtClass load(String className) throws NotFoundException {
         CtClass clazz = classPool.get(className.replaceAll("/", "."));
         if (clazz.isFrozen()) {
@@ -114,6 +121,7 @@ public class ClassTransformer implements ClassFileTransformer {
         return clazz;
     }
 
+
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         if (!isInstrumentableClass(className)) {
@@ -121,8 +129,9 @@ public class ClassTransformer implements ClassFileTransformer {
         }
         trace(className + " is instrumentable. Loading fields...");
         List<MockedField> fields = getFieldsFor(getCanonicalClassName(className));
-        trace(className + " has registered fields: " + !CollectionUtils.isEmpty(fields));
-        if (CollectionUtils.isEmpty(fields)) {
+        boolean hasFields = !CollectionUtils.isEmpty(fields);
+        trace(className + " has registered fields: " + hasFields);
+        if (!hasFields) {
             return null;
         } else {
             return transform(className, fields);
@@ -146,9 +155,21 @@ public class ClassTransformer implements ClassFileTransformer {
             }
         }
         if (!found) {
+            //before adding a new empty constructor, we must scan all the fields in order to find
+            //final ones. Final modifier must be removed.
+            removeFinalModifierFromFields(clazz.getFields());
             CtConstructor defaultConstructor = new CtConstructor(new CtClass[0], clazz);
             defaultConstructor.setBody(null);//default constructor only calls "super()"
             clazz.addConstructor(defaultConstructor);
+        }
+    }
+
+    private void removeFinalModifierFromFields(CtField[] fields) {
+        for (CtField field : fields) {
+            if (Modifier.isFinal(field.getModifiers())) {
+                int cleanModifiers = Modifier.clear(field.getModifiers(), Modifier.FINAL);
+                field.setModifiers(cleanModifiers);
+            }
         }
     }
 
@@ -181,12 +202,19 @@ public class ClassTransformer implements ClassFileTransformer {
     }
 
     public boolean isInstrumentableClass(String name) {
-        return MockedFieldsRepository.getInstance().isMockableClass(contextPath, getCanonicalClassName(name));
+        return registeredClassNames.contains(getCanonicalClassName(name));
     }
 
-    private void trace(String s) {
+    private static void trace(String s) {
         if (logger.isTraceEnabled()) {
             logger.trace(s);
         }
+    }
+
+    private static Collection<String> loadAllRegisteredClassNames(String contextPath) {
+        Collection<MockedField> fields = MockedFieldsRepository.getInstance().load(requestAllClasses(contextPath));
+        Set<String> classes = new HashSet<>(Lambda.<MockedField,String>extractProperty(fields, "className"));
+        trace(format("filtered classes for %s: %s of %s", contextPath, classes, fields));
+        return classes;
     }
 }

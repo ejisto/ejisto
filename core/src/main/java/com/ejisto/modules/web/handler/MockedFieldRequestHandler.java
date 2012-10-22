@@ -26,9 +26,11 @@ import com.ejisto.modules.web.util.JSONUtil;
 import com.ejisto.util.IOUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import lombok.extern.log4j.Log4j;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -37,17 +39,21 @@ import java.util.List;
  * Date: 7/4/12
  * Time: 11:00 AM
  */
+@Log4j
 public class MockedFieldRequestHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-        String requestBody = IOUtils.readInputStream(httpExchange.getRequestBody(), "UTF-8");
-        MockedFieldRequest request = JSONUtil.decode(requestBody, MockedFieldRequest.class);
-        List<MockedField> found = MockedFieldsRepository.getInstance().load(request);
-        String response = JSONUtil.encodeMockedFields(found);
-        httpExchange.sendResponseHeaders(200, response.length());
-        OutputStream os = httpExchange.getResponseBody();
-        os.write(response.getBytes());
-        os.close();
+        try (OutputStream os = httpExchange.getResponseBody()) {
+            String requestBody = IOUtils.readInputStream(httpExchange.getRequestBody(), "UTF-8");
+            MockedFieldRequest request = JSONUtil.decode(requestBody, MockedFieldRequest.class);
+            Collection<MockedField> found = MockedFieldsRepository.getInstance().load(request);
+            String response = JSONUtil.encodeMockedFields(found);
+            httpExchange.sendResponseHeaders(200, response.length());
+            httpExchange.getResponseBody();
+            os.write(response.getBytes());
+        } catch (Exception e) {
+            log.error("error during mockedFieldRequest handling", e);
+        }
     }
 }

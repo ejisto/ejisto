@@ -28,6 +28,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.ejisto.modules.web.MockedFieldRequest.requestSingleField;
 import static org.junit.Assert.*;
 
 /**
@@ -39,8 +40,7 @@ import static org.junit.Assert.*;
 public class JSONUtilTest {
     @Test
     public void testEncodeMockedFieldRequest() throws Exception {
-        MockedFieldRequest request = new MockedFieldRequest("/ejisto-test", "com.test.TestClass",
-                                                            "name");
+        MockedFieldRequest request = requestSingleField("/ejisto-test", "com.test.TestClass", "name");
         String result = JSONUtil.encode(request);
         assertNotNull(result);
         assertEquals("{\"contextPath\":\"/ejisto-test\",\"className\":\"com.test.TestClass\",\"fieldName\":\"name\"}",
