@@ -22,11 +22,18 @@ package com.ejisto.modules.dao.remote;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.ejisto.util.IOUtils;
 
+import javax.servlet.http.HttpUtils;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.Semaphore;
+
+import static com.ejisto.constants.StringConstants.HTTP_INTERFACE_ADDRESS;
+import static com.ejisto.constants.StringConstants.SESSION_RECORDING_ACTIVE;
+import static java.lang.String.format;
+import static java.lang.System.getProperty;
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,15 +48,20 @@ public class BaseRemoteDao {
     private final String serverAddress;
 
     public BaseRemoteDao() {
-        serverAddress = String.format(SERVER_ADDRESS, System.getProperty("ejisto.http.port"));
+        String address = getProperty(HTTP_INTERFACE_ADDRESS.getValue());
+        serverAddress = address != null ? address : format(SERVER_ADDRESS, getProperty("ejisto.http.port"));
     }
 
     protected String remoteCall(String request, String requestPath) {
+        return remoteCall(request, requestPath, null);
+    }
+
+    protected String remoteCall(String request, String requestPath, String method) {
         boolean acquired = false;
         try {
             concurrentRequestManager.acquire();
             acquired = true;
-            URLConnection connection = openConnection(requestPath);
+            HttpURLConnection connection = openConnection(requestPath, method);
             OutputStream out = connection.getOutputStream();
             out.write(request.getBytes());
             out.flush();
@@ -67,14 +79,19 @@ public class BaseRemoteDao {
         }
     }
 
+
+
     protected <R> String encodeRequest(R request) {
         return JSONUtil.encode(request);
     }
 
-    private URLConnection openConnection(String requestPath) throws IOException {
-        URLConnection connection = new URL(serverAddress + requestPath).openConnection();
+    private HttpURLConnection openConnection(String requestPath, String method) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) new URL(serverAddress + requestPath).openConnection();
         connection.setDoInput(true);
         connection.setDoOutput(true);
+        if(method != null) {
+            connection.setRequestMethod(method.toUpperCase());
+        }
         connection.connect();
         return connection;
     }

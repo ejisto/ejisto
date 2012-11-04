@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.recorder;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -44,6 +45,7 @@ public class ResponseHeader implements Serializable {
     private final String valueAsString;
     private final Type type;
 
+    @JsonCreator
     public ResponseHeader(String name, String valueAsString, Type type) {
         this.name = name;
         this.valueAsString = valueAsString;

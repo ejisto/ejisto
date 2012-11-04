@@ -46,6 +46,7 @@ public class WebApplicationDescriptor implements Serializable {
     private transient File warFile;
     private transient List<WebApplicationDescriptorElement> classpathEntries;
 
+
     public WebApplicationDescriptor() {
         this.fields = new TreeSet<>(new Comparator<MockedField>() {
             @Override

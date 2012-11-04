@@ -55,10 +55,10 @@ public class ResourcesFilter extends JXPanel {
         init();
     }
 
+    @SuppressWarnings("unchecked")
     public void setResources(List<String> resources) {
         Vector<String> vector = new Vector<>(resources);
         Collections.sort(vector);
-        @SuppressWarnings("unchecked")
         getResourcesList().setListData(vector);
         this.resourcesSize = vector.size();
         this.resources = vector;

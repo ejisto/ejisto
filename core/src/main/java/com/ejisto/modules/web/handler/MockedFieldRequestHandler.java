@@ -50,7 +50,6 @@ public class MockedFieldRequestHandler implements HttpHandler {
             Collection<MockedField> found = MockedFieldsRepository.getInstance().load(request);
             String response = JSONUtil.encodeMockedFields(found);
             httpExchange.sendResponseHeaders(200, response.length());
-            httpExchange.getResponseBody();
             os.write(response.getBytes());
         } catch (Exception e) {
             log.error("error during mockedFieldRequest handling", e);

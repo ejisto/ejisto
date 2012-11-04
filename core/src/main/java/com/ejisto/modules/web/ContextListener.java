@@ -31,7 +31,9 @@ import org.apache.log4j.*;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.ejisto.constants.StringConstants.HTTP_INTERFACE_ADDRESS;
 import static com.ejisto.constants.StringConstants.SESSION_RECORDING_ACTIVE;
 
 /**
@@ -43,6 +45,7 @@ import static com.ejisto.constants.StringConstants.SESSION_RECORDING_ACTIVE;
 public class ContextListener implements ServletContextListener {
     private ServletContext context;
     private ClassTransformer classTransformer;
+    private final AtomicBoolean sessionRecordingActive = new AtomicBoolean(false);
 
     static {
         String debugPath = System.getProperty(StringConstants.CLASS_DEBUG_PATH.getValue());
@@ -59,18 +62,21 @@ public class ContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         context = sce.getServletContext();
-        if(Boolean.getBoolean(SESSION_RECORDING_ACTIVE.getValue())) {
+        String targetContextPath = context.getInitParameter(StringConstants.TARGET_CONTEXT_PATH.getValue());
+        System.setProperty(HTTP_INTERFACE_ADDRESS.getValue(),
+                           context.getInitParameter(HTTP_INTERFACE_ADDRESS.getValue()));
+        sessionRecordingActive.set(Boolean.parseBoolean(context.getInitParameter(SESSION_RECORDING_ACTIVE.getValue())));
+        if (sessionRecordingActive.get()) {
             context.log("<Ejisto> Session recording is active, thus ClassTransformer won't be initialized.");
             return;
         }
         initLog();
-        context.log("<Ejisto> initialization...");
-        String targetContextPath = context.getInitParameter(StringConstants.CONTEXT_PARAM_NAME.getValue());
+        context.log("<Ejisto> ClassTransformer initialization...");
         classTransformer = new ClassTransformer(targetContextPath);
         InstrumentationHolder.getInstrumentation().addTransformer(classTransformer);
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(targetContextPath);
         cp.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
-        context.log("<Ejisto> successfully initialized!");
+        context.log("<Ejisto> ClassTransformer successfully initialized!");
     }
 
     private void initLog() {
@@ -86,8 +92,10 @@ public class ContextListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        context.log("removing instrumentation agent...");
-        InstrumentationHolder.getInstrumentation().removeTransformer(classTransformer);
-        context.log("done.");
+        if (!sessionRecordingActive.get()) {
+            context.log("removing instrumentation agent...");
+            InstrumentationHolder.getInstrumentation().removeTransformer(classTransformer);
+            context.log("done.");
+        }
     }
 }

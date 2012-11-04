@@ -56,6 +56,7 @@
     <bean id="webApplicationScanner" class="com.ejisto.event.listener.WebApplicationScanner"/>
     <bean id="taskProgressNotifier" class="com.ejisto.event.listener.TaskProgressNotifier"/>
     <bean id="sessionRecorderManager" class="com.ejisto.event.listener.SessionRecorderManager" />
+    <bean id="collectedDataNotifier" class="com.ejisto.event.listener.CollectedDataNotifier" />
 
 
     <!-- ApplicationEventDispatcher is mostly used by GUI components, so this listener MUST be the last one in order

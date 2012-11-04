@@ -154,7 +154,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         JOptionPane.showMessageDialog(null, getMessage(messageKey, containerDescription),
                                       "error",
                                       JOptionPane.ERROR_MESSAGE);
-        File localFile = selectFile(null, null, false, asList("zip", "gz", "bz2"));
+        File localFile = selectFile(null, null, false, "zip", "gz", "bz2");
         if (localFile == null) {
             return null;
         }

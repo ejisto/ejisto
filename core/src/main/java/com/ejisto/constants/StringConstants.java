@@ -27,6 +27,7 @@ public enum StringConstants {
     APPLICATION_HEIGHT("application.dimension.height"),
     APPLICATION_MAXIMIZED("application.maximized"),
     LAST_FILESELECTION_PATH("fileselection.last.path"),
+    LAST_OUTPUT_PATH("last.output.path"),
     EXTENSIONS_DIR("extensions.dir"),
     DB_SCRIPT("derby.script"),
     DESCRIPTOR_DIR("descriptor.dir"),
@@ -50,7 +51,7 @@ public enum StringConstants {
     STOP_CONTEXT_PREFIX("!!registeredContext!!stop!!registeredContext!!"),
     DELETE_CONTEXT_COMMAND("delete"),
     DELETE_CONTEXT_PREFIX("!!registeredContext!!delete!!registeredContext!!"),
-    CONTEXT_PARAM_NAME("ejisto-target-context-path"),
+    TARGET_CONTEXT_PATH("ejisto-target-context-path"),
     DEPLOYABLES_DIR("ejisto.deployables.dir"),
     RUNTIME_DIR("ejisto.runtime.dir"),
     DEFAULT_SERVER_PORT("ejisto.default.server.port"),
@@ -68,7 +69,8 @@ public enum StringConstants {
     SESSION_RECORDING_FILTER_NAME("ejisto-session-recording-filter"),
     GUI_TASK_EXCEPTION_PROPERTY("exception"),
     CONTAINER_ID("container-id"),
-    DEFAULT_CONTAINER_ID("__DEFAULT__");
+    DEFAULT_CONTAINER_ID("__DEFAULT__"),
+    HTTP_INTERFACE_ADDRESS("http-interface.address");
 
     private final String value;
 

@@ -142,7 +142,7 @@ public class MainRootPane extends JXRootPane {
         JMenuItem record = new JMenuItem(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                GuiUtils.publishEvent(new SessionRecorderStart(this, "/ejisto-test"));
+                GuiUtils.publishEvent(new SessionRecorderStart(this, "/petclinic"));
             }
         });
         record.setText("-TEST- Record");

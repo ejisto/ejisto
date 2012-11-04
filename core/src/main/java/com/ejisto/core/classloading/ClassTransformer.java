@@ -29,7 +29,6 @@ import javassist.*;
 import javassist.bytecode.AccessFlag;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.util.CollectionUtils;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -129,7 +128,7 @@ public class ClassTransformer implements ClassFileTransformer {
         }
         trace(className + " is instrumentable. Loading fields...");
         List<MockedField> fields = getFieldsFor(getCanonicalClassName(className));
-        boolean hasFields = !CollectionUtils.isEmpty(fields);
+        boolean hasFields = fields != null && !fields.isEmpty();
         trace(className + " has registered fields: " + hasFields);
         if (!hasFields) {
             return null;

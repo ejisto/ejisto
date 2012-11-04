@@ -68,7 +68,7 @@ import static com.ejisto.util.IOUtils.*;
 @Log4j
 public class ApplicationScanningWorker extends GuiTask<Void> implements ProgressListener {
     private static final Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
-    private static final String[] entries = {"ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "spring", "cglib", "commons", "asm", "jackson"};
+    private static final String[] entries = {"ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "cglib", "commons", "asm", "jackson"};
     private static final ForkJoinPool forkJoinPool = new ForkJoinPool();
     private final AtomicInteger counter = new AtomicInteger();
     private WebApplicationDescriptor session;
@@ -133,11 +133,11 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
             return;
         }
         WebXml xml = WebXmlIo.parseWebXmlFromFile(webXml, null);
-        DescriptorElement param = (DescriptorElement) WebXmlUtils.getContextParam(xml, CONTEXT_PARAM_NAME.getValue());
+        DescriptorElement param = (DescriptorElement) WebXmlUtils.getContextParam(xml, TARGET_CONTEXT_PATH.getValue());
         if (param != null) {
             return;
         }
-        WebXmlUtils.addContextParam(xml, CONTEXT_PARAM_NAME.getValue(), descriptor.getContextPath());
+        WebXmlUtils.addContextParam(xml, TARGET_CONTEXT_PATH.getValue(), descriptor.getContextPath());
         xml.getRootElement().getChildren().add(0, buildListener(xml.getRootElement().getNamespace().getURI()));
         WebXmlIo.writeDescriptor(xml, webXml);
     }

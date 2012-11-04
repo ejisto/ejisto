@@ -43,15 +43,18 @@ import org.springframework.util.Assert;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
+import static com.ejisto.constants.StringConstants.LAST_OUTPUT_PATH;
 import static org.hamcrest.Matchers.equalTo;
 
 @Log4j
@@ -263,22 +266,23 @@ public abstract class GuiUtils {
         disableFocusPainting(button);
     }
 
-    public static File selectFile(Component parent, String directoryPath, boolean saveLastSelectionPath, final Collection<String> extensions) {
+    public static File selectDirectory(Component parent, String directoryPath, boolean saveLastSelectionPath) {
         JFileChooser fileChooser = new JFileChooser(directoryPath);
-        fileChooser.setFileFilter(new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                return f.isDirectory() || FilenameUtils.isExtension(f.getName(), extensions);
-            }
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-            @Override
-            public String getDescription() {
-                return "*." + join(extensions, ", *.");
-            }
-        });
+        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_OUTPUT_PATH);
+    }
+
+    public static File selectFile(Component parent, String directoryPath, boolean saveLastSelectionPath, String... extensions) {
+        JFileChooser fileChooser = new JFileChooser(directoryPath);
+        fileChooser.setFileFilter(new FileNameExtensionFilter("*." + join(extensions, ", *."), extensions));
+        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_FILESELECTION_PATH);
+    }
+
+    private static File openFileSelectionDialog(Component parent, boolean saveLastSelectionPath, JFileChooser fileChooser, StringConstants settingKey) {
         if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
             if (saveLastSelectionPath) {
-                SettingsRepository.getInstance().putSettingValue(LAST_FILESELECTION_PATH,
+                SettingsRepository.getInstance().putSettingValue(settingKey,
                                                                  fileChooser.getCurrentDirectory().getAbsolutePath());
             }
             return fileChooser.getSelectedFile();
@@ -303,4 +307,5 @@ public abstract class GuiUtils {
     public static void publishEvent(ApplicationEvent event) {
         SpringBridge.publishApplicationEvent(event);
     }
+
 }

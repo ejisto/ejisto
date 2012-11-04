@@ -19,12 +19,8 @@
 
 package com.ejisto.modules.recorder;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
 import javax.servlet.http.Cookie;
 import java.util.*;
-
-import static java.util.Collections.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -34,105 +30,50 @@ import static java.util.Collections.*;
  */
 public class DataCollector {
 
-    private final CollectedData result;
+    private final Map<String, String> requestParameters;
+    private final Map<String, Object> requestAttributes;
+    private final List<String> requestDispatcherRedirection;
+    private final List<String> permanentRedirections;
+    private final Set<ResponseHeader> headers;
+    private final List<Cookie> cookies;
+
 
     public DataCollector() {
-        result = new CollectedData();
+        requestParameters = new TreeMap<>();
+        requestAttributes = new TreeMap<>();
+        requestDispatcherRedirection = new ArrayList<>();
+        permanentRedirections = new ArrayList<>();
+        headers = new TreeSet<>(ResponseHeader.COMPARATOR);
+        cookies = new ArrayList<>();
     }
 
     public void putRequestParameter(String name, String value) {
-        result.requestParameters.put(name, value);
+        requestParameters.put(name, value);
     }
 
     public void putRequestAttribute(String name, Object value) {
-        result.requestAttributes.put(name, value);
+        requestAttributes.put(name, value);
     }
 
     public void addResourcePath(String resourcePath) {
-        result.requestDispatcherRedirection.add(resourcePath);
+        requestDispatcherRedirection.add(resourcePath);
     }
 
     public void addPermanentRedirection(String path) {
-        result.permanentRedirections.add(path);
+        permanentRedirections.add(path);
     }
 
     public void addResponseHeader(ResponseHeader header) {
-        result.headers.add(header);
+        headers.add(header);
     }
 
     public void addCookie(Cookie cookie) {
-        result.cookies.add(cookie);
+        cookies.add(cookie);
     }
 
     public CollectedData getResult() {
-        return result;
-    }
-
-    public final class CollectedData {
-
-        private final Map<String, String> requestParameters;
-        private final Map<String, Object> requestAttributes;
-        private final List<String> requestDispatcherRedirection;
-        private final List<String> permanentRedirections;
-        private final Set<ResponseHeader> headers;
-        private final List<Cookie> cookies;
-
-        public CollectedData() {
-            requestParameters = new TreeMap<>();
-            requestAttributes = new TreeMap<>();
-            requestDispatcherRedirection = new ArrayList<>();
-            permanentRedirections = new ArrayList<>();
-            headers = new TreeSet<>(ResponseHeader.COMPARATOR);
-            cookies = new ArrayList<>();
-        }
-
-        public Map<String, String> getRequestParameters() {
-            return unmodifiableMap(requestParameters);
-        }
-
-        public Map<String, Object> getRequestAttributes() {
-            return unmodifiableMap(requestAttributes);
-        }
-
-        public List<String> getRequestDispatcherRedirection() {
-            return unmodifiableList(requestDispatcherRedirection);
-        }
-
-        public List<String> getPermanentRedirections() {
-            return unmodifiableList(permanentRedirections);
-        }
-
-        public Set<ResponseHeader> getHeaders() {
-            return unmodifiableSet(headers);
-        }
-
-        public List<Cookie> getCookies() {
-            return unmodifiableList(cookies);
-        }
-
-        public String getFullKey() {
-            return buildKey(true);
-        }
-
-        public String getSmallKey() {
-            return buildKey(false);
-        }
-
-        private String buildKey(boolean full) {
-            StringBuilder clearText = new StringBuilder();
-            for (String key : requestParameters.keySet()) {
-                clearText.append(key);
-                if(full) {
-                    clearText.append("=").append(requestParameters.get(key));
-                }
-                clearText.append(";");
-            }
-            if (clearText.length() > 0) {
-                clearText.deleteCharAt(clearText.length() - 1);
-                return DigestUtils.sha256Hex(clearText.toString());
-            }
-            return null;
-        }
+        return new CollectedData(requestParameters, requestAttributes, requestDispatcherRedirection,
+                                 permanentRedirections, headers, cookies);
     }
 
 }

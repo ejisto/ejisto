@@ -24,27 +24,28 @@ import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 import com.ejisto.modules.repository.SettingsRepository;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
-import java.net.DatagramSocket;
-import java.net.MalformedURLException;
-import java.net.ServerSocket;
-import java.net.URL;
+import java.net.*;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystem;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 import static ch.lambdaj.Lambda.*;
-import static com.ejisto.constants.StringConstants.DEFAULT_SERVER_PORT;
-import static com.ejisto.constants.StringConstants.EJISTO_VERSION;
+import static com.ejisto.constants.StringConstants.*;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.io.FilenameUtils.*;
+import static org.apache.commons.io.FilenameUtils.getBaseName;
+import static org.apache.commons.io.FilenameUtils.getName;
 import static org.hamcrest.Matchers.equalTo;
 
-public class IOUtils {
+public final class IOUtils {
 
     private static final FileExtensionFilter jarFilter = new FileExtensionFilter(FileExtensionFilter.ALL_JARS, true);
     private static final String[] jarExtension = new String[]{"jar"};
@@ -242,15 +243,38 @@ public class IOUtils {
         return true;
     }
 
-    public static void zipDirectory(String base, File src, ZipOutputStream out) throws IOException {
-        if (src.isDirectory()) {
-            for (File file : src.listFiles()) {
-                zipDirectory(base, file, out);
-            }
-        } else {
-            ZipEntry entry = new ZipEntry(normalize(src.getPath(), true).substring(base.length()));
-            out.putNextEntry(entry);
-            out.write(readFile(src));
+    public static void zipDirectory(File src, String outputFilePath) throws IOException {
+        Path out = Paths.get(outputFilePath);
+        if(Files.exists(out)) {
+            Files.delete(out);
+        }
+        String filePath = out.toUri().getPath();
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "true");
+        try (FileSystem fileSystem = FileSystems.newFileSystem(URI.create("jar:file:" + filePath), env)) {
+            final FileSystem defaultFs = FileSystems.getDefault();
+            final Path root = fileSystem.getPath("/");
+            final Path defaultRoot = defaultFs.getPath("/");
+            final String srcRoot = src.toPath().toString();
+            Files.walkFileTree(src.toPath(), new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    String fileName = file.toString();
+                    String targetFileName = fileName.substring(srcRoot.length());
+                    Files.copy(defaultFs.getPath(defaultRoot.toString(), file.toString()), fileSystem.getPath(root.toString(), targetFileName),
+                               REPLACE_EXISTING);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    Path destinationDir = fileSystem.getPath(root.toString(), dir.toString().substring(srcRoot.length()));
+                    if(Files.notExists(destinationDir)) {
+                        Files.createDirectories(destinationDir);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
         }
     }
 
@@ -311,5 +335,13 @@ public class IOUtils {
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String getLocalAddress() throws UnknownHostException {
+        return InetAddress.getLocalHost().getHostAddress();
+    }
+
+    public static String getHttpInterfaceAddress() throws IOException {
+        return String.format("http://%s:%s", getLocalAddress(), System.getProperty(HTTP_LISTEN_PORT.getValue()));
     }
 }

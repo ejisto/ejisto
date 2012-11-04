@@ -23,6 +23,7 @@ import com.ejisto.constants.StringConstants;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -42,6 +43,7 @@ public class HTTPServer implements InitializingBean {
     private static final HTTPServer INSTANCE = new HTTPServer();
 
     @Resource(name = "httpHandlers") private Map<String, HttpHandler> handlersMap;
+    private HttpServer server;
 
     public static HTTPServer getInstance() {
         return INSTANCE;
@@ -53,12 +55,23 @@ public class HTTPServer implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws IOException {
         int port = findFirstAvailablePort(1706);
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 1024);
+        server = HttpServer.create(new InetSocketAddress(port), 1024);
         for (Map.Entry<String, HttpHandler> entry : handlersMap.entrySet()) {
             server.createContext(entry.getKey(), entry.getValue());
         }
         server.setExecutor(null);
         server.start();
         System.setProperty(StringConstants.HTTP_LISTEN_PORT.getValue(), String.valueOf(port));
+    }
+
+    public void createContext(String contextPath, HttpHandler handler) {
+        Assert.isTrue(!handlersMap.containsKey(contextPath));
+        server.createContext(contextPath, handler);
+        handlersMap.put(contextPath, handler);
+    }
+
+    public void removeContext(String contextPath) {
+        server.removeContext(contextPath);
+        handlersMap.remove(contextPath);
     }
 }
