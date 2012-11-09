@@ -45,7 +45,7 @@ public class Launcher {
             //http://davidvancouvering.blogspot.com/2007/10/quiet-time-and-how-to-suppress-derbylog.html
             System.setProperty("derby.stream.error.field", "com.ejisto.core.launcher.Main.DEV_NULL");
             System.getProperties().list(System.out);
-            UIManager.setLookAndFeel(new NimbusLookAndFeel());
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             log.info("Starting Ejisto...");
             log.info("setting dynamic ClassLoader");
             Thread.currentThread().setContextClassLoader(SharedClassLoader.getInstance());
