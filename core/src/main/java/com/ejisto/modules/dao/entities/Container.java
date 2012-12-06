@@ -44,7 +44,7 @@ public class Container {
     }
 
     public Container(boolean standalone) {
-        this.standalone=standalone;
+        this.standalone = standalone;
     }
 
     public boolean isRunning() {

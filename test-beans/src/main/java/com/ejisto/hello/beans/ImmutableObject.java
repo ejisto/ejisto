@@ -21,7 +21,7 @@ package com.ejisto.hello.beans;
 
 /**
  * Simple but meaningful immutable Object.
- *
+ * <p/>
  * Created by IntelliJ IDEA.
  * User: celestino
  * Date: 8/24/12

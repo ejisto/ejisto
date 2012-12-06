@@ -72,6 +72,9 @@ public class FileExtractionWorker extends GuiTask<Void> {
             throw new IOException("Path " + baseDir.getAbsolutePath() + " is not writable. Cannot continue.");
         }
         getSession().clearElements();
+
+        //IOUtils.unzipFile(file, newPath);
+
         ZipFile war = new ZipFile(file);
         Enumeration<? extends ZipEntry> entries = war.entries();
         firePropertyChange("startProgress", 0, war.size());

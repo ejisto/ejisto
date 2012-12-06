@@ -23,6 +23,7 @@ import com.ejisto.InstrumentationHolder;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.core.classloading.ClassTransformer;
 import com.ejisto.modules.repository.ClassPoolRepository;
+import com.ejisto.modules.web.util.ConfigurationManager;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.LoaderClassPath;
@@ -33,8 +34,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.ejisto.constants.StringConstants.HTTP_INTERFACE_ADDRESS;
 import static com.ejisto.constants.StringConstants.SESSION_RECORDING_ACTIVE;
+import static com.ejisto.constants.StringConstants.TARGET_CONTEXT_PATH;
 
 /**
  * Created by IntelliJ IDEA.
@@ -62,14 +63,9 @@ public class ContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         context = sce.getServletContext();
-        String targetContextPath = context.getInitParameter(StringConstants.TARGET_CONTEXT_PATH.getValue());
-        System.setProperty(HTTP_INTERFACE_ADDRESS.getValue(),
-                           context.getInitParameter(HTTP_INTERFACE_ADDRESS.getValue()));
-        sessionRecordingActive.set(Boolean.parseBoolean(context.getInitParameter(SESSION_RECORDING_ACTIVE.getValue())));
-        if (sessionRecordingActive.get()) {
-            context.log("<Ejisto> Session recording is active, thus ClassTransformer won't be initialized.");
-            return;
-        }
+        ConfigurationManager.initConfiguration(context);
+        String targetContextPath = System.getProperty(TARGET_CONTEXT_PATH.getValue());
+        sessionRecordingActive.set(Boolean.getBoolean(SESSION_RECORDING_ACTIVE.getValue()));
         initLog();
         context.log("<Ejisto> ClassTransformer initialization...");
         classTransformer = new ClassTransformer(targetContextPath);

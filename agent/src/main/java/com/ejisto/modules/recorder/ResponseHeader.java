@@ -20,13 +20,13 @@
 package com.ejisto.modules.recorder;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * Created by IntelliJ IDEA.
@@ -46,7 +46,9 @@ public class ResponseHeader implements Serializable {
     private final Type type;
 
     @JsonCreator
-    public ResponseHeader(String name, String valueAsString, Type type) {
+    public ResponseHeader(@JsonProperty("name") String name,
+                          @JsonProperty("valueAsString") String valueAsString,
+                          @JsonProperty("type") Type type) {
         this.name = name;
         this.valueAsString = valueAsString;
         this.type = type;
@@ -96,7 +98,7 @@ public class ResponseHeader implements Serializable {
     public static final Comparator<ResponseHeader> COMPARATOR = new Comparator<ResponseHeader>() {
         @Override
         public int compare(ResponseHeader o1, ResponseHeader o2) {
-            if(o1 == null ^ o2 == null) {
+            if (o1 == null ^ o2 == null) {
                 return o1 == null ? 1 : -1;
             }
             return o1 != null ? o1.getName().compareTo(o2.getName()) : 1;

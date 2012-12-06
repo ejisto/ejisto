@@ -19,22 +19,15 @@
 
 package com.ejisto.modules.web.util;
 
-import ch.lambdaj.function.convert.Converter;
-import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
-import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.dao.entities.MockedFieldImpl;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.util.CollectionUtils;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
 
-import static ch.lambdaj.Lambda.*;
 import static java.nio.charset.Charset.forName;
-import static java.util.Collections.emptyList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -44,10 +37,14 @@ import static java.util.Collections.emptyList;
  */
 public abstract class JSONUtil {
 
-    public static <T> String encode(T object) {
+    public static <T> String encode(T object, Class<?>... typeToIgnore) {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+            for (Class<?> aClass : typeToIgnore) {
+                mapper.addMixInAnnotations(aClass, Ignorable.class);
+            }
             mapper.writeValue(out, object);
             return new String(out.toByteArray(), forName("UTF-8"));
         } catch (IOException e) {
@@ -73,37 +70,7 @@ public abstract class JSONUtil {
         }
     }
 
-    public static String encodeMockedFields(Collection<MockedField> mockedFields) {
-        try {
-            List<? extends MockedField> unwrapped;
-            if (CollectionUtils.isEmpty(mockedFields)) {
-                unwrapped = emptyList();
-            } else {
-                unwrapped = collect(forEach(mockedFields).unwrap());
-            }
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(out, unwrapped);
-            return new String(out.toByteArray(), forName("UTF-8"));
-        } catch (IOException e) {
-            throw new IllegalArgumentException("invalid input", e);
-        }
-    }
-
-    public static List<MockedField> decodeMockedFields(String httpRequestBody) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            List<MockedFieldImpl> fields = mapper.readValue(httpRequestBody,
-                                                            new TypeReference<List<MockedFieldImpl>>() {
-                                                            });
-            return convert(fields, new Converter<Object, MockedField>() {
-                @Override
-                public MockedField convert(Object from) {
-                    return new MockedFieldDecorator((MockedField) from);
-                }
-            });
-        } catch (IOException e) {
-            throw new IllegalArgumentException("invalid input", e);
-        }
+    @JsonIgnoreType
+    private static abstract class Ignorable {
     }
 }

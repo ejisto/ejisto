@@ -20,11 +20,12 @@
 package com.ejisto.modules.dao.entities;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import static ch.lambdaj.Lambda.join;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.join;
 
 @Data
 public class MockedFieldImpl implements MockedField {
@@ -37,6 +38,8 @@ public class MockedFieldImpl implements MockedField {
     private String expression;
     private String fieldElementType;
     private boolean active;
+    private String link;
+    private int recordedObjectHashCode;
 
     @Override
     public boolean isSimpleValue() {
@@ -116,6 +119,31 @@ public class MockedFieldImpl implements MockedField {
     }
 
     @Override
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    @Override
+    public String getLink() {
+        return link;
+    }
+
+    @Override
+    public boolean isLinked() {
+        return StringUtils.isNotBlank(link);
+    }
+
+    @Override
+    public int getRecordedObjectHashCode() {
+        return recordedObjectHashCode;
+    }
+
+    @Override
+    public void setRecordedObjectHashCode(int recordedObjectHashCode) {
+        this.recordedObjectHashCode = recordedObjectHashCode;
+    }
+
+    @Override
     public MockedField unwrap() {
         return this;
     }
@@ -137,9 +165,11 @@ public class MockedFieldImpl implements MockedField {
                 .append(id, that.id)
                 .append(className, that.className)
                 .append(contextPath, that.contextPath)
+                .append(link, that.link)
                 .append(fieldElementType, that.fieldElementType)
                 .append(fieldName, that.fieldName)
                 .append(fieldType, that.fieldType)
+                .append(recordedObjectHashCode, that.recordedObjectHashCode)
                 .isEquals();
     }
 
@@ -149,9 +179,11 @@ public class MockedFieldImpl implements MockedField {
                 .append(id)
                 .append(className)
                 .append(contextPath)
+                .append(link)
                 .append(fieldElementType)
                 .append(fieldName)
                 .append(fieldType)
+                .append(recordedObjectHashCode)
                 .build();
     }
 

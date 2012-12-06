@@ -49,7 +49,6 @@ import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 import static com.ejisto.util.GuiUtils.*;
 import static com.ejisto.util.IOUtils.fileToUrl;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -97,7 +96,8 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
                             new StatusBarMessage(this, getMessage("container.installation.ok", containerDescription),
                                                  false));
                     if (event.isStart()) {
-                        eventManager.publishEvent(new ChangeServerStatus(this, event.getContainerId(), ChangeServerStatus.Command.STARTUP));
+                        eventManager.publishEvent(new ChangeServerStatus(this, event.getContainerId(),
+                                                                         ChangeServerStatus.Command.STARTUP));
                     }
                     return null;
                 } finally {

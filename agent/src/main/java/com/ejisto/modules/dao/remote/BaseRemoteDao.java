@@ -20,20 +20,23 @@
 package com.ejisto.modules.dao.remote;
 
 import com.ejisto.modules.web.util.JSONUtil;
-import com.ejisto.util.IOUtils;
+import lombok.extern.java.Log;
 
-import javax.servlet.http.HttpUtils;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.concurrent.Semaphore;
+import java.util.logging.Level;
 
 import static com.ejisto.constants.StringConstants.HTTP_INTERFACE_ADDRESS;
-import static com.ejisto.constants.StringConstants.SESSION_RECORDING_ACTIVE;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,6 +44,7 @@ import static java.lang.System.getProperty;
  * Date: 7/3/12
  * Time: 11:43 AM
  */
+@Log
 public class BaseRemoteDao {
 
     private static final Semaphore concurrentRequestManager = new Semaphore(50);
@@ -49,7 +53,21 @@ public class BaseRemoteDao {
 
     public BaseRemoteDao() {
         String address = getProperty(HTTP_INTERFACE_ADDRESS.getValue());
-        serverAddress = address != null ? address : format(SERVER_ADDRESS, getProperty("ejisto.http.port"));
+        log.log(Level.INFO, "address is: " + address);
+        serverAddress = evaluateServerAddress(address);
+        log.log(Level.INFO, "server address set to: " + this.serverAddress);
+    }
+
+    protected BaseRemoteDao(String serverAddress) {
+        this.serverAddress = evaluateServerAddress(serverAddress);
+        log.log(Level.INFO, "server address set to: " + this.serverAddress);
+    }
+
+    private static String evaluateServerAddress(String in) {
+        if (isBlank(in)) {
+            return format(SERVER_ADDRESS, getProperty("ejisto.http.port"));
+        }
+        return in;
     }
 
     protected String remoteCall(String request, String requestPath) {
@@ -66,7 +84,7 @@ public class BaseRemoteDao {
             out.write(request.getBytes());
             out.flush();
             out.close();
-            return IOUtils.readInputStream(connection.getInputStream(), "UTF-8");
+            return new String(readInputStream(connection.getInputStream()), Charset.forName("UTF-8"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("thread interrupted", e);
@@ -79,17 +97,27 @@ public class BaseRemoteDao {
         }
     }
 
-
+    private byte[] readInputStream(InputStream in) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(in.available());
+        int read;
+        byte[] buffer = new byte[4096];
+        while ((read = in.read(buffer)) != -1) {
+            out.write(read);
+        }
+        return out.toByteArray();
+    }
 
     protected <R> String encodeRequest(R request) {
         return JSONUtil.encode(request);
     }
 
     private HttpURLConnection openConnection(String requestPath, String method) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(serverAddress + requestPath).openConnection();
+        String destination = serverAddress + defaultIfEmpty(requestPath, "/");
+        log.log(Level.INFO, "url destination: " + destination);
+        HttpURLConnection connection = (HttpURLConnection) new URL(destination).openConnection();
         connection.setDoInput(true);
         connection.setDoOutput(true);
-        if(method != null) {
+        if (method != null) {
             connection.setRequestMethod(method.toUpperCase());
         }
         connection.connect();

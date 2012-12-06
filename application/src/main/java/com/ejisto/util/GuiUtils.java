@@ -35,20 +35,17 @@ import com.ejisto.modules.gui.components.helper.MockedFieldNode;
 import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.Assert;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.List;
 

@@ -67,8 +67,8 @@ import static com.ejisto.util.IOUtils.*;
  */
 @Log4j
 public class ApplicationScanningWorker extends GuiTask<Void> implements ProgressListener {
-    private static final Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
     private static final String[] entries = {"ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "cglib", "commons", "asm", "jackson"};
+    private static final Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
     private static final ForkJoinPool forkJoinPool = new ForkJoinPool();
     private final AtomicInteger counter = new AtomicInteger();
     private WebApplicationDescriptor session;
@@ -165,7 +165,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
                     DEPLOYABLES_DIR.getValue()) + File.separator + getFilenameWithoutExt(
                     session.getWarFile()) + File.separator;
             deleteFile(deployablePath);
-            copyDirContent(session.getInstallationPath(), deployablePath);
+            copyFullDirContent(session.getInstallationPath(), deployablePath);
             session.setDeployablePath(deployablePath);
         } catch (InterruptedException e) {
             log.error("got interruptedException: ", e);

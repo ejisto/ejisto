@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class RequestWrapper extends HttpServletRequestWrapper {
 
-    private final AtomicReference<SessionWrapper> session = new AtomicReference<>();
+    private final AtomicReference<SessionWrapper> session = new AtomicReference<SessionWrapper>();
     private final DataCollector dataCollector;
 
     public RequestWrapper(HttpServletRequest source, DataCollector dataCollector) {
@@ -48,7 +48,6 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     }
 
 
-
     @Override
     public void removeAttribute(String name) {
         super.removeAttribute(name);
@@ -61,17 +60,17 @@ public class RequestWrapper extends HttpServletRequestWrapper {
 
     @Override
     public HttpSession getSession(boolean create) {
-        HttpSession httpSession =  super.getSession(false);
-        if(httpSession == null) {
+        HttpSession httpSession = super.getSession(false);
+        if (httpSession == null) {
             SessionWrapper newSession = null;
-            if(create) {
+            if (create) {
                 newSession = new SessionWrapper(super.getSession(true));
             }
             SessionWrapper existing = session.get();
             int counter = 0;
-            while(!session.compareAndSet(existing, newSession)) {
+            while (!session.compareAndSet(existing, newSession)) {
                 existing = session.get();
-                if(counter++ > 4) {
+                if (counter++ > 4) {
                     throw new IllegalStateException("unable to set current state. Aborted");
                 }
             }

@@ -21,7 +21,7 @@ package com.ejisto.modules.dao.remote;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.web.MockedFieldRequest;
-import com.ejisto.modules.web.util.JSONUtil;
+import com.ejisto.modules.web.util.MockedFieldsJSONUtil;
 
 import java.util.Collection;
 import java.util.List;
@@ -88,11 +88,10 @@ public class MockedFieldsDao extends BaseRemoteDao implements com.ejisto.modules
     }
 
     private List<MockedField> decodeResponse(String responseBody) {
-        return JSONUtil.decodeMockedFields(responseBody);
+        return MockedFieldsJSONUtil.decodeMockedFields(responseBody);
     }
 
     private List<MockedField> callAndDecodeResponse(MockedFieldRequest request) {
         return decodeResponse(remoteCall(encodeRequest(request), REQUEST_PATH));
     }
-
 }

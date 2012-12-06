@@ -26,7 +26,6 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.springframework.context.support.GenericXmlApplicationContext;
 
 import javax.swing.*;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.util.logging.Level;
 
 import static com.ejisto.util.GuiUtils.getRootThrowable;

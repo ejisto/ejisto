@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
+import static com.ejisto.modules.factory.DefaultSupportedType.*;
 import static java.lang.String.format;
 
 /**
@@ -70,17 +71,16 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     }
 
     private ObjectFactoryRepository() {
-        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicIntegerFactory",
-                              "java.util.concurrent.atomic.AtomicInteger", false);
-        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicLongFactory",
-                              "java.util.concurrent.atomic.AtomicLong", false);
-        registerObjectFactory("com.ejisto.modules.factory.impl.BooleanFactory", "java.lang.Boolean", false);
-        registerObjectFactory("com.ejisto.modules.factory.impl.NumberFactory", "java.lang.Number", false);
-        registerObjectFactory("com.ejisto.modules.factory.impl.StringFactory", "java.lang.String", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicIntegerFactory", ATOMIC_INTEGER.getName(), false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.AtomicLongFactory", ATOMIC_LONG.getName(), false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.BooleanFactory", BOOLEAN.getName(), false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.NumberFactory", NUMBER.getName(), false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.StringFactory", STRING.getName(), false);
         registerObjectFactory("com.ejisto.modules.factory.impl.DefaultObjectFactory", DEFAULT, false);
-        registerObjectFactory("com.ejisto.modules.factory.impl.CollectionFactory", "java.util.Collection", false);
-        registerObjectFactory("com.ejisto.modules.factory.impl.MapFactory", "java.util.Map", false);
-        registerObjectFactory("com.ejisto.modules.factory.impl.DateFactory", "java.util.Date", false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.CollectionFactory", COLLECTION.getName(), false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.MapFactory", MAP.getName(), false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.DateFactory", DATE.getName(), false);
+        registerObjectFactory("com.ejisto.modules.factory.impl.LocaleFactory", LOCALE.getName(), false);
     }
 
     public void registerObjectFactory(String objectFactoryClassName, String targetClassName) {

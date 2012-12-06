@@ -24,7 +24,6 @@ import com.ejisto.core.classloading.javassist.EjistoMethodFilter;
 import com.ejisto.core.classloading.javassist.ObjectEditor;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import com.ejisto.modules.web.MockedFieldRequest;
 import javassist.*;
 import javassist.bytecode.AccessFlag;
 import org.apache.commons.lang3.StringUtils;
@@ -212,7 +211,7 @@ public class ClassTransformer implements ClassFileTransformer {
 
     private static Collection<String> loadAllRegisteredClassNames(String contextPath) {
         Collection<MockedField> fields = MockedFieldsRepository.getInstance().load(requestAllClasses(contextPath));
-        Set<String> classes = new HashSet<>(Lambda.<MockedField,String>extractProperty(fields, "className"));
+        Set<String> classes = new HashSet<>(Lambda.<MockedField, String>extractProperty(fields, "className"));
         trace(format("filtered classes for %s: %s of %s", contextPath, classes, fields));
         return classes;
     }

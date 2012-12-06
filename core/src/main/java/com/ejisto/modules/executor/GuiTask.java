@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.executor;
 
-import com.ejisto.constants.StringConstants;
 import com.ejisto.core.ApplicationException;
 import lombok.extern.log4j.Log4j;
 

@@ -70,7 +70,8 @@ public enum StringConstants {
     GUI_TASK_EXCEPTION_PROPERTY("exception"),
     CONTAINER_ID("container-id"),
     DEFAULT_CONTAINER_ID("__DEFAULT__"),
-    HTTP_INTERFACE_ADDRESS("http-interface.address");
+    HTTP_INTERFACE_ADDRESS("http-interface-address"),
+    REQUEST_ATTRIBUTE("request-attribute");
 
     private final String value;
 

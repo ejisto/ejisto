@@ -66,7 +66,7 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
                             build();
                     activeControllers.put(event.getId(), controller);
                     while (activeControllers.containsKey(event.getId()) &&
-                           !currentController.compareAndSet(null, controller)) {
+                            !currentController.compareAndSet(null, controller)) {
                         Thread.sleep(100L);
                     }
                     //controller.showUndecorated(true);
@@ -80,9 +80,9 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
 
     private void closeActiveProgress(BlockingTaskProgress event) {
         try {
-            log.debug("trying to close active progress for event id: "+event.getId());
+            log.debug("trying to close active progress for event id: " + event.getId());
             DialogController controller = activeControllers.get(event.getId());
-            log.debug("found controller: "+controller);
+            log.debug("found controller: " + controller);
             while (controller == null || controller != currentController.get()) {
                 log.debug("sleeping 50ms...");
                 Thread.sleep(50L);

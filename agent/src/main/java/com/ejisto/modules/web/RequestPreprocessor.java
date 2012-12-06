@@ -23,17 +23,20 @@ import com.ejisto.modules.dao.remote.CollectedDataDao;
 import com.ejisto.modules.recorder.DataCollector;
 import com.ejisto.modules.recorder.RequestWrapper;
 import com.ejisto.modules.recorder.ResponseWrapper;
-import org.apache.commons.codec.digest.DigestUtils;
+import com.ejisto.modules.web.util.ConfigurationManager;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static com.ejisto.constants.StringConstants.HTTP_INTERFACE_ADDRESS;
+import static com.ejisto.modules.web.util.DigestUtil.sha256Digest;
+import static java.lang.System.getProperty;
 
 /**
  * Created by IntelliJ IDEA.
@@ -45,12 +48,16 @@ public class RequestPreprocessor implements Filter {
 
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(10);
     private ServletContext context;
-    private CollectedDataDao collectedDataDao = new CollectedDataDao();
+    private String contextPath;
+    private CollectedDataDao collectedDataDao;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         context = filterConfig.getServletContext();
+        contextPath = context.getContextPath();
         try {
+            ConfigurationManager.initConfiguration(context);
+            this.collectedDataDao = new CollectedDataDao(getProperty(HTTP_INTERFACE_ADDRESS.getValue()));
             context.log("trying to register the application:");
             collectedDataDao.registerSession(generateApplicationId(), context.getContextPath());
             context.log("done.");
@@ -62,15 +69,20 @@ public class RequestPreprocessor implements Filter {
 
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        final DataCollector dataCollector = new DataCollector();
+        final DataCollector dataCollector = new DataCollector(((HttpServletRequest) request).getContextPath());
         chain.doFilter(new RequestWrapper((HttpServletRequest) request, dataCollector),
                        new ResponseWrapper((HttpServletResponse) response, dataCollector));
         EXECUTOR_SERVICE.submit(new Runnable() {
             @Override
             public void run() {
                 context.log("send collected results...");
-                collectedDataDao.sendCollectedData(dataCollector.getResult(),
-                                                   ((HttpServletRequest) request).getContextPath());
+                try {
+                    collectedDataDao.sendCollectedData(dataCollector.getResult(),
+                                                       contextPath);
+                } catch (Exception ex) {
+                    context.log("send failed", ex);
+                }
+                context.log("done.");
             }
         });
     }
@@ -87,7 +99,7 @@ public class RequestPreprocessor implements Filter {
         id.append(localhost.getHostAddress());
         id.append(context.getServerInfo()).append("-");
         id.append(context.getContextPath());
-        return DigestUtils.sha256Hex(id.toString());
+        return sha256Digest(id.toString());
 
     }
 

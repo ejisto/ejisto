@@ -51,15 +51,14 @@ public class DataCollectorHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-
         String method = httpExchange.getRequestMethod();
         log.debug(String.format("handling %s request", method));
-        try (InputStream in = httpExchange.getRequestBody(); OutputStream out = httpExchange.getResponseBody()) {
-            recordAndReply(in, out, httpExchange, method);
+        try (InputStream in = httpExchange.getRequestBody()) {
+            recordAndReply(in, httpExchange, method);
         }
     }
 
-    private void recordAndReply(InputStream is, OutputStream out, HttpExchange exchange, String method) throws IOException {
+    private void recordAndReply(InputStream is, HttpExchange exchange, String method) throws IOException {
         try {
             String requestBody = IOUtils.readInputStream(is, "UTF-8");
             if (method.equals("PUT")) {
@@ -69,11 +68,17 @@ public class DataCollectorHandler implements HttpHandler {
                 eventManager.publishEventAndWait(new CollectedDataReceived(this, data));
             }
             exchange.sendResponseHeaders(200, OK.length());
-            out.write(OK.getBytes());
-        } catch (IOException ex) {
+            reply(exchange, OK);
+        } catch (IOException | IllegalArgumentException ex) {
             exchange.sendResponseHeaders(500, KO.length());
-            out.write(KO.getBytes());
+            reply(exchange, KO);
             DataCollectorHandler.log.error(exchange.getRequestURI(), ex);
+        }
+    }
+
+    private void reply(HttpExchange exchange, String response) throws IOException {
+        try (OutputStream out = exchange.getResponseBody()) {
+            out.write(response.getBytes());
         }
     }
 }

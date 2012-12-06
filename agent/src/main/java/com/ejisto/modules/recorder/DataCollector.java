@@ -19,8 +19,13 @@
 
 package com.ejisto.modules.recorder;
 
-import javax.servlet.http.Cookie;
+import com.ejisto.modules.dao.entities.MockedField;
+import lombok.extern.java.Log;
+
 import java.util.*;
+
+import static com.ejisto.constants.StringConstants.REQUEST_ATTRIBUTE;
+import static com.ejisto.modules.web.util.FieldSerializationUtil.translateObject;
 
 /**
  * Created by IntelliJ IDEA.
@@ -28,6 +33,7 @@ import java.util.*;
  * Date: 8/28/12
  * Time: 5:32 PM
  */
+@Log
 public class DataCollector {
 
     private final Map<String, String> requestParameters;
@@ -35,16 +41,16 @@ public class DataCollector {
     private final List<String> requestDispatcherRedirection;
     private final List<String> permanentRedirections;
     private final Set<ResponseHeader> headers;
-    private final List<Cookie> cookies;
+    private final String contextPath;
 
 
-    public DataCollector() {
-        requestParameters = new TreeMap<>();
-        requestAttributes = new TreeMap<>();
-        requestDispatcherRedirection = new ArrayList<>();
-        permanentRedirections = new ArrayList<>();
-        headers = new TreeSet<>(ResponseHeader.COMPARATOR);
-        cookies = new ArrayList<>();
+    public DataCollector(String contextPath) {
+        requestParameters = new TreeMap<String, String>();
+        requestAttributes = new TreeMap<String, Object>();
+        requestDispatcherRedirection = new ArrayList<String>();
+        permanentRedirections = new ArrayList<String>();
+        headers = new TreeSet<ResponseHeader>(ResponseHeader.COMPARATOR);
+        this.contextPath = contextPath;
     }
 
     public void putRequestParameter(String name, String value) {
@@ -67,13 +73,20 @@ public class DataCollector {
         headers.add(header);
     }
 
-    public void addCookie(Cookie cookie) {
-        cookies.add(cookie);
+    public CollectedData getResult() {
+        return new CollectedData(requestParameters, translateRequestAttributes(requestAttributes, contextPath),
+                                 requestDispatcherRedirection,
+                                 permanentRedirections, headers);
     }
 
-    public CollectedData getResult() {
-        return new CollectedData(requestParameters, requestAttributes, requestDispatcherRedirection,
-                                 permanentRedirections, headers, cookies);
+    private static Map<String, List<MockedField>> translateRequestAttributes(Map<String, Object> requestAttributes, String contextPath) {
+        Map<String, List<MockedField>> out = new HashMap<String, List<MockedField>>(requestAttributes.size());
+        for (Map.Entry<String, Object> entry : requestAttributes.entrySet()) {
+            out.put(entry.getKey(),
+                    translateObject(entry.getValue(), REQUEST_ATTRIBUTE.getValue(), entry.getKey(), contextPath));
+        }
+        return out;
     }
+
 
 }

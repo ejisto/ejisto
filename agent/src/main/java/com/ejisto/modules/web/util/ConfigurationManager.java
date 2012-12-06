@@ -17,18 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.core.classloading.javassist;
+package com.ejisto.modules.web.util;
+
+import javax.servlet.ServletContext;
+import java.util.Enumeration;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 10/17/12
- * Time: 8:26 AM
+ * Date: 11/6/12
+ * Time: 8:28 AM
  */
-public class JavassistStackMapTest {
+public abstract class ConfigurationManager {
 
-    public static void main(String[] args) {
-
+    public static void initConfiguration(ServletContext context) {
+        context.log("*************** init params: ***********************");
+        Enumeration<String> parameterNames = context.getInitParameterNames();
+        while (parameterNames.hasMoreElements()) {
+            String parameterName = parameterNames.nextElement();
+            context.log(parameterName + " = " + context.getInitParameter(parameterName));
+            System.setProperty(parameterName, context.getInitParameter(parameterName));
+        }
+        context.log("****************************************************");
     }
-
 }

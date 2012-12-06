@@ -167,7 +167,8 @@ public class CargoManager implements ContainerManager {
         LocalContainer localContainer = loadContainer(container, false);
         boolean started = container.isRunning();
         if (started) {
-            eventManager.publishEventAndWait(new ChangeServerStatus(this, container.getId(), ChangeServerStatus.Command.SHUTDOWN));
+            eventManager.publishEventAndWait(
+                    new ChangeServerStatus(this, container.getId(), ChangeServerStatus.Command.SHUTDOWN));
         }
         eventManager.publishEventAndWait(new ApplicationScanRequired(this, webApplicationDescriptor));
         //Deployable deployable = defaultServerStarted.get() ? hotDeploy(descriptor, container) : staticDeploy(descriptor, container);
@@ -180,7 +181,8 @@ public class CargoManager implements ContainerManager {
                                                                 webApplicationDescriptor.getContextPath(),
                                                                 container.getId(), deployable));
         if (started) {
-            eventManager.publishEventAndWait(new ChangeServerStatus(this, container.getId(), ChangeServerStatus.Command.STARTUP));
+            eventManager.publishEventAndWait(
+                    new ChangeServerStatus(this, container.getId(), ChangeServerStatus.Command.STARTUP));
         }
         return true;
     }
@@ -192,8 +194,9 @@ public class CargoManager implements ContainerManager {
 
     @Override
     public boolean undeployFromDefaultContainer(String contextPath) throws NotInstalledException {
-        Deployable deployable = (Deployable) webApplicationRepository.getRegisteredWebApplication(DEFAULT_CONTAINER_ID.getValue(),
-                                                                                                  contextPath).getContainerWebApplicationDescriptor();
+        Deployable deployable = (Deployable) webApplicationRepository.getRegisteredWebApplication(
+                DEFAULT_CONTAINER_ID.getValue(),
+                contextPath).getContainerWebApplicationDescriptor();
         undeploy(DEFAULT_CONTAINER_ID.getValue(), contextPath, deployable, loadDefault(false));
         return true;
     }
@@ -210,12 +213,14 @@ public class CargoManager implements ContainerManager {
 
     @Override
     public boolean startWebApplicationOnDefaultServer(String contextPath) throws NotInstalledException {
-        return start(DEFAULT_CONTAINER_ID.getValue(), contextPath, getDeployableFromRepository(DEFAULT_CONTAINER_ID.getValue(), contextPath), loadDefault(false));
+        return start(DEFAULT_CONTAINER_ID.getValue(), contextPath,
+                     getDeployableFromRepository(DEFAULT_CONTAINER_ID.getValue(), contextPath), loadDefault(false));
     }
 
     @Override
     public boolean stopWebApplicationOnDefaultServer(String contextPath) throws NotInstalledException {
-        return stop(DEFAULT_CONTAINER_ID.getValue(), contextPath, getDeployableFromRepository(DEFAULT_CONTAINER_ID.getValue(), contextPath), loadDefault(false));
+        return stop(DEFAULT_CONTAINER_ID.getValue(), contextPath,
+                    getDeployableFromRepository(DEFAULT_CONTAINER_ID.getValue(), contextPath), loadDefault(false));
     }
 
     @Override
@@ -251,11 +256,12 @@ public class CargoManager implements ContainerManager {
         configuration.setProperty(TomcatPropertySet.AJP_PORT, String.valueOf(IOUtils.findFirstAvailablePort(10000)));
         String existingJvmArgs = configuration.getPropertyValue(GeneralPropertySet.JVMARGS);
         StringBuilder args = new StringBuilder();
-        if(StringUtils.isNotBlank(existingJvmArgs)) {
+        if (StringUtils.isNotBlank(existingJvmArgs)) {
             args.append(existingJvmArgs);
         }
         for (String propertyName : additionalJavaSystemProperties.keySet()) {
-            args.append(" -D").append(propertyName).append("=").append(additionalJavaSystemProperties.get(propertyName));
+            args.append(" -D").append(propertyName).append("=").append(
+                    additionalJavaSystemProperties.get(propertyName));
         }
         configuration.setProperty(GeneralPropertySet.JVMARGS, args.toString());
         AbstractInstalledLocalContainer instance = createContainer(container.getHomeDir(), container.getCargoId(),
@@ -311,8 +317,9 @@ public class CargoManager implements ContainerManager {
             return installedContainers.get(cargoId);
         }
         //container creation
-        AbstractInstalledLocalContainer container = createContainer(installedContainer.getHomeDir(), cargoId, installedContainer.getId(), null);
-        if(standalone) {
+        AbstractInstalledLocalContainer container = createContainer(installedContainer.getHomeDir(), cargoId,
+                                                                    installedContainer.getId(), null);
+        if (standalone) {
             return container;
         }
         AbstractInstalledLocalContainer existing = installedContainers.putIfAbsent(cargoId, container);

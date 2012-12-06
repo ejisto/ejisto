@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.gui.components;
 
-import com.ejisto.constants.StringConstants;
 import com.ejisto.event.def.ApplicationDeployed;
 import com.ejisto.event.def.LogMessage;
 import org.jdesktop.swingx.JXPanel;
@@ -72,7 +71,8 @@ public class ContainerTab extends JSplitPane {
 
     public Icon getIcon() {
         //loading default icon
-        return new ImageIcon(getClass().getResource(getMessage(format("container.%s.icon", DEFAULT_CARGO_ID.getValue()))));
+        return new ImageIcon(
+                getClass().getResource(getMessage(format("container.%s.icon", DEFAULT_CARGO_ID.getValue()))));
     }
 
     private void init() {

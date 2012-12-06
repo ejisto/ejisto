@@ -20,6 +20,7 @@
 package com.ejisto.modules.dao.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.Serializable;
 
@@ -29,6 +30,7 @@ import java.io.Serializable;
  * Date: Dec 5, 2010
  * Time: 10:39:18 AM
  */
+@JsonDeserialize(as = MockedFieldImpl.class)
 public interface MockedField extends ComplexValuesAware, Comparable<MockedField>, Serializable {
 
     String PATH_SEPARATOR = ">";
@@ -88,4 +90,15 @@ public interface MockedField extends ComplexValuesAware, Comparable<MockedField>
     String getClassSimpleName();
 
     void copyFrom(MockedField original);
+
+    void setLink(String link);
+
+    String getLink();
+
+    @JsonIgnore
+    boolean isLinked();
+
+    int getRecordedObjectHashCode();
+
+    void setRecordedObjectHashCode(int recordedObjectHashCode);
 }

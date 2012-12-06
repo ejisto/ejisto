@@ -37,7 +37,6 @@ import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
 import static com.ejisto.constants.StringConstants.SELECT_FILE_COMMAND;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.selectFile;
-import static java.util.Arrays.asList;
 
 public class FileSelectionController extends AbstractApplicationInstallerController {
     private JXPanel fileSelectionTab;

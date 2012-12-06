@@ -28,6 +28,7 @@ import com.ejisto.modules.gui.components.helper.BoundResourceEditor;
 import com.ejisto.modules.gui.components.helper.Step;
 import com.ejisto.modules.validation.DataSourceEnvEntryValidator;
 import com.ejisto.modules.validation.ValidationErrors;
+import com.ejisto.util.JndiDataSourcesRepository;
 import org.springframework.util.CollectionUtils;
 
 import javax.swing.*;
@@ -59,7 +60,7 @@ public class JndiResourcesEditorController extends AbstractApplicationInstallerC
 
     @Override
     public boolean canProceed() {
-        return getSession().containsDataSources();
+        return areThereDataSources();
     }
 
     @Override
@@ -74,7 +75,7 @@ public class JndiResourcesEditorController extends AbstractApplicationInstallerC
 
     @Override
     public void activate() {
-        getView().init(getSession().getDataSources());
+        getView().init(JndiDataSourcesRepository.loadDataSources());
     }
 
     @Override
@@ -89,12 +90,12 @@ public class JndiResourcesEditorController extends AbstractApplicationInstallerC
 
     @Override
     public boolean isBackEnabled() {
-        return getSession().containsDataSources();
+        return areThereDataSources();
     }
 
     @Override
     public boolean isForwardEnabled() {
-        return getSession().containsDataSources();
+        return areThereDataSources();
     }
 
     @Override
@@ -127,5 +128,9 @@ public class JndiResourcesEditorController extends AbstractApplicationInstallerC
                         fileChooser.getSelectedFile().getAbsolutePath());
             }
         }
+    }
+
+    private boolean areThereDataSources() {
+        return !CollectionUtils.isEmpty(JndiDataSourcesRepository.loadDataSources());
     }
 }

@@ -29,7 +29,6 @@ import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.modules.web.HTTPServer;
 import com.ejisto.modules.web.handler.DataCollectorHandler;
 import com.ejisto.util.GuiUtils;
-import com.ejisto.util.IOUtils;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.io.FilenameUtils;
 import org.codehaus.cargo.module.DescriptorElement;
@@ -49,7 +48,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.util.IOUtils.getHttpInterfaceAddress;
+import static com.ejisto.util.IOUtils.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -75,9 +74,12 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                                                       true);
             WebApplicationDescriptor descriptor = createTempWebApplicationDescriptor(
                     webApplicationDescriptorDao.load(event.getWebApplicationContextPath()));
-            IOUtils.zipDirectory(new File(descriptor.getDeployablePath()),
-                                 FilenameUtils.normalize(outputDir.getAbsolutePath() + descriptor.getContextPath() + ".war"));
-            httpServer.createContext(event.getWebApplicationContextPath(), new DataCollectorHandler(eventManager));
+            zipDirectory(new File(descriptor.getDeployablePath()),
+                         FilenameUtils.normalize(outputDir.getAbsolutePath() + descriptor.getContextPath() + ".war"));
+            if (!httpServer.createContext(event.getWebApplicationContextPath(),
+                                          new DataCollectorHandler(eventManager))) {
+                log.info("attempt to create httpHandler failed. A Handler has already been defined.");
+            }
             log.debug("done.");
             JOptionPane.showMessageDialog(application, "start server");
         } catch (IOException | JDOMException e) {
@@ -87,7 +89,11 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
 
     private WebApplicationDescriptor createTempWebApplicationDescriptor(WebApplicationDescriptor original) throws IOException, JDOMException {
         Path path = Files.createTempDirectory(original.getContextPath().replaceAll("/", "_"));
-        IOUtils.copyDirContent(original.getDeployablePath(), path.toString());
+        //copyDirContentExcludingMatchingFiles(new File(original.getDeployablePath()), new File(path.toString()), new String[] {COPIED_FILES_PREFIX});
+        unzipFile(new File("/home/celestino/progetti/petclinic/target/petclinic.war"), path.toString());
+        File destDir = new File(FilenameUtils.normalize(path.toString() + "/WEB-INF/lib/"));
+        copyFile(System.getProperty("ejisto.agent.jar.path"), destDir);
+        copyEjistoLibs(new String[]{"jackson", "commons-lang"}, destDir);
         WebApplicationDescriptor temp = WebApplicationDescriptor.copyFrom(original);
         temp.setDeployablePath(path.toString());
         modifyWebXml(temp);

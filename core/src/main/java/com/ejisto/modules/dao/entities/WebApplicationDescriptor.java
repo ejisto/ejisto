@@ -20,9 +20,7 @@
 package com.ejisto.modules.dao.entities;
 
 import com.ejisto.modules.dao.entities.helper.WebApplicationDescriptorHelper;
-import com.ejisto.util.JndiDataSourcesRepository;
 import lombok.extern.log4j.Log4j;
-import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.Serializable;
@@ -35,7 +33,7 @@ import static org.hamcrest.Matchers.equalTo;
 @Log4j
 public class WebApplicationDescriptor implements Serializable {
     private static final long serialVersionUID = 7454195671017831484L;
-    private List<WebApplicationDescriptorElement> elements = new ArrayList<>();
+    private List<WebApplicationDescriptorElement> elements = new ArrayList<WebApplicationDescriptorElement>();
     private int id = -1;
     private String installationPath;
     private String containerId;
@@ -48,7 +46,7 @@ public class WebApplicationDescriptor implements Serializable {
 
 
     public WebApplicationDescriptor() {
-        this.fields = new TreeSet<>(new Comparator<MockedField>() {
+        this.fields = new TreeSet<MockedField>(new Comparator<MockedField>() {
             @Override
             public int compare(MockedField o1, MockedField o2) {
                 return o1.getComparisonKey().compareTo(o2.getComparisonKey());
@@ -144,14 +142,6 @@ public class WebApplicationDescriptor implements Serializable {
             return classpathEntries;
         }
         return select(elements, having(on(WebApplicationDescriptorElement.class).getKind(), equalTo(CLASSPATH)));
-    }
-
-    public List<JndiDataSource> getDataSources() {
-        return JndiDataSourcesRepository.loadDataSources();
-    }
-
-    public boolean containsDataSources() {
-        return !CollectionUtils.isEmpty(JndiDataSourcesRepository.loadDataSources());
     }
 
     public String getDeployablePath() {

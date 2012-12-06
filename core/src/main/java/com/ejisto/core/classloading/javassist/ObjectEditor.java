@@ -19,15 +19,13 @@
 
 package com.ejisto.core.classloading.javassist;
 
-import com.ejisto.constants.StringConstants;
 import javassist.CannotCompileException;
 import javassist.NotFoundException;
-import javassist.expr.*;
-import lombok.Delegate;
+import javassist.expr.ExprEditor;
+import javassist.expr.FieldAccess;
 import org.apache.log4j.Logger;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
-import static com.ejisto.constants.StringConstants.SESSION_RECORDING_ACTIVE;
 
 public class ObjectEditor extends ExprEditor {
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
@@ -42,6 +40,7 @@ public class ObjectEditor extends ExprEditor {
     /**
      * Edits a field access replacing the code with a call to {@link PropertyManager#mockField(String, String, String, Class, Object)}}.
      * If session recording mode is enabled, it also records write attempts.
+     *
      * @param f the "fieldAccess"
      */
     @Override

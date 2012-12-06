@@ -47,22 +47,22 @@ public class ResponseWrapper extends HttpServletResponseWrapper {
     @Override
     public void addCookie(Cookie cookie) {
         super.addCookie(cookie);
-        dataCollector.addCookie(cookie);
     }
 
     @Override
     public void sendError(int sc, String msg) throws IOException {
-        super.sendError(sc, msg);    //To change body of overridden methods use File | Settings | File Templates.
+        super.sendError(sc, msg);
     }
 
     @Override
     public void sendError(int sc) throws IOException {
-        super.sendError(sc);    //To change body of overridden methods use File | Settings | File Templates.
+        super.sendError(sc);
     }
 
     @Override
     public void sendRedirect(String location) throws IOException {
-        super.sendRedirect(location);    //To change body of overridden methods use File | Settings | File Templates.
+        super.sendRedirect(location);
+        dataCollector.addPermanentRedirection(location);
     }
 
     @Override

@@ -19,7 +19,6 @@
 
 package com.ejisto.core.classloading.javassist;
 
-import com.ejisto.core.classloading.util.ReflectionUtils;
 import org.apache.log4j.Logger;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;

@@ -81,7 +81,8 @@ public final class ScanAction extends RecursiveAction {
     private static void scanGroups(List<Group<MockedField>> groups, WebApplicationDescriptor descriptor) {
         try {
             ClassPool classPool = new ClassPool();
-            String webInf = FilenameUtils.normalizeNoEndSeparator(descriptor.getDeployablePath()) + File.separator + "WEB-INF";
+            String webInf = FilenameUtils.normalizeNoEndSeparator(
+                    descriptor.getDeployablePath()) + File.separator + "WEB-INF";
             classPool.appendClassPath(webInf + File.separator + "classes");
             classPool.appendClassPath(webInf + File.separator + "lib/*");
             classPool.appendSystemPath();
@@ -90,7 +91,7 @@ public final class ScanAction extends RecursiveAction {
                 scanClass(group, classPool, transformer, normalize(webInf + File.separator + "classes/", true));
             }
         } catch (Exception e) {
-            log.error("got exception: "+e.toString());
+            log.error("got exception: " + e.toString());
             throw new ApplicationException(e);
         }
     }

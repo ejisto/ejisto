@@ -19,12 +19,10 @@
 
 package com.ejisto.modules.recorder;
 
-import com.ejisto.modules.dao.entities.MockedField;
 import lombok.Delegate;
 
 import javax.servlet.http.HttpSession;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -40,7 +38,7 @@ public class SessionWrapper implements HttpSession {
 
     public SessionWrapper(HttpSession source) {
         this.source = source;
-        this.elements = new ConcurrentHashMap<>();
+        this.elements = new ConcurrentHashMap<String, Object>();
     }
 
     @Override
@@ -61,6 +59,7 @@ public class SessionWrapper implements HttpSession {
 
     private interface SessionRecorder {
         void setAttribute(String name, Object value);
+
         void removeAttribute(String name);
     }
 

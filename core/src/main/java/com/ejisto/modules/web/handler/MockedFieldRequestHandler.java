@@ -23,6 +23,7 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.web.MockedFieldRequest;
 import com.ejisto.modules.web.util.JSONUtil;
+import com.ejisto.modules.web.util.MockedFieldsJSONUtil;
 import com.ejisto.util.IOUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -31,7 +32,6 @@ import lombok.extern.log4j.Log4j;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -48,7 +48,7 @@ public class MockedFieldRequestHandler implements HttpHandler {
             String requestBody = IOUtils.readInputStream(httpExchange.getRequestBody(), "UTF-8");
             MockedFieldRequest request = JSONUtil.decode(requestBody, MockedFieldRequest.class);
             Collection<MockedField> found = MockedFieldsRepository.getInstance().load(request);
-            String response = JSONUtil.encodeMockedFields(found);
+            String response = MockedFieldsJSONUtil.encodeMockedFields(found);
             httpExchange.sendResponseHeaders(200, response.length());
             os.write(response.getBytes());
         } catch (Exception e) {

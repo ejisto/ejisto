@@ -17,30 +17,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.services.shutdown;
+package com.ejisto.modules.dao.remote;
 
-import com.ejisto.event.EventManager;
-import com.ejisto.event.def.ChangeServerStatus;
-import lombok.extern.log4j.Log4j;
+import com.ejisto.modules.recorder.CollectedData;
+import lombok.extern.java.Log;
 
-import javax.annotation.Resource;
+import java.util.logging.Level;
 
-import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 10/23/12
+ * Time: 6:49 PM
+ */
+@Log
+public class CollectedDataDao extends BaseRemoteDao {
 
-@Log4j
-public class ContainerShutdown extends BaseShutdownService {
-
-    @Resource
-    private EventManager eventManager;
-
-    @Override
-    public void execute() {
-        try {
-            eventManager.publishEvent(
-                    new ChangeServerStatus(this, DEFAULT_CONTAINER_ID.getValue(), ChangeServerStatus.Command.SHUTDOWN));
-        } catch (Exception e) {
-            log.error("error during server shutdown", e);
-        }
+    public CollectedDataDao(String serverAddress) {
+        super(serverAddress);
+        log.log(Level.INFO, "dao initialized with remote address: " + serverAddress);
     }
 
+    public void sendCollectedData(CollectedData data, String contextPath) {
+        remoteCall(encodeRequest(data), contextPath + "/record", "POST");
+    }
+
+    public void registerSession(String id, String contextPath) {
+        remoteCall(id, contextPath, "PUT");
+    }
 }

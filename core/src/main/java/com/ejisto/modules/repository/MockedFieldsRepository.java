@@ -126,7 +126,7 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     }
 
     public Collection<MockedField> load(MockedFieldRequest request) {
-        if(request.areAllContextPathFieldsRequested()) {
+        if (request.areAllContextPathFieldsRequested()) {
             return getMockedFieldsDao().loadContextPathFields(request.getContextPath());
         } else if (request.areAllFieldsRequested()) {
             return loadAll();

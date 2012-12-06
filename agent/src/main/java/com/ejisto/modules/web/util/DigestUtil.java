@@ -17,23 +17,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao.remote;
+package com.ejisto.modules.web.util;
 
-import com.ejisto.modules.recorder.CollectedData;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import static java.nio.charset.Charset.forName;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 10/23/12
- * Time: 6:49 PM
+ * Date: 11/16/12
+ * Time: 8:14 AM
  */
-public class CollectedDataDao extends BaseRemoteDao {
+public abstract class DigestUtil {
 
-    public void sendCollectedData(CollectedData data, String contextPath) {
-        remoteCall(encodeRequest(data), contextPath + "/record", "POST");
+    public static String sha256Digest(String in) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(in.getBytes(forName("UTF-8")));
+            return new BigInteger(1, md.digest()).toString(16);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("sha-256 not supported. Aborting", e);
+        }
     }
 
-    public void registerSession(String id, String contextPath) {
-        remoteCall(id, contextPath, "PUT");
-    }
 }

@@ -19,15 +19,12 @@
 
 package com.ejisto.modules.gui.components;
 
-import com.ejisto.event.def.SessionRecorderStart;
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.Collection;
 
 public class SummaryTab extends JXPanel {

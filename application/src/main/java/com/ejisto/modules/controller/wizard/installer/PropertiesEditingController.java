@@ -27,6 +27,7 @@ import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.Step;
 import com.ejisto.modules.validation.DataSourceEnvEntryValidator;
 import com.ejisto.modules.validation.ValidationErrors;
+import com.ejisto.util.JndiDataSourcesRepository;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
     }
 
     private boolean validateEnvEntries() {
-        List<JndiDataSource> entries = getSession().getDataSources();
+        List<JndiDataSource> entries = JndiDataSourcesRepository.loadDataSources();
         if (CollectionUtils.isEmpty(entries)) {
             return true;
         }

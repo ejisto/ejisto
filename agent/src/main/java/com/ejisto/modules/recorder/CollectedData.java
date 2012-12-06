@@ -19,13 +19,14 @@
 
 package com.ejisto.modules.recorder;
 
+import com.ejisto.modules.dao.entities.MockedField;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.codec.digest.DigestUtils;
 
-import javax.servlet.http.Cookie;
 import java.util.*;
 
+import static com.ejisto.modules.web.util.DigestUtil.sha256Digest;
 import static java.util.Collections.*;
 
 /**
@@ -37,30 +38,30 @@ import static java.util.Collections.*;
 public final class CollectedData {
 
     private final Map<String, String> requestParameters;
-    private final Map<String, Object> requestAttributes;
+    private final Map<String, List<MockedField>> requestAttributes;
     private final List<String> requestDispatcherRedirection;
     private final List<String> permanentRedirections;
     private final Set<ResponseHeader> headers;
-    private final List<Cookie> cookies;
 
     @JsonCreator
-    public CollectedData(Map<String, String> requestParameters, Map<String, Object> requestAttributes,
-                         List<String> requestDispatcherRedirection, List<String> permanentRedirections,
-                         Set<ResponseHeader> headers, List<Cookie> cookies) {
-        this.requestParameters = new TreeMap<>(requestParameters);
-        this.requestAttributes = new TreeMap<>(requestAttributes);
-        this.requestDispatcherRedirection = new ArrayList<>(requestDispatcherRedirection);
-        this.permanentRedirections = new ArrayList<>(permanentRedirections);
-        this.headers = new TreeSet<>(ResponseHeader.COMPARATOR);
+    public CollectedData(@JsonProperty("requestParameters") Map<String, String> requestParameters,
+                         @JsonProperty("requestAttributes") Map<String, List<MockedField>> requestAttributes,
+                         @JsonProperty("requestDispatcherRedirection") List<String> requestDispatcherRedirection,
+                         @JsonProperty("permanentRedirections") List<String> permanentRedirections,
+                         @JsonProperty("headers") Set<ResponseHeader> headers) {
+        this.requestParameters = new TreeMap<String, String>(requestParameters);
+        this.requestAttributes = new TreeMap<String, List<MockedField>>(requestAttributes);
+        this.requestDispatcherRedirection = new ArrayList<String>(requestDispatcherRedirection);
+        this.permanentRedirections = new ArrayList<String>(permanentRedirections);
+        this.headers = new TreeSet<ResponseHeader>(ResponseHeader.COMPARATOR);
         this.headers.addAll(headers);
-        this.cookies = new ArrayList<>(cookies);
     }
 
     public Map<String, String> getRequestParameters() {
         return unmodifiableMap(requestParameters);
     }
 
-    public Map<String, Object> getRequestAttributes() {
+    public Map<String, List<MockedField>> getRequestAttributes() {
         return unmodifiableMap(requestAttributes);
     }
 
@@ -76,14 +77,12 @@ public final class CollectedData {
         return unmodifiableSet(headers);
     }
 
-    public List<Cookie> getCookies() {
-        return unmodifiableList(cookies);
-    }
-
+    @JsonIgnore
     public String getFullKey() {
         return buildKey(true);
     }
 
+    @JsonIgnore
     public String getSmallKey() {
         return buildKey(false);
     }
@@ -99,9 +98,8 @@ public final class CollectedData {
         }
         if (clearText.length() > 0) {
             clearText.deleteCharAt(clearText.length() - 1);
-            return DigestUtils.sha256Hex(clearText.toString());
+            return sha256Digest(clearText.toString());
         }
         return null;
     }
-
 }

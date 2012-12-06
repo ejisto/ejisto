@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
  * Date: 6/27/12
  * Time: 11:18 AM
  */
-public class JSONUtilTest {
+public class JSONSerializerTest {
     @Test
     public void testEncodeMockedFieldRequest() throws Exception {
         MockedFieldRequest request = requestSingleField("/ejisto-test", "com.test.TestClass", "name");
@@ -67,9 +67,9 @@ public class JSONUtilTest {
         mf.setFieldValue("Pippo Baudo");
         mf.setFieldType("java.lang.String");
         List<MockedField> input = Arrays.asList(mf);
-        String encoded = JSONUtil.encodeMockedFields(input);
+        String encoded = MockedFieldsJSONUtil.encodeMockedFields(input);
         assertNotNull(encoded);
-        List<MockedField> output = JSONUtil.decodeMockedFields(encoded);
+        List<MockedField> output = MockedFieldsJSONUtil.decodeMockedFields(encoded);
         assertNotNull(output);
         assertTrue(output.size() == input.size());
         for (MockedField mockedField : output) {
