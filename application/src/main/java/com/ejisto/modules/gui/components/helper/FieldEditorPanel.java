@@ -54,7 +54,7 @@ public class FieldEditorPanel extends JXCollapsiblePane implements ActionListene
     protected static final String TYPE_SELECTION = "typeSelection";
 
     private JXLabel type;
-    private JComboBox typeSelector;
+    private JComboBox<TypeEntry> typeSelector;
     private JButton ok;
     private JButton cancel;
     private JPanel editor;
@@ -65,7 +65,7 @@ public class FieldEditorPanel extends JXCollapsiblePane implements ActionListene
     private String fieldSize;
     private FieldsEditorContext editorContext;
     private JTextField value;
-    private JComboBox contextPathSelector;
+    private JComboBox<String> contextPathSelector;
     private JTextField fieldType;
 
     public FieldEditorPanel(ActionMap actionMap, FieldsEditorContext editorContext) {
@@ -216,7 +216,7 @@ public class FieldEditorPanel extends JXCollapsiblePane implements ActionListene
         value = new JTextField();
         value.setPreferredSize(new Dimension(200, 20));
         value.setMaximumSize(new Dimension(200, 20));
-        contextPathSelector = new JComboBox();
+        contextPathSelector = new JComboBox<>();
         contextPathSelector.addActionListener(this);
         contextPathSelector.setActionCommand(MockedFieldCreationController.CTX_SELECTION);
         fieldType = new JTextField("java.lang.String");
@@ -236,22 +236,12 @@ public class FieldEditorPanel extends JXCollapsiblePane implements ActionListene
         editor = new JPanel();
         editor.setPreferredSize(new Dimension(200, 150));
         type = new JXLabel(getMessage(getComboBoxLabel()));
-        typeSelector = new JComboBox();
+        typeSelector = new JComboBox<>();
         typeSelector.setAction(new CallbackAction("type", new Closure0() {{
             of(FieldEditorPanel.this).onTypeSelected();
         }}));
-        typeSelector.setRenderer(new BasicComboBoxRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                Component component = super.getListCellRendererComponent(list, value, index, isSelected,
-                                                                         cellHasFocus);
-                if (value != null) {
-                    ((JComponent) component).setToolTipText(((TypeEntry) value).type);
-                }
 
-                return component;
-            }
-        });
+        typeSelector.setRenderer(new TypeEntryRenderer());
         typeSelector.setActionCommand(TYPE_SELECTION);
         additionalInfoTitle = new JXLabel(getMessage(getAdditionalInfoLabel()));
         additionalInfo = new JFormattedTextField();
@@ -335,6 +325,23 @@ public class FieldEditorPanel extends JXCollapsiblePane implements ActionListene
 
         static TypeEntry fromType(String type) {
             return new TypeEntry(type, abbreviate(type));
+        }
+    }
+
+    private static final class TypeEntryRenderer implements ListCellRenderer<TypeEntry> {
+
+        private final BasicComboBoxRenderer helper = new BasicComboBoxRenderer();
+
+        private TypeEntryRenderer() {
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList<? extends TypeEntry> list, TypeEntry value, int index, boolean isSelected, boolean cellHasFocus) {
+            Component component = helper.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            if (value != null) {
+                ((JComponent) component).setToolTipText(value.type);
+            }
+            return component;
         }
     }
 }
