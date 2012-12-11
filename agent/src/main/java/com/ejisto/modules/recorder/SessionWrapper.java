@@ -23,7 +23,6 @@ import lombok.Delegate;
 
 import javax.servlet.http.HttpSession;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -34,33 +33,21 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SessionWrapper implements HttpSession {
 
     @Delegate(excludes = SessionRecorder.class) private final HttpSession source;
-    private final Map<String, Object> elements;
+    private final DataCollector collector;
 
-    public SessionWrapper(HttpSession source) {
+    public SessionWrapper(HttpSession source, DataCollector collector) {
         this.source = source;
-        this.elements = new ConcurrentHashMap<String, Object>();
+        this.collector = collector;
     }
 
     @Override
     public void setAttribute(String name, Object value) {
-        elements.put(name, value);
+        collector.putSessionAttribute(name, value);
         source.setAttribute(name, value);
-    }
-
-    @Override
-    public void removeAttribute(String name) {
-        elements.remove(name);
-        source.removeAttribute(name);
-    }
-
-    public Map<String, Object> getCollectedElements() {
-        return elements;
     }
 
     private interface SessionRecorder {
         void setAttribute(String name, Object value);
-
-        void removeAttribute(String name);
     }
 
 }

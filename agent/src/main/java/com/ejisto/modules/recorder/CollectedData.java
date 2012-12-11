@@ -39,6 +39,7 @@ public final class CollectedData {
 
     private final Map<String, String> requestParameters;
     private final Map<String, List<MockedField>> requestAttributes;
+    private final Map<String, List<MockedField>> sessionAttributes;
     private final List<String> requestDispatcherRedirection;
     private final List<String> permanentRedirections;
     private final Set<ResponseHeader> headers;
@@ -46,11 +47,13 @@ public final class CollectedData {
     @JsonCreator
     public CollectedData(@JsonProperty("requestParameters") Map<String, String> requestParameters,
                          @JsonProperty("requestAttributes") Map<String, List<MockedField>> requestAttributes,
+                         @JsonProperty("sessionAttributes") Map<String, List<MockedField>> sessionAttributes,
                          @JsonProperty("requestDispatcherRedirection") List<String> requestDispatcherRedirection,
                          @JsonProperty("permanentRedirections") List<String> permanentRedirections,
                          @JsonProperty("headers") Set<ResponseHeader> headers) {
         this.requestParameters = new TreeMap<String, String>(requestParameters);
         this.requestAttributes = new TreeMap<String, List<MockedField>>(requestAttributes);
+        this.sessionAttributes = new TreeMap<String, List<MockedField>>(sessionAttributes);
         this.requestDispatcherRedirection = new ArrayList<String>(requestDispatcherRedirection);
         this.permanentRedirections = new ArrayList<String>(permanentRedirections);
         this.headers = new TreeSet<ResponseHeader>(ResponseHeader.COMPARATOR);
@@ -75,6 +78,10 @@ public final class CollectedData {
 
     public Set<ResponseHeader> getHeaders() {
         return unmodifiableSet(headers);
+    }
+
+    public Map<String, List<MockedField>> getSessionAttributes() {
+        return sessionAttributes;
     }
 
     @JsonIgnore

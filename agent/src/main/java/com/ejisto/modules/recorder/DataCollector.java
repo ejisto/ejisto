@@ -38,15 +38,16 @@ public class DataCollector {
 
     private final Map<String, String> requestParameters;
     private final Map<String, Object> requestAttributes;
+    private final Map<String, Object> sessionAttributes;
     private final List<String> requestDispatcherRedirection;
     private final List<String> permanentRedirections;
     private final Set<ResponseHeader> headers;
     private final String contextPath;
 
-
     public DataCollector(String contextPath) {
         requestParameters = new TreeMap<String, String>();
         requestAttributes = new TreeMap<String, Object>();
+        sessionAttributes = new TreeMap<String, Object>();
         requestDispatcherRedirection = new ArrayList<String>();
         permanentRedirections = new ArrayList<String>();
         headers = new TreeSet<ResponseHeader>(ResponseHeader.COMPARATOR);
@@ -59,6 +60,10 @@ public class DataCollector {
 
     public void putRequestAttribute(String name, Object value) {
         requestAttributes.put(name, value);
+    }
+
+    public void putSessionAttribute(String name, Object value) {
+        sessionAttributes.put(name, value);
     }
 
     public void addResourcePath(String resourcePath) {
@@ -74,12 +79,13 @@ public class DataCollector {
     }
 
     public CollectedData getResult() {
-        return new CollectedData(requestParameters, translateRequestAttributes(requestAttributes, contextPath),
+        return new CollectedData(requestParameters, translateAttributes(requestAttributes, contextPath),
+                                 translateAttributes(sessionAttributes, contextPath),
                                  requestDispatcherRedirection,
                                  permanentRedirections, headers);
     }
 
-    private static Map<String, List<MockedField>> translateRequestAttributes(Map<String, Object> requestAttributes, String contextPath) {
+    private static Map<String, List<MockedField>> translateAttributes(Map<String, Object> requestAttributes, String contextPath) {
         Map<String, List<MockedField>> out = new HashMap<String, List<MockedField>>(requestAttributes.size());
         for (Map.Entry<String, Object> entry : requestAttributes.entrySet()) {
             out.put(entry.getKey(),

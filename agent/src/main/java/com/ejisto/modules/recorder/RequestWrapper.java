@@ -64,7 +64,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
         if (httpSession == null) {
             SessionWrapper newSession = null;
             if (create) {
-                newSession = new SessionWrapper(super.getSession(true));
+                newSession = new SessionWrapper(super.getSession(true), dataCollector);
             }
             SessionWrapper existing = session.get();
             int counter = 0;
