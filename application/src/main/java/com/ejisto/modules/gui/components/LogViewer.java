@@ -28,6 +28,7 @@ import org.springframework.context.ApplicationListener;
 import javax.swing.*;
 import java.awt.*;
 
+import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
 import static com.ejisto.util.GuiUtils.getMessage;
 
 @Log4j
@@ -72,7 +73,7 @@ public class LogViewer extends JXPanel {
         }
         logText = new JTextArea();
         logPanel = new JScrollPane(logText);
-        logPanel.setMinimumSize(new Dimension(500, 100));
+        logPanel.setMinimumSize(new Dimension(DEFAULT_WIDTH, 100));
         logText.setEditable(false);
         logText.setFont(new java.awt.Font("Monospaced", 0, 9));
         return logPanel;

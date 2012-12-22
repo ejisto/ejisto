@@ -192,8 +192,11 @@ public abstract class GuiUtils {
 
     private static ActionMap cloneActionMap(ActionMap original) {
         ActionMap map = new ActionMap();
-        for (Object key : original.keys()) {
-            map.put(key, original.get(key));
+        Object[] keys = original.keys();
+        if (keys != null) {
+            for (Object key : keys) {
+                map.put(key, original.get(key));
+            }
         }
         return map;
     }
@@ -278,11 +281,12 @@ public abstract class GuiUtils {
 
     private static File openFileSelectionDialog(Component parent, boolean saveLastSelectionPath, JFileChooser fileChooser, StringConstants settingKey) {
         if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
+            File selected = fileChooser.getSelectedFile();
             if (saveLastSelectionPath) {
-                SettingsRepository.getInstance().putSettingValue(settingKey,
-                                                                 fileChooser.getCurrentDirectory().getAbsolutePath());
+                String path = selected.isDirectory() ? selected.getAbsolutePath() : selected.getParent();
+                SettingsRepository.getInstance().putSettingValue(settingKey, path);
             }
-            return fileChooser.getSelectedFile();
+            return selected;
         } else {
             return null;
         }

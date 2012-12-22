@@ -43,6 +43,7 @@ public final class CollectedData {
     private final List<String> requestDispatcherRedirection;
     private final List<String> permanentRedirections;
     private final Set<ResponseHeader> headers;
+    private final String contextPath;
 
     @JsonCreator
     public CollectedData(@JsonProperty("requestParameters") Map<String, String> requestParameters,
@@ -50,12 +51,14 @@ public final class CollectedData {
                          @JsonProperty("sessionAttributes") Map<String, List<MockedField>> sessionAttributes,
                          @JsonProperty("requestDispatcherRedirection") List<String> requestDispatcherRedirection,
                          @JsonProperty("permanentRedirections") List<String> permanentRedirections,
-                         @JsonProperty("headers") Set<ResponseHeader> headers) {
+                         @JsonProperty("headers") Set<ResponseHeader> headers,
+                         @JsonProperty("contextPath") String contextPath) {
         this.requestParameters = new TreeMap<String, String>(requestParameters);
         this.requestAttributes = new TreeMap<String, List<MockedField>>(requestAttributes);
         this.sessionAttributes = new TreeMap<String, List<MockedField>>(sessionAttributes);
         this.requestDispatcherRedirection = new ArrayList<String>(requestDispatcherRedirection);
         this.permanentRedirections = new ArrayList<String>(permanentRedirections);
+        this.contextPath = contextPath;
         this.headers = new TreeSet<ResponseHeader>(ResponseHeader.COMPARATOR);
         this.headers.addAll(headers);
     }
@@ -82,6 +85,10 @@ public final class CollectedData {
 
     public Map<String, List<MockedField>> getSessionAttributes() {
         return sessionAttributes;
+    }
+
+    public String getContextPath() {
+        return contextPath;
     }
 
     @JsonIgnore

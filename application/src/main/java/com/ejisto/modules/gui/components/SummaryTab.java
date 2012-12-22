@@ -27,6 +27,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Collection;
 
+import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
+
 public class SummaryTab extends JXPanel {
     private static final long serialVersionUID = 3654712395222166373L;
     private static final String MOCKED_FIELD_TEMPLATE = "<li>%s=%s</li>";
@@ -70,8 +72,8 @@ public class SummaryTab extends JXPanel {
         }
         scrollPane = new JScrollPane(getSummaryTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                                      JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setPreferredSize(new Dimension(500, 250));
-        scrollPane.setMinimumSize(new Dimension(500, 250));
+        scrollPane.setPreferredSize(new Dimension(DEFAULT_WIDTH, 250));
+        scrollPane.setMinimumSize(new Dimension(DEFAULT_WIDTH, 250));
         scrollPane.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
         return scrollPane;
     }

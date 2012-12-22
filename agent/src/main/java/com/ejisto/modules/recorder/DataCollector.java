@@ -82,7 +82,7 @@ public class DataCollector {
         return new CollectedData(requestParameters, translateAttributes(requestAttributes, contextPath),
                                  translateAttributes(sessionAttributes, contextPath),
                                  requestDispatcherRedirection,
-                                 permanentRedirections, headers);
+                                 permanentRedirections, headers, contextPath);
     }
 
     private static Map<String, List<MockedField>> translateAttributes(Map<String, Object> requestAttributes, String contextPath) {

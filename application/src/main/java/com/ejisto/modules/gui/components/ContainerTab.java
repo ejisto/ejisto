@@ -28,6 +28,7 @@ import javax.swing.*;
 import java.awt.*;
 
 import static com.ejisto.constants.StringConstants.DEFAULT_CARGO_ID;
+import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.registerEventListener;
 import static java.lang.String.format;
@@ -107,8 +108,8 @@ public class ContainerTab extends JSplitPane {
         JXPanel leftComponent = new JXPanel(new BorderLayout());
         leftComponent.add(getServerSummaryPane(), BorderLayout.NORTH);
         leftComponent.add(getLogViewer(), BorderLayout.CENTER);
-        leftComponent.setPreferredSize(new Dimension(500, 150));
-        leftComponent.setMinimumSize(new Dimension(500, 150));
+        leftComponent.setPreferredSize(new Dimension(DEFAULT_WIDTH, 150));
+        leftComponent.setMinimumSize(new Dimension(DEFAULT_WIDTH, 150));
         leftComponent.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
         setLeftComponent(leftComponent);
     }

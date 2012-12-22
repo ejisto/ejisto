@@ -25,6 +25,7 @@ import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.util.visitor.CopyFileVisitor;
 import com.ejisto.util.visitor.PrefixBasedCopyFileVisitor;
+import lombok.extern.log4j.Log4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.util.Assert;
 
@@ -35,6 +36,7 @@ import java.io.InputStream;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -43,12 +45,14 @@ import java.util.zip.ZipFile;
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.visitor.PrefixBasedCopyFileVisitor.CopyType.*;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.io.FilenameUtils.getName;
 import static org.hamcrest.Matchers.equalTo;
 
+@Log4j
 public final class IOUtils {
 
     public static final String COPIED_FILES_PREFIX = "ejisto__";
@@ -262,6 +266,36 @@ public final class IOUtils {
         return true;
     }
 
+    public static boolean emptyDir(File file) {
+        Path directory = file.toPath();
+        if(!Files.isDirectory(directory)) {
+            return true;
+        }
+        try {
+            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    if(exc == null) {
+                        Files.delete(dir);
+                        return FileVisitResult.CONTINUE;
+                    }
+                    return FileVisitResult.TERMINATE;
+                }
+            });
+        } catch (IOException e) {
+            IOUtils.log.error(format("error while trying to empty the directory %s", directory.toString()), e);
+            return false;
+        }
+        return true;
+    }
+
     public static void zipDirectory(File src, String outputFilePath) throws IOException {
         Path out = Paths.get(outputFilePath);
         if (Files.exists(out)) {
@@ -297,8 +331,8 @@ public final class IOUtils {
     }
 
     public static String guessWebApplicationUri(String contextPath) {
-        return String.format("http://localhost:%s%s/",
-                             SettingsRepository.getInstance().getSettingValue(DEFAULT_SERVER_PORT), contextPath);
+        return format("http://localhost:%s%s/",
+                      SettingsRepository.getInstance().getSettingValue(DEFAULT_SERVER_PORT), contextPath);
     }
 
     public static int findFirstAvailablePort(int startPort) {
@@ -352,7 +386,7 @@ public final class IOUtils {
     }
 
     public static String getHttpInterfaceAddress() throws IOException {
-        return String.format("http://%s:%s", getLocalAddress(), System.getProperty(HTTP_LISTEN_PORT.getValue()));
+        return format("http://%s:%s", getLocalAddress(), System.getProperty(HTTP_LISTEN_PORT.getValue()));
     }
 
 }

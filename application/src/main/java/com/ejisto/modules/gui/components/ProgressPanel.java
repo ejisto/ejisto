@@ -31,6 +31,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
 import static com.ejisto.util.GuiUtils.getErrorIcon;
 import static com.ejisto.util.GuiUtils.getMessage;
 
@@ -62,9 +63,9 @@ public class ProgressPanel extends JXPanel {
         this.title = new JXLabel(defaultMessage, JXLabel.CENTER);
         this.title.setLineWrap(true);
         this.setLayout(new BorderLayout());
-        this.setPreferredSize(new Dimension(500, 300));
-        this.setMinimumSize(new Dimension(500, 300));
-        this.setSize(new Dimension(500, 217));
+        this.setPreferredSize(new Dimension(DEFAULT_WIDTH, 300));
+        this.setMinimumSize(new Dimension(DEFAULT_WIDTH, 300));
+        this.setSize(new Dimension(DEFAULT_WIDTH, 217));
         this.add(getProgress(), BorderLayout.SOUTH);
         this.add(title, BorderLayout.CENTER);
         this.add(getCollapsiblePane(), BorderLayout.NORTH);

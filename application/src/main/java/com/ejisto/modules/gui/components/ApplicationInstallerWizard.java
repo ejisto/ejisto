@@ -25,6 +25,8 @@ import org.jdesktop.swingx.JXPanel;
 import javax.swing.*;
 import java.awt.*;
 
+import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
+
 public class ApplicationInstallerWizard extends JXPanel {
 
     private static final long serialVersionUID = 788313444893972067L;
@@ -52,7 +54,7 @@ public class ApplicationInstallerWizard extends JXPanel {
     private void initialize() {
         this.setLayout(new BorderLayout(0, 0));
         this.setSize(new Dimension(600, 500));
-        this.setMinimumSize(new Dimension(500, 400));
+        this.setMinimumSize(new Dimension(DEFAULT_WIDTH, 400));
         this.add(getContent(), BorderLayout.CENTER);
     }
 

@@ -24,7 +24,6 @@ import com.ejisto.core.ApplicationException;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.*;
 import com.ejisto.event.def.ChangeServerStatus.Command;
-import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.Header;
@@ -44,7 +43,6 @@ import static com.ejisto.util.GuiUtils.putAction;
 public class ResourcesInitializer extends BaseStartupService {
     @Resource private EventManager eventManager;
     @Resource private EmbeddedDatabaseManager dataSource;
-    @Resource private SettingsManager settingsManager;
 
     @Override
     public void execute() {

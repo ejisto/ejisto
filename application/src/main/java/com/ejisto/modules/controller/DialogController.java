@@ -27,6 +27,7 @@ import java.awt.event.KeyListener;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
 import static com.ejisto.util.GuiUtils.centerOnScreen;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -61,7 +62,7 @@ public final class DialogController {
      * @see #showUndecorated(boolean, java.awt.Dimension)
      */
     public void showUndecorated(boolean modal) {
-        showUndecorated(modal, new Dimension(500, 150));
+        showUndecorated(modal, new Dimension(DEFAULT_WIDTH, 150));
     }
 
     /**

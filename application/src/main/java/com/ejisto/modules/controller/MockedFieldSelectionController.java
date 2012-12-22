@@ -20,12 +20,14 @@
 package com.ejisto.modules.controller;
 
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.EjistoDialog;
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
 import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.ADD_FIELD;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static java.util.Collections.emptyList;
@@ -58,7 +60,7 @@ public class MockedFieldSelectionController extends AbstractDialogManager {
 
     public void showSelectionDialog() {
         openDialog(createPanel(), getMessage("field.add.dialog.title"),
-                   getMessage("field.add.dialog.description"), "field.add.icon", new Dimension(500, 400));
+                   getMessage("field.add.dialog.description"), "field.add.icon", new Dimension(DEFAULT_WIDTH, 400));
     }
 
     private JPanel createPanel() {

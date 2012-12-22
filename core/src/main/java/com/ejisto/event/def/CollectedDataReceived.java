@@ -49,4 +49,5 @@ public class CollectedDataReceived extends BaseApplicationEvent {
     public CollectedData getData() {
         return data;
     }
+
 }

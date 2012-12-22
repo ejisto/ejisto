@@ -89,6 +89,23 @@ public enum FieldsEditorContext {
         public boolean isAdmitted(MockedField mockedField) {
             return true;
         }
+    },
+
+    /*Class Name,Field Name,Field Type,Field Value,Context Path*/
+    RECORD_FIELD("fields.table.model.RECORD_FIELD.columns", new GuiUtils.EditorColumnFillStrategy() {
+        @Override
+        public void fillRow(List<List<String>> rows, MockedField row) {
+            rows.add(asList(row.getClassName(),
+                            row.getFieldName(),
+                            row.getFieldType(),
+                            row.getFieldValue(),
+                            row.getContextPath()));
+        }
+    }, false, true, of(EditorType.HIERARCHICAL), 3) {
+        @Override
+        public boolean isAdmitted(MockedField mockedField) {
+            return true;
+        }
     };
 
     private final String tableColumnsKey;

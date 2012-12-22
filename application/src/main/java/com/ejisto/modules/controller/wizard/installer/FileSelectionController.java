@@ -35,6 +35,7 @@ import java.io.File;
 import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
 import static com.ejisto.constants.StringConstants.SELECT_FILE_COMMAND;
+import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.selectFile;
 
@@ -44,7 +45,6 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
     private JXLabel selectedFilePath;
     private JButton fileSelection;
     private File selectedFile;
-    private boolean executionCompleted;
     private Closure1<ActionEvent> callActionPerformed;
 
     public FileSelectionController(EjistoDialog dialog) {
@@ -81,7 +81,6 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
                 getSelectedFilePath().setText(selectedFile.getAbsolutePath());
                 getSelectedFilePath().setToolTipText(selectedFile.getAbsolutePath());
             }
-            executionCompleted = true;
         }
     }
 
@@ -101,7 +100,7 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
         }
         fileSelectionTab = new JXPanel(new BorderLayout());
         JXPanel spacer = new JXPanel();
-        spacer.setPreferredSize(new Dimension(500, 100));
+        spacer.setPreferredSize(new Dimension(DEFAULT_WIDTH, 100));
         fileSelectionTab.add(spacer, BorderLayout.NORTH);
         fileSelectionTab.add(getFileSelectionPanel(), BorderLayout.CENTER);
         return fileSelectionTab;
@@ -115,8 +114,8 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
             flowLayout.setVgap(15);
             flowLayout.setHgap(15);
             fileSelectionPanel.setLayout(flowLayout);
-            fileSelectionPanel.setMinimumSize(new Dimension(500, 50));
-            fileSelectionPanel.setPreferredSize(new Dimension(500, 50));
+            fileSelectionPanel.setMinimumSize(new Dimension(DEFAULT_WIDTH, 50));
+            fileSelectionPanel.setPreferredSize(new Dimension(DEFAULT_WIDTH, 50));
             fileSelectionPanel.add(getSelectedFilePath());
             fileSelectionPanel.add(getFileSelection());
         }

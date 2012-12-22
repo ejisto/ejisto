@@ -30,6 +30,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
+import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
 import static com.ejisto.util.GuiUtils.getIcon;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -99,10 +100,10 @@ public class Header extends JXPanel implements ComponentListener {
         logo.setIcon(new ImageIcon(getClass().getResource("/images/logo_mini.png")));
         setLayout(new BorderLayout());
         setBackground(Color.white);
-        setPreferredSize(new Dimension(500, 80));
+        setPreferredSize(new Dimension(DEFAULT_WIDTH, 80));
         setName("header");
         setMinimumSize(new Dimension(300, 80));
-        setMaximumSize(new Dimension(32767, 100));
+        setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.gray));
         //add(logo, BorderLayout.WEST);
 //        add(gradient, BorderLayout.EAST);

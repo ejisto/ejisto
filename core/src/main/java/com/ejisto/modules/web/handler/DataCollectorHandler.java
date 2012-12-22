@@ -31,6 +31,10 @@ import lombok.extern.log4j.Log4j;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
  * Created by IntelliJ IDEA.
@@ -67,10 +71,10 @@ public class DataCollectorHandler implements HttpHandler {
                 CollectedData data = JSONUtil.decode(requestBody, CollectedData.class);
                 eventManager.publishEventAndWait(new CollectedDataReceived(this, data));
             }
-            exchange.sendResponseHeaders(200, OK.length());
+            exchange.sendResponseHeaders(HTTP_OK, OK.length());
             reply(exchange, OK);
         } catch (IOException | IllegalArgumentException ex) {
-            exchange.sendResponseHeaders(500, KO.length());
+            exchange.sendResponseHeaders(HTTP_INTERNAL_ERROR, KO.length());
             reply(exchange, KO);
             DataCollectorHandler.log.error(exchange.getRequestURI(), ex);
         }

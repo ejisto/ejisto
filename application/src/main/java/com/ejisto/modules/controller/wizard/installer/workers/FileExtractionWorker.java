@@ -23,10 +23,12 @@ import com.ejisto.modules.controller.wizard.installer.FileExtractionController;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 import com.ejisto.modules.executor.GuiTask;
+import com.ejisto.util.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -55,6 +57,7 @@ public class FileExtractionWorker extends GuiTask<Void> {
     @Override
     protected Void internalDoInBackground() throws IOException, InvocationTargetException, InterruptedException {
         File war = getSession().getWarFile();
+
         String path = openWar(war);
         getSession().setInstallationPath(path);
         notifyJobCompleted(COMPLETED, getMessage("progress.file.extraction.end", war.getName()));
@@ -95,11 +98,7 @@ public class FileExtractionWorker extends GuiTask<Void> {
 
     private boolean overwriteDir(File dir) {
         if (dir.exists() && showWarning(null, "wizard.overwrite.dir.message", dir.getAbsolutePath())) {
-            boolean success = true;
-            for (File f : dir.listFiles()) {
-                success &= deleteFile(f);
-            }
-            return success;
+            return IOUtils.emptyDir(dir);
         }
         return !dir.exists();
     }
@@ -112,7 +111,6 @@ public class FileExtractionWorker extends GuiTask<Void> {
         if (!success) {
             return success;
         }
-        dir.deleteOnExit();
         return success;
     }
 

@@ -38,6 +38,8 @@ import static com.ejisto.util.GuiUtils.*;
 public class EjistoDialog extends JDialog {
     private static final long serialVersionUID = 1533524071894496853L;
     public static final String CLOSE_ACTION_COMMAND = "close";
+    public static final int DEFAULT_WIDTH = 600;
+    public static final int DEFAULT_HEIGHT = 500;
     private Collection<Action> actions = new LinkedHashSet<>();
     private JPanel content;
     private Header header;
