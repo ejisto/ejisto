@@ -2,7 +2,7 @@
 <!--
   ~ Ejisto, a powerful developer assistant
   ~
-  ~ Copyright (C) 2010-2012  Celestino Bellone
+  ~ Copyright (C) 2010-2013 Celestino Bellone
   ~
   ~ Ejisto is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -35,8 +35,8 @@
         <module>test-beans</module>
     </modules>
     <issueManagement>
-        <system>google</system>
-        <url>http://code.google.com/p/ejisto/issues/list</url>
+        <system>github</system>
+        <url>https://github.com/ejisto/ejisto/issues</url>
     </issueManagement>
     <distributionManagement>
         <repository>
@@ -45,8 +45,8 @@
         </repository>
     </distributionManagement>
     <scm>
-        <connection>scm:svn:https://ejisto.googlecode.com/svn/trunk/</connection>
-        <url>https://ejisto.googlecode.com/svn/trunk/</url>
+        <developerConnection>scm:git:[fetch=]https://github.com/ejisto/ejisto.git[push=]ssh://git@github.com:ejisto/ejisto.git</developerConnection>
+        <url>https://github.com/ejisto/ejisto.git</url>
     </scm>
     <organization>
         <name>Ejisto</name>
@@ -231,7 +231,7 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.2.2</version>
                 <configuration>
-                    <tagBase>https://ejisto.googlecode.com/svn/tags/</tagBase>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
                     <releaseProfiles>release</releaseProfiles>
                     <goals>clean deploy</goals>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
