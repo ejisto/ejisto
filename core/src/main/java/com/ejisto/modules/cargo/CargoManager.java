@@ -100,7 +100,7 @@ public class CargoManager implements ContainerManager {
         URL url = new URL(urlToString.trim());
         ContainerInstaller installer = new ContainerInstaller(url, folder);
         installer.install();
-        containersRepository.registerDefaultContainer(DEFAULT_CONTAINER_ID.getValue(), installer.getHome(),
+        containersRepository.registerDefaultContainer(DEFAULT_CARGO_ID.getValue(), installer.getHome(),
                                                       settingsRepository.getSettingValue(
                                                               DEFAULT_CONTAINER_DESCRIPTION));
         return installer.getHome();
@@ -377,23 +377,6 @@ public class CargoManager implements ContainerManager {
         }
     }
 
-//    private Deployable hotDeploy(WebApplicationDescriptor webApplicationDescriptor, LocalContainer container) {
-//        try {
-//            Deployable deployable = createDeployable(webApplicationDescriptor, container);
-//            Deployer deployer = getDeployerFor(container);
-//            URLDeployableMonitor monitor = new URLDeployableMonitor(
-//                    new URL(guessWebApplicationUri(webApplicationDescriptor)));
-//            if (isAlreadyDeployed(deployable, container)) {
-//                deployer.undeploy(deployable, monitor);
-//            }
-//            deployer.deploy(deployable, monitor);
-//            return deployable;
-//        } catch (Exception ex) {
-//            log.error("error during hot deploy", ex);
-//            return null;
-//        }
-//    }
-
     private boolean undeploy(String containerId, String contextPath, Deployable deployable, LocalContainer container) {
         try {
             URLDeployableMonitor monitor = new URLDeployableMonitor(new URL(guessWebApplicationUri(contextPath)));
@@ -442,10 +425,6 @@ public class CargoManager implements ContainerManager {
         ((WAR) deployable).setContext(webApplicationDescriptor.getContextPath());
         return deployable;
     }
-
-//    private boolean isAlreadyDeployed(Deployable deployable, LocalContainer container) {
-//        return findDeployable(deployable.getFile(), container.getConfiguration()) != null;
-//    }
 
     private void replaceDeployable(Deployable replacement, LocalContainer container) {
         LocalConfiguration configuration = container.getConfiguration();

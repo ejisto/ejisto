@@ -24,6 +24,7 @@ import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.util.visitor.CopyFileVisitor;
+import com.ejisto.util.visitor.MultipurposeFileVisitor;
 import com.ejisto.util.visitor.PrefixBasedCopyFileVisitor;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.io.FileUtils;
@@ -39,12 +40,11 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.util.visitor.PrefixBasedCopyFileVisitor.CopyType.*;
+import static com.ejisto.util.visitor.PrefixBasedCopyFileVisitor.CopyType.INCLUDE_ALL;
+import static com.ejisto.util.visitor.PrefixBasedCopyFileVisitor.CopyType.INCLUDE_ONLY_MATCHING_RESOURCES;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -81,10 +81,6 @@ public final class IOUtils {
 
     public static void copyFilteredDirContent(File srcDir, File targetDir, String[] prefixes, String copiedFilesPrefix) {
         copyDirContent(srcDir, targetDir, prefixes, copiedFilesPrefix, INCLUDE_ONLY_MATCHING_RESOURCES);
-    }
-
-    public static void copyDirContentExcludingMatchingFiles(File srcDir, File targetDir, String[] prefixes) {
-        copyDirContent(srcDir, targetDir, prefixes, null, EXCLUDE_MATCHING_RESOURCES);
     }
 
     private static void copyDirContent(File srcDir, File targetDir, String[] prefixes, final String copiedFilesPrefix,
@@ -230,14 +226,23 @@ public final class IOUtils {
     }
 
     public static Collection<String> findAllClassesInJarFile(File jarFile) throws IOException {
-        ZipFile jar = new ZipFile(jarFile);
-        ZipEntry entry;
-        ArrayList<String> ret = new ArrayList<>();
-        for (Enumeration<? extends ZipEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
-            entry = entries.nextElement();
-            if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-                ret.add(translatePath(entry.getName().substring(0, entry.getName().length() - 6), "/"));
-            }
+        final List<String> ret = new ArrayList<>();
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "false");
+        try (FileSystem targetFs = FileSystems.newFileSystem(URI.create("jar:file:" + jarFile.getAbsolutePath()),
+                                                             env)) {
+            final Path root = targetFs.getPath("/");
+            Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    String ext = ".class";
+                    if (attrs.isRegularFile() && file.getFileName().toString().endsWith(ext)) {
+                        String path = root.relativize(file).toString();
+                        ret.add(translatePath(path.substring(0, path.length() - ext.length()), "/"));
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
         }
         return ret;
     }
@@ -268,7 +273,7 @@ public final class IOUtils {
 
     public static boolean emptyDir(File file) {
         Path directory = file.toPath();
-        if(!Files.isDirectory(directory)) {
+        if (!Files.isDirectory(directory)) {
             return true;
         }
         try {
@@ -282,7 +287,7 @@ public final class IOUtils {
 
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    if(exc == null) {
+                    if (exc == null) {
                         Files.delete(dir);
                         return FileVisitResult.CONTINUE;
                     }
@@ -309,7 +314,8 @@ public final class IOUtils {
         }
     }
 
-    public static void unzipFile(File src, String outputDirectory) throws IOException {
+    @SafeVarargs
+    public static void unzipFile(File src, String outputDirectory, FileVisitor<Path>... additionalVisitor) throws IOException {
         Path out = Paths.get(outputDirectory);
         if (!Files.exists(out)) {
             Files.createDirectories(out);
@@ -318,7 +324,9 @@ public final class IOUtils {
         try (FileSystem fileSystem = FileSystems.newFileSystem(URI.create("jar:file:" + src.getAbsolutePath()),
                                                                Collections.<String, Object>emptyMap())) {
             final Path srcRoot = fileSystem.getPath("/");
-            Files.walkFileTree(srcRoot, new CopyFileVisitor(srcRoot, out));
+            FileVisitor<Path> visitor = new MultipurposeFileVisitor<>(new CopyFileVisitor(srcRoot, out),
+                                                                      additionalVisitor);
+            Files.walkFileTree(srcRoot, visitor);
         }
     }
 

@@ -24,20 +24,21 @@ import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 import com.ejisto.modules.executor.GuiTask;
 import com.ejisto.util.IOUtils;
+import lombok.extern.log4j.Log4j;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 
 import static com.ejisto.modules.executor.ProgressDescriptor.ProgressState.COMPLETED;
 import static com.ejisto.modules.executor.ProgressDescriptor.ProgressState.RUNNING;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.showWarning;
-import static com.ejisto.util.IOUtils.*;
+import static com.ejisto.util.IOUtils.getFilenameWithoutExt;
 
 /**
  * Created by IntelliJ IDEA.
@@ -45,6 +46,7 @@ import static com.ejisto.util.IOUtils.*;
  * Date: 11/29/11
  * Time: 7:09 PM
  */
+@Log4j
 public class FileExtractionWorker extends GuiTask<Void> {
 
     private WebApplicationDescriptor session;
@@ -75,24 +77,21 @@ public class FileExtractionWorker extends GuiTask<Void> {
             throw new IOException("Path " + baseDir.getAbsolutePath() + " is not writable. Cannot continue.");
         }
         getSession().clearElements();
-
-        //IOUtils.unzipFile(file, newPath);
-
-        ZipFile war = new ZipFile(file);
-        Enumeration<? extends ZipEntry> entries = war.entries();
-        firePropertyChange("startProgress", 0, war.size());
-        ZipEntry entry;
-        while (entries.hasMoreElements()) {
-            entry = entries.nextElement();
-            notifyJobCompleted(RUNNING, getMessage("progress.file.extraction", entry.getName()));
-            if (!entry.isDirectory()) {
-                writeFile(war.getInputStream(entry), baseDir, entry.getName());
+        IOUtils.unzipFile(file, newPath, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                try {
+                    String fileName = file.getFileName().toString();
+                    notifyJobCompleted(RUNNING, getMessage("progress.file.extraction", fileName));
+                    if (fileName.endsWith(".jar")) {
+                        getSession().addElement(new WebApplicationDescriptorElement(fileName));
+                    }
+                } catch (InterruptedException | InvocationTargetException e) {
+                    FileExtractionWorker.log.warn("unexpected exception", e);
+                }
+                return FileVisitResult.CONTINUE;
             }
-            if (entry.getName().endsWith(".jar")) {
-                getSession().addElement(
-                        new WebApplicationDescriptorElement(retrieveFilenameFromPath(entry.getName())));
-            }
-        }
+        });
         return newPath;
     }
 
