@@ -17,23 +17,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao.jdbc;
+package com.ejisto.modules.dao.db;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.ejisto.modules.web.util.JSONUtil;
+import org.mapdb.Serializer;
 
-import javax.sql.DataSource;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
-public abstract class BaseJdbcDao {
-    private JdbcTemplate jdbcTemplate;
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 2/17/13
+ * Time: 5:08 PM
+ */
+public class JSONSerializer<T> implements Serializer<T> {
 
-    JdbcTemplate getJdbcTemplate() {
-        return jdbcTemplate;
+    private final Class<T> target;
+
+    public JSONSerializer(Class<T> target) {
+        this.target = target;
     }
 
-    @Autowired
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    @Override
+    public void serialize(DataOutput out, T value) throws IOException {
+        out.writeUTF(JSONUtil.encode(value));
     }
 
+    @Override
+    public T deserialize(DataInput in, int available) throws IOException {
+        return JSONUtil.decode(in.readUTF(), target);
+    }
 }

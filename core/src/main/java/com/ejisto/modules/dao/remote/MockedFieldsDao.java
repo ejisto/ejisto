@@ -73,7 +73,7 @@ public class MockedFieldsDao extends BaseRemoteDao implements com.ejisto.modules
     }
 
     @Override
-    public long insert(MockedField field) {
+    public MockedField insert(MockedField field) {
         throw new UnsupportedOperationException("Remote dao is read-only");
     }
 

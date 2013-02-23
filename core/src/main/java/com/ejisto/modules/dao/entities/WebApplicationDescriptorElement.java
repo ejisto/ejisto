@@ -32,7 +32,7 @@ public class WebApplicationDescriptorElement implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private int id;
+    private long id;
     private String contextPath;
     private String path;
     private Kind kind = Kind.CLASSPATH;

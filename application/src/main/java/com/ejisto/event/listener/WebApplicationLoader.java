@@ -27,7 +27,7 @@ import com.ejisto.event.def.ChangeWebAppContextStatus.WebAppContextStatusCommand
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.controller.ApplicationInstallerWizardController;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
-import com.ejisto.modules.dao.jdbc.WebApplicationDescriptorDao;
+import com.ejisto.modules.dao.local.WebApplicationDescriptorDao;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.repository.ClassPoolRepository;

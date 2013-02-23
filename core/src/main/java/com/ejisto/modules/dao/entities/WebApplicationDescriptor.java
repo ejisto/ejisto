@@ -34,12 +34,12 @@ import static org.hamcrest.Matchers.equalTo;
 public class WebApplicationDescriptor implements Serializable {
     private static final long serialVersionUID = 7454195671017831484L;
     private List<WebApplicationDescriptorElement> elements = new ArrayList<>();
-    private int id = -1;
+    private long id = -1;
     private String installationPath;
     private String containerId;
     private String contextPath;
-    private Collection<MockedField> fields;
     private String deployablePath;
+    private transient final Collection<MockedField> fields;
     private transient final WebApplicationDescriptorHelper helper;
     private transient File warFile;
     private transient List<WebApplicationDescriptorElement> classpathEntries;
@@ -124,11 +124,11 @@ public class WebApplicationDescriptor implements Serializable {
         return helper.getModifiedFields();
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

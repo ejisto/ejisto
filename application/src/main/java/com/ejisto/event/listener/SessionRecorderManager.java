@@ -27,7 +27,7 @@ import com.ejisto.event.def.SessionRecorderStart;
 import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
-import com.ejisto.modules.dao.jdbc.WebApplicationDescriptorDao;
+import com.ejisto.modules.dao.local.WebApplicationDescriptorDao;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;

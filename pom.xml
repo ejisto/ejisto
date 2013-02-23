@@ -45,7 +45,9 @@
         </repository>
     </distributionManagement>
     <scm>
-        <developerConnection>scm:git:[fetch=]https://github.com/ejisto/ejisto.git[push=]ssh://git@github.com:ejisto/ejisto.git</developerConnection>
+        <developerConnection>
+            scm:git:[fetch=]https://github.com/ejisto/ejisto.git[push=]ssh://git@github.com:ejisto/ejisto.git
+        </developerConnection>
         <url>https://github.com/ejisto/ejisto.git</url>
     </scm>
     <organization>
@@ -56,6 +58,18 @@
         <org.springframework.version>3.1.1.RELEASE</org.springframework.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <repositories>
+        <repository>
+            <id>master</id>
+            <url>http://repo1.maven.org</url>
+        </repository>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
+
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -79,22 +93,6 @@
                 <artifactId>commons-collections</artifactId>
                 <version>3.2.1</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derby</artifactId>
-                <version>10.6.1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derbynet</artifactId>
-                <version>10.6.1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derbyclient</artifactId>
-                <version>10.6.1.0</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-core-container-tomcat</artifactId>
@@ -124,13 +122,19 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-jdbc</artifactId>
+                <artifactId>spring-beans</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${org.springframework.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.googlecode.lambdaj</groupId>
@@ -153,11 +157,6 @@
                 <version>2.2</version>
             </dependency>
             <dependency>
-                <groupId>commons-dbcp</groupId>
-                <artifactId>commons-dbcp</artifactId>
-                <version>1.4</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.1</version>
@@ -176,6 +175,11 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>2.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapdb</groupId>
+                <artifactId>mapdb</artifactId>
+                <version>0.9-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

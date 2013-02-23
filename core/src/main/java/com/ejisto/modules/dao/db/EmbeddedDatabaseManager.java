@@ -20,143 +20,115 @@
 package com.ejisto.modules.dao.db;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.modules.dao.entities.*;
 import lombok.extern.log4j.Log4j;
-import org.apache.derby.drda.NetworkServerControl;
-import org.apache.derby.jdbc.ClientDriver;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.jdbc.datasource.AbstractDataSource;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.mapdb.Atomic;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Properties;
-import java.util.zip.GZIPInputStream;
+import java.io.File;
+import java.util.Collection;
 
-import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.util.IOUtils.findFirstAvailablePort;
-import static java.lang.String.format;
+import static com.ejisto.constants.StringConstants.DB_SCRIPT;
 
 @Log4j
-public class EmbeddedDatabaseManager extends AbstractDataSource implements InitializingBean {
+public class EmbeddedDatabaseManager {
 
-    private SimpleDriverDataSource driverDataSource;
-    private NetworkServerControl serverControl;
-    @javax.annotation.Resource(name = "settings") private Properties settings;
-    private DatabaseConfiguration databaseConfiguration;
+    private static final String SETTINGS = "settings";
+    private static final String CONTAINERS = "containers";
+    private static final String CUSTOM_OBJECT_FACTORIES = "customObjectFactories";
+    private static final String JNDI_DATA_SOURCES = "jndiDataSources";
+    private static final String JNDI_DATA_SOURCES_SEQ = "jndiDataSourcesSeq";
+    private static final String REGISTERED_OBJECT_FACTORIES = "registeredObjectFactories";
+    private static final String WEB_APPLICATION_DESCRIPTORS = "webApplicationDescriptors";
+    private static final String WEB_APPLICATION_DESCRIPTORS_SEQ = "webApplicationDescriptorsSeq";
+    private static final String REGISTERED_CONTEXT_PATHS = "registeredContextPaths";
+    private static final String MOCKED_FIELDS_SEQ = "mockedFieldsSeq";
 
+    private final DB db;
+
+    public EmbeddedDatabaseManager() {
+        this.db = DBMaker.newFileDB(new File(System.getProperty(DB_SCRIPT.getValue())))
+                .closeOnJvmShutdown()
+                .randomAccessFileEnableIfNeeded()
+                .compressionEnable()
+                .make();
+    }
+
+    @SuppressWarnings("unchecked")
     public void initDb() throws Exception {
-        System.setProperty(DATABASE_PORT.getValue(), String.valueOf(databaseConfiguration.port));
-        serverControl = new NetworkServerControl(InetAddress.getByName("localhost"), databaseConfiguration.port,
-                                                 databaseConfiguration.user, databaseConfiguration.password);
-        ResourceLoader loader = new DefaultResourceLoader() {
-            @Override
-            protected Resource getResourceByPath(String path) {
-                return new GZipResource(path);
-            }
-        };
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-        populator.addScript(loader.getResource("classpath:sql/ejisto-schema.sql"));
-        if (!Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) {
-            populator.addScript(loader.getResource(System.getProperty(StringConstants.DB_SCRIPT.getValue())));
-        }
-        serverControl.start(new PrintWriter(System.out));
-        checkServerStartup();
-        initDatabase();
-        driverDataSource = new SimpleDriverDataSource(new ClientDriver(),
-                                                      databaseConfiguration.url,
-                                                      databaseConfiguration.user,
-                                                      databaseConfiguration.password);
-        populator.populate(getConnection());
-        log.info("done");
-    }
-
-    private void checkServerStartup() throws Exception {
-        int tries = 0;
-        while (tries < 5) {
-            try {
-                Thread.sleep(500);
-                pingServer();
-                return;
-            } catch (Exception ex) {
-                tries++;
-            }
-        }
-        pingServer();
-    }
-
-    private void pingServer() throws Exception {
-        serverControl.ping();
-    }
-
-    private void initDatabase() throws SQLException {
-        DriverManager.registerDriver(new ClientDriver());
-        Connection con = null;
-        try {
-            con = DriverManager.getConnection(databaseConfiguration.url + ";create=true",
-                                              databaseConfiguration.user,
-                                              databaseConfiguration.password);
-        } finally {
-            if (con != null) {
-                con.close();
-            }
+        if (Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) {
+            db.createHashSet(SETTINGS, new JSONSerializer<>(Setting.class));
+            db.createHashSet(CONTAINERS, new JSONSerializer<>(Container.class));
+            db.createHashSet(CUSTOM_OBJECT_FACTORIES, new JSONSerializer<>(CustomObjectFactory.class));
+            db.createHashSet(JNDI_DATA_SOURCES, new JSONSerializer<>(JndiDataSource.class));
+            Atomic.createLong(db, JNDI_DATA_SOURCES_SEQ, 0);
+            db.createHashSet(REGISTERED_OBJECT_FACTORIES, new JSONSerializer<>(RegisteredObjectFactory.class));
+            db.createHashSet(WEB_APPLICATION_DESCRIPTORS, new JSONSerializer<>(WebApplicationDescriptor.class));
+            db.createHashSet(REGISTERED_CONTEXT_PATHS, db.getDefaultSerializer());
+            Atomic.createLong(db, MOCKED_FIELDS_SEQ, 0);
+            Atomic.createLong(db, WEB_APPLICATION_DESCRIPTORS_SEQ, 0);
         }
     }
 
-    @Override
-    public Connection getConnection() throws SQLException {
-        return driverDataSource.getConnection();
+    public Collection<Setting> getSettings() {
+        return db.getHashSet(SETTINGS);
     }
 
-    @Override
-    public Connection getConnection(String username, String password) throws SQLException {
-        return driverDataSource.getConnection();
+    public Collection<Container> getContainers() {
+        return db.getHashSet(CONTAINERS);
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        int port = findFirstAvailablePort(5555);
-        this.databaseConfiguration = new DatabaseConfiguration(format("jdbc:derby://localhost:%s/memory:ejisto", port),
-                                                               settings.getProperty(DATABASE_USER.getValue()),
-                                                               settings.getProperty(DATABASE_PWD.getValue()), port);
-        if (Boolean.getBoolean("force.db.init")) {
-            //since we're in a Test environment, we need to force db initialization
-            initDb();
-        }
+    public Collection<CustomObjectFactory> getCustomObjectFactories() {
+         return db.getHashSet(CUSTOM_OBJECT_FACTORIES);
     }
 
-    private static final class GZipResource extends FileSystemResource {
-        public GZipResource(String path) {
-            super(path);
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return new GZIPInputStream(super.getInputStream());
-        }
+    public Collection<JndiDataSource> getJndiDataSources() {
+        return db.getHashSet(JNDI_DATA_SOURCES);
     }
 
-    private static final class DatabaseConfiguration {
-        private final String url;
-        private final String user;
-        private final String password;
-        private final int port;
-
-        public DatabaseConfiguration(String url, String user, String password, int port) {
-            this.url = url;
-            this.user = user;
-            this.password = password;
-            this.port = port;
-        }
+    public long getNextJndiDataSourceSequenceValue() {
+        return Atomic.getLong(db, JNDI_DATA_SOURCES_SEQ).incrementAndGet();
     }
+
+    public Collection<MockedField> getMockedFields(String contextPath) {
+        Collection<MockedField> out = db.getHashSet(contextPath);
+        db.getHashSet(REGISTERED_CONTEXT_PATHS).add(contextPath);
+        return out;
+    }
+
+    public Collection<RegisteredObjectFactory> getRegisteredObjectFactories() {
+        return db.getHashSet(REGISTERED_OBJECT_FACTORIES);
+    }
+
+    public void deleteContextPath(String contextPath) {
+        Long id = db.getNameDir().get(contextPath);
+        db.getEngine().delete(id);
+        getRegisteredContextPaths().remove(contextPath);
+    }
+
+    public long getNextMockedFieldsSequenceValue() {
+            return Atomic.getLong(db, MOCKED_FIELDS_SEQ).incrementAndGet();
+    }
+    public long getNextWebApplicationDescriptorSequenceValue() {
+            return Atomic.getLong(db, WEB_APPLICATION_DESCRIPTORS_SEQ).incrementAndGet();
+    }
+
+    public Collection<String> getRegisteredContextPaths() {
+        return db.getHashSet(REGISTERED_CONTEXT_PATHS);
+    }
+
+    public Collection<WebApplicationDescriptor> getWebApplicationDescriptors() {
+        return db.getHashSet(WEB_APPLICATION_DESCRIPTORS);
+    }
+
+    public void commit() {
+        db.commit();
+    }
+
+    public void rollback() {
+        db.rollback();
+    }
+
 
 }

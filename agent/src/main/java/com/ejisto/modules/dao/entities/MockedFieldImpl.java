@@ -194,4 +194,9 @@ public class MockedFieldImpl implements MockedField {
         }
         return getComparisonKey().compareTo(o.getComparisonKey());
     }
+
+    @Override
+    public MockedFieldImpl clone() throws CloneNotSupportedException {
+        return (MockedFieldImpl) super.clone();
+    }
 }

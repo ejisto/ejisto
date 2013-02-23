@@ -23,19 +23,19 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <beans profile="server">
-        <bean abstract="true" id="baseDao" class="com.ejisto.modules.dao.jdbc.BaseJdbcDao" lazy-init="true"/>
-        <bean id="settingsDao" class="com.ejisto.modules.dao.jdbc.SettingsDao" parent="baseDao" lazy-init="true"/>
-        <bean id="mockedFieldsDao" class="com.ejisto.modules.dao.jdbc.MockedFieldsDao" parent="baseDao"
+        <bean abstract="true" id="baseDao" class="com.ejisto.modules.dao.local.BaseLocalDao" lazy-init="true"/>
+        <bean id="settingsDao" class="com.ejisto.modules.dao.local.SettingsDao" parent="baseDao" lazy-init="true"/>
+        <bean id="mockedFieldsDao" class="com.ejisto.modules.dao.local.MockedFieldsDao" parent="baseDao"
               lazy-init="true"/>
-        <bean id="objectFactoryDao" class="com.ejisto.modules.dao.jdbc.ObjectFactoryDao" parent="baseDao"
+        <bean id="objectFactoryDao" class="com.ejisto.modules.dao.local.ObjectFactoryDao" parent="baseDao"
               lazy-init="true"/>
-        <bean id="customObjectFactoryDao" class="com.ejisto.modules.dao.jdbc.CustomObjectFactoryDao" parent="baseDao"
+        <bean id="customObjectFactoryDao" class="com.ejisto.modules.dao.local.CustomObjectFactoryDao" parent="baseDao"
               lazy-init="true"/>
-        <bean id="webApplicationDescriptorDao" class="com.ejisto.modules.dao.jdbc.WebApplicationDescriptorDao"
+        <bean id="webApplicationDescriptorDao" class="com.ejisto.modules.dao.local.WebApplicationDescriptorDao"
               parent="baseDao" lazy-init="true"/>
-        <bean id="jndiDataSourcesDao" class="com.ejisto.modules.dao.jdbc.JndiDataSourcesDao" parent="baseDao"
+        <bean id="jndiDataSourcesDao" class="com.ejisto.modules.dao.local.JndiDataSourcesDao" parent="baseDao"
               lazy-init="true"/>
-        <bean id="containersDao" class="com.ejisto.modules.dao.jdbc.ContainersDao" parent="baseDao" lazy-init="true"/>
+        <bean id="containersDao" class="com.ejisto.modules.dao.local.ContainersDao" parent="baseDao" lazy-init="true"/>
         <bean id="dataSource" class="com.ejisto.modules.dao.db.EmbeddedDatabaseManager"/>
     </beans>
 

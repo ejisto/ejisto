@@ -20,7 +20,7 @@
 package com.ejisto.util;
 
 import com.ejisto.modules.dao.entities.JndiDataSource;
-import com.ejisto.modules.dao.jdbc.JndiDataSourcesDao;
+import com.ejisto.modules.dao.local.JndiDataSourcesDao;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -43,7 +43,7 @@ public final class JndiDataSourcesRepository {
     }
 
     public static void store(JndiDataSource dataSource) {
-        if (!getInstance().getJndiDataSourcesDao().isAlredyRegistered(dataSource.getName())) {
+        if (!getInstance().getJndiDataSourcesDao().isAlreadyRegistered(dataSource.getName())) {
             getInstance().getJndiDataSourcesDao().insert(dataSource);
         }
     }

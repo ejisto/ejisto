@@ -23,6 +23,7 @@ import ch.lambdaj.function.convert.Converter;
 import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.web.MockedFieldRequest;
 import com.ejisto.util.ExternalizableService;
 import org.hamcrest.Matcher;
@@ -83,9 +84,7 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     }
 
     public MockedField insert(MockedField mockedField) {
-        long id = getMockedFieldsDao().insert(mockedField);
-        mockedField.setId(id);
-        return mockedField;
+        return getMockedFieldsDao().insert(mockedField);
     }
 
     public boolean isMockableClass(String contextPath, String className) {

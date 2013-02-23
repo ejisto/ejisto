@@ -17,36 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao;
-
-import com.ejisto.modules.dao.entities.MockedField;
-
-import java.util.Collection;
-import java.util.List;
+package com.ejisto.modules.dao.exception;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 6/30/12
- * Time: 10:59 AM
+ * Date: 2/17/13
+ * Time: 7:12 PM
  */
-public interface MockedFieldsDao extends Dao {
+public class UniqueConstraintViolated extends DataException {
 
-    List<MockedField> loadAll();
-
-    Collection<MockedField> loadContextPathFields(String contextPath);
-
-    List<MockedField> loadByContextPathAndClassName(String contextPath, String className);
-
-    int countByContextPathAndClassName(String contextPath, String className);
-
-    MockedField getMockedField(String contextPath, String className, String fieldName);
-
-    boolean update(MockedField field);
-
-    MockedField insert(MockedField field);
-
-    void insert(Collection<MockedField> mockedFields);
-
-    boolean deleteContext(String contextPath);
+    public UniqueConstraintViolated(String message) {
+        super(message);
+    }
 }

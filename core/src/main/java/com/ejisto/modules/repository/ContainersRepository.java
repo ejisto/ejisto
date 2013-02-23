@@ -21,12 +21,12 @@ package com.ejisto.modules.repository;
 
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.dao.entities.Container;
-import com.ejisto.modules.dao.jdbc.ContainersDao;
-import org.springframework.dao.DataAccessException;
+import com.ejisto.modules.dao.local.ContainersDao;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -84,15 +84,15 @@ public final class ContainersRepository {
      * @throws NotInstalledException if container is not installed
      */
     public Container loadContainer(String id) throws NotInstalledException {
-        try {
-            Assert.notNull(id, "container id can't be null");
-            Container result = temporaryContainers.get(id);
-            if (result != null) {
-                return result;
-            }
-            return containersDao.load(id);
-        } catch (DataAccessException e) {
-            throw new NotInstalledException(id, e);
+        Objects.requireNonNull(id, "container id can't be null");
+        Container result = temporaryContainers.get(id);
+        if (result != null) {
+            return result;
         }
+        result = containersDao.load(id);
+        if (result == null) {
+            throw new NotInstalledException(id);
+        }
+        return result;
     }
 }

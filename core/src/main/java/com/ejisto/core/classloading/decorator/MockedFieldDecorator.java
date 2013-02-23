@@ -38,7 +38,7 @@ import static com.ejisto.modules.repository.ClassPoolRepository.getRegisteredCla
 @Log4j
 public class MockedFieldDecorator implements MockedField {
     private static final String[] COMPLEX_TYPES = {"java.util.Collection", "java.util.Map"};
-    @Delegate(excludes = ComplexValuesAware.class)
+    @Delegate(excludes = {ComplexValuesAware.class, Cloneable.class})
     private MockedField target;
 
     public MockedFieldDecorator(MockedField target) {
@@ -104,4 +104,10 @@ public class MockedFieldDecorator implements MockedField {
         return "**expression**";
     }
 
+    @Override
+    public MockedFieldDecorator clone() throws CloneNotSupportedException {
+        MockedFieldDecorator cloned = (MockedFieldDecorator)super.clone();
+        cloned.target = target.clone();
+        return cloned;
+    }
 }
