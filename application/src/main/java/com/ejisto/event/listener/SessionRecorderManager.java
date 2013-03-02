@@ -197,7 +197,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         File targetDir = new File(FilenameUtils.normalize(path.toString() + "/WEB-INF/lib/"));
         copyFile(System.getProperty("ejisto.agent.jar.path"), targetDir);
         copyEjistoLibs(new String[]{"jackson", "commons-lang"}, targetDir);
-        WebApplicationDescriptor temp = WebApplicationDescriptor.copyFrom(original);
+        WebApplicationDescriptor temp = WebApplicationDescriptor.copyOf(original);
         temp.setDeployablePath(path.toString());
         modifyWebXml(temp);
         return temp;

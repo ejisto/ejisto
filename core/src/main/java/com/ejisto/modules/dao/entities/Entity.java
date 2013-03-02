@@ -19,16 +19,16 @@
 
 package com.ejisto.modules.dao.entities;
 
-import lombok.Data;
+import java.io.Serializable;
 
-@Data
-public class Setting implements Entity<String> {
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 3/1/13
+ * Time: 11:10 PM
+ */
+public interface Entity<K extends Serializable> {
 
-    private final String key;
-    private final String value;
+    K getKey();
 
-    public Setting(String key, String value) {
-        this.key = key;
-        this.value = value;
-    }
 }

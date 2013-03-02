@@ -42,9 +42,7 @@ public class WebApplicationDescriptorDao extends BaseLocalDao {
     public void insert(final WebApplicationDescriptor descriptor) {
         Collection<WebApplicationDescriptor> descriptors = getDatabase().getWebApplicationDescriptors();
         internalDelete(descriptor, descriptors);
-        WebApplicationDescriptor newDescriptor = WebApplicationDescriptor.copyFrom(descriptor);
-        newDescriptor.setId(getDatabase().getNextWebApplicationDescriptorSequenceValue());
-        descriptors.add(descriptor);
+        descriptors.add(WebApplicationDescriptor.copyOf(descriptor));
         tryToCommit();
 
     }

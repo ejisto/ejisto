@@ -25,7 +25,7 @@ package com.ejisto.modules.dao.entities;
  * Date: 7/31/11
  * Time: 7:02 PM
  */
-public class RegisteredObjectFactory {
+public class RegisteredObjectFactory implements Entity<String> {
     private final String className;
     private final String targetClassName;
 
@@ -40,5 +40,10 @@ public class RegisteredObjectFactory {
 
     public String getTargetClassName() {
         return targetClassName;
+    }
+
+    @Override
+    public String getKey() {
+        return className;
     }
 }

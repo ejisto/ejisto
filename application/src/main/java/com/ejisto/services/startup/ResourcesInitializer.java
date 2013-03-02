@@ -81,7 +81,7 @@ public class ResourcesInitializer extends BaseStartupService {
 
     private void initDb() {
         try {
-            dataSource.initDb();
+            dataSource.initDb(System.getProperty(DB_SCRIPT.getValue()));
         } catch (Exception e) {
             throw new ApplicationException(e);
         }
@@ -130,7 +130,8 @@ public class ResourcesInitializer extends BaseStartupService {
 //            UIManager.put(property, new FontUIResource(systemFont));
 //        }
 
-        @SuppressWarnings("unused") String a = JXHeader.uiClassID;//initialize JXHeader.class
+        String a = JXHeader.uiClassID;//initialize JXHeader.class
+        log.debug("initializing JXHeader ["+a+"]");
         LookAndFeelAddons.getAddon().loadDefaults(
                 new Object[]{"JXHeader.descriptionFont", defaultFont, "JXHeader.titleFont", bold, "JXTitledPanel.titleFont", bold, "JXHeader.background", Color.white});
         GuiUtils.setDefaultFont(defaultFont);

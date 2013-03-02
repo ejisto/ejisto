@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Time: 8:44 AM
  */
 @Data
-public class Container {
+public class Container implements Entity<String> {
     private String id;
     private String cargoId;
     private String homeDir;
@@ -61,5 +61,15 @@ public class Container {
         return running.compareAndSet(!runningState, runningState);
     }
 
+    @Override
+    public String getKey() {
+        return id;
+    }
 
+    @Override
+    public Container clone() throws CloneNotSupportedException {
+        Container clone = (Container)super.clone();
+        clone.running.set(running.get());
+        return clone;
+    }
 }

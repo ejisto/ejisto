@@ -21,8 +21,9 @@ package com.ejisto.modules.dao.local;
 
 import com.ejisto.core.ApplicationException;
 import com.ejisto.modules.dao.entities.MockedField;
-import org.hamcrest.Matcher;
+import com.ejisto.modules.dao.entities.MockedFieldImpl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,19 +38,19 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
     public List<MockedField> loadAll() {
         List<MockedField> out = new LinkedList<>();
         for (String contextPath : getDatabase().getRegisteredContextPaths()) {
-            out.addAll(getDatabase().getMockedFields(contextPath));
+            out.addAll(getDatabase().getMockedFields(contextPath).values());
         }
         return out;
     }
 
     @Override
     public Collection<MockedField> loadContextPathFields(String contextPath) {
-        return getDatabase().getMockedFields(contextPath);
+        return new ArrayList<>(getDatabase().getMockedFields(contextPath).values());
     }
 
     @Override
     public List<MockedField> loadByContextPathAndClassName(String contextPath, String className) {
-        return select(getDatabase().getMockedFields(contextPath),
+        return select(getDatabase().getMockedFields(contextPath).values(),
                       having(on(MockedField.class).getClassName(), equalTo(className)));
     }
 
@@ -60,7 +61,7 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
 
     @Override
     public MockedField getMockedField(String contextPath, String className, String fieldName) {
-        MockedField field = getSingleField(getDatabase().getMockedFields(contextPath), className, fieldName);
+        MockedField field = getSingleField(getDatabase().getMockedFields(contextPath).values(), className, fieldName);
         if (field == null) {
             throw new ApplicationException("No mockedFields found.");
         }
@@ -69,7 +70,7 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
 
     @Override
     public boolean update(final MockedField field) {
-        Collection<MockedField> fields = getDatabase().getMockedFields(field.getContextPath());
+        Collection<MockedField> fields = getDatabase().getMockedFields(field.getContextPath()).values();
         MockedField existing = getSingleField(fields, field.getClassName(), field.getFieldName());
         fields.remove(existing);
         fields.add(cloneField(field));
@@ -103,11 +104,7 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
     }
 
     private MockedField cloneField(MockedField field) {
-        try {
-            return field.unwrap().clone();
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException(e);
-        }
+        return MockedFieldImpl.copyOf((MockedFieldImpl) field.unwrap());
     }
 
 
@@ -119,7 +116,7 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
     private MockedField internalInsert(MockedField field) {
         MockedField newField = cloneField(field);
         newField.setId(getDatabase().getNextMockedFieldsSequenceValue());
-        getDatabase().getMockedFields(field.getContextPath()).add(newField);
+        getDatabase().getMockedFields(field.getContextPath()).put(newField.getId(), newField);
         return newField;
     }
 }

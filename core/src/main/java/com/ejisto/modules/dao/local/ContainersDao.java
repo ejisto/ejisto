@@ -37,28 +37,26 @@ import static org.hamcrest.CoreMatchers.equalTo;
 public class ContainersDao extends BaseLocalDao {
 
     public List<Container> loadAll() {
-        return new ArrayList<>(getDatabase().getContainers());
+        return new ArrayList<>(getDatabase().getContainers().values());
     }
 
     public Container load(String id) {
-        return selectFirst(getDatabase().getContainers(), having(on(Container.class).getId(), equalTo(id)));
+        return getDatabase().getContainers().get(id);
     }
 
     public boolean insert(Container container) {
         if(load(container.getId()) != null) {
             throw new UniqueConstraintViolated("Container.id cannot be '"+container.getId()+"'");
         }
-        getDatabase().getContainers().add(container);
+        getDatabase().getContainers().put(container.getKey(), container);
         tryToCommit();
         return true;
     }
 
     public boolean delete(Container container) {
-        boolean result = getDatabase().getContainers().remove(container);
-        if (result) {
-            tryToCommit();
-        }
-        return result;
+        getDatabase().getContainers().remove(container.getKey());
+        tryToCommit();
+        return true;
     }
 
 }

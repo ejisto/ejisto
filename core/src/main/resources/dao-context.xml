@@ -33,8 +33,6 @@
               lazy-init="true"/>
         <bean id="webApplicationDescriptorDao" class="com.ejisto.modules.dao.local.WebApplicationDescriptorDao"
               parent="baseDao" lazy-init="true"/>
-        <bean id="jndiDataSourcesDao" class="com.ejisto.modules.dao.local.JndiDataSourcesDao" parent="baseDao"
-              lazy-init="true"/>
         <bean id="containersDao" class="com.ejisto.modules.dao.local.ContainersDao" parent="baseDao" lazy-init="true"/>
         <bean id="dataSource" class="com.ejisto.modules.dao.db.EmbeddedDatabaseManager"/>
     </beans>

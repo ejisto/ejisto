@@ -109,16 +109,6 @@ public class MockedFieldImpl implements MockedField {
     }
 
     @Override
-    public void copyFrom(MockedField original) {
-        if (id != 0) {
-            throw new UnsupportedOperationException("target field is already persisted");
-        }
-        setActive(original.isActive());
-        setFieldValue(original.getFieldValue());
-        setFieldElementType(original.getFieldElementType());
-    }
-
-    @Override
     public void setLink(String link) {
         this.link = link;
     }
@@ -150,16 +140,12 @@ public class MockedFieldImpl implements MockedField {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null) {
+        if (!(o instanceof MockedFieldImpl)) {
             return false;
         }
         if (this == o) {
             return true;
         }
-        if (getClass() != o.getClass()) {
-            return false;
-        }
-
         MockedFieldImpl that = (MockedFieldImpl) o;
         return new EqualsBuilder()
                 .append(id, that.id)
@@ -195,8 +181,19 @@ public class MockedFieldImpl implements MockedField {
         return getComparisonKey().compareTo(o.getComparisonKey());
     }
 
-    @Override
-    public MockedFieldImpl clone() throws CloneNotSupportedException {
-        return (MockedFieldImpl) super.clone();
+    public static MockedFieldImpl copyOf(MockedFieldImpl source) {
+        MockedFieldImpl copy = new MockedFieldImpl();
+        copy.active = source.active;
+        copy.contextPath = source.contextPath;
+        copy.className = source.className;
+        copy.fieldName = source.fieldName;
+        copy.fieldType = source.fieldType;
+        copy.fieldValue = source.fieldValue;
+        copy.expression = source.expression;
+        copy.fieldElementType = source.fieldElementType;
+        copy.link = source.link;
+        copy.recordedObjectHashCode = source.recordedObjectHashCode;
+        return copy;
     }
+
 }

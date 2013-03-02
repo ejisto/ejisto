@@ -23,6 +23,7 @@ import com.ejisto.modules.dao.entities.Setting;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ import java.util.List;
 public class SettingsDao extends BaseRemoteDao implements com.ejisto.modules.dao.SettingsDao {
 
     @Override
-    public List<Setting> loadAll() {
+    public Collection<Setting> loadAll() {
         return JSONUtil.decode(remoteCall(encodeRequest("loadAll"), "/getCustomObjectFactory"),
                                new TypeReference<List<Setting>>() {
                                });
@@ -46,12 +47,12 @@ public class SettingsDao extends BaseRemoteDao implements com.ejisto.modules.dao
     }
 
     @Override
-    public boolean insertSettings(List<Setting> settings) {
+    public boolean insertSettings(Collection<Setting> settings) {
         throw new UnsupportedOperationException("Remote dao is read-only");
     }
 
     @Override
-    public boolean clearSettings(List<Setting> settings) {
+    public boolean clearSettings(Collection<Setting> settings) {
         throw new UnsupportedOperationException("Remote dao is read-only");
     }
 }

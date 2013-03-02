@@ -22,6 +22,7 @@ package com.ejisto.modules.controller.wizard.installer.workers;
 import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.core.classloading.util.ReflectionUtils;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.repository.MockedFieldsRepository;
@@ -121,19 +122,20 @@ public class LoadClassAction extends RecursiveTask<List<MockedField>> {
     private List<MockedField> getMockedFields(CtClass clazz, WebApplicationDescriptor descriptor) throws NotFoundException {
         List<MockedField> results = new ArrayList<>();
         try {
-            List<MockedField> mockedFields = MockedFieldsRepository.getInstance().load(descriptor.getContextPath(),
-                                                                                       clazz.getName());
             for (CtField field : clazz.getDeclaredFields()) {
-                MockedField mockedField = new MockedFieldDecorator();
+                MockedField existing = MockedFieldsRepository.getInstance().load(descriptor.getContextPath(),
+                                                                                 clazz.getName(), field.getName());
+                MockedField mockedField;
+                if (existing != null) {
+                    mockedField = new MockedFieldDecorator(MockedFieldImpl.copyOf(((MockedFieldImpl) existing)));
+                } else {
+                    mockedField = new MockedFieldDecorator();
+                }
                 mockedField.setContextPath(descriptor.getContextPath());
                 mockedField.setClassName(clazz.getName());
                 mockedField.setFieldName(field.getName());
                 mockedField.setFieldType(getFieldTypeAsString(field));
                 parseGenerics(field, mockedField);
-                int index = mockedFields.indexOf(mockedField);
-                if (index > -1) {
-                    mockedField.copyFrom(mockedFields.get(index));
-                }
                 results.add(mockedField);
             }
             CtClass zuperclazz = clazz.getSuperclass();

@@ -38,36 +38,33 @@ public class CustomObjectFactoryDao extends BaseLocalDao implements com.ejisto.m
 
     @Override
     public List<CustomObjectFactory> loadAll() {
-        return new ArrayList<>(getDatabase().getCustomObjectFactories());
+        return new ArrayList<>(getDatabase().getCustomObjectFactories().values());
     }
 
     @Override
     public CustomObjectFactory load(String fileName) {
-        return selectFirst(getDatabase().getCustomObjectFactories(), having(on(CustomObjectFactory.class).getFileName(),
-                                                                            equalTo(fileName)));
+        return getDatabase().getCustomObjectFactories().get(fileName);
     }
 
     @Override
     public boolean insert(CustomObjectFactory customObjectFactory) {
-        if (load(customObjectFactory.getFileName()) != null) {
+        if (load(customObjectFactory.getKey()) != null) {
             throw new UniqueConstraintViolated(
                     "CustomObjectFactory.fileName cannot be '" + customObjectFactory.getFileName() + "'");
         }
-        getDatabase().getCustomObjectFactories().add(customObjectFactory);
-        tryToCommit();
-        return true;
+        return update(customObjectFactory);
     }
 
     @Override
     public boolean update(CustomObjectFactory customObjectFactory) {
-        getDatabase().getCustomObjectFactories().add(customObjectFactory);
+        getDatabase().getCustomObjectFactories().put(customObjectFactory.getKey(), customObjectFactory);
         tryToCommit();
         return true;
     }
 
     @Override
     public boolean exists(CustomObjectFactory customObjectFactory) {
-        return load(customObjectFactory.getFileName()) != null;
+        return getDatabase().getCustomObjectFactories().containsKey(customObjectFactory.getKey());
     }
 
     @Override

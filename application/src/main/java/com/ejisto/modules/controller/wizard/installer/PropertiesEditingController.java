@@ -21,17 +21,11 @@ package com.ejisto.modules.controller.wizard.installer;
 
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.controller.WizardException;
-import com.ejisto.modules.dao.entities.JndiDataSource;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.Step;
-import com.ejisto.modules.validation.DataSourceEnvEntryValidator;
-import com.ejisto.modules.validation.ValidationErrors;
-import com.ejisto.util.JndiDataSourcesRepository;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class PropertiesEditingController extends AbstractApplicationInstallerController {
 
@@ -52,18 +46,7 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
 
     @Override
     public boolean canProceed() {
-        return validateEnvEntries();
-    }
-
-    private boolean validateEnvEntries() {
-        List<JndiDataSource> entries = JndiDataSourcesRepository.loadDataSources();
-        if (CollectionUtils.isEmpty(entries)) {
-            return true;
-        }
-        DataSourceEnvEntryValidator validator = new DataSourceEnvEntryValidator();
-        ValidationErrors errors = new ValidationErrors("JndiDataSource");
-        validator.validateAll(entries, errors);
-        return !errors.hasErrors();
+        return true;
     }
 
     @Override

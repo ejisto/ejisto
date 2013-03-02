@@ -31,10 +31,9 @@ import static com.ejisto.modules.dao.entities.WebApplicationDescriptorElement.Ki
 import static org.hamcrest.Matchers.equalTo;
 
 @Log4j
-public class WebApplicationDescriptor implements Serializable {
+public class WebApplicationDescriptor implements Serializable, Entity<String> {
     private static final long serialVersionUID = 7454195671017831484L;
     private List<WebApplicationDescriptorElement> elements = new ArrayList<>();
-    private long id = -1;
     private String installationPath;
     private String containerId;
     private String contextPath;
@@ -107,12 +106,7 @@ public class WebApplicationDescriptor implements Serializable {
         return elements;
     }
 
-    public void setElements(List<WebApplicationDescriptorElement> elements) {
-        this.elements = elements;
-    }
-
     public void addElement(WebApplicationDescriptorElement element) {
-        element.setId(id);
         this.elements.add(element);
     }
 
@@ -122,14 +116,6 @@ public class WebApplicationDescriptor implements Serializable {
 
     public Collection<MockedField> getModifiedFields() {
         return helper.getModifiedFields();
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public void setClassPathElements(List<WebApplicationDescriptorElement> classpathEntries) {
@@ -159,7 +145,7 @@ public class WebApplicationDescriptor implements Serializable {
         this.containerId = containerId;
     }
 
-    public static WebApplicationDescriptor copyFrom(WebApplicationDescriptor src) {
+    public static WebApplicationDescriptor copyOf(WebApplicationDescriptor src) {
         WebApplicationDescriptor target = new WebApplicationDescriptor();
         target.elements.addAll(src.elements);
         target.installationPath = src.installationPath;
@@ -170,6 +156,11 @@ public class WebApplicationDescriptor implements Serializable {
         target.warFile = src.warFile;
         target.setClassPathElements(src.getClassPathElements());
         return target;
+    }
+
+    @Override
+    public String getKey() {
+        return contextPath;
     }
 
 }

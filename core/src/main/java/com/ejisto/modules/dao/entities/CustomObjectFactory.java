@@ -25,7 +25,7 @@ package com.ejisto.modules.dao.entities;
  * Date: 1/22/11
  * Time: 9:35 AM
  */
-public class CustomObjectFactory {
+public class CustomObjectFactory implements Entity<String> {
     private String fileName;
     private String checksum;
     private boolean processed;
@@ -52,5 +52,15 @@ public class CustomObjectFactory {
 
     public void setProcessed(boolean processed) {
         this.processed = processed;
+    }
+
+    @Override
+    public String getKey() {
+        return fileName;
+    }
+
+    @Override
+    public CustomObjectFactory clone() throws CloneNotSupportedException {
+        return (CustomObjectFactory) super.clone();
     }
 }

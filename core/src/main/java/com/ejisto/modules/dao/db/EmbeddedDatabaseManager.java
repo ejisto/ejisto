@@ -25,11 +25,13 @@ import lombok.extern.log4j.Log4j;
 import org.mapdb.Atomic;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
 
 import java.io.File;
 import java.util.Collection;
-
-import static com.ejisto.constants.StringConstants.DB_SCRIPT;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Log4j
 public class EmbeddedDatabaseManager {
@@ -37,63 +39,64 @@ public class EmbeddedDatabaseManager {
     private static final String SETTINGS = "settings";
     private static final String CONTAINERS = "containers";
     private static final String CUSTOM_OBJECT_FACTORIES = "customObjectFactories";
-    private static final String JNDI_DATA_SOURCES = "jndiDataSources";
-    private static final String JNDI_DATA_SOURCES_SEQ = "jndiDataSourcesSeq";
     private static final String REGISTERED_OBJECT_FACTORIES = "registeredObjectFactories";
     private static final String WEB_APPLICATION_DESCRIPTORS = "webApplicationDescriptors";
     private static final String WEB_APPLICATION_DESCRIPTORS_SEQ = "webApplicationDescriptorsSeq";
     private static final String REGISTERED_CONTEXT_PATHS = "registeredContextPaths";
     private static final String MOCKED_FIELDS_SEQ = "mockedFieldsSeq";
+    private static final ReentrantLock MAINTENANCE_LOCK = new ReentrantLock();
 
-    private final DB db;
-
-    public EmbeddedDatabaseManager() {
-        this.db = DBMaker.newFileDB(new File(System.getProperty(DB_SCRIPT.getValue())))
-                .closeOnJvmShutdown()
-                .randomAccessFileEnableIfNeeded()
-                .compressionEnable()
-                .make();
-    }
+    private volatile DB db;
 
     @SuppressWarnings("unchecked")
-    public void initDb() throws Exception {
-        if (Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) {
-            db.createHashSet(SETTINGS, new JSONSerializer<>(Setting.class));
-            db.createHashSet(CONTAINERS, new JSONSerializer<>(Container.class));
-            db.createHashSet(CUSTOM_OBJECT_FACTORIES, new JSONSerializer<>(CustomObjectFactory.class));
-            db.createHashSet(JNDI_DATA_SOURCES, new JSONSerializer<>(JndiDataSource.class));
-            Atomic.createLong(db, JNDI_DATA_SOURCES_SEQ, 0);
-            db.createHashSet(REGISTERED_OBJECT_FACTORIES, new JSONSerializer<>(RegisteredObjectFactory.class));
-            db.createHashSet(WEB_APPLICATION_DESCRIPTORS, new JSONSerializer<>(WebApplicationDescriptor.class));
-            db.createHashSet(REGISTERED_CONTEXT_PATHS, db.getDefaultSerializer());
-            Atomic.createLong(db, MOCKED_FIELDS_SEQ, 0);
-            Atomic.createLong(db, WEB_APPLICATION_DESCRIPTORS_SEQ, 0);
+    public void initDb(String databaseFilePath) throws Exception {
+        try {
+            if (!MAINTENANCE_LOCK.tryLock() || db != null) {
+                return;
+            }
+            db = DBMaker.newFileDB(new File(databaseFilePath))
+                    .closeOnJvmShutdown()
+                    .randomAccessFileEnableIfNeeded()
+                    .compressionEnable()
+                    .make();
+            if (Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) {
+                db.createHashMap(SETTINGS, Serializer.STRING_SERIALIZER, new JSONSerializer<>(Setting.class));
+                db.createHashMap(CONTAINERS, Serializer.STRING_SERIALIZER, new JSONSerializer<>(Container.class));
+                db.createHashMap(CUSTOM_OBJECT_FACTORIES, Serializer.STRING_SERIALIZER,
+                                 new JSONSerializer<>(CustomObjectFactory.class));
+                db.createHashMap(REGISTERED_OBJECT_FACTORIES, Serializer.STRING_SERIALIZER,
+                                 new JSONSerializer<>(RegisteredObjectFactory.class));
+                db.createHashMap(WEB_APPLICATION_DESCRIPTORS, Serializer.STRING_SERIALIZER,
+                                 new JSONSerializer<>(WebApplicationDescriptor.class));
+                db.createHashMap(REGISTERED_CONTEXT_PATHS, Serializer.STRING_SERIALIZER, db.getDefaultSerializer());
+                Atomic.createLong(db, MOCKED_FIELDS_SEQ, 0);
+                Atomic.createLong(db, WEB_APPLICATION_DESCRIPTORS_SEQ, 0);
+            }
+        } finally {
+            MAINTENANCE_LOCK.unlock();
         }
     }
 
-    public Collection<Setting> getSettings() {
-        return db.getHashSet(SETTINGS);
+    public Map<String, Setting> getSettings() {
+        return db.getHashMap(SETTINGS);
     }
 
-    public Collection<Container> getContainers() {
-        return db.getHashSet(CONTAINERS);
+    public Map<String, Container> getContainers() {
+        return db.getHashMap(CONTAINERS);
     }
 
-    public Collection<CustomObjectFactory> getCustomObjectFactories() {
-         return db.getHashSet(CUSTOM_OBJECT_FACTORIES);
+    public Map<String, CustomObjectFactory> getCustomObjectFactories() {
+        return db.getHashMap(CUSTOM_OBJECT_FACTORIES);
     }
 
-    public Collection<JndiDataSource> getJndiDataSources() {
-        return db.getHashSet(JNDI_DATA_SOURCES);
-    }
-
-    public long getNextJndiDataSourceSequenceValue() {
-        return Atomic.getLong(db, JNDI_DATA_SOURCES_SEQ).incrementAndGet();
-    }
-
-    public Collection<MockedField> getMockedFields(String contextPath) {
-        Collection<MockedField> out = db.getHashSet(contextPath);
-        db.getHashSet(REGISTERED_CONTEXT_PATHS).add(contextPath);
+    public Map<Long, MockedField> getMockedFields(String contextPath) {
+        Long id = db.getNameDir().get(contextPath);
+        if (id != null) {
+            return new HashMap<>(db.<Long, MockedField>getHashMap(contextPath));
+        }
+        Map<Long, MockedField> out = db.createHashMap(contextPath, Serializer.LONG_SERIALIZER,
+                                                      new JSONSerializer<>(MockedField.class));
+        getRegisteredContextPaths().add(contextPath);
         return out;
     }
 
@@ -108,10 +111,7 @@ public class EmbeddedDatabaseManager {
     }
 
     public long getNextMockedFieldsSequenceValue() {
-            return Atomic.getLong(db, MOCKED_FIELDS_SEQ).incrementAndGet();
-    }
-    public long getNextWebApplicationDescriptorSequenceValue() {
-            return Atomic.getLong(db, WEB_APPLICATION_DESCRIPTORS_SEQ).incrementAndGet();
+        return Atomic.getLong(db, MOCKED_FIELDS_SEQ).incrementAndGet();
     }
 
     public Collection<String> getRegisteredContextPaths() {

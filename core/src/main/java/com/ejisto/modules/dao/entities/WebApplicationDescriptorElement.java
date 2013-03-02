@@ -32,14 +32,9 @@ public class WebApplicationDescriptorElement implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private long id;
     private String contextPath;
     private String path;
     private Kind kind = Kind.CLASSPATH;
-
-    public WebApplicationDescriptorElement() {
-
-    }
 
     public WebApplicationDescriptorElement(String path) {
         this.path = path;
@@ -51,10 +46,6 @@ public class WebApplicationDescriptorElement implements Serializable {
 
     public boolean isBlacklisted() {
         return kind == Kind.BLACKLISTED;
-    }
-
-    public void setKind(String kind) {
-        this.kind = Kind.valueOf(kind);
     }
 
     public void setKind(Kind kind) {

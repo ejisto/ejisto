@@ -29,6 +29,7 @@ import lombok.extern.log4j.Log4j;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -45,7 +46,7 @@ public class SettingsHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         try (OutputStream os = httpExchange.getResponseBody()) {
-            List<Setting> factories = settingsDao.loadAll();
+            Collection<Setting> factories = settingsDao.loadAll();
             String response = JSONUtil.encode(factories);
             httpExchange.sendResponseHeaders(200, response.length());
             os.write(response.getBytes());

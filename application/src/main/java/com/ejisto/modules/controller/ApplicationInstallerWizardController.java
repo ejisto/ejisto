@@ -74,7 +74,6 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
         controllers.add(new FileExtractionController(dialog));
         controllers.add(new ClassesFilteringController(dialog));
         controllers.add(new ApplicationScanningController(dialog, containerHome));
-        controllers.add(new JndiResourcesEditorController(dialog));
         controllers.add(new PropertiesEditingController(dialog));
         controllers.add(new SummaryController(dialog));
         sort(controllers, new StepControllerComparator());

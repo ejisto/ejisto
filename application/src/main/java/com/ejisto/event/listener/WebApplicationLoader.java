@@ -122,17 +122,6 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         //bindAllDataSources(classLoader, webApplicationDescriptor);
         registerActions(webApplicationDescriptor);
     }
-//TODO implement DataSources binding
-//    private void bindAllDataSources(EjistoClassLoader context, WebApplicationDescriptor descriptor) throws Exception {
-//        if (!descriptor.containsDataSources()) return;
-//        Set<String> extraClasspath = new HashSet<String>();
-//        String libDir = System.getProperty(StringConstants.LIB_DIR.getValue());
-//        for (JndiDataSource dataSourceEnvEntry : descriptor.getDataSources()) {
-//            extraClasspath.add(new File(libDir, dataSourceEnvEntry.getDriverJarPath()).getAbsolutePath());
-//        }
-//        context.addExtraEntries(extraClasspath);
-//        JndiUtils.bindResources(descriptor.getDataSources());
-//    }
 
     private void registerActions(WebApplicationDescriptor descriptor) {
         if (callNotifyCommand == null) {

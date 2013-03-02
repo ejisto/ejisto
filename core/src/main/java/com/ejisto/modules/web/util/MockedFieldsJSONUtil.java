@@ -69,7 +69,7 @@ public abstract class MockedFieldsJSONUtil {
             return convert(fields, new Converter<Object, MockedField>() {
                 @Override
                 public MockedField convert(Object from) {
-                    return new MockedFieldDecorator((MockedField) from);
+                    return new MockedFieldDecorator((MockedFieldImpl) from);
                 }
             });
         } catch (IOException e) {

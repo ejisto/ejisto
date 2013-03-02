@@ -21,6 +21,7 @@ package com.ejisto.modules.dao;
 
 import com.ejisto.modules.dao.entities.Setting;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -31,11 +32,11 @@ import java.util.List;
  */
 public interface SettingsDao extends Dao {
 
-    List<Setting> loadAll();
+    Collection<Setting> loadAll();
 
     Setting getSetting(String key);
 
-    boolean insertSettings(List<Setting> settings);
+    boolean insertSettings(Collection<Setting> settings);
 
-    boolean clearSettings(List<Setting> settings);
+    boolean clearSettings(Collection<Setting> settings);
 }

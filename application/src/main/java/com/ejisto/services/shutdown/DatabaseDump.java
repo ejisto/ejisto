@@ -24,7 +24,6 @@ import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.dao.CustomObjectFactoryDao;
 import com.ejisto.modules.dao.entities.*;
 import com.ejisto.modules.dao.local.ContainersDao;
-import com.ejisto.modules.dao.local.JndiDataSourcesDao;
 import com.ejisto.modules.dao.local.WebApplicationDescriptorDao;
 import com.ejisto.util.converter.*;
 import lombok.extern.log4j.Log4j;
@@ -48,29 +47,26 @@ public class DatabaseDump extends BaseShutdownService {
 
     @Resource private com.ejisto.modules.dao.MockedFieldsDao mockedFieldsDao;
     @Resource private com.ejisto.modules.dao.SettingsDao settingsDao;
-    @Resource private JndiDataSourcesDao jndiDataSourcesDao;
     @Resource private SettingsManager settingsManager;
     @Resource private WebApplicationDescriptorDao webApplicationDescriptorDao;
-    @Resource private CustomObjectFactoryDao customObjectFactoryDao;
     @Resource private ContainersDao containersDao;
 
     @Override
     public void execute() {
-        try {
-            File out = new File(System.getProperty(StringConstants.DB_SCRIPT.getValue()));
-            GZIPOutputStream file = new GZIPOutputStream(new FileOutputStream(out));
-            settingsManager.flush();
-            dumpSettings(file);
-            dumpMockedFields(file);
-            dumpDescriptors(file);
-            dumpDataSources(file);
-            dumpContainers(file);
-            file.finish();
-            file.flush();
-            file.close();
-        } catch (Exception e) {
-            log.error("error during db dump", e);
-        }
+//        try {
+//            File out = new File(System.getProperty(StringConstants.DB_SCRIPT.getValue()));
+//            GZIPOutputStream file = new GZIPOutputStream(new FileOutputStream(out));
+//            settingsManager.flush();
+//            dumpSettings(file);
+//            dumpMockedFields(file);
+//            dumpDescriptors(file);
+//            dumpContainers(file);
+//            file.finish();
+//            file.flush();
+//            file.close();
+//        } catch (Exception e) {
+//            log.error("error during db dump", e);
+//        }
     }
 
     private void dumpSettings(OutputStream file) throws IOException {
@@ -93,11 +89,6 @@ public class DatabaseDump extends BaseShutdownService {
         append(file, convert(descriptors, new DescriptorDumpConverter()));
         append(file, convert(collect(forEach(descriptors, WebApplicationDescriptor.class).getElements()),
                              new DescriptorElementDumpConverter()));
-    }
-
-    private void dumpDataSources(OutputStream file) throws IOException {
-        List<JndiDataSource> dataSources = jndiDataSourcesDao.loadAll();
-        append(file, convert(dataSources, new JndiDataSourceDumpConverter()));
     }
 
     private void append(OutputStream file, String text) throws IOException {

@@ -17,27 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao.entities;
+package com.ejisto.util.converter;
 
-import lombok.Data;
+import ch.lambdaj.function.convert.Converter;
+import com.ejisto.modules.dao.entities.Entity;
 
-@Data
-public class JndiDataSource {
-    private long id;
-    private String name;
-    private String type;
-    private int maxActive;
-    private int maxIdle;
-    private long maxWait;
-    private String username;
-    private String password;
-    private String driverClassName;
-    private String url;
-    private String driverJarPath;
-    private boolean alreadyBound;
+import java.io.Serializable;
+
+/**
+ * Created by IntelliJ IDEA.
+ * User: celestino
+ * Date: 3/1/13
+ * Time: 11:17 PM
+ */
+public class EntityToKey<E extends Entity<T>, T extends Serializable> implements Converter<E, T> {
 
     @Override
-    public String toString() {
-        return getName();
+    public T convert(E from) {
+        return from.getKey();
     }
 }

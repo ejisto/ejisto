@@ -65,8 +65,7 @@ public class ArrayFactory<T> implements ObjectFactory<T[]> {
         T[] array = createArray(factory.getTargetClassName(), values.length);
         boolean equalSize = actualValue != null && actualValue.length == values.length;
         for (int i = 0; i < values.length; i++) {
-            MockedField temp = new MockedFieldImpl();
-            temp.copyFrom(m);
+            MockedField temp = MockedFieldImpl.copyOf((MockedFieldImpl) m.unwrap());
             temp.setFieldValue(values[i]);
             array[i] = factory.create(temp, equalSize ? actualValue[i] : null);
         }

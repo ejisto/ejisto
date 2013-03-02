@@ -25,8 +25,9 @@ import com.ejisto.modules.dao.entities.Setting;
 import com.ejisto.util.ExternalizableService;
 
 import javax.annotation.Resource;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static ch.lambdaj.Lambda.*;
@@ -37,7 +38,7 @@ public class SettingsManager extends ExternalizableService<SettingsDao> {
     @Resource(name = "settings") private Properties settings;
     @Resource private SettingsDao settingsDao;
 
-    private AtomicReference<List<Setting>> settingsList = new AtomicReference<>();
+    private AtomicReference<Set<Setting>> settingsList = new AtomicReference<>();
 
     public int getIntValue(StringConstants key) {
         return Integer.parseInt(getValue(key));
@@ -77,18 +78,12 @@ public class SettingsManager extends ExternalizableService<SettingsDao> {
     }
 
     private void putValue(String key, String value) {
-        Setting setting = find(key);
-        if (setting != null) {
-            setting.setValue(value);
-        } else {
-            setting = new Setting(key, value);
-            settingsList.get().add(setting);
-        }
+        settingsList.get().add(new Setting(key, value));
     }
 
     private void init() {
         if (settingsList.get() == null) {
-            settingsList.compareAndSet(null, getSettingsDao().loadAll());
+            settingsList.compareAndSet(null, new HashSet<>(getSettingsDao().loadAll()));
         }
     }
 

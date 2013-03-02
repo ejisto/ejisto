@@ -24,9 +24,8 @@ public enum Step {
     FILE_EXTRACTION(1),
     CLASSES_FILTERING(2),
     APPLICATION_SCANNING(3),
-    JNDI_RESOURCES_EDITOR(4),
-    PROPERTIES_EDITING(5),
-    SUMMARY(6);
+    PROPERTIES_EDITING(4),
+    SUMMARY(5);
 
     private final int index;
 

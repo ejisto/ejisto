@@ -19,37 +19,41 @@
 
 package com.ejisto.modules.dao.local;
 
+import ch.lambdaj.function.convert.Converter;
 import com.ejisto.modules.dao.entities.Setting;
+import com.ejisto.util.converter.EntityToKey;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import static ch.lambdaj.Lambda.*;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static ch.lambdaj.Lambda.map;
 
 public class SettingsDao extends BaseLocalDao implements com.ejisto.modules.dao.SettingsDao {
 
+    private static final Converter<Setting, String> KEY_EXTRACTOR = new EntityToKey<>();
+
     @Override
-    public List<Setting> loadAll() {
-        return new ArrayList<>(getDatabase().getSettings());
+    public Collection<Setting> loadAll() {
+        return new HashSet<>(getDatabase().getSettings().values());
     }
 
     @Override
     public Setting getSetting(String key) {
-        return selectFirst(getDatabase().getSettings(), having(on(Setting.class).getKey(), equalTo(key)));
+        return getDatabase().getSettings().get(key);
     }
 
     @Override
-    public boolean insertSettings(final List<Setting> settings) {
-        boolean success = getDatabase().getSettings().addAll(settings);
+    public boolean insertSettings(final Collection<Setting> settings) {
+        getDatabase().getSettings().putAll(map(settings, KEY_EXTRACTOR));
         tryToCommit();
-        return success;
+        return true;
     }
 
     @Override
-    public boolean clearSettings(final List<Setting> settings) {
-        boolean success = getDatabase().getSettings().removeAll(settings);
+    public boolean clearSettings(final Collection<Setting> settings) {
+        for (Setting setting : settings) {
+            getDatabase().getSettings().remove(setting.getKey());
+        }
         tryToCommit();
-        return success;
+        return true;
     }
 }

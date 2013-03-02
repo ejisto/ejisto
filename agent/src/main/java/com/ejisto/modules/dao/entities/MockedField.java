@@ -31,7 +31,7 @@ import java.io.Serializable;
  * Time: 10:39:18 AM
  */
 @JsonDeserialize(as = MockedFieldImpl.class)
-public interface MockedField extends ComplexValuesAware, Comparable<MockedField>, Serializable, Cloneable {
+public interface MockedField extends ComplexValuesAware, Comparable<MockedField>, Serializable {
 
     String PATH_SEPARATOR = ">";
 
@@ -89,8 +89,6 @@ public interface MockedField extends ComplexValuesAware, Comparable<MockedField>
     @JsonIgnore
     String getClassSimpleName();
 
-    void copyFrom(MockedField original);
-
     void setLink(String link);
 
     String getLink();
@@ -101,7 +99,5 @@ public interface MockedField extends ComplexValuesAware, Comparable<MockedField>
     int getRecordedObjectHashCode();
 
     void setRecordedObjectHashCode(int recordedObjectHashCode);
-
-    MockedField clone() throws CloneNotSupportedException;
 
 }
