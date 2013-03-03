@@ -26,7 +26,6 @@ import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ActiveProfiles;
@@ -69,15 +68,11 @@ public class PropertyManagerTest {
         }
     }
 
-    @BeforeClass
-    public static void beforeClass() {
-        ObjectFactoryRepository.getInstance().registerObjectFactory(SimpleBeanObjectFactory.class.getName(),
-                                                                            SimpleBean.class.getName(), false);
-    }
-
     @Before
     public void init() throws Exception {
         db.initDb(TEMP_FILE);
+        ObjectFactoryRepository.getInstance().registerObjectFactory(SimpleBeanObjectFactory.class.getName(),
+                                                                    SimpleBean.class.getName(), false);
     }
 
     @Test
