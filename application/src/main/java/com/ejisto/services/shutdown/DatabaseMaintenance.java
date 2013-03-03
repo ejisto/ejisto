@@ -17,18 +17,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao.entities;
+package com.ejisto.services.shutdown;
 
-import java.io.Serializable;
+import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
+import lombok.extern.log4j.Log4j;
 
-/**
- * Created by IntelliJ IDEA.
- * User: celestino
- * Date: 3/1/13
- * Time: 11:10 PM
- */
-public interface Entity<K extends Serializable> extends Serializable {
+import javax.annotation.Resource;
 
-    K getKey();
+@Log4j
+public class DatabaseMaintenance extends BaseShutdownService {
+
+    @Resource private EmbeddedDatabaseManager databaseManager;
+
+    @Override
+    public void execute() {
+        try {
+            if (databaseManager.getStartupCount() % 20 == 0) {
+                databaseManager.doMaintenance();
+            }
+            databaseManager.shutdown();
+        } catch (InterruptedException e) {
+            log.fatal("Unable to do maintenance tasks", e);
+        }
+    }
 
 }

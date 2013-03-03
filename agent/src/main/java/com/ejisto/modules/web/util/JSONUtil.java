@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 
 import static java.nio.charset.Charset.forName;
 
@@ -35,7 +36,7 @@ import static java.nio.charset.Charset.forName;
  * Date: 6/26/12
  * Time: 5:16 PM
  */
-public abstract class JSONUtil {
+public abstract class JSONUtil implements Serializable {
 
     public static <T> String encode(T object, Class<?>... typeToIgnore) {
         try {

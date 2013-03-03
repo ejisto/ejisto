@@ -29,8 +29,8 @@ import org.mapdb.Serializer;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Log4j
@@ -44,11 +44,11 @@ public class EmbeddedDatabaseManager {
     private static final String WEB_APPLICATION_DESCRIPTORS_SEQ = "webApplicationDescriptorsSeq";
     private static final String REGISTERED_CONTEXT_PATHS = "registeredContextPaths";
     private static final String MOCKED_FIELDS_SEQ = "mockedFieldsSeq";
+    private static final String STARTUP_COUNTER = "startupCounter";
     private static final ReentrantLock MAINTENANCE_LOCK = new ReentrantLock();
 
     private volatile DB db;
 
-    @SuppressWarnings("unchecked")
     public void initDb(String databaseFilePath) throws Exception {
         try {
             if (!MAINTENANCE_LOCK.tryLock() || db != null) {
@@ -68,10 +68,12 @@ public class EmbeddedDatabaseManager {
                                  new JSONSerializer<>(RegisteredObjectFactory.class));
                 db.createHashMap(WEB_APPLICATION_DESCRIPTORS, Serializer.STRING_SERIALIZER,
                                  new JSONSerializer<>(WebApplicationDescriptor.class));
-                db.createHashMap(REGISTERED_CONTEXT_PATHS, Serializer.STRING_SERIALIZER, db.getDefaultSerializer());
+                db.createHashMap(REGISTERED_CONTEXT_PATHS, Serializer.STRING_SERIALIZER, null);
                 Atomic.createLong(db, MOCKED_FIELDS_SEQ, 0);
                 Atomic.createLong(db, WEB_APPLICATION_DESCRIPTORS_SEQ, 0);
+                Atomic.createInteger(db, STARTUP_COUNTER, 1);
             }
+            Atomic.getInteger(db, STARTUP_COUNTER).incrementAndGet();
         } finally {
             MAINTENANCE_LOCK.unlock();
         }
@@ -92,7 +94,7 @@ public class EmbeddedDatabaseManager {
     public Map<Long, MockedField> getMockedFields(String contextPath) {
         Long id = db.getNameDir().get(contextPath);
         if (id != null) {
-            return new HashMap<>(db.<Long, MockedField>getHashMap(contextPath));
+            return db.getHashMap(contextPath);
         }
         Map<Long, MockedField> out = db.createHashMap(contextPath, Serializer.LONG_SERIALIZER,
                                                       new JSONSerializer<>(MockedField.class));
@@ -100,13 +102,13 @@ public class EmbeddedDatabaseManager {
         return out;
     }
 
-    public Collection<RegisteredObjectFactory> getRegisteredObjectFactories() {
-        return db.getHashSet(REGISTERED_OBJECT_FACTORIES);
+    public Map<String, RegisteredObjectFactory> getRegisteredObjectFactories() {
+        return db.getHashMap(REGISTERED_OBJECT_FACTORIES);
     }
 
     public void deleteContextPath(String contextPath) {
         Long id = db.getNameDir().get(contextPath);
-        db.getEngine().delete(id);
+        db.getEngine().delete(id, new JSONSerializer<>(MockedField.class));
         getRegisteredContextPaths().remove(contextPath);
     }
 
@@ -122,6 +124,9 @@ public class EmbeddedDatabaseManager {
         return db.getHashSet(WEB_APPLICATION_DESCRIPTORS);
     }
 
+    public int getStartupCount() {
+        return Atomic.getInteger(db, STARTUP_COUNTER).get();
+    }
     public void commit() {
         db.commit();
     }
@@ -129,6 +134,24 @@ public class EmbeddedDatabaseManager {
     public void rollback() {
         db.rollback();
     }
+
+    public void doMaintenance() throws InterruptedException {
+        if(MAINTENANCE_LOCK.tryLock(5L, TimeUnit.SECONDS)) {
+            db.compact();
+        } else {
+            throw new IllegalStateException("Unable to lock the database");
+        }
+    }
+
+    public void shutdown() throws InterruptedException {
+        if(MAINTENANCE_LOCK.tryLock(5L, TimeUnit.SECONDS)) {
+            db.close();
+        } else {
+            throw new IllegalStateException("Unable to lock the database");
+        }
+    }
+
+
 
 
 }

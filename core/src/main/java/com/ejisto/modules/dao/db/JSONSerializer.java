@@ -25,6 +25,7 @@ import org.mapdb.Serializer;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,7 +33,9 @@ import java.io.IOException;
  * Date: 2/17/13
  * Time: 5:08 PM
  */
-public class JSONSerializer<T> implements Serializer<T> {
+public class JSONSerializer<T> implements Serializer<T>, Serializable {
+
+
 
     private final Class<T> target;
 

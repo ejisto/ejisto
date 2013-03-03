@@ -34,12 +34,12 @@ public class ObjectFactoryDao extends BaseLocalDao implements com.ejisto.modules
 
     @Override
     public List<RegisteredObjectFactory> loadAll() {
-        return new ArrayList<>(getDatabase().getRegisteredObjectFactories());
+        return new ArrayList<>(getDatabase().getRegisteredObjectFactories().values());
     }
 
     @Override
     public void insert(RegisteredObjectFactory registeredObjectFactory) {
-        getDatabase().getRegisteredObjectFactories().add(registeredObjectFactory);
+        getDatabase().getRegisteredObjectFactories().put(registeredObjectFactory.getKey(), registeredObjectFactory);
         tryToCommit();
     }
 }

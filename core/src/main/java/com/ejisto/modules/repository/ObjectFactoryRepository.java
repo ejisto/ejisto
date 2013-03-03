@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -42,6 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
 import static com.ejisto.modules.factory.DefaultSupportedType.*;
 import static java.lang.String.format;
+import static java.lang.Thread.currentThread;
 
 /**
  * Created by IntelliJ IDEA.
@@ -116,7 +118,9 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     @SuppressWarnings("unchecked")
     private <T> ObjectFactory<T> loadObjectFactory(String className) {
         try {
-            return (ObjectFactory<T>) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+            Class<ObjectFactory<T>> factoryClass = (Class<ObjectFactory<T>>) currentThread().getContextClassLoader().loadClass(
+                    className);
+            return factoryClass.newInstance();
         } catch (Exception e) {
             throw new ApplicationException(e);
         }

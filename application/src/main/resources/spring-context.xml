@@ -69,7 +69,7 @@ to preserve data consistency. -->
         <bean class="com.ejisto.services.startup.ResourcesInitializer"/>
         <bean class="com.ejisto.services.startup.TaskInitializer"/>
         <bean class="com.ejisto.services.startup.ApplicationStartup"/>
-        <bean class="com.ejisto.services.shutdown.DatabaseDump"/>
+        <bean class="com.ejisto.services.shutdown.DatabaseMaintenance"/>
         <bean class="com.ejisto.services.shutdown.FolderCleaner"/>
     </util:list>
 
