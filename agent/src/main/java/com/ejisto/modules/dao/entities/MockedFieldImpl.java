@@ -196,4 +196,8 @@ public class MockedFieldImpl implements MockedField {
         return copy;
     }
 
+    @Override
+    public String getKey() {
+        return className;
+    }
 }

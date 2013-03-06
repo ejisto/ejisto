@@ -19,18 +19,20 @@
 
 package com.ejisto.modules.dao.local;
 
+import ch.lambdaj.Lambda;
 import com.ejisto.core.ApplicationException;
+import com.ejisto.modules.dao.db.MockedFieldContainer;
+import com.ejisto.modules.dao.db.util.MockedFieldExtractor;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
+import org.hamcrest.beans.HasPropertyWithValue;
+import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static ch.lambdaj.Lambda.*;
-import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 
 public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.dao.MockedFieldsDao {
 
@@ -38,42 +40,47 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
     public List<MockedField> loadAll() {
         List<MockedField> out = new LinkedList<>();
         for (String contextPath : getDatabase().getRegisteredContextPaths()) {
-            out.addAll(getDatabase().getMockedFields(contextPath).values());
+            out.addAll(Lambda.<MockedField>flatten(loadContextPathFields(contextPath)));
         }
         return out;
     }
 
     @Override
     public Collection<MockedField> loadContextPathFields(String contextPath) {
-        return new ArrayList<>(getDatabase().getMockedFields(contextPath).values());
+        return flatten(getDatabase().getMockedFields(contextPath));
     }
 
     @Override
     public List<MockedField> loadByContextPathAndClassName(String contextPath, String className) {
-        return select(getDatabase().getMockedFields(contextPath).values(),
-                      having(on(MockedField.class).getClassName(), equalTo(className)));
+        Collection<MockedFieldContainer> fields = getMockedFieldsByClassName(contextPath, className);
+        if (CollectionUtils.isEmpty(fields)) {
+            return Collections.emptyList();
+        }
+        return convert(fields, new MockedFieldExtractor());
     }
 
     @Override
     public int countByContextPathAndClassName(String contextPath, String className) {
-        return loadByContextPathAndClassName(contextPath, className).size();
+        return getMockedFieldsByClassName(contextPath, className).size();
     }
 
     @Override
     public MockedField getMockedField(String contextPath, String className, String fieldName) {
-        MockedField field = getSingleField(getDatabase().getMockedFields(contextPath).values(), className, fieldName);
+        MockedFieldContainer field = getSingleField(getMockedFieldsByClassName(contextPath, className), fieldName);
         if (field == null) {
             throw new ApplicationException("No mockedFields found.");
         }
-        return field;
+        return field.getMockedField();
     }
 
     @Override
     public boolean update(final MockedField field) {
-        Collection<MockedField> fields = getDatabase().getMockedFields(field.getContextPath()).values();
-        MockedField existing = getSingleField(fields, field.getClassName(), field.getFieldName());
+        Collection<MockedFieldContainer> fields = getMockedFieldsByClassName(field.getContextPath(),
+                                                                             field.getClassName());
+        MockedFieldContainer existing = getSingleField(fields, field.getFieldName());
+        Objects.requireNonNull(existing);
         fields.remove(existing);
-        fields.add(cloneField(field));
+        fields.add(MockedFieldContainer.from(field));
         tryToCommit();
         return true;
     }
@@ -108,15 +115,24 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
     }
 
 
-    private MockedField getSingleField(Collection<MockedField> fields, String className, String fieldName) {
-        return selectFirst(fields, allOf(having(on(MockedField.class).getClassName(), equalTo(className)),
-                                         having(on(MockedField.class).getFieldName(), equalTo(fieldName))));
+    private MockedFieldContainer getSingleField(Collection<MockedFieldContainer> fields, String fieldName) {
+        return selectFirst(fields, hasProperty("fieldName", equalTo(fieldName)));
     }
 
     private MockedField internalInsert(MockedField field) {
         MockedField newField = cloneField(field);
         newField.setId(getDatabase().getNextMockedFieldsSequenceValue());
-        getDatabase().getMockedFields(field.getContextPath()).put(newField.getId(), newField);
+        NavigableSet<MockedFieldContainer> container = getDatabase().getMockedFields(field.getContextPath());
+        container.add(new MockedFieldContainer(field.getClassName(), field.getFieldName(), field));
         return newField;
+    }
+
+    private NavigableSet<MockedFieldContainer> getMockedFieldsByContextPath(String contextPath) {
+        return getDatabase().getMockedFields(contextPath);
+    }
+
+    private Collection<MockedFieldContainer> getMockedFieldsByClassName(String contextPath, String className) {
+        return select(getMockedFieldsByContextPath(contextPath),
+                      hasProperty("className", equalTo(className)));
     }
 }

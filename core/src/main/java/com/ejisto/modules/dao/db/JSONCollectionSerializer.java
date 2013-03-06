@@ -19,54 +19,35 @@
 
 package com.ejisto.modules.dao.db;
 
+import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.web.util.JSONUtil;
-import org.mapdb.BTreeKeySerializer;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.mapdb.Serializer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 2/17/13
- * Time: 5:08 PM
+ * Date: 3/5/13
+ * Time: 8:08 AM
  */
-public class JSONSerializer<T> extends BTreeKeySerializer<T> implements Serializer<T>, Serializable {
+public class JSONCollectionSerializer<E, T extends Collection<E>> implements Serializer<T>, Serializable {
 
-
-
-    private final Class<T> target;
-
-    public JSONSerializer(Class<T> target) {
-        this.target = target;
+    @Override
+    public void serialize(DataOutput dataOutput, T t) throws IOException {
+        dataOutput.writeUTF(JSONUtil.encode(t));
     }
 
     @Override
-    public void serialize(DataOutput out, T value) throws IOException {
-        out.writeUTF(JSONUtil.encode(value));
-    }
-
-    @Override
-    public T deserialize(DataInput in, int available) throws IOException {
-        return JSONUtil.decode(in.readUTF(), target);
-    }
-
-    @Override
-    public void serialize(DataOutput out, int start, int end, Object[] keys) throws IOException {
-        for(int i = start; i < end; i++) {
-            serialize(out, target.cast(keys[i]));
-        }
-    }
-
-    @Override
-    public Object[] deserialize(DataInput in, int start, int end, int size) throws IOException {
-        Object[] ret = new Object[size];
-        for (int i = start; i < end; i++) {
-            ret[i] = deserialize(in, -1);
-        }
-        return ret;
+    public T deserialize(DataInput dataInput, int i) throws IOException {
+        return JSONUtil.decode(dataInput.readUTF(),
+                               new TypeReference<T>() {
+                               });
     }
 }

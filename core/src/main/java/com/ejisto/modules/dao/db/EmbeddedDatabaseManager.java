@@ -20,6 +20,7 @@
 package com.ejisto.modules.dao.db;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.modules.dao.db.util.MockedFieldContainerSorter;
 import com.ejisto.modules.dao.entities.*;
 import lombok.extern.log4j.Log4j;
 import org.mapdb.Atomic;
@@ -30,6 +31,7 @@ import org.mapdb.Serializer;
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -46,6 +48,7 @@ public class EmbeddedDatabaseManager {
     private static final String MOCKED_FIELDS_SEQ = "mockedFieldsSeq";
     private static final String STARTUP_COUNTER = "startupCounter";
     private static final ReentrantLock MAINTENANCE_LOCK = new ReentrantLock();
+    private static final int NODE_SIZE = 32;
 
     private volatile DB db;
 
@@ -91,15 +94,15 @@ public class EmbeddedDatabaseManager {
         return db.getHashMap(CUSTOM_OBJECT_FACTORIES);
     }
 
-    public Map<Long, MockedField> getMockedFields(String contextPath) {
+    public NavigableSet<MockedFieldContainer> getMockedFields(String contextPath) {
         Long id = db.getNameDir().get(contextPath);
         if (id != null) {
-            return db.getHashMap(contextPath);
+            return db.getTreeSet(contextPath);
         }
-        Map<Long, MockedField> out = db.createHashMap(contextPath, Serializer.LONG_SERIALIZER,
-                                                      new JSONSerializer<>(MockedField.class));
+        NavigableSet<MockedFieldContainer> container = db.createTreeSet(contextPath, NODE_SIZE, new JSONSerializer<>(
+                MockedFieldContainer.class), new MockedFieldContainerSorter());
         getRegisteredContextPaths().add(contextPath);
-        return out;
+        return container;
     }
 
     public Map<String, RegisteredObjectFactory> getRegisteredObjectFactories() {
@@ -127,6 +130,7 @@ public class EmbeddedDatabaseManager {
     public int getStartupCount() {
         return Atomic.getInteger(db, STARTUP_COUNTER).get();
     }
+
     public void commit() {
         db.commit();
     }
@@ -136,7 +140,7 @@ public class EmbeddedDatabaseManager {
     }
 
     public void doMaintenance() throws InterruptedException {
-        if(MAINTENANCE_LOCK.tryLock(5L, TimeUnit.SECONDS)) {
+        if (MAINTENANCE_LOCK.tryLock(5L, TimeUnit.SECONDS)) {
             db.compact();
         } else {
             throw new IllegalStateException("Unable to lock the database");
@@ -144,14 +148,12 @@ public class EmbeddedDatabaseManager {
     }
 
     public void shutdown() throws InterruptedException {
-        if(MAINTENANCE_LOCK.tryLock(5L, TimeUnit.SECONDS)) {
+        if (MAINTENANCE_LOCK.tryLock(5L, TimeUnit.SECONDS)) {
             db.close();
         } else {
             throw new IllegalStateException("Unable to lock the database");
         }
     }
-
-
 
 
 }

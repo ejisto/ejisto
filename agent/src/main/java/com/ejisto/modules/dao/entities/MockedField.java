@@ -31,7 +31,7 @@ import java.io.Serializable;
  * Time: 10:39:18 AM
  */
 @JsonDeserialize(as = MockedFieldImpl.class)
-public interface MockedField extends ComplexValuesAware, Comparable<MockedField>, Serializable {
+public interface MockedField extends ComplexValuesAware, Comparable<MockedField>, Serializable, Entity<String> {
 
     String PATH_SEPARATOR = ">";
 
