@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -197,6 +198,7 @@ public class MockedFieldImpl implements MockedField {
     }
 
     @Override
+    @JsonIgnore
     public String getKey() {
         return className;
     }
