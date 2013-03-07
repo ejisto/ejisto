@@ -71,7 +71,7 @@ public class EmbeddedDatabaseManager {
                                  new JSONSerializer<>(RegisteredObjectFactory.class));
                 db.createHashMap(WEB_APPLICATION_DESCRIPTORS, Serializer.STRING_SERIALIZER,
                                  new JSONSerializer<>(WebApplicationDescriptor.class));
-                db.createHashMap(REGISTERED_CONTEXT_PATHS, Serializer.STRING_SERIALIZER, null);
+                db.createHashSet(REGISTERED_CONTEXT_PATHS, Serializer.STRING_SERIALIZER);
                 Atomic.createLong(db, MOCKED_FIELDS_SEQ, 0);
                 Atomic.createLong(db, WEB_APPLICATION_DESCRIPTORS_SEQ, 0);
                 Atomic.createInteger(db, STARTUP_COUNTER, 1);

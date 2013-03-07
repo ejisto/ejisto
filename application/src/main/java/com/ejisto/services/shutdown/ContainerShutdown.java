@@ -19,6 +19,7 @@
 
 package com.ejisto.services.shutdown;
 
+import com.ejisto.core.container.ContainerManager;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ChangeServerStatus;
 import lombok.extern.log4j.Log4j;
@@ -31,13 +32,12 @@ import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
 public class ContainerShutdown extends BaseShutdownService {
 
     @Resource
-    private EventManager eventManager;
+    private ContainerManager containerManager;
 
     @Override
     public void execute() {
         try {
-            eventManager.publishEvent(
-                    new ChangeServerStatus(this, DEFAULT_CONTAINER_ID.getValue(), ChangeServerStatus.Command.SHUTDOWN));
+            containerManager.stopAllRunningContainers();
         } catch (Exception e) {
             log.error("error during server shutdown", e);
         }

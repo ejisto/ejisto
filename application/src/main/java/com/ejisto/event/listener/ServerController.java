@@ -43,7 +43,7 @@ import static com.ejisto.util.GuiUtils.runOnEDT;
 import static java.lang.String.format;
 
 @Log4j
-public class ServerController implements ApplicationListener<ChangeServerStatus>, DisposableBean {
+public class ServerController implements ApplicationListener<ChangeServerStatus> {
 
     @Resource(name = "containerManager") private ContainerManager containerManager;
     @Resource private EventManager eventManager;
@@ -104,15 +104,5 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
         }
         ContainerStatusChanged newEvent = new ContainerStatusChanged(this, DEFAULT_CONTAINER_ID.getValue(), started);
         eventManager.publishEvent(newEvent);
-    }
-
-    @Override
-    public void destroy() {
-        try {
-            containerManager.stopDefault();
-        } catch (NotInstalledException e) {
-            //just log exception since we're exiting
-            log.warn("containerManager.stopDefault threw exception", e);
-        }
     }
 }

@@ -64,9 +64,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -94,6 +92,7 @@ public class CargoManager implements ContainerManager {
 
     private final ConcurrentMap<String, AbstractInstalledLocalContainer> installedContainers = new ConcurrentHashMap<>();
     private final ReentrantLock lifeCycleOperationLock = new ReentrantLock();
+    private final Set<String> runningContainers = Collections.synchronizedSet(new HashSet<String>());
 
     @Override
     public String downloadAndInstall(String urlToString, String folder) throws IOException {
@@ -108,7 +107,7 @@ public class CargoManager implements ContainerManager {
 
     @Override
     public boolean isServerRunning() throws NotInstalledException {
-        return containersRepository.loadDefault().isRunning();
+        return runningContainers.contains(DEFAULT_CONTAINER_ID.getValue());
     }
 
     @Override
@@ -122,20 +121,31 @@ public class CargoManager implements ContainerManager {
     }
 
     @Override
+    public void stopAllRunningContainers() throws NotInstalledException {
+        Set<String> currentlyRunningContainers = new HashSet<>(runningContainers);
+        for (String runningContainer : currentlyRunningContainers) {
+            stop(containersRepository.loadContainer(runningContainer));
+        }
+    }
+
+    @Override
     public boolean start(Container container) throws NotInstalledException {
         return start(loadContainer(container, true), container);
     }
 
     @Override
     public boolean stop(Container container) throws NotInstalledException {
-        if (!container.isRunning()) {
+        if (!runningContainers.contains(container.getId())) {
             return true;
         }
         AbstractInstalledLocalContainer localContainer = loadContainer(container, false);
         boolean owned = false;
         try {
-            if (lifeCycleOperationLock.tryLock(30, TimeUnit.SECONDS)) {
-                owned = true;
+            owned = lifeCycleOperationLock.tryLock(30, TimeUnit.SECONDS);
+            if (owned) {
+                if (!runningContainers.contains(container.getId())) {
+                    return true;
+                }
                 DeployerFactory deployerFactory = new DefaultDeployerFactory();
                 Deployer deployer = deployerFactory.createDeployer(localContainer);
                 List<Deployable> deployables = localContainer.getConfiguration().getDeployables();
@@ -143,7 +153,7 @@ public class CargoManager implements ContainerManager {
                     deployer.undeploy(deployable);
                 }
                 localContainer.stop();
-                container.setRunningState(false);
+                runningContainers.remove(container.getId());
                 return true;
             }
         } catch (InterruptedException e) {
@@ -165,7 +175,7 @@ public class CargoManager implements ContainerManager {
     @Override
     public boolean deploy(WebApplicationDescriptor webApplicationDescriptor, Container container) throws NotInstalledException {
         LocalContainer localContainer = loadContainer(container, false);
-        boolean started = container.isRunning();
+        boolean started = runningContainers.contains(container.getId());
         if (started) {
             eventManager.publishEventAndWait(
                     new ChangeServerStatus(this, container.getId(), ChangeServerStatus.Command.SHUTDOWN));
@@ -272,19 +282,22 @@ public class CargoManager implements ContainerManager {
         instance.start();
         container.setHomeDir(path.toString());
         container.setPort(serverPort);
-        container.setRunningState(true);
+        runningContainers.add(container.getId());
         return container;
     }
 
     private boolean start(LocalContainer localContainer, Container entity) {
         boolean owned = false;
-        if (entity.isRunning()) {
+        if (runningContainers.contains(entity.getId())) {
             return false;
         }
         try {
-            if (lifeCycleOperationLock.tryLock(30, TimeUnit.SECONDS)) {
-                owned = true;
-                if (entity.setRunningState(true)) {
+            owned = lifeCycleOperationLock.tryLock(30, TimeUnit.SECONDS);
+            if (owned) {
+                if (runningContainers.contains(entity.getId())) {
+                    return false;
+                }
+                if (runningContainers.add(entity.getId())) {
                     localContainer.start();
                     return true;
                 }
@@ -294,7 +307,7 @@ public class CargoManager implements ContainerManager {
             log.error("caught InterruptedException", e);
             Thread.currentThread().interrupt();
         } catch (RuntimeException e) {
-            entity.setRunningState(false);
+            runningContainers.remove(entity.getId());
             throw e;
         } finally {
             if (owned) {

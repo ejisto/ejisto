@@ -36,7 +36,6 @@ public class Container implements Entity<String> {
     private String homeDir;
     private String description;
     private transient int port = 8080;
-    private transient final AtomicBoolean running = new AtomicBoolean(false);
     private transient final boolean standalone;
 
     public Container() {
@@ -47,20 +46,6 @@ public class Container implements Entity<String> {
         this.standalone = standalone;
     }
 
-    public boolean isRunning() {
-        return running.get();
-    }
-
-    @Deprecated
-    public AtomicBoolean getRunning() {
-        throw new UnsupportedOperationException(
-                "you can't modify 'running' field, use isRunning() or setRunningState()");
-    }
-
-    public boolean setRunningState(boolean runningState) {
-        return running.compareAndSet(!runningState, runningState);
-    }
-
     @Override
     public String getKey() {
         return id;
@@ -68,8 +53,6 @@ public class Container implements Entity<String> {
 
     @Override
     public Container clone() throws CloneNotSupportedException {
-        Container clone = (Container)super.clone();
-        clone.running.set(running.get());
-        return clone;
+        return (Container)super.clone();
     }
 }

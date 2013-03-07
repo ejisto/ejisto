@@ -42,6 +42,8 @@ public interface ContainerManager {
 
     boolean stopDefault() throws NotInstalledException;
 
+    void stopAllRunningContainers() throws NotInstalledException;
+
     boolean start(Container container) throws NotInstalledException;
 
     boolean stop(Container container) throws NotInstalledException;
