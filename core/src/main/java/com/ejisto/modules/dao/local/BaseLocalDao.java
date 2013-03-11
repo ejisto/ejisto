@@ -19,14 +19,16 @@
 
 package com.ejisto.modules.dao.local;
 
-import com.ejisto.modules.dao.exception.DataException;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
+import com.ejisto.modules.dao.db.TransactionManager;
+import com.ejisto.modules.dao.exception.DataException;
 
 import javax.annotation.Resource;
 
 public abstract class BaseLocalDao {
 
     @Resource private EmbeddedDatabaseManager database;
+    @Resource private TransactionManager transactionManager;
 
     EmbeddedDatabaseManager getDatabase() {
         return database;
@@ -34,9 +36,9 @@ public abstract class BaseLocalDao {
 
     void tryToCommit() {
         try {
-            database.commit();
+            transactionManager.commit(database);
         } catch (Exception e) {
-            database.rollback();
+            transactionManager.rollback(database);
             throw new DataException("Exception during commit", e);
         }
     }

@@ -74,6 +74,11 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
     }
 
     @Override
+    public boolean exists(String contextPath, String className, String fieldName) {
+        return getSingleField(getMockedFieldsByClassName(contextPath, className), fieldName) != null;
+    }
+
+    @Override
     public boolean update(final MockedField field) {
         Collection<MockedFieldContainer> fields = getMockedFieldsByClassName(field.getContextPath(),
                                                                              field.getClassName());

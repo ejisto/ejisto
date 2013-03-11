@@ -21,10 +21,7 @@ package com.ejisto.util.visitor;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
@@ -78,7 +75,7 @@ public class PrefixBasedCopyFileVisitor extends SimpleFileVisitor<Path> {
             newFileName.append(File.separator);
         }
         newFileName.append(defaultString(options.filesPrefix)).append(srcFile.getFileName().toString());
-        Files.copy(srcFile, options.targetRoot.resolve(newFileName.toString()));
+        Files.copy(srcFile, options.targetRoot.resolve(newFileName.toString()), StandardCopyOption.REPLACE_EXISTING);
     }
 
     private boolean isCopyAllowed(boolean nameMatches, CopyOptions options) {

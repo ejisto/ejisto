@@ -19,6 +19,8 @@
 
 package com.ejisto.modules.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 
 /**
@@ -29,6 +31,7 @@ import java.io.Serializable;
  */
 public interface Entity<K extends Serializable> extends Serializable {
 
+    @JsonIgnore
     K getKey();
 
 }

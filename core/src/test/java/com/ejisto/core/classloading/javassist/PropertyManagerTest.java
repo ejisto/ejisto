@@ -33,10 +33,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.lang.annotation.ElementType;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -55,22 +52,12 @@ public class PropertyManagerTest {
 
     private static final String CTX = "/ejisto";
     private static final String CLASS_NAME = SimpleBean.class.getName();
-    private static final String TEMP_FILE;
     @Resource private EmbeddedDatabaseManager db;
 
 
-    static {
-        try {
-            Path tempFile = Files.createTempDirectory("tempDb").resolve("db.ej");
-            TEMP_FILE = tempFile.toString();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     @Before
     public void init() throws Exception {
-        db.initDb(TEMP_FILE);
+        db.initMemoryDb();
         ObjectFactoryRepository.getInstance().registerObjectFactory(SimpleBeanObjectFactory.class.getName(),
                                                                     SimpleBean.class.getName(), false);
     }

@@ -68,6 +68,11 @@ public class MockedFieldsDao extends BaseRemoteDao implements com.ejisto.modules
     }
 
     @Override
+    public boolean exists(String contextPath, String className, String fieldName) {
+        return getMockedField(contextPath, className, fieldName) != null;
+    }
+
+    @Override
     public boolean update(MockedField field) {
         throw new UnsupportedOperationException("Remote dao is read-only");
     }

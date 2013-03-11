@@ -19,6 +19,9 @@
 
 package com.ejisto.modules.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -32,11 +35,11 @@ public class WebApplicationDescriptorElement implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String contextPath;
-    private String path;
+    private final String path;
     private Kind kind = Kind.CLASSPATH;
 
-    public WebApplicationDescriptorElement(String path) {
+    @JsonCreator
+    public WebApplicationDescriptorElement(@JsonProperty("path") String path) {
         this.path = path;
     }
 
@@ -44,6 +47,7 @@ public class WebApplicationDescriptorElement implements Serializable {
         return kind.name();
     }
 
+    @JsonIgnore
     public boolean isBlacklisted() {
         return kind == Kind.BLACKLISTED;
     }

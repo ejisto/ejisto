@@ -26,6 +26,7 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.web.MockedFieldRequest;
 import com.ejisto.util.ExternalizableService;
+import lombok.extern.log4j.Log4j;
 import org.hamcrest.Matcher;
 
 import javax.annotation.Resource;
@@ -42,6 +43,7 @@ import static org.hamcrest.Matchers.equalTo;
  * Date: Dec 3, 2010
  * Time: 7:51 PM
  */
+@Log4j
 public final class MockedFieldsRepository extends ExternalizableService<MockedFieldsDao> {
     private static final MockedFieldsRepository INSTANCE = new MockedFieldsRepository();
 
@@ -72,6 +74,10 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
 
     public MockedField load(String contextPath, String className, String fieldName) {
         return mockedFieldConverter.convert(getMockedFieldsDao().getMockedField(contextPath, className, fieldName));
+    }
+
+    public boolean exists(String contextPath, String className, String fieldName) {
+        return getMockedFieldsDao().exists(contextPath, className, fieldName);
     }
 
     public List<MockedField> load(String contextPath, String className) {

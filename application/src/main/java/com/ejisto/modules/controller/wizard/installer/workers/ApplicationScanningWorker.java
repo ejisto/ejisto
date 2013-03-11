@@ -37,7 +37,6 @@ import org.codehaus.cargo.module.webapp.WebXmlType;
 import org.codehaus.cargo.module.webapp.WebXmlUtils;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +47,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -88,7 +88,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
     }
 
     private void processWebApplication() throws IOException, JDOMException, InvocationTargetException, InterruptedException {
-        Assert.notNull(getSession().getInstallationPath());
+        Objects.requireNonNull(getSession().getInstallationPath());
         String basePath = getSession().getInstallationPath();
         getSession().setContextPath(getContextPath(basePath));
         getSession().setClassPathElements(getClasspathEntries(basePath));

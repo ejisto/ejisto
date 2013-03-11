@@ -36,8 +36,6 @@ import java.io.Serializable;
  */
 public class JSONSerializer<T> extends BTreeKeySerializer<T> implements Serializer<T>, Serializable {
 
-
-
     private final Class<T> target;
 
     public JSONSerializer(Class<T> target) {

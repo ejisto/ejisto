@@ -20,6 +20,7 @@
 package com.ejisto.modules.dao.entities;
 
 import com.ejisto.modules.dao.entities.helper.WebApplicationDescriptorHelper;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.extern.log4j.Log4j;
 
 import java.io.File;
@@ -94,6 +95,7 @@ public class WebApplicationDescriptor implements Serializable, Entity<String> {
         return helper.getIncludedJars();
     }
 
+    @JsonIgnore
     public File getWarFile() {
         return warFile;
     }
@@ -122,6 +124,7 @@ public class WebApplicationDescriptor implements Serializable, Entity<String> {
         this.classpathEntries = classpathEntries;
     }
 
+    @JsonIgnore
     public List<WebApplicationDescriptorElement> getClassPathElements() {
         if (classpathEntries != null) {
             return classpathEntries;

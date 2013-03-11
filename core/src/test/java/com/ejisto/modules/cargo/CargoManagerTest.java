@@ -42,7 +42,6 @@ public class CargoManagerTest {
             String home = manager.downloadAndInstall(
                     "http://mirror.switch.ch/mirror/apache/dist/tomcat/tomcat-7/v7.0.8/bin/apache-tomcat-7.0.8.tar.gz",
                     tmp);
-            System.out.println(home);
             assertNotNull(home);
             assertTrue(home.startsWith(tmp));
         } catch (IOException e) {

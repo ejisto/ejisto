@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.ejisto.modules.dao.db;
 
 import com.ejisto.constants.StringConstants;
@@ -26,7 +25,6 @@ import lombok.extern.log4j.Log4j;
 import org.mapdb.Atomic;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
 
 import java.io.File;
 import java.util.Collection;
@@ -49,37 +47,59 @@ public class EmbeddedDatabaseManager {
     private static final String STARTUP_COUNTER = "startupCounter";
     private static final ReentrantLock MAINTENANCE_LOCK = new ReentrantLock();
     private static final int NODE_SIZE = 32;
-
     private volatile DB db;
 
     public void initDb(String databaseFilePath) throws Exception {
+        boolean owned = false;
         try {
             if (!MAINTENANCE_LOCK.tryLock() || db != null) {
                 return;
             }
+            owned = true;
             db = DBMaker.newFileDB(new File(databaseFilePath))
-                    .closeOnJvmShutdown()
                     .randomAccessFileEnableIfNeeded()
-                    .compressionEnable()
                     .make();
-            if (Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) {
-                db.createHashMap(SETTINGS, Serializer.STRING_SERIALIZER, new JSONSerializer<>(Setting.class));
-                db.createHashMap(CONTAINERS, Serializer.STRING_SERIALIZER, new JSONSerializer<>(Container.class));
-                db.createHashMap(CUSTOM_OBJECT_FACTORIES, Serializer.STRING_SERIALIZER,
-                                 new JSONSerializer<>(CustomObjectFactory.class));
-                db.createHashMap(REGISTERED_OBJECT_FACTORIES, Serializer.STRING_SERIALIZER,
-                                 new JSONSerializer<>(RegisteredObjectFactory.class));
-                db.createHashMap(WEB_APPLICATION_DESCRIPTORS, Serializer.STRING_SERIALIZER,
-                                 new JSONSerializer<>(WebApplicationDescriptor.class));
-                db.createHashSet(REGISTERED_CONTEXT_PATHS, Serializer.STRING_SERIALIZER);
-                Atomic.createLong(db, MOCKED_FIELDS_SEQ, 0);
-                Atomic.createLong(db, WEB_APPLICATION_DESCRIPTORS_SEQ, 0);
-                Atomic.createInteger(db, STARTUP_COUNTER, 1);
-            }
-            Atomic.getInteger(db, STARTUP_COUNTER).incrementAndGet();
+            createSchema();
         } finally {
-            MAINTENANCE_LOCK.unlock();
+            if (owned) {
+                MAINTENANCE_LOCK.unlock();
+            }
         }
+    }
+
+    public void initMemoryDb() throws Exception {
+        boolean owned = false;
+        try {
+            if (!MAINTENANCE_LOCK.tryLock() || db != null) {
+                return;
+            }
+            owned = true;
+            db = DBMaker.newMemoryDB()
+                    .make();
+            createSchema();
+        } finally {
+            if (owned) {
+                MAINTENANCE_LOCK.unlock();
+            }
+        }
+    }
+
+
+    private void createSchema() {
+        if (Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) {
+            db.createHashMap(SETTINGS, null, new JSONSerializer<>(Setting.class));
+            db.createHashMap(CONTAINERS, null, new JSONSerializer<>(Container.class));
+            db.createHashMap(CUSTOM_OBJECT_FACTORIES, null, new JSONSerializer<>(CustomObjectFactory.class));
+            db.createHashMap(REGISTERED_OBJECT_FACTORIES, null,
+                             new JSONSerializer<>(RegisteredObjectFactory.class));
+            db.createHashMap(WEB_APPLICATION_DESCRIPTORS, null,
+                             new JSONSerializer<>(WebApplicationDescriptor.class));
+            db.createHashSet(REGISTERED_CONTEXT_PATHS, null);
+            Atomic.createLong(db, MOCKED_FIELDS_SEQ, 0);
+            Atomic.createLong(db, WEB_APPLICATION_DESCRIPTORS_SEQ, 0);
+            Atomic.createInteger(db, STARTUP_COUNTER, 1);
+        }
+        Atomic.getInteger(db, STARTUP_COUNTER).incrementAndGet();
     }
 
     public Map<String, Setting> getSettings() {
@@ -123,19 +143,19 @@ public class EmbeddedDatabaseManager {
         return db.getHashSet(REGISTERED_CONTEXT_PATHS);
     }
 
-    public Collection<WebApplicationDescriptor> getWebApplicationDescriptors() {
-        return db.getHashSet(WEB_APPLICATION_DESCRIPTORS);
+    public Map<String, WebApplicationDescriptor> getWebApplicationDescriptors() {
+        return db.getHashMap(WEB_APPLICATION_DESCRIPTORS);
     }
 
     public int getStartupCount() {
         return Atomic.getInteger(db, STARTUP_COUNTER).get();
     }
 
-    public void commit() {
+    void internalCommit() {
         db.commit();
     }
 
-    public void rollback() {
+    void internalRollback() {
         db.rollback();
     }
 

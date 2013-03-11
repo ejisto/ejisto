@@ -19,9 +19,8 @@
 
 package com.ejisto.modules.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by IntelliJ IDEA.
@@ -51,8 +50,13 @@ public class Container implements Entity<String> {
         return id;
     }
 
+    @JsonIgnore
+    public boolean isStandalone() {
+        return standalone;
+    }
+
     @Override
     public Container clone() throws CloneNotSupportedException {
-        return (Container)super.clone();
+        return (Container) super.clone();
     }
 }

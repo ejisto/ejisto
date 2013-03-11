@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.util.Objects;
+
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.join;
 
@@ -183,6 +185,7 @@ public class MockedFieldImpl implements MockedField {
     }
 
     public static MockedFieldImpl copyOf(MockedFieldImpl source) {
+        Objects.requireNonNull(source, "Source field cannot be null");
         MockedFieldImpl copy = new MockedFieldImpl();
         copy.active = source.active;
         copy.contextPath = source.contextPath;

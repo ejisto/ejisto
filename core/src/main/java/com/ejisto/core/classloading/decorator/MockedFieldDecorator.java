@@ -30,6 +30,8 @@ import lombok.ToString;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Objects;
+
 import static com.ejisto.core.classloading.util.ReflectionUtils.detach;
 import static com.ejisto.modules.repository.ClassPoolRepository.getRegisteredClassPool;
 
@@ -41,13 +43,15 @@ public class MockedFieldDecorator implements MockedField {
     @Delegate(excludes = {ComplexValuesAware.class})
     private final MockedFieldImpl target;
 
-    public MockedFieldDecorator(MockedFieldImpl target) {
-        this.target = target;
-    }
-
     public MockedFieldDecorator() {
         this(new MockedFieldImpl());
     }
+
+    public MockedFieldDecorator(MockedFieldImpl target) {
+        Objects.requireNonNull(target, "target field cannot be null");
+        this.target = target;
+    }
+
 
     @Override
     public boolean isSimpleValue() {
@@ -104,8 +108,9 @@ public class MockedFieldDecorator implements MockedField {
         return "**expression**";
     }
 
-    public static MockedFieldDecorator copyOf(MockedFieldDecorator source) {
-        return new MockedFieldDecorator(MockedFieldImpl.copyOf(source.target));
+    public static MockedFieldDecorator copyOf(MockedField source) {
+        Objects.requireNonNull(source);
+        return new MockedFieldDecorator(MockedFieldImpl.copyOf((MockedFieldImpl)source.unwrap()));
     }
 
 }

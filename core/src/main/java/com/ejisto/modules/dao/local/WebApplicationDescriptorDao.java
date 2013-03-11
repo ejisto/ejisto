@@ -22,29 +22,24 @@ package com.ejisto.modules.dao.local;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-
-import static ch.lambdaj.Lambda.*;
-import static org.hamcrest.Matchers.equalTo;
+import java.util.Map;
 
 public class WebApplicationDescriptorDao extends BaseLocalDao {
 
     public WebApplicationDescriptor load(String contextPath) {
-        return internalLoad(contextPath, getDatabase().getWebApplicationDescriptors());
+        return getDatabase().getWebApplicationDescriptors().get(contextPath);
     }
 
     public List<WebApplicationDescriptor> loadAll() {
-        return new ArrayList<>(getDatabase().getWebApplicationDescriptors());
+        return new ArrayList<>(getDatabase().getWebApplicationDescriptors().values());
     }
 
     public void insert(final WebApplicationDescriptor descriptor) {
-        Collection<WebApplicationDescriptor> descriptors = getDatabase().getWebApplicationDescriptors();
+        Map<String, WebApplicationDescriptor> descriptors = getDatabase().getWebApplicationDescriptors();
         internalDelete(descriptor, descriptors);
-        descriptors.add(WebApplicationDescriptor.copyOf(descriptor));
+        descriptors.put(descriptor.getContextPath(), WebApplicationDescriptor.copyOf(descriptor));
         tryToCommit();
-
     }
 
     public void delete(WebApplicationDescriptor descriptor) {
@@ -52,15 +47,10 @@ public class WebApplicationDescriptorDao extends BaseLocalDao {
         tryToCommit();
     }
 
-    private void internalDelete(WebApplicationDescriptor descriptor, Collection<WebApplicationDescriptor> descriptors) {
-        WebApplicationDescriptor existing = internalLoad(descriptor.getContextPath(), descriptors);
-        Objects.requireNonNull(existing);
-        descriptors.remove(existing);
+    private void internalDelete(WebApplicationDescriptor descriptor, Map<String, WebApplicationDescriptor> descriptors) {
+        WebApplicationDescriptor existing = descriptors.get(descriptor.getContextPath());
+        if (existing != null) {
+            descriptors.remove(existing);
+        }
     }
-
-    private WebApplicationDescriptor internalLoad(String contextPath, Collection<WebApplicationDescriptor> descriptors) {
-        return selectFirst(descriptors,
-                           having(on(WebApplicationDescriptor.class).getContextPath(), equalTo(contextPath)));
-    }
-
 }

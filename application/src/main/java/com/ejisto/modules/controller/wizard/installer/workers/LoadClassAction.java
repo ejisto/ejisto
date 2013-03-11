@@ -22,7 +22,6 @@ package com.ejisto.modules.controller.wizard.installer.workers;
 import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.core.classloading.util.ReflectionUtils;
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.repository.MockedFieldsRepository;
@@ -122,12 +121,14 @@ public class LoadClassAction extends RecursiveTask<List<MockedField>> {
     private List<MockedField> getMockedFields(CtClass clazz, WebApplicationDescriptor descriptor) throws NotFoundException {
         List<MockedField> results = new ArrayList<>();
         try {
+            MockedFieldsRepository repository = MockedFieldsRepository.getInstance();
             for (CtField field : clazz.getDeclaredFields()) {
-                MockedField existing = MockedFieldsRepository.getInstance().load(descriptor.getContextPath(),
-                                                                                 clazz.getName(), field.getName());
                 MockedField mockedField;
-                if (existing != null) {
-                    mockedField = new MockedFieldDecorator(MockedFieldImpl.copyOf(((MockedFieldImpl) existing)));
+                if (repository.exists(descriptor.getContextPath(), clazz.getName(),
+                                      field.getName())) {
+                    MockedField existing = repository.load(descriptor.getContextPath(), clazz.getName(),
+                                                           field.getName());
+                    mockedField = MockedFieldDecorator.copyOf(existing);
                 } else {
                     mockedField = new MockedFieldDecorator();
                 }
