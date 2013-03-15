@@ -97,6 +97,10 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
         return getMockedFieldsDao().countByContextPathAndClassName(contextPath, className) > 0;
     }
 
+    public boolean createContext(String contextPath) {
+        return getMockedFieldsDao().createContext(contextPath);
+    }
+
     public boolean deleteContext(String contextPath) {
         return getMockedFieldsDao().deleteContext(contextPath);
     }

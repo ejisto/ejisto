@@ -25,7 +25,6 @@ import com.ejisto.modules.dao.db.MockedFieldContainer;
 import com.ejisto.modules.dao.db.util.MockedFieldExtractor;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
-import org.hamcrest.beans.HasPropertyWithValue;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -109,6 +108,15 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
     }
 
     @Override
+    public boolean createContext(String contextPath) {
+        if (!getDatabase().getRegisteredContextPaths().contains(contextPath)) {
+            getDatabase().registerContextPath(contextPath);
+            tryToCommit();
+        }
+        return true;
+    }
+
+    @Override
     public boolean deleteContext(final String contextPath) {
         getDatabase().deleteContextPath(contextPath);
         tryToCommit();
@@ -128,6 +136,9 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
         MockedField newField = cloneField(field);
         newField.setId(getDatabase().getNextMockedFieldsSequenceValue());
         NavigableSet<MockedFieldContainer> container = getDatabase().getMockedFields(field.getContextPath());
+        if(container == null) {
+            container = getDatabase().registerContextPath(field.getContextPath());
+        }
         container.add(new MockedFieldContainer(field.getClassName(), field.getFieldName(), field));
         return newField;
     }

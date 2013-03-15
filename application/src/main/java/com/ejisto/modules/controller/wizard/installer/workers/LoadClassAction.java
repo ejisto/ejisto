@@ -108,7 +108,7 @@ public class LoadClassAction extends RecursiveTask<List<MockedField>> {
         try {
             clazz = cp.get(className);
             return getMockedFields(clazz, descriptor);
-        } catch (Exception e) {
+        } catch (Exception | InternalError e) {
             listener.errorOccurred(buildErrorDescriptor(e));
         } finally {
             if (clazz != null) {

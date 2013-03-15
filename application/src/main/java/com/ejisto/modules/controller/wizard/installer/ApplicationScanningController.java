@@ -27,6 +27,7 @@ import com.ejisto.modules.executor.Task;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 
 import java.beans.PropertyChangeEvent;
 import java.util.concurrent.atomic.AtomicReference;

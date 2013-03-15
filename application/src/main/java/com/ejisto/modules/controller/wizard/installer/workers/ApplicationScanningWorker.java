@@ -27,6 +27,7 @@ import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.executor.GuiTask;
 import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import javassist.ClassPool;
 import javassist.LoaderClassPath;
 import lombok.extern.log4j.Log4j;
@@ -91,6 +92,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
         Objects.requireNonNull(getSession().getInstallationPath());
         String basePath = getSession().getInstallationPath();
         getSession().setContextPath(getContextPath(basePath));
+        MockedFieldsRepository.getInstance().createContext(getSession().getContextPath());
         getSession().setClassPathElements(getClasspathEntries(basePath));
         loadAllClasses(findAllWebApplicationClasses(basePath, getSession()), getSession());
         processWebXmlDescriptor(getSession());

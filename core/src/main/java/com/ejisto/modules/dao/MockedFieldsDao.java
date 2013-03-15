@@ -48,6 +48,8 @@ public interface MockedFieldsDao extends Dao {
 
     void insert(Collection<MockedField> mockedFields);
 
+    boolean createContext(String contextPath);
+
     boolean deleteContext(String contextPath);
 
     boolean exists(String contextPath, String className, String fieldName);

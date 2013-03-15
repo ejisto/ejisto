@@ -58,6 +58,7 @@ public class EmbeddedDatabaseManager {
             owned = true;
             db = DBMaker.newFileDB(new File(databaseFilePath))
                     .randomAccessFileEnableIfNeeded()
+                    .cacheLRUEnable()
                     .make();
             createSchema();
         } finally {
@@ -119,6 +120,10 @@ public class EmbeddedDatabaseManager {
         if (id != null) {
             return db.getTreeSet(contextPath);
         }
+        return null;
+    }
+
+    public NavigableSet<MockedFieldContainer> registerContextPath(String contextPath) {
         NavigableSet<MockedFieldContainer> container = db.createTreeSet(contextPath, NODE_SIZE, new JSONSerializer<>(
                 MockedFieldContainer.class), new MockedFieldContainerSorter());
         getRegisteredContextPaths().add(contextPath);
