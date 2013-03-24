@@ -19,8 +19,6 @@
 
 package com.ejisto.modules.dao.db.util;
 
-import com.ejisto.modules.dao.db.MockedFieldContainer;
-
 import java.io.Serializable;
 import java.util.Comparator;
 

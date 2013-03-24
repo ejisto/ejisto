@@ -35,11 +35,6 @@
               parent="baseDao" lazy-init="true"/>
         <bean id="containersDao" class="com.ejisto.modules.dao.local.ContainersDao" parent="baseDao" lazy-init="true"/>
         <bean id="dataSource" class="com.ejisto.modules.dao.db.EmbeddedDatabaseManager"/>
-        <bean name="transactionManager" class="com.ejisto.modules.dao.db.TransactionManager" factory-method="valueOf">
-            <constructor-arg>
-                <value>DEFAULT</value>
-            </constructor-arg>
-        </bean>
     </beans>
 
     <beans profile="test">
@@ -53,12 +48,6 @@
                     <prop key="force.db.init">true</prop>
                 </util:properties>
             </property>
-        </bean>
-        <bean name="transactionManager" class="com.ejisto.modules.dao.db.TransactionManager"
-              factory-method="valueOf">
-            <constructor-arg>
-                <value>NO_OP</value>
-            </constructor-arg>
         </bean>
     </beans>
 

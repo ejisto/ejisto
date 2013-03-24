@@ -17,37 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao.db;
+package com.ejisto.modules.dao.db.util.serializer;
 
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
-import com.ejisto.modules.web.util.JSONUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
-import org.mapdb.Serializer;
-
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/5/13
- * Time: 8:08 AM
+ * Date: 3/24/13
+ * Time: 4:18 PM
  */
-public class JSONCollectionSerializer<E, T extends Collection<E>> implements Serializer<T>, Serializable {
-
+public class CustomObjectFactorySerializer extends JSONSerializer<CustomObjectFactory> {
     @Override
-    public void serialize(DataOutput dataOutput, T t) throws IOException {
-        dataOutput.writeUTF(JSONUtil.encode(t));
-    }
-
-    @Override
-    public T deserialize(DataInput dataInput, int i) throws IOException {
-        return JSONUtil.decode(dataInput.readUTF(),
-                               new TypeReference<T>() {
-                               });
+    protected Class<CustomObjectFactory> getTargetClass() {
+        return CustomObjectFactory.class;
     }
 }

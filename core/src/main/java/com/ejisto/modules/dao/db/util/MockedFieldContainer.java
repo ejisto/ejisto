@@ -17,14 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao.db;
+package com.ejisto.modules.dao.db.util;
 
-import ch.lambdaj.function.convert.Converter;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
-import org.apache.commons.lang3.builder.CompareToBuilder;
 
-import java.util.Comparator;
 import java.util.Objects;
 
 /**

@@ -20,27 +20,38 @@
 package com.ejisto.modules.dao.local;
 
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
-import com.ejisto.modules.dao.db.TransactionManager;
-import com.ejisto.modules.dao.exception.DataException;
+import com.ejisto.modules.dao.db.Transaction;
 
 import javax.annotation.Resource;
+import java.util.concurrent.Callable;
 
 public abstract class BaseLocalDao {
 
     @Resource private EmbeddedDatabaseManager database;
-    @Resource private TransactionManager transactionManager;
 
-    EmbeddedDatabaseManager getDatabase() {
+    protected final EmbeddedDatabaseManager getDatabase() {
         return database;
     }
 
-    void tryToCommit() {
+    protected <T> T transactionalOperation(Callable<T> block) {
+        Transaction tx = openTransaction();
+        T result = null;
         try {
-            transactionManager.commit(database);
+            result = block.call();
+            tx.commit();
         } catch (Exception e) {
-            transactionManager.rollback(database);
-            throw new DataException("Exception during commit", e);
+            tx.rollback();
+        } finally {
+            database.removeTransaction(tx);
         }
+        return result;
     }
 
+    private Transaction openTransaction() {
+        Transaction transaction = database.getActiveTransaction();
+        if(transaction.isActive()) {
+            return transaction;
+        }
+        return database.createNewTransaction();
+    }
 }

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao.db;
+package com.ejisto.modules.dao.db.util.serializer;
 
 import com.ejisto.modules.web.util.JSONUtil;
 import org.mapdb.BTreeKeySerializer;
@@ -34,12 +34,9 @@ import java.io.Serializable;
  * Date: 2/17/13
  * Time: 5:08 PM
  */
-public class JSONSerializer<T> extends BTreeKeySerializer<T> implements Serializer<T>, Serializable {
+abstract class JSONSerializer<T> extends BTreeKeySerializer<T> implements Serializer<T>, Serializable {
 
-    private final Class<T> target;
-
-    public JSONSerializer(Class<T> target) {
-        this.target = target;
+    public JSONSerializer() {
     }
 
     @Override
@@ -49,13 +46,14 @@ public class JSONSerializer<T> extends BTreeKeySerializer<T> implements Serializ
 
     @Override
     public T deserialize(DataInput in, int available) throws IOException {
-        return JSONUtil.decode(in.readUTF(), target);
+        return JSONUtil.decode(in.readUTF(), getTargetClass());
     }
 
     @Override
     public void serialize(DataOutput out, int start, int end, Object[] keys) throws IOException {
+        Class<T> targetClass = getTargetClass();
         for(int i = start; i < end; i++) {
-            serialize(out, target.cast(keys[i]));
+            serialize(out, targetClass.cast(keys[i]));
         }
     }
 
@@ -67,4 +65,6 @@ public class JSONSerializer<T> extends BTreeKeySerializer<T> implements Serializ
         }
         return ret;
     }
+
+    protected abstract Class<T> getTargetClass();
 }

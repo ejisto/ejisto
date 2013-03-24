@@ -19,6 +19,7 @@
 
 package com.ejisto.core.classloading.javassist;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
@@ -26,6 +27,7 @@ import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ActiveProfiles;
@@ -50,10 +52,15 @@ import static org.junit.Assert.*;
 @ContextConfiguration(value = {"classpath:/core-context.xml"})
 public class PropertyManagerTest {
 
+    private static final long TIMEOUT = 5000L;
     private static final String CTX = "/ejisto";
     private static final String CLASS_NAME = SimpleBean.class.getName();
     @Resource private EmbeddedDatabaseManager db;
 
+    @BeforeClass
+    public static void initClass() {
+        System.setProperty(StringConstants.INITIALIZE_DATABASE.getValue(), "true");
+    }
 
     @Before
     public void init() throws Exception {
@@ -62,7 +69,7 @@ public class PropertyManagerTest {
                                                                     SimpleBean.class.getName(), false);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMockCollectionField() throws Exception {
         MockedFieldImpl field = new MockedFieldImpl();
         field.setActive(true);
@@ -92,63 +99,63 @@ public class PropertyManagerTest {
         }
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMockByteField() throws Exception {
         insertField("byteField", "byte", "-1");
         byte res = PropertyManager.mockField(CTX, "byteField", CLASS_NAME, (byte) -2);
         assertEquals(-1, res);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMockShortField() throws Exception {
         insertField("shortField", "short", "-42");
         short res = PropertyManager.mockField(CTX, "shortField", CLASS_NAME, (short) -5);
         assertEquals(-42, res);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMockIntField() throws Exception {
         insertField("intField", "int", "42");
         int res = PropertyManager.mockField(CTX, "intField", CLASS_NAME, -42);
         assertEquals(42, res);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMockLongField() throws Exception {
         insertField("longField", "long", "666");
         long res = PropertyManager.mockField(CTX, "longField", CLASS_NAME, -666L);
         assertEquals(666L, res);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMockFloatField() throws Exception {
         insertField("floatField", "float", "42.00");
         float res = PropertyManager.mockField(CTX, "floatField", CLASS_NAME, -42.0F);
         assertEquals(42.0F, res, 0.0F);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMockDoubleField() throws Exception {
         insertField("doubleField", "double", "42.00");
         double res = PropertyManager.mockField(CTX, "doubleField", CLASS_NAME, -42.0D);
         assertEquals(42.0D, res, 0.0D);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMockCharField() throws Exception {
         insertField("charField", "char", "17");
         char res = PropertyManager.mockField(CTX, "charField", CLASS_NAME, (char) 17);
         assertEquals((char) 17, res);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMockBooleanField() throws Exception {
         insertField("booleanField", "boolean", "true");
         boolean res = PropertyManager.mockField(CTX, "booleanField", CLASS_NAME, false);
         assertTrue(res);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMockObjectArrayField() throws Exception {
         insertField("stringArrayField", "java.lang.String[]", "one,two,three");
         String[] res = PropertyManager.mockField(CTX, "stringArrayField", CLASS_NAME, String[].class, null);
@@ -159,7 +166,7 @@ public class PropertyManagerTest {
         assertEquals("three", res[2]);
     }
 
-    @Test
+    @Test(timeout = TIMEOUT)
     public void testMockObjectEnumField() throws Exception {
         insertField("enumField", "java.lang.annotation.ElementType", "METHOD");
         ElementType res = PropertyManager.mockField(CTX, "enumField", CLASS_NAME, ElementType.class, null);

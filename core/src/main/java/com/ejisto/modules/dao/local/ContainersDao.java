@@ -24,9 +24,7 @@ import com.ejisto.modules.dao.exception.UniqueConstraintViolated;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static ch.lambdaj.Lambda.*;
-import static org.hamcrest.CoreMatchers.equalTo;
+import java.util.concurrent.Callable;
 
 /**
  * Created by IntelliJ IDEA.
@@ -44,18 +42,28 @@ public class ContainersDao extends BaseLocalDao {
         return getDatabase().getContainers().get(id);
     }
 
-    public boolean insert(Container container) {
-        if(load(container.getId()) != null) {
-            throw new UniqueConstraintViolated("Container.id cannot be '"+container.getId()+"'");
-        }
-        getDatabase().getContainers().put(container.getKey(), container);
-        tryToCommit();
+    public boolean insert(final Container container) {
+        transactionalOperation(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                if (load(container.getId()) != null) {
+                    throw new UniqueConstraintViolated("Container.id cannot be '" + container.getId() + "'");
+                }
+                getDatabase().getContainers().put(container.getKey(), container);
+                return null;
+            }
+        });
         return true;
     }
 
-    public boolean delete(Container container) {
-        getDatabase().getContainers().remove(container.getKey());
-        tryToCommit();
+    public boolean delete(final Container container) {
+        transactionalOperation(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                getDatabase().getContainers().remove(container.getKey());
+                return null;
+            }
+        });
         return true;
     }
 

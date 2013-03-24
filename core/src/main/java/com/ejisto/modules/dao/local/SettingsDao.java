@@ -23,7 +23,9 @@ import ch.lambdaj.function.convert.Converter;
 import com.ejisto.modules.dao.entities.Setting;
 import com.ejisto.util.converter.EntityToKey;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.concurrent.Callable;
 
 import static ch.lambdaj.Lambda.map;
 
@@ -43,17 +45,27 @@ public class SettingsDao extends BaseLocalDao implements com.ejisto.modules.dao.
 
     @Override
     public boolean insertSettings(final Collection<Setting> settings) {
-        getDatabase().getSettings().putAll(map(settings, KEY_EXTRACTOR));
-        tryToCommit();
+        transactionalOperation(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                getDatabase().getSettings().putAll(map(settings, KEY_EXTRACTOR));
+                return null;
+            }
+        });
         return true;
     }
 
     @Override
     public boolean clearSettings(final Collection<Setting> settings) {
-        for (Setting setting : settings) {
-            getDatabase().getSettings().remove(setting.getKey());
-        }
-        tryToCommit();
+        transactionalOperation(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                for (Setting setting : settings) {
+                    getDatabase().getSettings().remove(setting.getKey());
+                }
+                return null;
+            }
+        });
         return true;
     }
 }

@@ -17,20 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao.db.util;
+package com.ejisto.modules.dao.db.util.serializer;
 
-import ch.lambdaj.function.convert.Converter;
-import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.dao.db.util.MockedFieldContainer;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/6/13
- * Time: 8:17 AM
+ * Date: 3/24/13
+ * Time: 4:21 PM
  */
-public class MockedFieldExtractor implements Converter<MockedFieldContainer, MockedField> {
+public class MockedFieldContainerSerializer extends JSONSerializer<MockedFieldContainer> {
     @Override
-    public MockedField convert(MockedFieldContainer from) {
-        return from.getMockedField();
+    protected Class<MockedFieldContainer> getTargetClass() {
+        return MockedFieldContainer.class;
     }
 }

@@ -17,20 +17,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao.db.util;
+package com.ejisto.modules.dao.db;
 
-import ch.lambdaj.function.convert.Converter;
-import com.ejisto.modules.dao.entities.MockedField;
+import org.mapdb.DB;
+
+import java.util.Map;
+import java.util.NavigableSet;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/6/13
- * Time: 8:17 AM
+ * Date: 3/22/13
+ * Time: 6:40 PM
  */
-public class MockedFieldExtractor implements Converter<MockedFieldContainer, MockedField> {
-    @Override
-    public MockedField convert(MockedFieldContainer from) {
-        return from.getMockedField();
+public final class DatabaseAccessor {
+
+    private final DB db;
+
+    public DatabaseAccessor(DB db) {
+        this.db = db;
     }
+
+    public <K, V> Map<K, V> getHashMap(String name) {
+        return db.getHashMap(name);
+    }
+
+    public <V> NavigableSet<V> getTreeSet(String name) {
+        return db.getTreeSet(name);
+    }
+
+    public <V> Set<V> getHashSet(String name) {
+        return db.getHashSet(name);
+    }
+
+    DB getDb() {
+        return db;
+    }
+
 }

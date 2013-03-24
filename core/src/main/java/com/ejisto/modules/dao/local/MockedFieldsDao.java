@@ -21,13 +21,14 @@ package com.ejisto.modules.dao.local;
 
 import ch.lambdaj.Lambda;
 import com.ejisto.core.ApplicationException;
-import com.ejisto.modules.dao.db.MockedFieldContainer;
+import com.ejisto.modules.dao.db.util.MockedFieldContainer;
 import com.ejisto.modules.dao.db.util.MockedFieldExtractor;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.concurrent.Callable;
 
 import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -79,47 +80,72 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
 
     @Override
     public boolean update(final MockedField field) {
-        Collection<MockedFieldContainer> fields = getMockedFieldsByClassName(field.getContextPath(),
-                                                                             field.getClassName());
-        MockedFieldContainer existing = getSingleField(fields, field.getFieldName());
-        Objects.requireNonNull(existing);
-        fields.remove(existing);
-        fields.add(MockedFieldContainer.from(field));
-        tryToCommit();
+        transactionalOperation(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                Collection<MockedFieldContainer> fields = getMockedFieldsByClassName(field.getContextPath(),
+                                                                                     field.getClassName());
+                MockedFieldContainer existing = getSingleField(fields, field.getFieldName());
+                Objects.requireNonNull(existing);
+                fields.remove(existing);
+                fields.add(MockedFieldContainer.from(field));
+                return null;
+            }
+        });
         return true;
     }
 
     @Override
     public MockedField insert(final MockedField field) {
-        MockedField newField = internalInsert(field);
-        field.setId(newField.getId());
-        tryToCommit();
+        transactionalOperation(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                MockedField newField = internalInsert(field);
+                field.setId(newField.getId());
+                return null;
+            }
+        });
         return field;
     }
 
 
     @Override
-    public void insert(Collection<MockedField> mockedFields) {
-        for (MockedField mockedField : mockedFields) {
-            MockedField newField = internalInsert(mockedField);
-            mockedField.setId(newField.getId());
-        }
-        tryToCommit();
+    public void insert(final Collection<MockedField> mockedFields) {
+        transactionalOperation(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                for (MockedField mockedField : mockedFields) {
+                    MockedField newField = internalInsert(mockedField);
+                    mockedField.setId(newField.getId());
+                }
+                return null;
+            }
+        });
     }
 
     @Override
-    public boolean createContext(String contextPath) {
-        if (!getDatabase().getRegisteredContextPaths().contains(contextPath)) {
-            getDatabase().registerContextPath(contextPath);
-            tryToCommit();
-        }
+    public boolean createContext(final String contextPath) {
+        transactionalOperation(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                if (!getDatabase().getRegisteredContextPaths().contains(contextPath)) {
+                    getDatabase().registerContextPath(contextPath);
+                }
+                return null;
+            }
+        });
         return true;
     }
 
     @Override
     public boolean deleteContext(final String contextPath) {
-        getDatabase().deleteContextPath(contextPath);
-        tryToCommit();
+        transactionalOperation(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                getDatabase().deleteContextPath(contextPath);
+                return null;
+            }
+        });
         return true;
     }
 
@@ -136,7 +162,7 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
         MockedField newField = cloneField(field);
         newField.setId(getDatabase().getNextMockedFieldsSequenceValue());
         NavigableSet<MockedFieldContainer> container = getDatabase().getMockedFields(field.getContextPath());
-        if(container == null) {
+        if (container == null) {
             container = getDatabase().registerContextPath(field.getContextPath());
         }
         container.add(new MockedFieldContainer(field.getClassName(), field.getFieldName(), field));

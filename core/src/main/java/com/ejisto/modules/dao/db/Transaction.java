@@ -17,20 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao.db.util;
-
-import ch.lambdaj.function.convert.Converter;
-import com.ejisto.modules.dao.entities.MockedField;
+package com.ejisto.modules.dao.db;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/6/13
- * Time: 8:17 AM
+ * Date: 3/15/13
+ * Time: 4:27 PM
  */
-public class MockedFieldExtractor implements Converter<MockedFieldContainer, MockedField> {
-    @Override
-    public MockedField convert(MockedFieldContainer from) {
-        return from.getMockedField();
-    }
+public interface Transaction {
+
+    DatabaseAccessor getDatabaseAccessor();
+
+    String getId();
+
+    boolean commit();
+
+    boolean rollback();
+
+    boolean isActive();
 }

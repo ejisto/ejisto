@@ -24,9 +24,7 @@ import com.ejisto.modules.dao.exception.UniqueConstraintViolated;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static ch.lambdaj.Lambda.*;
-import static org.hamcrest.CoreMatchers.equalTo;
+import java.util.concurrent.Callable;
 
 /**
  * Created by IntelliJ IDEA.
@@ -47,18 +45,30 @@ public class CustomObjectFactoryDao extends BaseLocalDao implements com.ejisto.m
     }
 
     @Override
-    public boolean insert(CustomObjectFactory customObjectFactory) {
-        if (load(customObjectFactory.getKey()) != null) {
-            throw new UniqueConstraintViolated(
-                    "CustomObjectFactory.fileName cannot be '" + customObjectFactory.getFileName() + "'");
-        }
-        return update(customObjectFactory);
+    public boolean insert(final CustomObjectFactory customObjectFactory) {
+        transactionalOperation(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                if (load(customObjectFactory.getKey()) != null) {
+                    throw new UniqueConstraintViolated(
+                            "CustomObjectFactory.fileName cannot be '" + customObjectFactory.getFileName() + "'");
+                }
+                update(customObjectFactory);
+                return null;
+            }
+        });
+        return true;
     }
 
     @Override
-    public boolean update(CustomObjectFactory customObjectFactory) {
-        getDatabase().getCustomObjectFactories().put(customObjectFactory.getKey(), customObjectFactory);
-        tryToCommit();
+    public boolean update(final CustomObjectFactory customObjectFactory) {
+        transactionalOperation(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                getDatabase().getCustomObjectFactories().put(customObjectFactory.getKey(), customObjectFactory);
+                return null;
+            }
+        });
         return true;
     }
 
@@ -71,5 +81,4 @@ public class CustomObjectFactoryDao extends BaseLocalDao implements com.ejisto.m
     public boolean save(CustomObjectFactory customObjectFactory) {
         return update(customObjectFactory);
     }
-
 }

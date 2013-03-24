@@ -17,18 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.core.classloading.javassist;
+package com.ejisto.modules.dao.db.util.serializer;
+
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 10/17/12
- * Time: 8:26 AM
+ * Date: 3/24/13
+ * Time: 4:20 PM
  */
-public class JavassistStackMapTest {
-
-    public static void main(String[] args) {
-
+public class WebApplicationDescriptorSerializer extends JSONSerializer<WebApplicationDescriptor> {
+    @Override
+    protected Class<WebApplicationDescriptor> getTargetClass() {
+        return WebApplicationDescriptor.class;
     }
-
 }
