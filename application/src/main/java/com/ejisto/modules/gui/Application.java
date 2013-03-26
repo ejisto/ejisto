@@ -25,6 +25,8 @@ import com.ejisto.event.def.ChangeServerStatus.Command;
 import com.ejisto.event.def.LogMessage;
 import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.modules.conf.SettingsManager;
+import com.ejisto.modules.executor.BackgroundTask;
+import com.ejisto.modules.executor.TaskManager;
 
 import javax.annotation.Resource;
 import java.awt.*;
@@ -33,6 +35,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Date;
+import java.util.concurrent.Callable;
 
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.*;
@@ -42,6 +45,7 @@ public class Application extends javax.swing.JFrame {
     private static final long serialVersionUID = -3746366232127903518L;
     @Resource private transient EventManager eventManager;
     @Resource private transient SettingsManager settingsManager;
+    @Resource private transient TaskManager taskManager;
 
     public Application() {
     }
@@ -61,8 +65,15 @@ public class Application extends javax.swing.JFrame {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                settingsManager.putValue(APPLICATION_WIDTH, Application.this.getWidth());
-                settingsManager.putValue(APPLICATION_HEIGHT, Application.this.getHeight());
+                taskManager.addNewTask(new BackgroundTask<>(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        settingsManager.putValue(APPLICATION_WIDTH, Application.this.getWidth());
+                        settingsManager.putValue(APPLICATION_HEIGHT, Application.this.getHeight());
+                        return null;
+                    }
+                }));
+
             }
         });
         addWindowListener(new WindowAdapter() {
