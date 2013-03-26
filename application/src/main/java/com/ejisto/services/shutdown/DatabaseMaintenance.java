@@ -35,6 +35,7 @@ public class DatabaseMaintenance extends BaseShutdownService {
             if (databaseManager.getStartupCount() % 20 == 0) {
                 databaseManager.doMaintenance();
             }
+            databaseManager.shutdown();
         } catch (InterruptedException e) {
             log.fatal("Unable to do maintenance tasks", e);
         }

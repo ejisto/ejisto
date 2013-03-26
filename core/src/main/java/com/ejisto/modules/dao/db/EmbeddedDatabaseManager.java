@@ -73,7 +73,7 @@ public class EmbeddedDatabaseManager {
 //                    .makeTxMaker();
             db = DBMaker.newFileDB(new File(databaseFilePath))
                     .randomAccessFileEnableIfNeeded()
-                    .cacheLRUEnable().closeOnJvmShutdown().make();
+                    .cacheLRUEnable().make();
             createSchema();
         } finally {
             if (owned) {
@@ -91,7 +91,7 @@ public class EmbeddedDatabaseManager {
             owned = true;
 //            tx = DBMaker.newMemoryDB()
 //                    .makeTxMaker();
-            db = DBMaker.newMemoryDB().closeOnJvmShutdown().make();
+            db = DBMaker.newMemoryDB().make();
             createSchema();
         } finally {
             if (owned) {
