@@ -36,11 +36,11 @@ public final class MockedFieldContainer {
 
     private final String className;
     private final String fieldName;
-    private final MockedField mockedField;
+    private final MockedFieldImpl mockedField;
 
     @JsonCreator
-    public MockedFieldContainer(@JsonProperty("className") String className, @JsonProperty(
-            "fieldName") String fieldName, @JsonProperty("mockedField") MockedField mockedField) {
+    MockedFieldContainer(@JsonProperty("className") String className, @JsonProperty(
+            "fieldName") String fieldName, @JsonProperty("mockedField") MockedFieldImpl mockedField) {
         this.className = className;
         this.fieldName = fieldName;
         this.mockedField = mockedField;

@@ -88,7 +88,7 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
                 MockedFieldContainer existing = getSingleField(fields, field.getFieldName());
                 Objects.requireNonNull(existing);
                 fields.remove(existing);
-                fields.add(MockedFieldContainer.from(field));
+                fields.add(MockedFieldContainer.from(field.unwrap()));
                 return null;
             }
         });
@@ -166,7 +166,7 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
             getDatabase().registerContextPath(field.getContextPath());
             container = getDatabase().getMockedFields(field.getContextPath());
         }
-        container.add(new MockedFieldContainer(field.getClassName(), field.getFieldName(), field));
+        container.add(MockedFieldContainer.from(field));
         return newField;
     }
 
