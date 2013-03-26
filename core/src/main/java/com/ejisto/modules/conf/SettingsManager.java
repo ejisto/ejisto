@@ -38,8 +38,6 @@ public class SettingsManager extends ExternalizableService<SettingsDao> {
     @Resource(name = "settings") private Properties settings;
     @Resource private SettingsDao settingsDao;
 
-    private AtomicReference<Set<Setting>> settingsList = new AtomicReference<>();
-
     public int getIntValue(StringConstants key) {
         return Integer.parseInt(getValue(key));
     }
@@ -57,20 +55,13 @@ public class SettingsManager extends ExternalizableService<SettingsDao> {
     }
 
     public String getValue(String key) {
-        init();
         Setting setting = find(key);
         if (setting != null) {
             return setting.getValue();
         }
         setting = new Setting(key, settings.getProperty(key));
-        settingsList.get().add(setting);
+        settingsDao.insertSetting(setting);
         return setting.getValue();
-    }
-
-    public void flush() {
-        if (getSettingsDao().clearSettings(settingsList.get())) {
-            getSettingsDao().insertSettings(settingsList.get());
-        }
     }
 
     public void putValue(StringConstants key, Object value) {
@@ -78,17 +69,11 @@ public class SettingsManager extends ExternalizableService<SettingsDao> {
     }
 
     private void putValue(String key, String value) {
-        settingsList.get().add(new Setting(key, value));
-    }
-
-    private void init() {
-        if (settingsList.get() == null) {
-            settingsList.compareAndSet(null, new HashSet<>(getSettingsDao().loadAll()));
-        }
+        settingsDao.insertSetting(new Setting(key, value));
     }
 
     private Setting find(String key) {
-        return selectFirst(settingsList.get(), having(on(Setting.class).getKey(), equalTo(key)));
+        return settingsDao.getSetting(key);
     }
 
     private com.ejisto.modules.dao.SettingsDao getSettingsDao() {
@@ -110,4 +95,5 @@ public class SettingsManager extends ExternalizableService<SettingsDao> {
     protected SettingsDao newRemoteDaoInstance() {
         return new com.ejisto.modules.dao.remote.SettingsDao();
     }
+
 }

@@ -120,13 +120,13 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     }
 
     private void notifyContextInstalled(String contextPath) {
-        view.contextInstalled(contextPath, MockedFieldsRepository.getInstance().loadActiveFields(
-                new ContextPathMatcher(contextPath, fieldsEditorContext)));
+        view.contextInstalled(contextPath, MockedFieldsRepository.getInstance().loadActiveFields(contextPath,
+                new FieldsEditorContextMatcher(fieldsEditorContext)));
     }
 
     private void notifyContextDeleted(String contextPath) {
-        view.contextRemoved(contextPath, MockedFieldsRepository.getInstance().loadAll(
-                new ContextPathMatcher(contextPath, fieldsEditorContext)));
+        view.contextRemoved(contextPath, MockedFieldsRepository.getInstance().loadAll(contextPath,
+                new FieldsEditorContextMatcher(fieldsEditorContext)));
     }
 
     private void startEdit(MockedFieldEditingEvent event, Point editingPoint) {

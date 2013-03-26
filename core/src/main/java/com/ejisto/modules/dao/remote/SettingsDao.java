@@ -52,6 +52,11 @@ public class SettingsDao extends BaseRemoteDao implements com.ejisto.modules.dao
     }
 
     @Override
+    public boolean insertSetting(Setting setting) {
+        throw new UnsupportedOperationException("Remote dao is read-only");
+    }
+
+    @Override
     public boolean clearSettings(Collection<Setting> settings) {
         throw new UnsupportedOperationException("Remote dao is read-only");
     }

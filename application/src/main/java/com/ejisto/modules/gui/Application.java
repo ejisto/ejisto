@@ -28,8 +28,7 @@ import com.ejisto.modules.conf.SettingsManager;
 
 import javax.annotation.Resource;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.Date;
 
 import static com.ejisto.constants.StringConstants.*;
@@ -56,6 +55,13 @@ public class Application extends javax.swing.JFrame {
             setExtendedState(MAXIMIZED_BOTH);
         }
         setPreferredSize(size);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                settingsManager.putValue(APPLICATION_WIDTH, Application.this.getWidth());
+                settingsManager.putValue(APPLICATION_HEIGHT, Application.this.getHeight());
+            }
+        });
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {

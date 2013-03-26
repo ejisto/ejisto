@@ -21,6 +21,8 @@ package com.ejisto.modules.dao.db.util;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
@@ -36,7 +38,9 @@ public final class MockedFieldContainer {
     private final String fieldName;
     private final MockedField mockedField;
 
-    public MockedFieldContainer(String className, String fieldName, MockedField mockedField) {
+    @JsonCreator
+    public MockedFieldContainer(@JsonProperty("className") String className, @JsonProperty(
+            "fieldName") String fieldName, @JsonProperty("mockedField") MockedField mockedField) {
         this.className = className;
         this.fieldName = fieldName;
         this.mockedField = mockedField;

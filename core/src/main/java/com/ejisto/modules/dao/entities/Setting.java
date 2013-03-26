@@ -19,6 +19,8 @@
 
 package com.ejisto.modules.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
@@ -27,7 +29,8 @@ public class Setting implements Entity<String> {
     private final String key;
     private final String value;
 
-    public Setting(String key, String value) {
+    @JsonCreator
+    public Setting(@JsonProperty("key") String key, @JsonProperty("value") String value) {
         this.key = key;
         this.value = value;
     }

@@ -47,7 +47,7 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
 
     @Override
     public Collection<MockedField> loadContextPathFields(String contextPath) {
-        return flatten(getDatabase().getMockedFields(contextPath));
+        return flatten(convert(getDatabase().getMockedFields(contextPath), new MockedFieldExtractor()));
     }
 
     @Override
@@ -142,7 +142,7 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
         transactionalOperation(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                getDatabase().deleteContextPath(contextPath);
+                getDatabase().deleteAllMockedFields(contextPath);
                 return null;
             }
         });
@@ -163,7 +163,8 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
         newField.setId(getDatabase().getNextMockedFieldsSequenceValue());
         NavigableSet<MockedFieldContainer> container = getDatabase().getMockedFields(field.getContextPath());
         if (container == null) {
-            container = getDatabase().registerContextPath(field.getContextPath());
+            getDatabase().registerContextPath(field.getContextPath());
+            container = getDatabase().getMockedFields(field.getContextPath());
         }
         container.add(new MockedFieldContainer(field.getClassName(), field.getFieldName(), field));
         return newField;

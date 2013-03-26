@@ -59,9 +59,6 @@ public class WebApplicationDescriptorDao extends BaseLocalDao {
     }
 
     private void internalDelete(WebApplicationDescriptor descriptor, Map<String, WebApplicationDescriptor> descriptors) {
-        WebApplicationDescriptor existing = descriptors.get(descriptor.getContextPath());
-        if (existing != null) {
-            descriptors.remove(existing);
-        }
+        descriptors.remove(descriptor.getContextPath());
     }
 }

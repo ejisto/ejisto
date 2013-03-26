@@ -56,6 +56,17 @@ public class SettingsDao extends BaseLocalDao implements com.ejisto.modules.dao.
     }
 
     @Override
+    public boolean insertSetting(final Setting setting) {
+        return transactionalOperation(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                getDatabase().getSettings().put(setting.getKey(), setting);
+                return Boolean.TRUE;
+            }
+        });
+    }
+
+    @Override
     public boolean clearSettings(final Collection<Setting> settings) {
         transactionalOperation(new Callable<Void>() {
             @Override

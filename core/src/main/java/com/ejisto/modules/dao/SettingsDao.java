@@ -38,5 +38,7 @@ public interface SettingsDao extends Dao {
 
     boolean insertSettings(Collection<Setting> settings);
 
+    boolean insertSetting(Setting setting);
+
     boolean clearSettings(Collection<Setting> settings);
 }
