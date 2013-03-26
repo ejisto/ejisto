@@ -52,7 +52,6 @@ public class EmbeddedDatabaseManager {
     private static final String CUSTOM_OBJECT_FACTORIES = "customObjectFactories";
     private static final String REGISTERED_OBJECT_FACTORIES = "registeredObjectFactories";
     private static final String WEB_APPLICATION_DESCRIPTORS = "webApplicationDescriptors";
-    private static final String MOCKED_FIELDS_SEQ = "mockedFieldsSeq";
     private static final String STARTUP_COUNTER = "startupCounter";
     private static final ReentrantLock MAINTENANCE_LOCK = new ReentrantLock();
     private static final int NODE_SIZE = 32;
@@ -109,7 +108,6 @@ public class EmbeddedDatabaseManager {
             db.createHashMap(CUSTOM_OBJECT_FACTORIES, null, new CustomObjectFactorySerializer());
             db.createHashMap(REGISTERED_OBJECT_FACTORIES, null, new RegisteredObjectFactorySerializer());
             db.createHashMap(WEB_APPLICATION_DESCRIPTORS, null, new WebApplicationDescriptorSerializer());
-            Atomic.createLong(db, MOCKED_FIELDS_SEQ, 0);
             Atomic.createInteger(db, STARTUP_COUNTER, 1);
         }
         contextPaths.addAll(
@@ -198,15 +196,6 @@ public class EmbeddedDatabaseManager {
                 String key = encodeContextPath(contextPath);
                 db.getTreeSet(key).clear();
                 return Boolean.TRUE;
-            }
-        });
-    }
-
-    public long getNextMockedFieldsSequenceValue() {
-        return doInTransaction(new Executor<Long>() {
-            @Override
-            public Long execute(DatabaseAccessor db) {
-                return Atomic.getLong(db.getDb(), MOCKED_FIELDS_SEQ).incrementAndGet();
             }
         });
     }

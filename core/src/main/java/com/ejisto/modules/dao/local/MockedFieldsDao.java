@@ -100,8 +100,7 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
         transactionalOperation(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                MockedField newField = internalInsert(field);
-                field.setId(newField.getId());
+                internalInsert(field);
                 return null;
             }
         });
@@ -115,8 +114,7 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
             @Override
             public Void call() throws Exception {
                 for (MockedField mockedField : mockedFields) {
-                    MockedField newField = internalInsert(mockedField);
-                    mockedField.setId(newField.getId());
+                    internalInsert(mockedField);
                 }
                 return null;
             }
@@ -160,7 +158,6 @@ public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.
 
     private MockedField internalInsert(MockedField field) {
         MockedField newField = cloneField(field);
-        newField.setId(getDatabase().getNextMockedFieldsSequenceValue());
         NavigableSet<MockedFieldContainer> container = getDatabase().getMockedFields(field.getContextPath());
         if (container == null) {
             getDatabase().registerContextPath(field.getContextPath());

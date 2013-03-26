@@ -35,10 +35,6 @@ public interface MockedField extends ComplexValuesAware, Comparable<MockedField>
 
     String PATH_SEPARATOR = ">";
 
-    long getId();
-
-    void setId(long id);
-
     String getContextPath();
 
     void setContextPath(String contextPath);

@@ -39,11 +39,7 @@ public class FieldsUpdateListener implements ApplicationListener<MockedFieldChan
     }
 
     private void handleFieldChange(MockedField field) {
-        if (field.getId() > 0) {
-            mockedFieldsRepository.update(field);
-        } else {
             mockedFieldsRepository.insert(field);
-        }
     }
 
 }

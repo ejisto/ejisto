@@ -39,8 +39,7 @@ public enum FieldsEditorContext {
     MAIN_WINDOW("fields.table.model.MAIN_WINDOW.columns", new GuiUtils.EditorColumnFillStrategy() {
         @Override
         public void fillRow(List<List<String>> rows, MockedField row) {
-            rows.add(asList(String.valueOf(row.getId()),
-                            row.getContextPath(),
+            rows.add(asList(row.getContextPath(),
                             row.getClassName(),
                             row.getFieldName(),
                             row.getFieldType(),

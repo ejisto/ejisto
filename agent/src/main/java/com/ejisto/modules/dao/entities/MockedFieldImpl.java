@@ -32,7 +32,6 @@ import static org.apache.commons.lang3.StringUtils.join;
 
 @Data
 public class MockedFieldImpl implements MockedField {
-    private long id;
     private String contextPath;
     private String className;
     private String fieldName;
@@ -151,7 +150,6 @@ public class MockedFieldImpl implements MockedField {
         }
         MockedFieldImpl that = (MockedFieldImpl) o;
         return new EqualsBuilder()
-                .append(id, that.id)
                 .append(className, that.className)
                 .append(contextPath, that.contextPath)
                 .append(link, that.link)
@@ -165,7 +163,6 @@ public class MockedFieldImpl implements MockedField {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(13, 37)
-                .append(id)
                 .append(className)
                 .append(contextPath)
                 .append(link)
@@ -178,9 +175,6 @@ public class MockedFieldImpl implements MockedField {
 
     @Override
     public int compareTo(MockedField o) {
-        if (id == o.getId()) {
-            return 0;
-        }
         return getComparisonKey().compareTo(o.getComparisonKey());
     }
 
