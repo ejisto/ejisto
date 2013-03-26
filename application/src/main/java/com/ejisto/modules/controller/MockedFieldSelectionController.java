@@ -20,7 +20,6 @@
 package com.ejisto.modules.controller;
 
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.gui.components.EjistoDialog;
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;

@@ -25,13 +25,7 @@ import com.ejisto.modules.dao.entities.Setting;
 import com.ejisto.util.ExternalizableService;
 
 import javax.annotation.Resource;
-import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static ch.lambdaj.Lambda.*;
-import static org.hamcrest.Matchers.equalTo;
 
 public class SettingsManager extends ExternalizableService<SettingsDao> {
 

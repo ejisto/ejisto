@@ -28,7 +28,10 @@ import com.ejisto.modules.conf.SettingsManager;
 
 import javax.annotation.Resource;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Date;
 
 import static com.ejisto.constants.StringConstants.*;

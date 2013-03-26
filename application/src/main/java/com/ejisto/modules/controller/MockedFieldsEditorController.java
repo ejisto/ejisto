@@ -27,7 +27,6 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.*;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import com.ejisto.util.ContextPathMatcher;
 import com.ejisto.util.FieldsEditorContextMatcher;
 import org.springframework.context.ApplicationListener;
 

@@ -22,7 +22,6 @@ package com.ejisto.modules.dao;
 import com.ejisto.modules.dao.entities.Setting;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.

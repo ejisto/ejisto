@@ -22,7 +22,6 @@ package com.ejisto.modules.recorder;
 import lombok.Delegate;
 
 import javax.servlet.http.HttpSession;
-import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.

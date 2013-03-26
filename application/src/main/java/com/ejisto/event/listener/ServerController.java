@@ -31,7 +31,6 @@ import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import lombok.extern.log4j.Log4j;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;

@@ -27,7 +27,6 @@ import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.gui.components.helper.FieldEditorPanel;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import com.ejisto.util.ContextPathMatcher;
 import com.ejisto.util.FieldsEditorContextMatcher;
 import org.jdesktop.swingx.action.AbstractActionExt;
 

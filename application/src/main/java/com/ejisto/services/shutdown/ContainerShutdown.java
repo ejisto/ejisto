@@ -20,13 +20,9 @@
 package com.ejisto.services.shutdown;
 
 import com.ejisto.core.container.ContainerManager;
-import com.ejisto.event.EventManager;
-import com.ejisto.event.def.ChangeServerStatus;
 import lombok.extern.log4j.Log4j;
 
 import javax.annotation.Resource;
-
-import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
 
 @Log4j
 public class ContainerShutdown extends BaseShutdownService {
