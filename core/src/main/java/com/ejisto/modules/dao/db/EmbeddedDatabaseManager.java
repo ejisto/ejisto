@@ -103,11 +103,11 @@ public class EmbeddedDatabaseManager {
     private void createSchema() {
         //DB db = tx.makeTx();
         if (Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) {
-            db.createHashMap(SETTINGS, null, new SettingSerializer());
-            db.createHashMap(CONTAINERS, null, new ContainerSerializer());
-            db.createHashMap(CUSTOM_OBJECT_FACTORIES, null, new CustomObjectFactorySerializer());
-            db.createHashMap(REGISTERED_OBJECT_FACTORIES, null, new RegisteredObjectFactorySerializer());
-            db.createHashMap(WEB_APPLICATION_DESCRIPTORS, null, new WebApplicationDescriptorSerializer());
+            db.createHashMap(SETTINGS, false, null, new SettingSerializer());
+            db.createHashMap(CONTAINERS, false, null, new ContainerSerializer());
+            db.createHashMap(CUSTOM_OBJECT_FACTORIES, false, null, new CustomObjectFactorySerializer());
+            db.createHashMap(REGISTERED_OBJECT_FACTORIES, false, null, new RegisteredObjectFactorySerializer());
+            db.createHashMap(WEB_APPLICATION_DESCRIPTORS, false, null, new WebApplicationDescriptorSerializer());
             Atomic.createInteger(db, STARTUP_COUNTER, 1);
         }
         contextPaths.addAll(
@@ -171,7 +171,7 @@ public class EmbeddedDatabaseManager {
             @Override
             public Void execute(DatabaseAccessor accessor) {
                 DB db = accessor.getDb();
-                db.createTreeSet(encodeContextPath(contextPath), NODE_SIZE, new MockedFieldContainerSerializer(),
+                db.createTreeSet(encodeContextPath(contextPath), NODE_SIZE, false, new MockedFieldContainerSerializer(),
                                  new MockedFieldContainerSorter());
                 contextPaths.add(contextPath);
                 return null;
