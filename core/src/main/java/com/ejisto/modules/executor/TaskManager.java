@@ -44,17 +44,13 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * Time: 6:48 PM
  */
 public final class TaskManager implements DisposableBean {
-    private static final TaskManager INSTANCE = new TaskManager();
+
     private ExecutorService executorService;
     private ScheduledExecutorService scheduler;
     private final ReentrantLock lock = new ReentrantLock();
     private final ConcurrentMap<String, TaskEntry> registry;
 
-    public static TaskManager getInstance() {
-        return INSTANCE;
-    }
-
-    private TaskManager() {
+    public TaskManager() {
         this.registry = new ConcurrentHashMap<>();
         this.executorService = Executors.newCachedThreadPool();
         this.scheduler = Executors.newScheduledThreadPool(5);
@@ -221,6 +217,30 @@ public final class TaskManager implements DisposableBean {
 
     public static <T> BackgroundTask<T> createNewBackgroundTask(Callable<T> callable, String description) {
         return new BackgroundTask<>(callable);
+    }
+
+    public static final class Descriptor {
+        private final Runnable task;
+        private final long initialDelay;
+        private final long period;
+
+        public Descriptor(Runnable task, long initialDelay, long period) {
+            this.task = task;
+            this.initialDelay = initialDelay;
+            this.period = period;
+        }
+
+        public Runnable getTask() {
+            return task;
+        }
+
+        public long getInitialDelay() {
+            return initialDelay;
+        }
+
+        public long getPeriod() {
+            return period;
+        }
     }
 
 }

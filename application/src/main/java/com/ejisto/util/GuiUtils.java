@@ -46,6 +46,7 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.List;
 
@@ -57,6 +58,7 @@ import static org.hamcrest.Matchers.equalTo;
 @Log4j
 public abstract class GuiUtils {
 
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages");
     private static ActionMap actionMap = new ActionMap();
     private static Font defaultFont;
 
@@ -72,7 +74,11 @@ public abstract class GuiUtils {
     }
 
     public static String getMessage(String key, Object... values) {
-        return SpringBridge.getMessage(key, "en", values);//TODO localize
+        if(!MESSAGES.containsKey(key)) {
+            return key;
+        }
+        String value = MESSAGES.getString(key);
+        return MessageFormat.format(value, values);
     }
 
     public static <T extends BaseApplicationEvent> ImageIcon getIcon(T applicationEvent) {
@@ -270,21 +276,25 @@ public abstract class GuiUtils {
         JFileChooser fileChooser = new JFileChooser(directoryPath);
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_OUTPUT_PATH);
+        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_OUTPUT_PATH, null);
     }
 
     public static File selectFile(Component parent, String directoryPath, boolean saveLastSelectionPath, String... extensions) {
         JFileChooser fileChooser = new JFileChooser(directoryPath);
         fileChooser.setFileFilter(new FileNameExtensionFilter("*." + join(extensions, ", *."), extensions));
-        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_FILESELECTION_PATH);
+        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_FILESELECTION_PATH, null);
     }
 
-    private static File openFileSelectionDialog(Component parent, boolean saveLastSelectionPath, JFileChooser fileChooser, StringConstants settingKey) {
+    private static File openFileSelectionDialog(Component parent,
+                                                boolean saveLastSelectionPath,
+                                                JFileChooser fileChooser,
+                                                StringConstants settingKey,
+                                                SettingsRepository settingsRepository) {
         if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
             File selected = fileChooser.getSelectedFile();
             if (saveLastSelectionPath) {
                 String path = selected.isDirectory() ? selected.getAbsolutePath() : selected.getParent();
-                SettingsRepository.getInstance().putSettingValue(settingKey, path);
+                settingsRepository.putSettingValue(settingKey, path);
             }
             return selected;
         } else {

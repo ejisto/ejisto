@@ -29,8 +29,11 @@ import static com.ejisto.util.GuiUtils.centerOnScreen;
 @Log4j
 public class ApplicationStartup extends BaseStartupService {
 
-    @Resource
-    private Application application;
+    private final Application application;
+
+    public ApplicationStartup(Application application) {
+        this.application = application;
+    }
 
     @Override
     public void execute() {

@@ -55,8 +55,9 @@ import static com.ejisto.util.GuiUtils.*;
 public class MockedFieldsEditorController implements ActionListener, FieldEditingListener {
     public static final String STOP_EDITING = "STOP_EDITING";
     public static final String CANCEL_EDITING = "CANCEL_EDITING";
+    private final MockedFieldsRepository mockedFieldsRepository;
+    private final ReentrantLock lock;
     private MockedField editedField;
-    private ReentrantLock lock;
     private Point currentEditingLocation;
     private MockedFieldsEditor view;
     private ActionMap actionMap;
@@ -65,11 +66,12 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     private FieldsEditorContextMatcher contextMatcher;
     private FieldsEditorContext fieldsEditorContext;
 
-    public MockedFieldsEditorController() {
-        this(APPLICATION_INSTALLER_WIZARD);
+    public MockedFieldsEditorController(MockedFieldsRepository mockedFieldsRepository) {
+        this(mockedFieldsRepository, APPLICATION_INSTALLER_WIZARD);
     }
 
-    public MockedFieldsEditorController(FieldsEditorContext fieldsEditorContext) {
+    public MockedFieldsEditorController(MockedFieldsRepository mockedFieldsRepository, FieldsEditorContext fieldsEditorContext) {
+        this.mockedFieldsRepository = mockedFieldsRepository;
         actionMap = new ActionMap();
         initActions();
         view = new MockedFieldsEditor(fieldsEditorContext, getActionMap());
@@ -86,7 +88,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         });
         contextMatcher = new FieldsEditorContextMatcher(fieldsEditorContext);
         if (fieldsEditorContext != APPLICATION_INSTALLER_WIZARD) {
-            view.setFields(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
+            view.setFields(mockedFieldsRepository.loadAll(contextMatcher));
         }
         this.fieldsEditorContext = fieldsEditorContext;
         view.registerFieldEditingListener(this);
@@ -119,12 +121,12 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     }
 
     private void notifyContextInstalled(String contextPath) {
-        view.contextInstalled(contextPath, MockedFieldsRepository.getInstance().loadActiveFields(contextPath,
+        view.contextInstalled(contextPath, mockedFieldsRepository.loadActiveFields(contextPath,
                 new FieldsEditorContextMatcher(fieldsEditorContext)));
     }
 
     private void notifyContextDeleted(String contextPath) {
-        view.contextRemoved(contextPath, MockedFieldsRepository.getInstance().loadAll(contextPath,
+        view.contextRemoved(contextPath, mockedFieldsRepository.loadAll(contextPath,
                 new FieldsEditorContextMatcher(fieldsEditorContext)));
     }
 
@@ -214,7 +216,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
 
     private Collection<String> selectMockedFieldTypes() {
         Collection<MockedField> fields = new ArrayList<>(wizardFields);
-        fields.addAll(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
+        fields.addAll(mockedFieldsRepository.loadAll(contextMatcher));
         return new HashSet<>(convert(fields, new PropertyExtractor<Object, String>("className")));
     }
 

@@ -23,14 +23,18 @@ import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.dao.SettingsDao;
 import com.ejisto.modules.dao.entities.Setting;
 import com.ejisto.util.ExternalizableService;
+import com.ejisto.util.StaticData;
 
-import javax.annotation.Resource;
 import java.util.Properties;
 
 public class SettingsManager extends ExternalizableService<SettingsDao> {
 
-    @Resource(name = "settings") private Properties settings;
-    @Resource private SettingsDao settingsDao;
+    private final Properties settings;
+
+    public SettingsManager(SettingsDao settingsDao) {
+        super(settingsDao);
+        this.settings = StaticData.SETTINGS;
+    }
 
     public int getIntValue(StringConstants key) {
         return Integer.parseInt(getValue(key));
@@ -54,7 +58,7 @@ public class SettingsManager extends ExternalizableService<SettingsDao> {
             return setting.getValue();
         }
         setting = new Setting(key, settings.getProperty(key));
-        settingsDao.insertSetting(setting);
+        getDao().insertSetting(setting);
         return setting.getValue();
     }
 
@@ -63,31 +67,15 @@ public class SettingsManager extends ExternalizableService<SettingsDao> {
     }
 
     private void putValue(String key, String value) {
-        settingsDao.insertSetting(new Setting(key, value));
+        getDao().insertSetting(new Setting(key, value));
     }
 
     private Setting find(String key) {
-        return settingsDao.getSetting(key);
-    }
-
-    private com.ejisto.modules.dao.SettingsDao getSettingsDao() {
-        checkDao();
-        return settingsDao;
-    }
-
-    @Override
-    protected com.ejisto.modules.dao.SettingsDao getDaoInstance() {
-        return settingsDao;
-    }
-
-    @Override
-    protected void setDaoInstance(com.ejisto.modules.dao.SettingsDao daoInstance) {
-        this.settingsDao = daoInstance;
+        return getDao().getSetting(key);
     }
 
     @Override
     protected SettingsDao newRemoteDaoInstance() {
         return new com.ejisto.modules.dao.remote.SettingsDao();
     }
-
 }

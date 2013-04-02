@@ -33,7 +33,6 @@ import com.ejisto.modules.repository.WebApplicationRepository;
 import lombok.extern.log4j.Log4j;
 import org.springframework.context.ApplicationListener;
 
-import javax.annotation.Resource;
 import java.util.concurrent.Callable;
 
 import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
@@ -44,12 +43,26 @@ import static java.lang.String.format;
 @Log4j
 public class ServerController implements ApplicationListener<ChangeServerStatus> {
 
-    @Resource(name = "containerManager") private ContainerManager containerManager;
-    @Resource private EventManager eventManager;
-    @Resource private Application application;
-    @Resource private TaskManager taskManager;
-    @Resource private WebApplicationRepository webApplicationRepository;
-    @Resource private ContainersRepository containersRepository;
+    private final ContainerManager containerManager;
+    private final EventManager eventManager;
+    private final Application application;
+    private final TaskManager taskManager;
+    private final WebApplicationRepository webApplicationRepository;
+    private final ContainersRepository containersRepository;
+
+    public ServerController(ContainerManager containerManager,
+                            EventManager eventManager,
+                            Application application,
+                            TaskManager taskManager,
+                            WebApplicationRepository webApplicationRepository,
+                            ContainersRepository containersRepository) {
+        this.containerManager = containerManager;
+        this.eventManager = eventManager;
+        this.application = application;
+        this.taskManager = taskManager;
+        this.webApplicationRepository = webApplicationRepository;
+        this.containersRepository = containersRepository;
+    }
 
     @Override
     public void onApplicationEvent(final ChangeServerStatus event) {

@@ -46,10 +46,15 @@ import static com.ejisto.util.GuiUtils.getMessage;
 @Log4j
 public class TaskProgressNotifier implements ApplicationListener<BlockingTaskProgress> {
 
-    @Resource private Application application;
-    @Resource TaskManager taskManager;
+    private final Application application;
+    private final TaskManager taskManager;
     private final ConcurrentMap<String, DialogController> activeControllers = new ConcurrentHashMap<>();
     private final AtomicReference<DialogController> currentController = new AtomicReference<>();
+
+    public TaskProgressNotifier(Application application, TaskManager taskManager) {
+        this.application = application;
+        this.taskManager = taskManager;
+    }
 
     @Override
     public void onApplicationEvent(final BlockingTaskProgress event) {

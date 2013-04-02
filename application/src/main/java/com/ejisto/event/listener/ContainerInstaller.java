@@ -59,10 +59,23 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  */
 @Log4j
 public class ContainerInstaller implements ApplicationListener<InstallContainer>, PropertyChangeListener {
-    @Resource private Application application;
-    @Resource private CargoManager cargoManager;
-    @Resource private SettingsManager settingsManager;
-    @Resource private EventManager eventManager;
+    private final Application application;
+    private final CargoManager cargoManager;
+    private final SettingsManager settingsManager;
+    private final EventManager eventManager;
+    private final TaskManager taskManager;
+
+    public ContainerInstaller(Application application,
+                              CargoManager cargoManager,
+                              SettingsManager settingsManager,
+                              EventManager eventManager,
+                              TaskManager taskManager) {
+        this.application = application;
+        this.cargoManager = cargoManager;
+        this.settingsManager = settingsManager;
+        this.eventManager = eventManager;
+        this.taskManager = taskManager;
+    }
 
     @Override
     public void onApplicationEvent(final InstallContainer event) {
@@ -106,7 +119,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
             }
         };
 
-        String uuid = TaskManager.getInstance().addNewTask(createNewGuiTask(action, "download server", this));
+        String uuid = taskManager.addNewTask(createNewGuiTask(action, "download server", this));
         log.debug(String.format("Created download task with uuid %s", uuid));
     }
 

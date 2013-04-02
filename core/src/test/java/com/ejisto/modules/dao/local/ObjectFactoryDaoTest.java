@@ -20,19 +20,18 @@
 package com.ejisto.modules.dao.local;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.core.configuration.CoreBundle;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
+import com.ejisto.modules.repository.ObjectFactoryRepository;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.annotation.Resource;
+import se.jbee.inject.Injector;
+import se.jbee.inject.bootstrap.Bootstrap;
 
 import static org.junit.Assert.assertNotNull;
+import static se.jbee.inject.Dependency.dependency;
 
 /**
  * Created by IntelliJ IDEA.
@@ -40,13 +39,16 @@ import static org.junit.Assert.assertNotNull;
  * Date: 3/23/13
  * Time: 10:08 PM
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ActiveProfiles(value = {"test", "server"})
-@ContextConfiguration(value = {"classpath:/core-context.xml"})
 public class ObjectFactoryDaoTest {
 
-    @Resource private EmbeddedDatabaseManager db;
-    @Resource private ObjectFactoryDao dao;
+    private static final Injector INJECTOR = Bootstrap.injector(CoreBundle.class);
+    private final EmbeddedDatabaseManager db;
+    private final ObjectFactoryDao dao;
+
+    public ObjectFactoryDaoTest() {
+        this.db = INJECTOR.resolve(dependency(EmbeddedDatabaseManager.class));;
+        this.dao = INJECTOR.resolve(dependency(ObjectFactoryDao.class));
+    }
 
     @BeforeClass
     public static void initClass() {

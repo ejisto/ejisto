@@ -21,12 +21,13 @@ package com.ejisto.modules.controller.wizard.installer;
 
 import com.ejisto.modules.controller.wizard.AbstractStepController;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
+import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.EjistoDialog;
 
 public abstract class AbstractApplicationInstallerController extends AbstractStepController<WebApplicationDescriptor> {
 
-    AbstractApplicationInstallerController(EjistoDialog dialog) {
-        super(dialog);
+    public AbstractApplicationInstallerController(EjistoDialog dialog, TaskManager taskManager) {
+        super(dialog, taskManager);
     }
 
     @Override

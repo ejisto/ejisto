@@ -22,6 +22,7 @@ package com.ejisto.modules.controller;
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.event.def.MockedFieldOperation;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.GuiUtils;
 import com.ejisto.util.SpringBridge;
 
@@ -40,14 +41,16 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  */
 public class MockedFieldOperationController {
 
-    private MockedField field;
-    private MockedFieldOperation.OperationType operationType;
-    private Window container;
+    private final MockedField field;
+    private final MockedFieldOperation.OperationType operationType;
+    private final Window container;
+    private final MockedFieldsRepository mockedFieldsRepository;
 
-    public MockedFieldOperationController(Window container, MockedField field, MockedFieldOperation.OperationType operationType) {
+    public MockedFieldOperationController(Window container, MockedField field, MockedFieldOperation.OperationType operationType, MockedFieldsRepository mockedFieldsRepository) {
         this.field = field;
         this.operationType = operationType;
         this.container = container;
+        this.mockedFieldsRepository = mockedFieldsRepository;
     }
 
     public void showDialog() {
@@ -74,7 +77,7 @@ public class MockedFieldOperationController {
     }
 
     private void activateFields() {
-        MockedFieldSelectionController selectionController = new MockedFieldSelectionController();
+        MockedFieldSelectionController selectionController = new MockedFieldSelectionController(null);
         selectionController.showSelectionDialog();
         List<MockedField> selectedFields = selectionController.getSelectedFields();
         if (!isEmpty(selectedFields)) {
@@ -84,7 +87,7 @@ public class MockedFieldOperationController {
     }
 
     private void createField() {
-        MockedFieldCreationController controller = new MockedFieldCreationController();
+        MockedFieldCreationController controller = new MockedFieldCreationController(mockedFieldsRepository);
         controller.showCreateDialog();
     }
 

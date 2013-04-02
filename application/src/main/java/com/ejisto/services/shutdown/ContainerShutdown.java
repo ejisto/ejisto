@@ -27,8 +27,12 @@ import javax.annotation.Resource;
 @Log4j
 public class ContainerShutdown extends BaseShutdownService {
 
-    @Resource
-    private ContainerManager containerManager;
+    private final ContainerManager containerManager;
+
+    public ContainerShutdown(ContainerManager containerManager) {
+        this.containerManager = containerManager;
+    }
+
 
     @Override
     public void execute() {

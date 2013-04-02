@@ -19,11 +19,11 @@
 
 package com.ejisto.services.startup;
 
-import com.ejisto.modules.executor.TaskDescriptor;
 import com.ejisto.modules.executor.TaskManager;
+import com.ejisto.util.StaticData;
 import lombok.extern.log4j.Log4j;
 
-import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -36,13 +36,18 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 @Log4j
 public class TaskInitializer extends BaseStartupService {
-    @Resource private TaskManager taskManager;
-    @Resource private List<TaskDescriptor> taskDescriptors;
+    private final TaskManager taskManager;
+    private final List<TaskManager.Descriptor> taskDescriptors;
+
+    public TaskInitializer(TaskManager taskManager) {
+        this.taskManager = taskManager;
+        this.taskDescriptors = Collections.unmodifiableList(StaticData.TASK_DESCRIPTORS);
+    }
 
     @Override
     public void execute() {
         log.info("scheduling tasks for execution");
-        for (TaskDescriptor taskDescriptor : taskDescriptors) {
+        for (TaskManager.Descriptor taskDescriptor : taskDescriptors) {
             taskManager.scheduleTaskAtFixedRate(taskDescriptor.getTask(), taskDescriptor.getInitialDelay(),
                                                 taskDescriptor.getPeriod(), SECONDS);
         }

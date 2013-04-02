@@ -335,12 +335,12 @@ public final class IOUtils {
     }
 
     public static String guessWebApplicationUri(WebApplicationDescriptor descriptor) {
-        return guessWebApplicationUri(descriptor.getContextPath());
+        return guessWebApplicationUri(descriptor.getContextPath(), null);
     }
 
-    public static String guessWebApplicationUri(String contextPath) {
+    public static String guessWebApplicationUri(String contextPath, SettingsRepository settingsRepository) {
         return format("http://localhost:%s%s/",
-                      SettingsRepository.getInstance().getSettingValue(DEFAULT_SERVER_PORT), contextPath);
+                      settingsRepository.getSettingValue(DEFAULT_SERVER_PORT), contextPath);
     }
 
     public static int findFirstAvailablePort(int startPort) {
@@ -370,13 +370,13 @@ public final class IOUtils {
         copyFilteredDirContent(new File(path.toString()), targetDir, prefixes, COPIED_FILES_PREFIX);
     }
 
-    public static String getEjistoCoreClasspathEntry() {
+    public static String getEjistoCoreClasspathEntry(SettingsRepository settingsRepository) {
         StringBuilder path = new StringBuilder(System.getProperty("user.dir"));
         path.append(File.separator);
         path.append("lib");
         path.append(File.separator);
         path.append("ejisto-core-");
-        path.append(SettingsRepository.getInstance().getSettingValue(EJISTO_VERSION));
+        path.append(settingsRepository.getSettingValue(EJISTO_VERSION));
         path.append(".jar");
         return path.toString();
     }

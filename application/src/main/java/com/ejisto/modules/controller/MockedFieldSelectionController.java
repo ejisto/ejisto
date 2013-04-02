@@ -20,6 +20,7 @@
 package com.ejisto.modules.controller;
 
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
@@ -39,12 +40,12 @@ import static java.util.Collections.emptyList;
  */
 public class MockedFieldSelectionController extends AbstractDialogManager {
 
-    private MockedFieldsEditorController controller;
+    private final MockedFieldsEditorController controller;
     private List<MockedField> selectedFields;
 
-    public MockedFieldSelectionController() {
+    public MockedFieldSelectionController(MockedFieldsRepository mockedFieldsRepository) {
         super();
-        this.controller = new MockedFieldsEditorController(ADD_FIELD);
+        this.controller = new MockedFieldsEditorController(mockedFieldsRepository, ADD_FIELD);
     }
 
     @Override

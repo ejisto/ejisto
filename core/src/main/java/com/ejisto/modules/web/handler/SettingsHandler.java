@@ -40,7 +40,11 @@ import java.util.Collection;
 @Log4j
 public class SettingsHandler implements HttpHandler {
 
-    @Resource private SettingsDao settingsDao;
+    private final SettingsDao settingsDao;
+
+    public SettingsHandler(SettingsDao settingsDao) {
+        this.settingsDao = settingsDao;
+    }
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {

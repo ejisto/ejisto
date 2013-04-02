@@ -24,7 +24,6 @@ import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.local.ContainersDao;
 import org.springframework.util.Assert;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,15 +38,13 @@ import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
  * Time: 8:42 AM
  */
 public final class ContainersRepository {
-    private static final ContainersRepository INSTANCE = new ContainersRepository();
-    @Resource private ContainersDao containersDao;
+
+    private final ContainersDao containersDao;
     private final ConcurrentMap<String, Container> temporaryContainers = new ConcurrentHashMap<>();
 
-    public static ContainersRepository getInstance() {
-        return INSTANCE;
+    private ContainersRepository(ContainersDao containersDao) {
+        this.containersDao = containersDao;
     }
-
-    private ContainersRepository() {}
 
     public List<Container> loadContainers() {
         return containersDao.loadAll();

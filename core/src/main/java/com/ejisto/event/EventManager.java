@@ -40,7 +40,11 @@ import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 public class EventManager implements ApplicationContextAware {
     private boolean initialized = false;
     private ApplicationContext applicationContext;
-    @Resource private TaskManager taskManager;
+    private final TaskManager taskManager;
+
+    public EventManager(TaskManager taskManager) {
+        this.taskManager = taskManager;
+    }
 
     public void publishEvent(final ApplicationEvent event) {
         if (!initialized) {

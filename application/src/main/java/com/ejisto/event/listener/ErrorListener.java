@@ -33,8 +33,11 @@ import static com.ejisto.util.GuiUtils.getMessage;
 
 public class ErrorListener implements ApplicationListener<ApplicationError> {
 
-    @Resource
-    private Application application;
+    private final Application application;
+
+    public ErrorListener(Application application) {
+        this.application = application;
+    }
 
     @Override
     public void onApplicationEvent(ApplicationError event) {

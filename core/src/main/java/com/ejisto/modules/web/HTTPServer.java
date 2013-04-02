@@ -24,7 +24,6 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -40,16 +39,11 @@ import static com.ejisto.util.IOUtils.findFirstAvailablePort;
  */
 public class HTTPServer implements InitializingBean {
 
-    private static final HTTPServer INSTANCE = new HTTPServer();
-
-    @Resource(name = "httpHandlers") private ConcurrentMap<String, HttpHandler> handlersMap;
+    private final ConcurrentMap<String, HttpHandler> handlersMap;
     private HttpServer server;
 
-    public static HTTPServer getInstance() {
-        return INSTANCE;
-    }
-
-    private HTTPServer() {
+    private HTTPServer(ConcurrentMap<String, HttpHandler> handlersMap) {
+        this.handlersMap = handlersMap;
     }
 
     @Override

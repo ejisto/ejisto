@@ -181,6 +181,11 @@
                 <artifactId>mapdb</artifactId>
                 <version>0.9-SNAPSHOT</version>
             </dependency>
+            <dependency>
+                <groupId>se.jbee</groupId>
+                <artifactId>silk-di</artifactId>
+                <version>0.4</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -217,7 +222,6 @@
             <version>1.9.0</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>

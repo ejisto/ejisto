@@ -17,34 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.executor;
+package com.ejisto.core.configuration;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 4/2/11
- * Time: 7:47 PM
+ * Date: 4/2/13
+ * Time: 8:26 AM
  */
-public class TaskDescriptor {
-    private final String uuid;
-    private final String description;
-    private final ExecutionState executionState;
+public class CoreInjector {
 
-    public TaskDescriptor(String uuid, String description, ExecutionState executionState) {
-        this.description = description;
-        this.executionState = executionState;
-        this.uuid = uuid;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public ExecutionState getExecutionState() {
-        return executionState;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
 }

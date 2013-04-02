@@ -28,8 +28,11 @@ import javax.annotation.Resource;
 
 public class FieldsUpdateListener implements ApplicationListener<MockedFieldChanged> {
 
-    @Resource
-    private MockedFieldsRepository mockedFieldsRepository;
+    private final MockedFieldsRepository mockedFieldsRepository;
+
+    public FieldsUpdateListener(MockedFieldsRepository mockedFieldsRepository) {
+        this.mockedFieldsRepository = mockedFieldsRepository;
+    }
 
     @Override
     public void onApplicationEvent(MockedFieldChanged event) {

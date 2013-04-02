@@ -20,6 +20,7 @@
 package com.ejisto.modules.dao.local;
 
 import ch.lambdaj.function.convert.Converter;
+import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.Setting;
 import com.ejisto.util.converter.EntityToKey;
 
@@ -32,6 +33,10 @@ import static ch.lambdaj.Lambda.map;
 public class SettingsDao extends BaseLocalDao implements com.ejisto.modules.dao.SettingsDao {
 
     private static final Converter<Setting, String> KEY_EXTRACTOR = new EntityToKey<>();
+
+    public SettingsDao(EmbeddedDatabaseManager database) {
+        super(database);
+    }
 
     @Override
     public Collection<Setting> loadAll() {

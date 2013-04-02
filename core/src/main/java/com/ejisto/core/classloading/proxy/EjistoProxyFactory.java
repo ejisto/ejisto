@@ -28,19 +28,18 @@ import java.util.Map;
 
 public final class EjistoProxyFactory extends ObjectNullHandler {
     private static final EjistoProxyFactory INSTANCE = new EjistoProxyFactory();
-    private MockedFieldsRepository mockedFieldsRepository;
+    private final MockedFieldsRepository mockedFieldsRepository;
 
     public static EjistoProxyFactory getInstance() {
         return INSTANCE;
     }
 
     private EjistoProxyFactory() {
-        this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
+        this.mockedFieldsRepository = new MockedFieldsRepository(null);
     }
 
     @SuppressWarnings("unchecked")
     public <T> T proxyClass(Class<T> target, String contextPath) {
-        init();
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(target);
         enhancer.setCallback(new EjistoProxy(mockedFieldsRepository.load(contextPath, target.getName())));
@@ -59,11 +58,5 @@ public final class EjistoProxyFactory extends ObjectNullHandler {
     @Override
     public Object nullPropertyValue(Map context, Object target, Object property) {
         return super.nullPropertyValue(context, target, property);
-    }
-
-    private synchronized void init() {
-        if (mockedFieldsRepository == null) {
-            mockedFieldsRepository = MockedFieldsRepository.getInstance();
-        }
     }
 }

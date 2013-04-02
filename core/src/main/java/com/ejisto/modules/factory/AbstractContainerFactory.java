@@ -37,10 +37,16 @@ import com.ejisto.modules.repository.ObjectFactoryRepository;
 
 public abstract class AbstractContainerFactory<C, E> implements ObjectFactory<C> {
 
+    private final ObjectFactoryRepository objectFactoryRepository;
+
+    public AbstractContainerFactory() {
+        this.objectFactoryRepository = new ObjectFactoryRepository(null, null);
+    }
+
     @SuppressWarnings("unchecked")
     protected ObjectFactory<E> loadElementObjectFactory(String elementType, String contextPath) {
         try {
-            return ObjectFactoryRepository.getInstance().getObjectFactory(elementType, contextPath);
+            return objectFactoryRepository.getObjectFactory(elementType, contextPath);
         } catch (Exception e) {
             throw new ApplicationException("Got exception during objectFactory loading", e);
         }

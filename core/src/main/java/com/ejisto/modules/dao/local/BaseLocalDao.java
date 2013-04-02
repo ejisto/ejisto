@@ -27,7 +27,11 @@ import java.util.concurrent.Callable;
 
 public abstract class BaseLocalDao {
 
-    @Resource private EmbeddedDatabaseManager database;
+    private final EmbeddedDatabaseManager database;
+
+    public BaseLocalDao(EmbeddedDatabaseManager database) {
+        this.database = database;
+    }
 
     protected final EmbeddedDatabaseManager getDatabase() {
         return database;

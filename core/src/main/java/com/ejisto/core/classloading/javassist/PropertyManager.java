@@ -34,14 +34,16 @@ public final class PropertyManager {
 
     private static final PropertyManager INSTANCE = new PropertyManager();
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
-    private MockedFieldsRepository mockedFieldsRepository;
-    //    private OgnlAdapter ognlAdapter;
-    private ObjectFactoryRepository objectFactoryRepository;
+    private final MockedFieldsRepository mockedFieldsRepository;
+    private final ObjectFactoryRepository objectFactoryRepository;
+
+    static {
+
+    }
 
     private PropertyManager() {
-//        this.ognlAdapter = new OgnlAdapter(new OgnlContext(), ejistoProxyFactory);
-        this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
-        this.objectFactoryRepository = ObjectFactoryRepository.getInstance();
+        this.mockedFieldsRepository = new MockedFieldsRepository(null);
+        this.objectFactoryRepository = new ObjectFactoryRepository(null, null);
     }
 
     public static PropertyManager getInstance() {

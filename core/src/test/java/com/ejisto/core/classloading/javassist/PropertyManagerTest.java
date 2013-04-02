@@ -20,6 +20,7 @@
 package com.ejisto.core.classloading.javassist;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.core.configuration.CoreBundle;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
@@ -29,16 +30,14 @@ import com.ejisto.modules.repository.ObjectFactoryRepository;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import se.jbee.inject.Injector;
+import se.jbee.inject.bootstrap.Bootstrap;
 
-import javax.annotation.Resource;
 import java.lang.annotation.ElementType;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static se.jbee.inject.Dependency.dependency;
 
 
 /**
@@ -47,15 +46,21 @@ import static org.junit.Assert.*;
  * Date: 1/2/12
  * Time: 7:10 PM
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ActiveProfiles(value = {"test", "server"})
-@ContextConfiguration(value = {"classpath:/core-context.xml"})
 public class PropertyManagerTest {
 
     private static final long TIMEOUT = 5000L;
     private static final String CTX = "/ejisto";
     private static final String CLASS_NAME = SimpleBean.class.getName();
-    @Resource private EmbeddedDatabaseManager db;
+    private static final Injector INJECTOR = Bootstrap.injector(CoreBundle.class);
+    private static final ObjectFactoryRepository OBJECT_FACTORY_REPOSITORY;
+    private static final MockedFieldsRepository MOCKED_FIELDS_REPOSITORY;
+    private static final EmbeddedDatabaseManager DB;
+
+    static {
+        DB = INJECTOR.resolve(dependency(EmbeddedDatabaseManager.class));
+        OBJECT_FACTORY_REPOSITORY = INJECTOR.resolve(dependency(ObjectFactoryRepository.class));
+        MOCKED_FIELDS_REPOSITORY = INJECTOR.resolve(dependency(MockedFieldsRepository.class));
+    }
 
     @BeforeClass
     public static void initClass() {
@@ -64,9 +69,9 @@ public class PropertyManagerTest {
 
     @Before
     public void init() throws Exception {
-        db.initMemoryDb();
-        ObjectFactoryRepository.getInstance().registerObjectFactory(SimpleBeanObjectFactory.class.getName(),
-                                                                    SimpleBean.class.getName(), false);
+        DB.initMemoryDb();
+        OBJECT_FACTORY_REPOSITORY.registerObjectFactory(SimpleBeanObjectFactory.class.getName(),
+                                                      SimpleBean.class.getName(), false);
     }
 
     @Test(timeout = TIMEOUT)
@@ -79,7 +84,7 @@ public class PropertyManagerTest {
         field.setFieldType(List.class.getName());
         field.setExpression("size=10");
         field.setFieldElementType(AnotherSimpleBean.class.getName());
-        MockedFieldsRepository.getInstance().insert(field);
+        MOCKED_FIELDS_REPOSITORY.insert(field);
 
         field = new MockedFieldImpl();
         field.setActive(true);
@@ -88,7 +93,7 @@ public class PropertyManagerTest {
         field.setFieldName("testMethod");
         field.setFieldType("java.lang.String");
         field.setFieldValue("test");
-        MockedFieldsRepository.getInstance().insert(field);
+        MOCKED_FIELDS_REPOSITORY.insert(field);
 
         List<?> res = PropertyManager.mockField(CTX, "collectionOfObjects", CLASS_NAME, List.class, null);
         assertNotNull(res);
@@ -182,7 +187,7 @@ public class PropertyManagerTest {
         field.setFieldName(fieldName);
         field.setFieldType(fieldType);
         field.setFieldValue(fieldValue);
-        MockedFieldsRepository.getInstance().insert(field);
+        MOCKED_FIELDS_REPOSITORY.insert(field);
     }
 
     private static class SimpleBean {

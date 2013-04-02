@@ -33,25 +33,13 @@ import java.util.List;
  * Time: 10:23 PM
  */
 public class CustomObjectFactoryRepository extends ExternalizableService<CustomObjectFactoryDao> {
-    private static final CustomObjectFactoryRepository INSTANCE = new CustomObjectFactoryRepository();
-    @Resource private CustomObjectFactoryDao customObjectFactoryDao;
 
-    public static CustomObjectFactoryRepository getInstance() {
-        return INSTANCE;
+    public CustomObjectFactoryRepository(CustomObjectFactoryDao dao) {
+        super(dao);
     }
 
     public List<CustomObjectFactory> getCustomObjectFactories() {
-        return customObjectFactoryDao.loadAll();
-    }
-
-    @Override
-    protected CustomObjectFactoryDao getDaoInstance() {
-        return customObjectFactoryDao;
-    }
-
-    @Override
-    protected void setDaoInstance(CustomObjectFactoryDao daoInstance) {
-        this.customObjectFactoryDao = daoInstance;
+        return getDao().loadAll();
     }
 
     @Override

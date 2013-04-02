@@ -53,10 +53,11 @@ public class MockedFieldCreationController extends AbstractDialogManager {
     public static final String CTX_SELECTION = "ctxSelection";
     private final JPanel view;
     private final FieldEditorPanel fieldEditorPanel;
+    private final MockedFieldsRepository mockedFieldsRepository;
 
-
-    public MockedFieldCreationController() {
+    public MockedFieldCreationController(MockedFieldsRepository mockedFieldsRepository) {
         super();
+        this.mockedFieldsRepository = mockedFieldsRepository;
         view = new JPanel(new BorderLayout());
         ActionMap map = new ActionMap();
         map.put(CTX_SELECTION, new AbstractActionExt() {
@@ -91,9 +92,9 @@ public class MockedFieldCreationController extends AbstractDialogManager {
         mf.setClassName(fieldEditorPanel.getFieldClass());
         mf.setContextPath(fieldEditorPanel.getContextPath());
         mf.setFieldType(fieldEditorPanel.getFieldType());
-        MockedFieldsRepository.getInstance().insert(mf);
+        mockedFieldsRepository.insert(mf);
         MockedFieldChanged event = new MockedFieldChanged(this,
-                                                          MockedFieldsRepository.getInstance().load(mf.getContextPath(),
+                                                          mockedFieldsRepository.load(mf.getContextPath(),
                                                                                                     mf.getClassName(),
                                                                                                     mf.getFieldName()));
         publishApplicationEvent(event);
@@ -102,13 +103,13 @@ public class MockedFieldCreationController extends AbstractDialogManager {
 
     private void setTypes(String selectedContextPath) {
         FieldsEditorContextMatcher matcher = new FieldsEditorContextMatcher(FieldsEditorContext.CREATE_FIELD);
-        Set<String> contexts = new HashSet<>(convert(MockedFieldsRepository.getInstance().loadAll(selectedContextPath, matcher),
+        Set<String> contexts = new HashSet<>(convert(mockedFieldsRepository.loadAll(selectedContextPath, matcher),
                                                      new PropertyExtractor<Object, String>("className")));
         fieldEditorPanel.setTypes(contexts);
     }
 
     private String setAllAvailableContextPaths() {
-        List<String> ctxPaths = convert(MockedFieldsRepository.getInstance().loadAll(),
+        List<String> ctxPaths = convert(mockedFieldsRepository.loadAll(),
                                         new PropertyExtractor<Object, String>("contextPath"));
         fieldEditorPanel.setAvailableContextPaths(new HashSet<>(ctxPaths));
         return ctxPaths.get(0);

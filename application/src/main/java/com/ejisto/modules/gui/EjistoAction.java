@@ -34,19 +34,21 @@ import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 public class EjistoAction<T extends BaseApplicationEvent> extends AbstractActionExt {
     private static final long serialVersionUID = 4999338415439543233L;
     private final T applicationEvent;
+    private final TaskManager taskManager;
     private boolean async;
 
     public EjistoAction(T applicationEvent) {
-        this(applicationEvent, false);
+        this(applicationEvent, false, null);
     }
 
-    public EjistoAction(T applicationEvent, boolean async) {
+    public EjistoAction(T applicationEvent, boolean async, TaskManager taskManager) {
         super();
         this.applicationEvent = applicationEvent;
         putValue(Action.NAME, getMessage(applicationEvent.getDescription()));
         putValue(Action.SMALL_ICON, getIcon(applicationEvent));
         putValue(Action.SHORT_DESCRIPTION, getMessage(applicationEvent.getDescription()));
         this.async = async;
+        this.taskManager = taskManager;
     }
 
     @Override
@@ -62,7 +64,7 @@ public class EjistoAction<T extends BaseApplicationEvent> extends AbstractAction
         if (!async) {
             runOnEDT(action);
         } else {
-            TaskManager.getInstance().addNewTask(
+            taskManager.addNewTask(
                     createNewBackgroundTask(Executors.callable(action), applicationEvent.getDescription()));
         }
     }

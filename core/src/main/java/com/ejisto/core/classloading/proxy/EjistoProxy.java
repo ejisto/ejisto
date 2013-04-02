@@ -36,12 +36,14 @@ import static org.hamcrest.Matchers.equalTo;
 
 @Log4j
 public class EjistoProxy implements MethodInterceptor {
-    private List<MockedField> mockedFields;
-    private EjistoMethodHandler methodHandler;
+    private final List<MockedField> mockedFields;
+    private final EjistoMethodHandler methodHandler;
+    private final ObjectFactoryRepository objectFactoryRepository;
 
     public EjistoProxy(List<MockedField> mockedFields) {
         this.mockedFields = mockedFields;
         this.methodHandler = new EjistoMethodHandler(mockedFields);
+        this.objectFactoryRepository = new ObjectFactoryRepository(null, null);
     }
 
     @Override
@@ -61,7 +63,7 @@ public class EjistoProxy implements MethodInterceptor {
             return proxy.invokeSuper(obj, args);
         }
         log.trace("mockedField is not null. Handling getter.");
-        ObjectFactory<?> factory = ObjectFactoryRepository.getInstance().getObjectFactory(
+        ObjectFactory<?> factory = objectFactoryRepository.getObjectFactory(
                 method.getReturnType().getName(),
                 mockedField.getContextPath());
         log.trace(String.format("got %s for %s", factory, mockedField));

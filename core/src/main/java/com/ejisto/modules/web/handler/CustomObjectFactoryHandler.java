@@ -39,10 +39,16 @@ import java.util.List;
 @Log4j
 public class CustomObjectFactoryHandler implements HttpHandler {
 
+    private final CustomObjectFactoryRepository customObjectFactoryRepository;
+
+    public CustomObjectFactoryHandler(CustomObjectFactoryRepository customObjectFactoryRepository) {
+        this.customObjectFactoryRepository = customObjectFactoryRepository;
+    }
+
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         try (OutputStream os = httpExchange.getResponseBody()) {
-            List<CustomObjectFactory> factories = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
+            List<CustomObjectFactory> factories = customObjectFactoryRepository.getCustomObjectFactories();
             String response = JSONUtil.encode(factories);
             httpExchange.sendResponseHeaders(200, response.length());
             os.write(response.getBytes());

@@ -26,6 +26,7 @@ import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.gui.components.ContainerTab;
 import com.ejisto.modules.gui.components.MainPanel;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXRootPane;
@@ -44,14 +45,15 @@ import static com.ejisto.util.GuiUtils.*;
 
 public class MainRootPane extends JXRootPane {
     private static final long serialVersionUID = -3265545519465961578L;
-    //    private TaskController taskController;
     private JMenu containersMenu;
     private JXLabel statusLog;
     private JTabbedPane containersTabPane;
     private List<ContainerTab> containerTabs;
+    private final MockedFieldsRepository mockedFieldsRepository;
 
-    public MainRootPane() {
+    public MainRootPane(MockedFieldsRepository mockedFieldsRepository) {
         super();
+        this.mockedFieldsRepository = mockedFieldsRepository;
         init();
         registerEventListener(ContainerInstalled.class, new ApplicationListener<ContainerInstalled>() {
             @Override
@@ -85,7 +87,7 @@ public class MainRootPane extends JXRootPane {
 
     private void init() {
         initMenuBar();
-        getContentPane().add(new MainPanel(), BorderLayout.CENTER);
+        getContentPane().add(new MainPanel(mockedFieldsRepository), BorderLayout.CENTER);
         getContentPane().add(getContainersTabPane(), BorderLayout.SOUTH);
         initStatusBar();
     }

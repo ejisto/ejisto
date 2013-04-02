@@ -25,6 +25,7 @@ import com.ejisto.event.EventManager;
 import com.ejisto.event.def.*;
 import com.ejisto.event.def.ChangeServerStatus.Command;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
+import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.Header;
 import com.ejisto.util.GuiUtils;
@@ -41,8 +42,15 @@ import static com.ejisto.util.GuiUtils.putAction;
 
 @Log4j
 public class ResourcesInitializer extends BaseStartupService {
-    @Resource private EventManager eventManager;
-    @Resource private EmbeddedDatabaseManager dataSource;
+    private final EventManager eventManager;
+    private final EmbeddedDatabaseManager dataSource;
+    private final TaskManager taskManager;
+
+    public ResourcesInitializer(EventManager eventManager, EmbeddedDatabaseManager dataSource, TaskManager taskManager) {
+        this.eventManager = eventManager;
+        this.dataSource = dataSource;
+        this.taskManager = taskManager;
+    }
 
     @Override
     public void execute() {
@@ -119,16 +127,8 @@ public class ResourcesInitializer extends BaseStartupService {
             bold = bold.deriveFont(Font.BOLD, 13f);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("unexpected error during Fonts initialization", e);
         }
-
-//        String[] properties = { "Label.font", "List.font", "Panel.font", "ProgressBar.font", "Viewport.font", "TabbedPane.font", "Table.font",
-//                "TableHeader.font", "TextField.font", "PasswordField.font", "TextArea.font", "TextPane.font", "EditorPane.font", "TitledBorder.font",
-//                "ToolBar.font", "ToolTip.font", "Tree.font" };
-//        
-//        for (String property : properties) {
-//            UIManager.put(property, new FontUIResource(systemFont));
-//        }
 
         String a = JXHeader.uiClassID;//initialize JXHeader.class
         log.debug("initializing JXHeader ["+a+"]");
@@ -138,7 +138,7 @@ public class ResourcesInitializer extends BaseStartupService {
     }
 
     private void initDefaultActions() {
-        putAction(new EjistoAction<>(new LoadWebApplication(this), true));
+        putAction(new EjistoAction<>(new LoadWebApplication(this), true, taskManager));
         putAction(new EjistoAction<>(new ShutdownRequest(this)));
         putAction(new EjistoAction<>(
                 new ChangeServerStatus(this, StringConstants.DEFAULT_CONTAINER_ID.getValue(), Command.STARTUP)));

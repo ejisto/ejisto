@@ -29,7 +29,7 @@ public class SummaryController extends AbstractApplicationInstallerController {
     private SummaryTab summaryTab;
 
     public SummaryController(EjistoDialog dialog) {
-        super(dialog);
+        super(dialog, null);
     }
 
     @Override

@@ -27,6 +27,7 @@ import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Resource;
 import java.util.Collection;
+import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.Matchers.equalTo;
@@ -34,10 +35,10 @@ import static org.hamcrest.Matchers.equalTo;
 @Log4j
 public class ApplicationController implements ApplicationListener<ShutdownRequest> {
 
-    @Resource
-    private Collection<Service> services;
+    private final List<Service> services;
 
-    public ApplicationController() {
+    public ApplicationController(List<Service> services) {
+        this.services = services;
     }
 
     public void startup() {

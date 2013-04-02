@@ -42,12 +42,18 @@ import java.util.Collection;
 @Log4j
 public class MockedFieldRequestHandler implements HttpHandler {
 
+    private final MockedFieldsRepository mockedFieldsRepository;
+
+    public MockedFieldRequestHandler(MockedFieldsRepository mockedFieldsRepository) {
+        this.mockedFieldsRepository = mockedFieldsRepository;
+    }
+
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         try (OutputStream os = httpExchange.getResponseBody()) {
             String requestBody = IOUtils.readInputStream(httpExchange.getRequestBody(), "UTF-8");
             MockedFieldRequest request = JSONUtil.decode(requestBody, MockedFieldRequest.class);
-            Collection<MockedField> found = MockedFieldsRepository.getInstance().load(request);
+            Collection<MockedField> found = mockedFieldsRepository.load(request);
             String response = MockedFieldsJSONUtil.encodeMockedFields(found);
             httpExchange.sendResponseHeaders(200, response.length());
             os.write(response.getBytes());

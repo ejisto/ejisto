@@ -31,16 +31,11 @@ import javax.annotation.Resource;
  * Time: 6:07:09 PM
  */
 public final class SettingsRepository {
-    private static final SettingsRepository INSTANCE = new SettingsRepository();
-    @Resource
-    private SettingsManager settingsManager;
 
-    public static SettingsRepository getInstance() {
-        return INSTANCE;
-    }
+    private final SettingsManager settingsManager;
 
-    private SettingsRepository() {
-
+    private SettingsRepository(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
     }
 
     public String getSettingValue(StringConstants key) {

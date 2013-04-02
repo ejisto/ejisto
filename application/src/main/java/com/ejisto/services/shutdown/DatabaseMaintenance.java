@@ -27,7 +27,11 @@ import javax.annotation.Resource;
 @Log4j
 public class DatabaseMaintenance extends BaseShutdownService {
 
-    @Resource private EmbeddedDatabaseManager databaseManager;
+    private final EmbeddedDatabaseManager databaseManager;
+
+    public DatabaseMaintenance(EmbeddedDatabaseManager databaseManager) {
+        this.databaseManager = databaseManager;
+    }
 
     @Override
     public void execute() {

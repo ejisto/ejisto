@@ -78,12 +78,24 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
 
     private static final ConcurrentMap<String, Set<MockedField>> RECORDED_FIELDS = new ConcurrentHashMap<>();
     private static final ConcurrentMap<String, Set<CollectedData>> RECORDED_DATA = new ConcurrentHashMap<>();
-    @Resource private EventManager eventManager;
-    @Resource private Application application;
-    @Resource private WebApplicationDescriptorDao webApplicationDescriptorDao;
-    @Resource private HTTPServer httpServer;
-    @Resource private SettingsRepository settingsRepository;
+    private final EventManager eventManager;
+    private final Application application;
+    private final WebApplicationDescriptorDao webApplicationDescriptorDao;
+    private final HTTPServer httpServer;
+    private final SettingsRepository settingsRepository;
     private final AtomicReference<DialogController> dialogController = new AtomicReference<>();
+
+    public SessionRecorderManager(EventManager eventManager,
+                                  Application application,
+                                  WebApplicationDescriptorDao webApplicationDescriptorDao,
+                                  HTTPServer httpServer,
+                                  SettingsRepository settingsRepository) {
+        this.eventManager = eventManager;
+        this.application = application;
+        this.webApplicationDescriptorDao = webApplicationDescriptorDao;
+        this.httpServer = httpServer;
+        this.settingsRepository = settingsRepository;
+    }
 
 
     @Override

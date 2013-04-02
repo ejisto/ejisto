@@ -36,16 +36,19 @@ import java.awt.event.ActionListener;
  * Date: 1/24/12
  * Time: 7:33 PM
  */
-public class DialogManager implements ApplicationListener<DialogRequested>, ActionListener {
+public class DialogManager implements ApplicationListener<DialogRequested> {
 
-    @Resource private Application application;
-    private DialogController controller;
+    private final Application application;
+
+    public DialogManager(Application application) {
+        this.application = application;
+    }
 
     @Override
     public void onApplicationEvent(DialogRequested event) {
         try {
             JPanel view = new AboutPanel();
-            controller = DialogController.Builder
+            DialogController controller = DialogController.Builder
                     .newInstance()
                     .withParentFrame(application)
                     .withIconKey("field.add.icon")
@@ -57,10 +60,5 @@ public class DialogManager implements ApplicationListener<DialogRequested>, Acti
             ex.printStackTrace();
         }
 
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        controller.hide();
     }
 }

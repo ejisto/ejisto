@@ -33,6 +33,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  */
 @Log4j
 public class FolderCleaner extends BaseShutdownService {
+
     @Override
     public void execute() {
         Path path = FileSystems.getDefault().getPath(System.getProperty("java.io.tmpdir"));

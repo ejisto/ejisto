@@ -51,13 +51,15 @@ public class LoadClassAction extends RecursiveTask<List<MockedField>> {
     private final List<String> classes;
     private final ClassLoader classLoader;
     private final WebApplicationDescriptor webApplicationDescriptor;
-    private ProgressListener listener;
+    private final ProgressListener listener;
+    private final MockedFieldsRepository mockedFieldsRepository;
 
-    public LoadClassAction(List<String> classes, ClassLoader classLoader, WebApplicationDescriptor webApplicationDescriptor, ProgressListener listener) {
+    public LoadClassAction(List<String> classes, ClassLoader classLoader, WebApplicationDescriptor webApplicationDescriptor, ProgressListener listener, MockedFieldsRepository mockedFieldsRepository) {
         this.classes = classes;
         this.classLoader = classLoader;
         this.webApplicationDescriptor = webApplicationDescriptor;
         this.listener = listener;
+        this.mockedFieldsRepository = mockedFieldsRepository;
     }
 
     @Override
@@ -91,7 +93,7 @@ public class LoadClassAction extends RecursiveTask<List<MockedField>> {
             int start = THRESHOLD * i;
             int end = Math.min(collectionSize, start + THRESHOLD);
             LoadClassAction task = new LoadClassAction(classes.subList(start, end), classLoader,
-                                                       webApplicationDescriptor, listener);
+                                                       webApplicationDescriptor, listener, mockedFieldsRepository);
             task.fork();
             forkedTasks.add(task);
         }
@@ -121,12 +123,11 @@ public class LoadClassAction extends RecursiveTask<List<MockedField>> {
     private List<MockedField> getMockedFields(CtClass clazz, WebApplicationDescriptor descriptor) throws NotFoundException {
         List<MockedField> results = new ArrayList<>();
         try {
-            MockedFieldsRepository repository = MockedFieldsRepository.getInstance();
             for (CtField field : clazz.getDeclaredFields()) {
                 MockedField mockedField;
-                if (repository.exists(descriptor.getContextPath(), clazz.getName(),
+                if (mockedFieldsRepository.exists(descriptor.getContextPath(), clazz.getName(),
                                       field.getName())) {
-                    MockedField existing = repository.load(descriptor.getContextPath(), clazz.getName(),
+                    MockedField existing = mockedFieldsRepository.load(descriptor.getContextPath(), clazz.getName(),
                                                            field.getName());
                     mockedField = MockedFieldDecorator.copyOf(existing);
                 } else {

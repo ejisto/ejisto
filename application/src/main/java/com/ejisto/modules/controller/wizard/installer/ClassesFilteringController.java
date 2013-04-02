@@ -21,6 +21,7 @@ package com.ejisto.modules.controller.wizard.installer;
 
 import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.modules.controller.WizardException;
+import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ResourcesFilter;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
@@ -39,8 +40,8 @@ public class ClassesFilteringController extends AbstractApplicationInstallerCont
 
     private ResourcesFilter classesFilteringTab;
 
-    public ClassesFilteringController(EjistoDialog dialog) {
-        super(dialog);
+    public ClassesFilteringController(EjistoDialog dialog, TaskManager taskManager) {
+        super(dialog, taskManager);
     }
 
     @Override

@@ -40,7 +40,11 @@ import java.util.List;
 @Log4j
 public class ObjectFactoryHandler implements HttpHandler {
 
-    @Resource ObjectFactoryDao objectFactoryDao;
+    private final ObjectFactoryDao objectFactoryDao;
+
+    public ObjectFactoryHandler(ObjectFactoryDao objectFactoryDao) {
+        this.objectFactoryDao = objectFactoryDao;
+    }
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {

@@ -20,15 +20,18 @@
 package com.ejisto.core.launcher;
 
 import com.ejisto.core.classloading.SharedClassLoader;
+import com.ejisto.core.configuration.RootBundle;
 import lombok.extern.log4j.Log4j;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
-import org.springframework.context.support.GenericXmlApplicationContext;
+import se.jbee.inject.Injector;
+import se.jbee.inject.bootstrap.Bootstrap;
 
 import javax.swing.*;
 import java.util.logging.Level;
 
 import static com.ejisto.util.GuiUtils.getRootThrowable;
+import static se.jbee.inject.Dependency.dependency;
 
 /**
  * Created by IntelliJ IDEA.
@@ -45,13 +48,16 @@ public class Launcher {
             log.info("Starting Ejisto...");
             log.info("setting dynamic ClassLoader");
             Thread.currentThread().setContextClassLoader(SharedClassLoader.getInstance());
+            log.info("initializing Silk di");
+            Injector injector = Bootstrap.injector(RootBundle.class);
             log.info("initializing Spring framework");
-            GenericXmlApplicationContext context = new GenericXmlApplicationContext();
-            context.getEnvironment().setActiveProfiles("server");
-            context.load("classpath:/spring-context.xml");
-            context.refresh();
-            context.registerShutdownHook();
-            ApplicationController controller = context.getBean("applicationController", ApplicationController.class);
+//            GenericXmlApplicationContext context = new GenericXmlApplicationContext();
+//            context.getEnvironment().setActiveProfiles("server");
+//            context.load("classpath:/spring-context.xml");
+//            context.refresh();
+//            context.registerShutdownHook();
+//            ApplicationController controller = context.getBean("applicationController", ApplicationController.class);
+            ApplicationController controller = injector.resolve(dependency(ApplicationController.class));
             log.info("starting application... enjoy ejisto!!");
             controller.startup();
             return 0;

@@ -24,23 +24,22 @@ import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.Step;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 
 import java.util.ArrayList;
 
 public class PropertiesEditingController extends AbstractApplicationInstallerController {
 
-    private MockedFieldsEditorController editorController;
+    private final MockedFieldsEditorController editorController;
 
-    public PropertiesEditingController(EjistoDialog dialog) {
-        super(dialog);
+
+    public PropertiesEditingController(EjistoDialog dialog, MockedFieldsRepository mockedFieldsRepository) {
+        super(dialog, null);
+        this.editorController = new MockedFieldsEditorController(mockedFieldsRepository);
     }
 
     @Override
     public MockedFieldsEditor getView() {
-        if (editorController != null) {
-            return editorController.getView();
-        }
-        editorController = new MockedFieldsEditorController();
         return editorController.getView();
     }
 

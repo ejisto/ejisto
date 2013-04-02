@@ -38,14 +38,20 @@ import static org.junit.Assert.assertEquals;
  * Time: 8:54 AM
  */
 public class AbstractStepControllerTest {
-    ApplicationScanningController applicationScanningController;
-    CyclicBarrier threadSynchronizer;
+    protected ApplicationScanningController applicationScanningController;
+    protected final CyclicBarrier threadSynchronizer;
     private static final int TASKS = 10;
+
+
+
+    public AbstractStepControllerTest() {
+        this.threadSynchronizer = new CyclicBarrier(TASKS + 1);
+    }
+
 
     @Before
     public void init() throws InvocationTargetException, InterruptedException {
-        threadSynchronizer = new CyclicBarrier(TASKS + 1);
-        applicationScanningController = new ApplicationScanningController(null, null) {
+        applicationScanningController = new ApplicationScanningController(null, null, null, null, null) {
             @Override
             protected Task<?> createNewTask() {
                 return new GuiTask<>(new Callable<Object>() {

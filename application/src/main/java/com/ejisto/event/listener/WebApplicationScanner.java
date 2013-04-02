@@ -51,10 +51,14 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
 @Log4j
 public class WebApplicationScanner implements ApplicationListener<ApplicationScanRequired> {
 
-    @Resource private EventManager eventManager;
-    @Resource private MockedFieldsRepository mockedFieldsRepository;
-    @Resource private Application application;
+    private final EventManager eventManager;
+    private final MockedFieldsRepository mockedFieldsRepository;
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
+
+    public WebApplicationScanner(EventManager eventManager, MockedFieldsRepository mockedFieldsRepository) {
+        this.eventManager = eventManager;
+        this.mockedFieldsRepository = mockedFieldsRepository;
+    }
 
     @Override
     public void onApplicationEvent(ApplicationScanRequired event) {

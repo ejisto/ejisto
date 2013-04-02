@@ -40,6 +40,14 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * Time: 7:41 PM
  */
 public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>, Y> {
+
+    private final MockedFieldsRepository mockedFieldsRepository;
+
+    public CollectionFactory() {
+        super();
+        this.mockedFieldsRepository = new MockedFieldsRepository(null);
+    }
+
     @Override
     public String getTargetClassName() {
         return "java.util.Collection";
@@ -85,7 +93,7 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
     }
 
     private void fillCollection(Collection<Y> in, int size, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Collection<Y> actualValue) {
-        List<MockedField> fields = MockedFieldsRepository.getInstance().loadActiveFields(mockedField.getContextPath(),
+        List<MockedField> fields = mockedFieldsRepository.loadActiveFields(mockedField.getContextPath(),
                                                                                          mockedField.getFieldElementType());
         boolean emptyFields = isEmpty(fields);
         MockedField target = new MockedFieldImpl();

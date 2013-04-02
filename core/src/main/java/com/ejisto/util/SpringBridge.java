@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+@Deprecated
 public final class SpringBridge implements ApplicationContextAware {
     private static SpringBridge instance = new SpringBridge();
     private ApplicationContext applicationContext;
