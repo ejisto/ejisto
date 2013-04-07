@@ -21,6 +21,8 @@ package com.ejisto.event.listener;
 
 import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.core.container.ContainerManager;
+import com.ejisto.event.ApplicationEventDispatcher;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.*;
 import com.ejisto.event.def.ChangeWebAppContextStatus.WebAppContextStatusCommand;
@@ -39,8 +41,6 @@ import com.ejisto.util.IOUtils;
 import javassist.ClassPool;
 import javassist.LoaderClassPath;
 import lombok.extern.log4j.Log4j;
-import org.springframework.context.ApplicationListener;
-import org.springframework.util.Assert;
 
 import javax.swing.*;
 import java.awt.*;
@@ -69,6 +69,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     private final CustomObjectFactoryRepository customObjectFactoryRepository;
     private final SettingsRepository settingsRepository;
     private final TaskManager taskManager;
+    private final ApplicationEventDispatcher eventDispatcher;
 
     private Closure1<ActionEvent> callNotifyCommand;
 
@@ -79,7 +80,8 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
                                 ContainerManager containerManager,
                                 CustomObjectFactoryRepository customObjectFactoryRepository,
                                 SettingsRepository settingsRepository,
-                                TaskManager taskManager) {
+                                TaskManager taskManager,
+                                ApplicationEventDispatcher eventDispatcher) {
         this.application = application;
         this.eventManager = eventManager;
         this.mockedFieldsRepository = mockedFieldsRepository;
@@ -88,6 +90,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         this.customObjectFactoryRepository = customObjectFactoryRepository;
         this.settingsRepository = settingsRepository;
         this.taskManager = taskManager;
+        this.eventDispatcher = eventDispatcher;
     }
 
     @Override
@@ -113,7 +116,8 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
                                                                                                    mockedFieldsRepository,
                                                                                                    customObjectFactoryRepository,
                                                                                                    settingsRepository,
-                                                                                                   taskManager);
+                                                                                                   taskManager,
+                                                                                                   eventDispatcher);
         if (!controller.showWizard()) {
             return;
         }
@@ -180,7 +184,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     void notifyCommand(ActionEvent event) {
         try {
             String[] command = SPLIT_PATTERN.split(event.getActionCommand());
-            Assert.state(command.length == 3);
+            if(command.length != 3) {
+                throw new IllegalArgumentException(event.getActionCommand());
+            }
             WebAppContextStatusCommand statusCommand = WebAppContextStatusCommand.fromString(command[1]);
             switch (statusCommand) {
                 case START:

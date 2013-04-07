@@ -40,7 +40,7 @@ import java.util.Set;
 import static ch.lambdaj.Lambda.convert;
 import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
 import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.SpringBridge.publishApplicationEvent;
+import static com.ejisto.util.GuiUtils.publishEvent;
 
 /**
  * Created by IntelliJ IDEA.
@@ -97,8 +97,8 @@ public class MockedFieldCreationController extends AbstractDialogManager {
                                                           mockedFieldsRepository.load(mf.getContextPath(),
                                                                                                     mf.getClassName(),
                                                                                                     mf.getFieldName()));
-        publishApplicationEvent(event);
-        publishApplicationEvent(new ServerRestartRequired(DEFAULT_CONTAINER_ID.getValue(), this));
+        publishEvent(event);
+        publishEvent(new ServerRestartRequired(DEFAULT_CONTAINER_ID.getValue(), this));
     }
 
     private void setTypes(String selectedContextPath) {

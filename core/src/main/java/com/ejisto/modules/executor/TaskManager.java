@@ -21,7 +21,8 @@ package com.ejisto.modules.executor;
 
 import ch.lambdaj.Lambda;
 import com.ejisto.core.ApplicationException;
-import org.springframework.beans.factory.DisposableBean;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 
 import java.beans.PropertyChangeListener;
 import java.lang.ref.SoftReference;
@@ -35,7 +36,7 @@ import static ch.lambdaj.Lambda.forEach;
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.apache.commons.collections.MapUtils.isEmpty;
 
 /**
  * Created by IntelliJ IDEA.
@@ -43,7 +44,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * Date: 4/2/11
  * Time: 6:48 PM
  */
-public final class TaskManager implements DisposableBean {
+public final class TaskManager {
 
     private ExecutorService executorService;
     private ScheduledExecutorService scheduler;
@@ -175,12 +176,6 @@ public final class TaskManager implements DisposableBean {
             service.shutdownNow();
             Thread.currentThread().interrupt();
         }
-    }
-
-    @Override
-    public void destroy() {
-        shutdownExecutorService(this.executorService);
-        shutdownExecutorService(this.scheduler);
     }
 
     private final class TaskEntry {

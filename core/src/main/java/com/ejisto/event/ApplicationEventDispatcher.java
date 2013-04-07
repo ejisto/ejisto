@@ -17,15 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.event.listener;
+package com.ejisto.event;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.event.def.ShutdownRequest;
-import com.ejisto.util.GuiUtils;
 import lombok.extern.log4j.Log4j;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,39 +37,39 @@ import java.util.concurrent.ConcurrentMap;
  * Time: 9:14 PM
  */
 @Log4j
-public class ApplicationEventDispatcher implements ApplicationListener<ApplicationEvent> {
-    private final ConcurrentMap<Class<?>, List<ApplicationListener<ApplicationEvent>>> registeredListeners;
+public class ApplicationEventDispatcher {
+    private final ConcurrentMap<Class<? extends BaseApplicationEvent>, List<ApplicationListener<? extends BaseApplicationEvent>>> registeredListeners;
     private volatile boolean running = true;
 
     public ApplicationEventDispatcher() {
         registeredListeners = new ConcurrentHashMap<>();
     }
 
-    public void registerApplicationEventListener(Class<?> eventClass, ApplicationListener<ApplicationEvent> applicationListener) {
-        registeredListeners.putIfAbsent(eventClass, new ArrayList<ApplicationListener<ApplicationEvent>>());
+    public <T extends BaseApplicationEvent> void registerApplicationEventListener(Class<T> eventClass, ApplicationListener<T> applicationListener) {
+        registeredListeners.putIfAbsent(eventClass, new ArrayList<ApplicationListener<? extends BaseApplicationEvent>>());
         registeredListeners.get(eventClass).add(applicationListener);
     }
 
-    @Override
-    public void onApplicationEvent(final ApplicationEvent event) {
+    public <T extends BaseApplicationEvent> void broadcastEvent(final T event) {
         if (!running) {
             return;
         }
-        log.trace("got event of type [" + event.getClass().getName() + "]");
+        ApplicationEventDispatcher.log.trace("got event of type [" + event.getClass().getName() + "]");
         if (registeredListeners.containsKey(event.getClass())) {
-            notifyListeners(registeredListeners.get(event.getClass()), event);
+            notifyListeners(event);
         }
-        if (ShutdownRequest.class.isInstance(event)) {
+        if (ShutdownRequest.class.isInstance(event)) {//poison pill...
             running = false;
         }
     }
 
-    private void notifyListeners(List<ApplicationListener<ApplicationEvent>> listeners, final ApplicationEvent applicationEvent) {
-        for (final ApplicationListener<ApplicationEvent> listener : listeners) {
-            log.trace("forwarding event to listener " + listener);
-            if (BaseApplicationEvent.class.isInstance(
-                    applicationEvent) && ((BaseApplicationEvent) applicationEvent).isRunOnEDT()) {
-                GuiUtils.runOnEDT(new Runnable() {
+    @SuppressWarnings("unchecked")
+    private void notifyListeners(final BaseApplicationEvent applicationEvent) {
+        final Class<BaseApplicationEvent> eventClass = (Class<BaseApplicationEvent>) applicationEvent.getClass();
+        for (final ApplicationListener listener : registeredListeners.get(eventClass)) {
+            ApplicationEventDispatcher.log.trace("forwarding event to listener " + listener);
+            if (applicationEvent.isRunOnEDT()) {
+                SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
                         //since registered listener are GUI classes, it is better to
@@ -79,10 +78,9 @@ public class ApplicationEventDispatcher implements ApplicationListener<Applicati
                     }
                 });
             } else {
-                //event that could be handled in a multithreaded context
+                //event that could be handled in a multi threaded context
                 listener.onApplicationEvent(applicationEvent);
             }
-
         }
     }
 }

@@ -19,14 +19,12 @@
 
 package com.ejisto.core.launcher;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.services.Service;
 import com.ejisto.services.ServiceType;
 import lombok.extern.log4j.Log4j;
-import org.springframework.context.ApplicationListener;
 
-import javax.annotation.Resource;
-import java.util.Collection;
 import java.util.List;
 
 import static ch.lambdaj.Lambda.*;
@@ -35,22 +33,22 @@ import static org.hamcrest.Matchers.equalTo;
 @Log4j
 public class ApplicationController implements ApplicationListener<ShutdownRequest> {
 
-    private final List<Service> services;
+    private final List<Service> startupServices;
+    private final List<Service> shutdownServices;
 
     public ApplicationController(List<Service> services) {
-        this.services = services;
+        this.startupServices = sortServices(filterServices(services, ServiceType.STARTUP));
+        this.shutdownServices = sortServices(filterServices(services, ServiceType.SHUTDOWN));
     }
 
     public void startup() {
         log.debug("invoking startup services...");
-        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.STARTUP))),
-                Service.class).execute();
+        forEach(startupServices, Service.class).execute();
     }
 
     private void shutdown() {
         log.debug("invoking startup services...");
-        forEach(select(services, having(on(Service.class).getServiceType(), equalTo(ServiceType.SHUTDOWN))),
-                Service.class).execute();
+        forEach(shutdownServices, Service.class).execute();
         log.info("Application shutdown successfully completed. Invoking shutdown hooks via System.exit(0)");
         System.exit(0);
     }
@@ -58,5 +56,13 @@ public class ApplicationController implements ApplicationListener<ShutdownReques
     @Override
     public void onApplicationEvent(ShutdownRequest event) {
         shutdown();
+    }
+
+    private static List<Service> sortServices(List<Service> services) {
+        return sort(services, on(Service.class).getPriority());
+    }
+
+    private static List<Service> filterServices(List<Service> services, ServiceType serviceType) {
+        return select(services, having(on(Service.class).getServiceType(), equalTo(serviceType)));
     }
 }

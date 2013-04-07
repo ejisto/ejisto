@@ -20,6 +20,8 @@
 package com.ejisto.event.listener;
 
 import ch.lambdaj.Lambda;
+import com.ejisto.event.ApplicationEventDispatcher;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.CollectedDataReceived;
@@ -44,10 +46,6 @@ import org.codehaus.cargo.module.webapp.elements.Filter;
 import org.codehaus.cargo.module.webapp.elements.FilterMapping;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdom.JDOMException;
-import org.springframework.context.ApplicationListener;
-import org.springframework.util.Assert;
-
-import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -83,18 +81,21 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     private final WebApplicationDescriptorDao webApplicationDescriptorDao;
     private final HTTPServer httpServer;
     private final SettingsRepository settingsRepository;
+    private final ApplicationEventDispatcher applicationEventDispatcher;
     private final AtomicReference<DialogController> dialogController = new AtomicReference<>();
 
     public SessionRecorderManager(EventManager eventManager,
                                   Application application,
                                   WebApplicationDescriptorDao webApplicationDescriptorDao,
                                   HTTPServer httpServer,
-                                  SettingsRepository settingsRepository) {
+                                  SettingsRepository settingsRepository,
+                                  ApplicationEventDispatcher applicationEventDispatcher) {
         this.eventManager = eventManager;
         this.application = application;
         this.webApplicationDescriptorDao = webApplicationDescriptorDao;
         this.httpServer = httpServer;
         this.settingsRepository = settingsRepository;
+        this.applicationEventDispatcher = applicationEventDispatcher;
     }
 
 
@@ -125,7 +126,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                 log.warn("attempt to create httpHandler failed. A Handler has already been defined.");
             }
             log.debug("done.");
-            final MockedFieldsEditor editor = new MockedFieldsEditor(FieldsEditorContext.ADD_FIELD, new ActionMap());
+            final MockedFieldsEditor editor = new MockedFieldsEditor(FieldsEditorContext.ADD_FIELD, applicationEventDispatcher, new ActionMap());
             DialogController controller = DialogController.Builder.newInstance()
                     .resizable(true)
                     .withActions(new AbstractActionExt(getMessage("session.record.stop"), getIcon(
@@ -141,7 +142,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                     .withParentFrame(application)
                     .build();
             if (dialogController.compareAndSet(null, controller)) {
-                registerEventListener(CollectedDataReceived.class,
+                applicationEventDispatcher.registerApplicationEventListener(CollectedDataReceived.class,
                                       new ApplicationListener<CollectedDataReceived>() {
                                           @Override
                                           public void onApplicationEvent(CollectedDataReceived event) {
@@ -219,7 +220,9 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         String path = FilenameUtils.normalizeNoEndSeparator(descriptor.getDeployablePath()) + File.separator +
                 "WEB-INF" + File.separator + "web.xml";
         File webXml = new File(path);
-        Assert.isTrue(webXml.exists());
+        if(!webXml.exists()) {
+            throw new IllegalStateException("web.xml doesn't exist");
+        }
         WebXml xml = WebXmlIo.parseWebXmlFromFile(webXml, null);
         DescriptorElement param = (DescriptorElement) WebXmlUtils.getContextParam(xml, TARGET_CONTEXT_PATH.getValue());
         if (param == null) {

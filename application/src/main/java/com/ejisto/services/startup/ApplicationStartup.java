@@ -43,4 +43,9 @@ public class ApplicationStartup extends BaseStartupService {
         application.setVisible(true);
     }
 
+    @Override
+    public int getPriority() {
+        return Integer.MAX_VALUE;
+    }
+
 }

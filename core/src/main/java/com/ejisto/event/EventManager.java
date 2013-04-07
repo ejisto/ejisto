@@ -20,14 +20,10 @@
 package com.ejisto.event;
 
 import com.ejisto.event.def.ApplicationError;
+import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.modules.executor.TaskManager;
 import lombok.extern.log4j.Log4j;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationEvent;
 
-import javax.annotation.Resource;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.Callable;
@@ -37,20 +33,17 @@ import static com.ejisto.event.def.ApplicationError.Priority.HIGH;
 import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 
 @Log4j
-public class EventManager implements ApplicationContextAware {
-    private boolean initialized = false;
-    private ApplicationContext applicationContext;
+public class EventManager {
     private final TaskManager taskManager;
+    private final ApplicationEventDispatcher applicationEventDispatcher;
 
-    public EventManager(TaskManager taskManager) {
+    public EventManager(TaskManager taskManager,
+                        ApplicationEventDispatcher applicationEventDispatcher) {
         this.taskManager = taskManager;
+        this.applicationEventDispatcher = applicationEventDispatcher;
     }
 
-    public void publishEvent(final ApplicationEvent event) {
-        if (!initialized) {
-            log.warn("discarded event from " + event.getSource() + " " + event);
-            return;
-        }
+    public void publishEvent(final BaseApplicationEvent event) {
         taskManager.addNewTask(createNewGuiTask(new Callable<Void>() {
             @Override
             public Void call() {
@@ -60,14 +53,8 @@ public class EventManager implements ApplicationContextAware {
         }, event.toString(), listener));
     }
 
-    public void publishEventAndWait(ApplicationEvent event) {
-        applicationContext.publishEvent(event);
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-        this.initialized = true;
+    public void publishEventAndWait(BaseApplicationEvent event) {
+        applicationEventDispatcher.broadcastEvent(event);
     }
 
     private final PropertyChangeListener listener = new PropertyChangeListener() {

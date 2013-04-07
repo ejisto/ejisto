@@ -19,16 +19,12 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.DialogRequested;
 import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.AboutPanel;
-import org.springframework.context.ApplicationListener;
-
-import javax.annotation.Resource;
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Created by IntelliJ IDEA.

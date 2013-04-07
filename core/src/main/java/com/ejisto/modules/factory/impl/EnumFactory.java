@@ -22,7 +22,7 @@ package com.ejisto.modules.factory.impl;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.ObjectFactory;
 import lombok.extern.log4j.Log4j;
-import org.springframework.util.Assert;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by IntelliJ IDEA.
@@ -42,10 +42,14 @@ public class EnumFactory<T extends Enum<T>> implements ObjectFactory<Enum<T>> {
     public Enum<T> create(MockedField m, Enum<T> actualValue) {
         try {
             String name = m.getFieldValue();
-            Assert.hasText(name);
+            if(StringUtils.isEmpty(name)) {
+                return actualValue;
+            }
             @SuppressWarnings("unchecked")
             Class<Enum<T>> clazz = (Class<Enum<T>>) Class.forName(m.getFieldType());
-            Assert.state(clazz.isEnum());
+            if(!clazz.isEnum()) {
+                return actualValue;
+            }
             Enum<T>[] enums = clazz.getEnumConstants();
             for (Enum<T> en : enums) {
                 if (en.name().equals(name)) {

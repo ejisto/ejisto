@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.controller.wizard.installer;
 
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.gui.components.EjistoDialog;
@@ -33,9 +34,11 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
     private final MockedFieldsEditorController editorController;
 
 
-    public PropertiesEditingController(EjistoDialog dialog, MockedFieldsRepository mockedFieldsRepository) {
+    public PropertiesEditingController(EjistoDialog dialog,
+                                       MockedFieldsRepository mockedFieldsRepository,
+                                       ApplicationEventDispatcher eventDispatcher) {
         super(dialog, null);
-        this.editorController = new MockedFieldsEditorController(mockedFieldsRepository);
+        this.editorController = new MockedFieldsEditorController(mockedFieldsRepository, eventDispatcher);
     }
 
     @Override

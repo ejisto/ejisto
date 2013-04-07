@@ -19,14 +19,12 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
-import org.springframework.context.ApplicationListener;
-
-import javax.annotation.Resource;
 import java.util.logging.Level;
 
 import static com.ejisto.util.GuiUtils.getMessage;

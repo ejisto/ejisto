@@ -43,4 +43,9 @@ public class ContainerShutdown extends BaseShutdownService {
         }
     }
 
+    @Override
+    public int getPriority() {
+        return 0;
+    }
+
 }

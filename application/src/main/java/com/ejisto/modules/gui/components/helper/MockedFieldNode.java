@@ -21,7 +21,6 @@ package com.ejisto.modules.gui.components.helper;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.util.IteratorEnumeration;
-import org.springframework.util.Assert;
 
 import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -98,15 +97,18 @@ public class MockedFieldNode extends DefaultMutableTreeNode {
             throw new IllegalArgumentException();
         }
         MockedFieldNode node = (MockedFieldNode) newChild;
-        Assert.state(!containsChild(node));
-        Assert.isTrue(isParentOf(node), "This node allows only leaf or direct subpackages.");
+        if(containsChild(node) || !isParentOf(node)) {
+            throw new IllegalArgumentException("This node allows only leaf or direct subpackages.");
+        }
         children.put(getPathFor(node), node);
         super.add(node);
     }
 
     public void remove(MockedField child) {
         String path = encodeTreePath(child.getPath());
-        Assert.isTrue(children.containsKey(path));
+        if(!children.containsKey(path)) {
+            throw new IllegalArgumentException();
+        }
         super.remove(children.remove(path));
     }
 

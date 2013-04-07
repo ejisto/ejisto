@@ -53,4 +53,9 @@ public class TaskInitializer extends BaseStartupService {
         }
 
     }
+
+    @Override
+    public int getPriority() {
+        return NORMAL_PRIORITY;
+    }
 }

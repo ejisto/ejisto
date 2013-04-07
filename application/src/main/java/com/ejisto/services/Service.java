@@ -21,7 +21,11 @@ package com.ejisto.services;
 
 public interface Service {
 
+    static final int NORMAL_PRIORITY = 2;
+
     void execute();
 
     ServiceType getServiceType();
+
+    int getPriority();
 }

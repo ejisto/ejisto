@@ -23,7 +23,6 @@ import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.util.GuiUtils;
-import org.springframework.util.Assert;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -33,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.APPLICATION_INSTALLER_WIZARD;
-import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
 public class MockedFieldsTableModel extends AbstractTableModel implements TableModelListener {
     private static final long serialVersionUID = 7654333693058889267L;
@@ -105,7 +103,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
 
     private void notifyTableChanged(TableModelEvent e) {
         MockedFieldChanged event = new MockedFieldChanged(this, fields.get(e.getFirstRow()));
-        publishApplicationEvent(event);
+        GuiUtils.publishEvent(event);
     }
 
     @Override
@@ -115,12 +113,10 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
 
     @Override
     public String getColumnName(int column) {
-        Assert.isTrue(column < columnHeaders.length);
         return columnHeaders[column];
     }
 
     public MockedField getMockedFieldAt(int row) {
-        Assert.isTrue(row < fields.size());
         return fields.get(row);
     }
 

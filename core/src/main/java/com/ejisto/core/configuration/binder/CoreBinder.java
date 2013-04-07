@@ -20,10 +20,12 @@
 package com.ejisto.core.configuration.binder;
 
 import com.ejisto.core.classloading.SharedClassLoader;
+import com.ejisto.core.classloading.javassist.PropertyManager;
 import com.ejisto.core.container.ContainerManager;
 import com.ejisto.event.EventManager;
 import com.ejisto.modules.cargo.CargoManager;
 import com.ejisto.modules.conf.SettingsManager;
+import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.repository.*;
 import com.ejisto.modules.web.HTTPServer;
@@ -54,5 +56,6 @@ public class CoreBinder extends BinderModule {
         construct(TaskManager.class);
         construct(SettingsManager.class);
         construct(EventManager.class);
+        construct(PropertyManager.class);
     }
 }

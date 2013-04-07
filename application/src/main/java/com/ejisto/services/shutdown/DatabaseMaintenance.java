@@ -45,4 +45,9 @@ public class DatabaseMaintenance extends BaseShutdownService {
         }
     }
 
+    @Override
+    public int getPriority() {
+        return 1;
+    }
+
 }

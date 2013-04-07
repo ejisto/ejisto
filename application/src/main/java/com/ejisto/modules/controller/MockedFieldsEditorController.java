@@ -21,14 +21,15 @@ package com.ejisto.modules.controller;
 
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.convert.PropertyExtractor;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ApplicationDeployed;
 import com.ejisto.event.def.ChangeWebAppContextStatus;
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.*;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.FieldsEditorContextMatcher;
-import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -63,18 +64,21 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     private ActionMap actionMap;
     private Collection<MockedField> wizardFields = Collections.emptyList();
     private volatile int selectedIndex = 0;
-    private FieldsEditorContextMatcher contextMatcher;
-    private FieldsEditorContext fieldsEditorContext;
+    private final FieldsEditorContextMatcher contextMatcher;
+    private final FieldsEditorContext fieldsEditorContext;
+    private final ApplicationEventDispatcher eventDispatcher;
 
-    public MockedFieldsEditorController(MockedFieldsRepository mockedFieldsRepository) {
-        this(mockedFieldsRepository, APPLICATION_INSTALLER_WIZARD);
+    public MockedFieldsEditorController(MockedFieldsRepository mockedFieldsRepository, ApplicationEventDispatcher eventDispatcher) {
+        this(mockedFieldsRepository, eventDispatcher, APPLICATION_INSTALLER_WIZARD);
+
     }
 
-    public MockedFieldsEditorController(MockedFieldsRepository mockedFieldsRepository, FieldsEditorContext fieldsEditorContext) {
+    public MockedFieldsEditorController(MockedFieldsRepository mockedFieldsRepository, ApplicationEventDispatcher eventDispatcher, FieldsEditorContext fieldsEditorContext) {
+        this.eventDispatcher = eventDispatcher;
         this.mockedFieldsRepository = mockedFieldsRepository;
         actionMap = new ActionMap();
         initActions();
-        view = new MockedFieldsEditor(fieldsEditorContext, getActionMap());
+        view = new MockedFieldsEditor(fieldsEditorContext, eventDispatcher, getActionMap());
         view.registerChangeListener(this);
         view.registerMouseLister(new MouseAdapter() {
             @Override
@@ -93,7 +97,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         this.fieldsEditorContext = fieldsEditorContext;
         view.registerFieldEditingListener(this);
         lock = new ReentrantLock();
-        registerEventListener(ApplicationDeployed.class, new ApplicationListener<ApplicationDeployed>() {
+        eventDispatcher.registerApplicationEventListener(ApplicationDeployed.class, new ApplicationListener<ApplicationDeployed>() {
             @Override
             public void onApplicationEvent(final ApplicationDeployed event) {
                 runOnEDT(new Runnable() {
@@ -105,19 +109,21 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
             }
         });
 
-        registerEventListener(ChangeWebAppContextStatus.class, new ApplicationListener<ChangeWebAppContextStatus>() {
-            @Override
-            public void onApplicationEvent(final ChangeWebAppContextStatus event) {
-                runOnEDT(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (event.getCommand() == ChangeWebAppContextStatus.WebAppContextStatusCommand.DELETE) {
-                            notifyContextDeleted(event.getContextPath());
-                        }
-                    }
-                });
-            }
-        });
+        eventDispatcher.registerApplicationEventListener(ChangeWebAppContextStatus.class,
+                                                         new ApplicationListener<ChangeWebAppContextStatus>() {
+                                                             @Override
+                                                             public void onApplicationEvent(final ChangeWebAppContextStatus event) {
+                                                                 runOnEDT(new Runnable() {
+                                                                     @Override
+                                                                     public void run() {
+                                                                         if (event.getCommand() == ChangeWebAppContextStatus.WebAppContextStatusCommand.DELETE) {
+                                                                             notifyContextDeleted(
+                                                                                     event.getContextPath());
+                                                                         }
+                                                                     }
+                                                                 });
+                                                             }
+                                                         });
     }
 
     private void notifyContextInstalled(String contextPath) {

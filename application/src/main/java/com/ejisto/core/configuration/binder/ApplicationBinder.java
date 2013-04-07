@@ -20,6 +20,7 @@
 package com.ejisto.core.configuration.binder;
 
 import com.ejisto.core.launcher.ApplicationController;
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.listener.*;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.services.Service;

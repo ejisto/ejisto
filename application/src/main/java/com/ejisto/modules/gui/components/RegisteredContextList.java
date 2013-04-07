@@ -20,14 +20,16 @@
 package com.ejisto.modules.gui.components;
 
 import com.ejisto.core.container.WebApplication;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ApplicationDeployed;
 import com.ejisto.event.def.ChangeWebAppContextStatus;
 import com.ejisto.event.def.ContainerStatusChanged;
+import com.ejisto.event.ApplicationEventDispatcher;
+import com.ejisto.modules.repository.WebApplicationRepository;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
-import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,6 +42,8 @@ import static com.ejisto.util.GuiUtils.*;
 public class RegisteredContextList extends JXPanel {
 
     private static final long serialVersionUID = -157871898009911909L;
+    private final WebApplicationRepository webApplicationRepository;
+    private final ApplicationEventDispatcher eventDispatcher;
     private final transient ApplicationListener<ChangeWebAppContextStatus> contextChangeListener = new ApplicationListener<ChangeWebAppContextStatus>() {
         @Override
         public void onApplicationEvent(ChangeWebAppContextStatus event) {
@@ -69,8 +73,10 @@ public class RegisteredContextList extends JXPanel {
     };
 
 
-    public RegisteredContextList() {
+    public RegisteredContextList(WebApplicationRepository webApplicationRepository, ApplicationEventDispatcher eventDispatcher) {
         super();
+        this.webApplicationRepository = webApplicationRepository;
+        this.eventDispatcher = eventDispatcher;
         init();
     }
 
@@ -79,7 +85,7 @@ public class RegisteredContextList extends JXPanel {
     }
 
     private List<WebApplication<?>> getAllRegisteredWebApplications() {
-        return flatten(getAllRegisteredContexts());
+        return flatten(webApplicationRepository.getInstalledWebApplications());
     }
 
     private void internalReloadAllContexts(boolean removeAll) {
@@ -94,9 +100,9 @@ public class RegisteredContextList extends JXPanel {
     }
 
     private void init() {
-        registerEventListener(ChangeWebAppContextStatus.class, contextChangeListener);
-        registerEventListener(ApplicationDeployed.class, applicationDeployListener);
-        registerEventListener(ContainerStatusChanged.class, serverStartListener);
+        eventDispatcher.registerApplicationEventListener(ChangeWebAppContextStatus.class, contextChangeListener);
+        eventDispatcher.registerApplicationEventListener(ApplicationDeployed.class, applicationDeployListener);
+        eventDispatcher.registerApplicationEventListener(ContainerStatusChanged.class, serverStartListener);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setBackground(Color.WHITE);
         setName(getMessage("main.tab.webappcontext.text"));

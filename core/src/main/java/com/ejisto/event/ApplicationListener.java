@@ -17,14 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.core.configuration;
+package com.ejisto.event;
+
+import com.ejisto.event.def.BaseApplicationEvent;
+
+import java.util.EventListener;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 4/2/13
- * Time: 8:26 AM
+ * Date: 4/4/13
+ * Time: 7:59 AM
  */
-public class CoreInjector {
+public interface ApplicationListener<T extends BaseApplicationEvent> extends EventListener {
+
+    void onApplicationEvent(T event);
 
 }

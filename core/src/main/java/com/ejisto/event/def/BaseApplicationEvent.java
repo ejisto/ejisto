@@ -19,9 +19,9 @@
 
 package com.ejisto.event.def;
 
-import org.springframework.context.ApplicationEvent;
+import java.util.EventObject;
 
-public abstract class BaseApplicationEvent extends ApplicationEvent {
+public abstract class BaseApplicationEvent extends EventObject {
 
     private static final long serialVersionUID = -2616190172593844455L;
 

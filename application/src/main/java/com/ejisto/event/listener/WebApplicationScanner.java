@@ -21,20 +21,18 @@ package com.ejisto.event.listener;
 
 import ch.lambdaj.group.Group;
 import com.ejisto.core.classloading.scan.ScanAction;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.ApplicationScanRequired;
 import com.ejisto.event.def.BlockingTaskProgress;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
-import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.FieldsEditorContextMatcher;
 import lombok.extern.log4j.Log4j;
-import org.springframework.context.ApplicationListener;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;

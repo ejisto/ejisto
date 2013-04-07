@@ -20,6 +20,7 @@
 package com.ejisto.event.listener;
 
 import com.ejisto.core.container.ContainerManager;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.ChangeServerStatus;
@@ -31,7 +32,6 @@ import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import lombok.extern.log4j.Log4j;
-import org.springframework.context.ApplicationListener;
 
 import java.util.concurrent.Callable;
 

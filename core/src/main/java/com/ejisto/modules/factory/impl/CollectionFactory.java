@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
 
 /**
  * Created by IntelliJ IDEA.
@@ -94,7 +94,7 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
 
     private void fillCollection(Collection<Y> in, int size, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Collection<Y> actualValue) {
         List<MockedField> fields = mockedFieldsRepository.loadActiveFields(mockedField.getContextPath(),
-                                                                                         mockedField.getFieldElementType());
+                                                                           mockedField.getFieldElementType());
         boolean emptyFields = isEmpty(fields);
         MockedField target = new MockedFieldImpl();
         target.setClassName(mockedField.getFieldElementType());

@@ -28,7 +28,6 @@ import com.ejisto.util.visitor.MultipurposeFileVisitor;
 import com.ejisto.util.visitor.PrefixBasedCopyFileVisitor;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.io.FileUtils;
-import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -320,7 +319,9 @@ public final class IOUtils {
         if (!Files.exists(out)) {
             Files.createDirectories(out);
         }
-        Assert.isTrue(Files.isDirectory(out));
+        if(!Files.isDirectory(out)) {
+            throw new IllegalStateException(out.toString() + " is not a directory");
+        }
         try (FileSystem fileSystem = FileSystems.newFileSystem(URI.create("jar:file:" + src.getAbsolutePath()),
                                                                Collections.<String, Object>emptyMap())) {
             final Path srcRoot = fileSystem.getPath("/");

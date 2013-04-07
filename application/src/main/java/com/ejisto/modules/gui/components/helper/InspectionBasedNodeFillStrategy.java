@@ -20,9 +20,9 @@
 package com.ejisto.modules.gui.components.helper;
 
 import com.ejisto.modules.dao.entities.MockedField;
-import org.springframework.util.Assert;
 
 import java.util.Enumeration;
+import java.util.Objects;
 
 import static com.ejisto.util.GuiUtils.encodeTreePath;
 
@@ -72,7 +72,9 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
             throw new IllegalArgumentException("child not compatible.");
         }
         int depthDifference = calcDepthDifference(parent, child);
-        Assert.isTrue(depthDifference <= 0);
+        if(depthDifference > 0) {
+            throw new IllegalArgumentException("child not compatible.");
+        }
         if (depthDifference == 0) {
             operationHelper.whenFound.doAction(parent, child);
             return parent;
@@ -127,10 +129,10 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
 
     @Override
     public boolean containsChild(MockedFieldNode parent, MockedField child) {
-        Assert.notNull(parent, "parent can't be null");
-        Assert.notNull(child, "child can't be null");
+        Objects.requireNonNull(parent, "parent can't be null");
+        Objects.requireNonNull(child, "child can't be null");
         if (!parent.isRoot()) {
-            Assert.notNull(parent.getUserObject(), "parent.userObject can't be null");
+            Objects.requireNonNull(parent.getUserObject(), "parent.userObject can't be null");
         }
         return parent.isRoot() || child.getParentClassPathAsString().startsWith(encodeTreePath(parent.getNodePath()));
     }

@@ -66,6 +66,11 @@ public class ResourcesInitializer extends BaseStartupService {
         initDefaultActions();
     }
 
+    @Override
+    public int getPriority() {
+        return 1;
+    }
+
     private void initDirectories(File baseDir) {
         File containersDir = new File(baseDir, "containers");
         File data = new File(baseDir, "data");

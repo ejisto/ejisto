@@ -60,7 +60,7 @@
 
     <!-- ApplicationEventDispatcher is mostly used by GUI components, so this listener MUST be the last one in order
 to preserve data consistency. -->
-    <bean id="applicationEventDispatcher" class="com.ejisto.event.listener.ApplicationEventDispatcher"/>
+    <bean id="applicationEventDispatcher" class="com.ejisto.event.ApplicationEventDispatcher"/>
 
 
     <util:list id="services" value-type="com.ejisto.services.Service">

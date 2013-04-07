@@ -19,6 +19,7 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.BlockingTaskProgress;
 import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.executor.BackgroundTask;
@@ -26,9 +27,7 @@ import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import lombok.extern.log4j.Log4j;
-import org.springframework.context.ApplicationListener;
 
-import javax.annotation.Resource;
 import javax.swing.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;

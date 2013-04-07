@@ -21,10 +21,9 @@ package com.ejisto.util;
 
 import ch.lambdaj.Lambda;
 import com.ejisto.constants.StringConstants;
-import com.ejisto.core.container.WebApplication;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.BaseApplicationEvent;
-import com.ejisto.event.listener.ApplicationEventDispatcher;
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -32,13 +31,11 @@ import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.ContainerTab;
 import com.ejisto.modules.gui.components.helper.MockedFieldNode;
+import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.util.Assert;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -49,6 +46,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
@@ -58,6 +56,7 @@ import static org.hamcrest.Matchers.equalTo;
 @Log4j
 public abstract class GuiUtils {
 
+    public static final AtomicReference<ApplicationEventDispatcher> EVENT_DISPATCHER = new AtomicReference<>();
     private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages");
     private static ActionMap actionMap = new ActionMap();
     private static Font defaultFont;
@@ -74,7 +73,7 @@ public abstract class GuiUtils {
     }
 
     public static String getMessage(String key, Object... values) {
-        if(!MESSAGES.containsKey(key)) {
+        if (!MESSAGES.containsKey(key)) {
             return key;
         }
         String value = MESSAGES.getString(key);
@@ -153,11 +152,6 @@ public abstract class GuiUtils {
         return defaultFont;
     }
 
-    public static Map<String, List<WebApplication<?>>> getAllRegisteredContexts() {
-        return SpringBridge.getInstance().getBean("webApplicationRepository",
-                                                  WebApplicationRepository.class).getInstalledWebApplications();
-    }
-
     public static String buildCommand(StringConstants commandPrefix, String containerId, String contextPath) {
         return containerId + commandPrefix.getValue() + contextPath;
     }
@@ -173,14 +167,6 @@ public abstract class GuiUtils {
 
     public static void runOnEDT(Runnable action) {
         SwingUtilities.invokeLater(action);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends ApplicationEvent> void registerEventListener(Class<T> eventClass, ApplicationListener<T> listener) {
-        ApplicationEventDispatcher applicationEventDispatcher = SpringBridge.getInstance().getBean(
-                "applicationEventDispatcher", ApplicationEventDispatcher.class);
-        applicationEventDispatcher.registerApplicationEventListener(eventClass,
-                                                                    (ApplicationListener<ApplicationEvent>) listener);
     }
 
     public static void setActionMap(ActionMap actionMap, JComponent component) {
@@ -207,29 +193,33 @@ public abstract class GuiUtils {
         return map;
     }
 
-    public static List<ContainerTab> getRegisteredContainers() {
-        List<com.ejisto.modules.dao.entities.Container> containers = SpringBridge.loadExistingContainers();
+    public static List<ContainerTab> getRegisteredContainers(ContainersRepository containersRepository,
+                                                             WebApplicationRepository webApplicationRepository) {
+        List<com.ejisto.modules.dao.entities.Container> containers = containersRepository.loadContainers();
         List<ContainerTab> containerTabs = new ArrayList<>();
         for (Container container : containers) {
-            containerTabs.add(buildContainerTab(container));
+            containerTabs.add(buildContainerTab(container, webApplicationRepository, null));
         }
         return containerTabs;
     }
 
-    public static List<com.ejisto.modules.dao.entities.Container> getActiveContainers() {
-        return SpringBridge.loadExistingContainers();
+    public static List<com.ejisto.modules.dao.entities.Container> getActiveContainers(ContainersRepository containersRepository) {
+        return containersRepository.loadContainers();
     }
 
-    public static com.ejisto.modules.dao.entities.Container loadContainer(String id) {
+    public static com.ejisto.modules.dao.entities.Container loadContainer(ContainersRepository containersRepository, String id) {
         try {
-            return SpringBridge.loadExistingContainer(id);
+            return containersRepository.loadContainer(id);
         } catch (NotInstalledException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private static ContainerTab buildContainerTab(Container container) {
-        return new ContainerTab(container.getDescription(), container.getId());
+    private static ContainerTab buildContainerTab(Container container,
+                                                  WebApplicationRepository webApplicationRepository,
+                                                  ApplicationEventDispatcher applicationEventDispatcher) {
+        return new ContainerTab(container.getDescription(), container.getId(), webApplicationRepository,
+                                applicationEventDispatcher);
     }
 
     public abstract static class EditorColumnFillStrategy {
@@ -259,7 +249,9 @@ public abstract class GuiUtils {
     }
 
     public static String encodeTreePath(String[] path, int from, int to) {
-        Assert.isTrue(from < to);
+        if (from >= to) {
+            throw new IllegalArgumentException("from: " + from + " to:" + to);
+        }
         String[] target = new String[to - from];
         System.arraycopy(path, 0, target, from, to - from);
         return encodeTreePath(target);
@@ -312,11 +304,11 @@ public abstract class GuiUtils {
     }
 
     public static void publishError(Object source, Throwable e) {
-        SpringBridge.publishApplicationEvent(new ApplicationError(source, ApplicationError.Priority.FATAL, e));
+        publishEvent(new ApplicationError(source, ApplicationError.Priority.FATAL, e));
     }
 
-    public static void publishEvent(ApplicationEvent event) {
-        SpringBridge.publishApplicationEvent(event);
+    public static void publishEvent(BaseApplicationEvent event) {
+        EVENT_DISPATCHER.get().broadcastEvent(event);
     }
 
 }

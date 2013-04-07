@@ -19,12 +19,10 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import org.springframework.context.ApplicationListener;
-
-import javax.annotation.Resource;
 
 public class FieldsUpdateListener implements ApplicationListener<MockedFieldChanged> {
 
@@ -42,7 +40,7 @@ public class FieldsUpdateListener implements ApplicationListener<MockedFieldChan
     }
 
     private void handleFieldChange(MockedField field) {
-            mockedFieldsRepository.insert(field);
+        mockedFieldsRepository.insert(field);
     }
 
 }

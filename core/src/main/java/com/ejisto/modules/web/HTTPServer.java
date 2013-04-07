@@ -22,7 +22,6 @@ package com.ejisto.modules.web;
 import com.ejisto.constants.StringConstants;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import org.springframework.beans.factory.InitializingBean;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -37,17 +36,13 @@ import static com.ejisto.util.IOUtils.findFirstAvailablePort;
  * Date: 6/26/12
  * Time: 4:24 PM
  */
-public class HTTPServer implements InitializingBean {
+public class HTTPServer {
 
     private final ConcurrentMap<String, HttpHandler> handlersMap;
-    private HttpServer server;
+    private final HttpServer server;
 
-    private HTTPServer(ConcurrentMap<String, HttpHandler> handlersMap) {
+    public HTTPServer(ConcurrentMap<String, HttpHandler> handlersMap) throws IOException {
         this.handlersMap = handlersMap;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws IOException {
         int port = findFirstAvailablePort(1706);
         server = HttpServer.create(new InetSocketAddress(port), 1024);
         for (Map.Entry<String, HttpHandler> entry : handlersMap.entrySet()) {

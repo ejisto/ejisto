@@ -19,11 +19,11 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ChangeServerStatus;
-import com.ejisto.util.GuiUtils;
+import com.ejisto.event.ApplicationEventDispatcher;
 import lombok.extern.log4j.Log4j;
 import org.jdesktop.swingx.JXPanel;
-import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,8 +54,9 @@ public class LogViewer extends JXPanel {
         }
     };
 
-    public LogViewer() {
+    public LogViewer(ApplicationEventDispatcher applicationEventDispatcher) {
         super();
+        applicationEventDispatcher.registerApplicationEventListener(ChangeServerStatus.class, listener);
         init();
     }
 
@@ -64,7 +65,6 @@ public class LogViewer extends JXPanel {
         setLayout(new BorderLayout());
         add(getLogPanel(), BorderLayout.CENTER);
         setBorder(BorderFactory.createEmptyBorder());
-        GuiUtils.registerEventListener(ChangeServerStatus.class, listener);
     }
 
     private JScrollPane getLogPanel() {

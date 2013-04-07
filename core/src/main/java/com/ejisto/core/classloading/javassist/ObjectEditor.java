@@ -58,7 +58,7 @@ public class ObjectEditor extends ExprEditor {
         }
         trace("editing field [" + f.getFieldName() + "]");
         StringBuilder instruction = new StringBuilder(
-                "{ $_ = $proceed($$); $_ = ($r) com.ejisto.core.classloading.javassist.PropertyManager#mockField(");
+                "{ $_ = $proceed($$); $_ = ($r) com.ejisto.core.classloading.javassist.PropertyManager#newRemoteInstance().mockField(");
         instruction.append("\"").append(filter.getContextPath()).append("\",");
         try {
             if (f.getField().getType().isPrimitive()) {

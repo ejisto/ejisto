@@ -22,7 +22,6 @@ package com.ejisto.modules.repository;
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.local.ContainersDao;
-import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Objects;
@@ -60,7 +59,9 @@ public final class ContainersRepository {
 
     public void registerTemporaryContainer(Container container) {
         Container existing = temporaryContainers.putIfAbsent(container.getId(), container);
-        Assert.isNull(existing);
+        if (existing != null) {
+            throw new IllegalStateException(existing + " is not null");
+        }
     }
 
     public Container registerContainer(String id, String cargoId, String homeDir, String description) {

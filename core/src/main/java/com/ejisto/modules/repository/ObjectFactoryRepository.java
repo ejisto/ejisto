@@ -32,7 +32,6 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.InitializingBean;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +49,7 @@ import static java.lang.Thread.currentThread;
  * Time: 4:41 PM
  */
 
-public class ObjectFactoryRepository extends ExternalizableService<ObjectFactoryDao> implements InitializingBean {
+public class ObjectFactoryRepository extends ExternalizableService<ObjectFactoryDao> {
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private static final String DEFAULT = "java.lang.Object";
     private static final String ENUM_FACTORY_CLASS_NAME = "com.ejisto.modules.factory.impl.EnumFactory";
@@ -197,8 +196,4 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
         return new com.ejisto.modules.dao.remote.ObjectFactoryDao();
     }
 
-    @Override
-    public void afterPropertiesSet() {
-        initialized.compareAndSet(false, true);
-    }
 }

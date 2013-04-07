@@ -19,6 +19,7 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.event.def.ContainerInstalled;
@@ -34,9 +35,7 @@ import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.ProgressWithHeader;
 import com.ejisto.util.GuiUtils;
 import lombok.extern.log4j.Log4j;
-import org.springframework.context.ApplicationListener;
 
-import javax.annotation.Resource;
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

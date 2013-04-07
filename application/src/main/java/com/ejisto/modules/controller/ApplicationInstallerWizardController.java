@@ -21,6 +21,7 @@ package com.ejisto.modules.controller;
 
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.closure.Closure1;
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.controller.wizard.StepController;
 import com.ejisto.modules.controller.wizard.StepControllerComparator;
 import com.ejisto.modules.controller.wizard.installer.*;
@@ -69,19 +70,22 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
     private final CustomObjectFactoryRepository customObjectFactoryRepository;
     private final SettingsRepository settingsRepository;
     private final TaskManager taskManager;
+    private final ApplicationEventDispatcher eventDispatcher;
 
     public ApplicationInstallerWizardController(Application application,
                                                 String containerHome,
                                                 MockedFieldsRepository mockedFieldsRepository,
                                                 CustomObjectFactoryRepository customObjectFactoryRepository,
                                                 SettingsRepository settingsRepository,
-                                                TaskManager taskManager) {
+                                                TaskManager taskManager,
+                                                ApplicationEventDispatcher eventDispatcher) {
         this.application = application;
         this.containerHome = containerHome;
         this.mockedFieldsRepository = mockedFieldsRepository;
         this.customObjectFactoryRepository = customObjectFactoryRepository;
         this.settingsRepository = settingsRepository;
         this.taskManager = taskManager;
+        this.eventDispatcher = eventDispatcher;
     }
 
     private void initAndSortControllers(EjistoDialog dialog) {
@@ -91,7 +95,7 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
         controllers.add(new ClassesFilteringController(dialog, taskManager));
         controllers.add(new ApplicationScanningController(dialog, containerHome, mockedFieldsRepository,
                                                           customObjectFactoryRepository, taskManager));
-        controllers.add(new PropertiesEditingController(dialog, mockedFieldsRepository));
+        controllers.add(new PropertiesEditingController(dialog, mockedFieldsRepository, eventDispatcher));
         controllers.add(new SummaryController(dialog));
         sort(controllers, new StepControllerComparator());
         //setTypes session object

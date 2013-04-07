@@ -64,4 +64,9 @@ public class ConstraintsVerifier extends BaseStartupService {
             System.setProperty("ejisto.agent.jar.path", agentPath);
         }
     }
+
+    @Override
+    public int getPriority() {
+        return 0;
+    }
 }

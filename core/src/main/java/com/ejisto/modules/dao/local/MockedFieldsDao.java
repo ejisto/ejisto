@@ -26,7 +26,7 @@ import com.ejisto.modules.dao.db.util.MockedFieldContainer;
 import com.ejisto.modules.dao.db.util.MockedFieldExtractor;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.Callable;

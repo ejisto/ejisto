@@ -20,19 +20,21 @@
 package com.ejisto.modules.gui;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ContainerInstalled;
 import com.ejisto.event.def.SessionRecorderStart;
 import com.ejisto.event.def.StatusBarMessage;
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.gui.components.ContainerTab;
 import com.ejisto.modules.gui.components.MainPanel;
+import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXRootPane;
 import org.jdesktop.swingx.JXStatusBar;
 import org.jdesktop.swingx.plaf.basic.BasicStatusBarUI;
-import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,31 +52,40 @@ public class MainRootPane extends JXRootPane {
     private JTabbedPane containersTabPane;
     private List<ContainerTab> containerTabs;
     private final MockedFieldsRepository mockedFieldsRepository;
+    private final ContainersRepository containersRepository;
+    private final MainPanel mainPanel;
 
-    public MainRootPane(MockedFieldsRepository mockedFieldsRepository) {
+    public MainRootPane(MockedFieldsRepository mockedFieldsRepository,
+                        ContainersRepository containersRepository,
+                        ApplicationEventDispatcher eventDispatcher) {
         super();
         this.mockedFieldsRepository = mockedFieldsRepository;
+        this.containersRepository = containersRepository;
         init();
-        registerEventListener(ContainerInstalled.class, new ApplicationListener<ContainerInstalled>() {
-            @Override
-            public void onApplicationEvent(ContainerInstalled event) {
-                createContainerMenu(containersMenu, GuiUtils.loadContainer(event.getContainerId()));
-            }
-        });
-        registerEventListener(StatusBarMessage.class, new ApplicationListener<StatusBarMessage>() {
-            @Override
-            public void onApplicationEvent(StatusBarMessage event) {
-                logStatusMessage(event.getMessage(), event.isError());
-            }
-        });
-        registerEventListener(ContainerInstalled.class, new ApplicationListener<ContainerInstalled>() {
-            @Override
-            public void onApplicationEvent(ContainerInstalled event) {
-                reloadContainerTabs();
-            }
-        });
-
-
+        eventDispatcher.registerApplicationEventListener(ContainerInstalled.class,
+                                                         new ApplicationListener<ContainerInstalled>() {
+                                                             @Override
+                                                             public void onApplicationEvent(ContainerInstalled event) {
+                                                                 createContainerMenu(containersMenu, loadContainer(
+                                                                         MainRootPane.this.containersRepository,
+                                                                         event.getContainerId()));
+                                                             }
+                                                         });
+        eventDispatcher.registerApplicationEventListener(StatusBarMessage.class,
+                                                         new ApplicationListener<StatusBarMessage>() {
+                                                             @Override
+                                                             public void onApplicationEvent(StatusBarMessage event) {
+                                                                 logStatusMessage(event.getMessage(), event.isError());
+                                                             }
+                                                         });
+        eventDispatcher.registerApplicationEventListener(ContainerInstalled.class,
+                                                         new ApplicationListener<ContainerInstalled>() {
+                                                             @Override
+                                                             public void onApplicationEvent(ContainerInstalled event) {
+                                                                 reloadContainerTabs();
+                                                             }
+                                                         });
+        this.mainPanel = new MainPanel(mockedFieldsRepository, eventDispatcher);
     }
 
     private void reloadContainerTabs() {
@@ -87,7 +98,7 @@ public class MainRootPane extends JXRootPane {
 
     private void init() {
         initMenuBar();
-        getContentPane().add(new MainPanel(mockedFieldsRepository), BorderLayout.CENTER);
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
         getContentPane().add(getContainersTabPane(), BorderLayout.SOUTH);
         initStatusBar();
     }
@@ -105,12 +116,12 @@ public class MainRootPane extends JXRootPane {
         if (containerTabs != null) {
             return containerTabs;
         }
-        containerTabs = getRegisteredContainers();
+        containerTabs = getRegisteredContainers(containersRepository, null);
         return containerTabs;
     }
 
     private void refreshContainerTabs(JTabbedPane mainTabbedPane) {
-        containerTabs = getRegisteredContainers();
+        containerTabs = getRegisteredContainers(containersRepository, null);
         for (ContainerTab containerTab : getContainerTabs()) {
             mainTabbedPane.addTab(containerTab.getName(), containerTab.getIcon(), containerTab);
         }
@@ -168,7 +179,7 @@ public class MainRootPane extends JXRootPane {
     }
 
     private void createContainerMenus(JMenu root) {
-        List<Container> containers = getActiveContainers();
+        List<Container> containers = getActiveContainers(containersRepository);
         for (Container container : containers) {
             createContainerMenu(root, container);
         }

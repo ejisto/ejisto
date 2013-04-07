@@ -44,6 +44,11 @@ public class FolderCleaner extends BaseShutdownService {
         }
     }
 
+    @Override
+    public int getPriority() {
+        return Integer.MAX_VALUE;
+    }
+
     private void deleteAllFiles(Path path) throws IOException {
         Files.walkFileTree(path, new FileVisitor<Path>() {
             @Override

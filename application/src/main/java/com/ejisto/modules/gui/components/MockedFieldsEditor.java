@@ -19,7 +19,9 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.MockedFieldChanged;
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.helper.EditorType;
@@ -29,7 +31,6 @@ import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXRadioGroup;
-import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
@@ -57,10 +58,14 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     private JPanel editorSelectionPanel;
     private JPanel editorPanel;
     private transient MockedFieldsEditorController controller;
-    private FieldsEditorContext fieldsEditorContext;
+    private final FieldsEditorContext fieldsEditorContext;
+    private final ApplicationEventDispatcher eventDispatcher;
 
-    public MockedFieldsEditor(FieldsEditorContext fieldsEditorContext, ActionMap actionMap) {
+    public MockedFieldsEditor(FieldsEditorContext fieldsEditorContext,
+                              ApplicationEventDispatcher eventDispatcher,
+                              ActionMap actionMap) {
         this.fieldsEditorContext = fieldsEditorContext;
+        this.eventDispatcher = eventDispatcher;
         getActionMap().setParent(actionMap);
         init();
         initActionMap(actionMap);
@@ -143,17 +148,18 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         setName(getMessage("main.propertieseditor.title.text"));
         setLayout(new BorderLayout());
         add(getEditorContainer(), BorderLayout.CENTER);
-        registerEventListener(MockedFieldChanged.class, new ApplicationListener<MockedFieldChanged>() {
-            @Override
-            public void onApplicationEvent(final MockedFieldChanged event) {
-                runOnEDT(new Runnable() {
-                    @Override
-                    public void run() {
-                        fieldsChanged(event.getMockedFields());
-                    }
-                });
-            }
-        });
+        eventDispatcher.registerApplicationEventListener(MockedFieldChanged.class,
+                                                         new ApplicationListener<MockedFieldChanged>() {
+                                                             @Override
+                                                             public void onApplicationEvent(final MockedFieldChanged event) {
+                                                                 runOnEDT(new Runnable() {
+                                                                     @Override
+                                                                     public void run() {
+                                                                         fieldsChanged(event.getMockedFields());
+                                                                     }
+                                                                 });
+                                                             }
+                                                         });
     }
 
     private void fieldsChanged(List<MockedField> fields) {

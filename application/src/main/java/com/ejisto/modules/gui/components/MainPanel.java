@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import org.jdesktop.swingx.JXPanel;
@@ -31,11 +32,13 @@ import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.MAIN_
 public class MainPanel extends JXPanel {
     private static final long serialVersionUID = -28148619997853619L;
     private final MockedFieldsRepository mockedFieldsRepository;
+    private final ApplicationEventDispatcher eventDispatcher;
     private MockedFieldsEditorController propertiesEditor;
 
-    public MainPanel(MockedFieldsRepository mockedFieldsRepository) {
+    public MainPanel(MockedFieldsRepository mockedFieldsRepository, ApplicationEventDispatcher eventDispatcher) {
         super();
         this.mockedFieldsRepository = mockedFieldsRepository;
+        this.eventDispatcher = eventDispatcher;
         init();
     }
 
@@ -57,7 +60,7 @@ public class MainPanel extends JXPanel {
         if (propertiesEditor != null) {
             return propertiesEditor.getView();
         }
-        propertiesEditor = new MockedFieldsEditorController(mockedFieldsRepository, MAIN_WINDOW);
+        propertiesEditor = new MockedFieldsEditorController(mockedFieldsRepository, eventDispatcher, MAIN_WINDOW);
         MockedFieldsEditor view = propertiesEditor.getView();
         view.setBorder(BorderFactory.createTitledBorder(view.getName()));
         return view;

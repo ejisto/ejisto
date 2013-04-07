@@ -26,7 +26,7 @@ import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ResourcesFilter;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.gui.components.helper.Step;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.awt.event.ActionEvent;
 
@@ -62,7 +62,7 @@ public class ClassesFilteringController extends AbstractApplicationInstallerCont
 
     @Override
     public boolean canProceed() {
-        return !CollectionUtils.isEmpty(getSession().getIncludedJars());
+        return CollectionUtils.isNotEmpty(getSession().getIncludedJars());
     }
 
     @Override

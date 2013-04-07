@@ -23,20 +23,18 @@ import com.ejisto.core.classloading.proxy.EjistoProxyFactory;
 import com.ejisto.modules.dao.entities.MockedField;
 import ognl.OgnlContext;
 import ognl.OgnlRuntime;
-import org.springframework.beans.factory.InitializingBean;
 
 import java.util.List;
 
 import static ognl.Ognl.compileExpression;
 import static ognl.Ognl.setValue;
 
-public class OgnlAdapter implements InitializingBean {
-    private OgnlContext ognlContext;
-    private EjistoProxyFactory ejistoProxyFactory;
+public class OgnlAdapter {
+    private final OgnlContext ognlContext;
 
     public OgnlAdapter(OgnlContext ognlContext, EjistoProxyFactory ejistoProxyFactory) {
         this.ognlContext = ognlContext;
-        this.ejistoProxyFactory = ejistoProxyFactory;
+        OgnlRuntime.setNullHandler(Object.class, ejistoProxyFactory);
     }
 
     public boolean canHandle(MockedField mockedField) {
@@ -52,10 +50,5 @@ public class OgnlAdapter implements InitializingBean {
     public void apply(Object target, MockedField mockedField) throws Exception {
         Object expression = compileExpression(ognlContext, target, mockedField.getExpression());
         setValue(expression, ognlContext, target, mockedField.getFieldValue());
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        OgnlRuntime.setNullHandler(Object.class, ejistoProxyFactory);
     }
 }

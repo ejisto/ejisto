@@ -29,7 +29,6 @@ import java.util.concurrent.Executors;
 
 import static com.ejisto.modules.executor.TaskManager.createNewBackgroundTask;
 import static com.ejisto.util.GuiUtils.*;
-import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
 public class EjistoAction<T extends BaseApplicationEvent> extends AbstractActionExt {
     private static final long serialVersionUID = 4999338415439543233L;
@@ -57,7 +56,7 @@ public class EjistoAction<T extends BaseApplicationEvent> extends AbstractAction
         Runnable action = new Runnable() {
             @Override
             public void run() {
-                publishApplicationEvent(applicationEvent);
+                publishEvent(applicationEvent);
             }
         };
 

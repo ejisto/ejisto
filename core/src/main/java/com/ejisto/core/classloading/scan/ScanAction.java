@@ -29,8 +29,8 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.IOException;
