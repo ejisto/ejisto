@@ -27,8 +27,7 @@ import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import com.ejisto.modules.web.HTTPServer;
 import org.junit.Test;
 import se.jbee.inject.Injector;
 import se.jbee.inject.bootstrap.Bootstrap;
@@ -48,7 +47,6 @@ import static se.jbee.inject.Dependency.dependency;
  */
 public class PropertyManagerTest {
 
-    private static final long TIMEOUT = 5000L;
     private static final String CTX = "/ejisto";
     private static final String CLASS_NAME = SimpleBean.class.getName();
     private static final Injector INJECTOR = Bootstrap.injector(CoreBundle.class);
@@ -58,26 +56,26 @@ public class PropertyManagerTest {
     private static final PropertyManager PROPERTY_MANAGER;
 
     static {
+        System.setProperty(StringConstants.INITIALIZE_DATABASE.getValue(), "true");
         DB = INJECTOR.resolve(dependency(EmbeddedDatabaseManager.class));
         OBJECT_FACTORY_REPOSITORY = INJECTOR.resolve(dependency(ObjectFactoryRepository.class));
         MOCKED_FIELDS_REPOSITORY = INJECTOR.resolve(dependency(MockedFieldsRepository.class));
         PROPERTY_MANAGER = INJECTOR.resolve(dependency(PropertyManager.class));
-    }
-
-    @BeforeClass
-    public static void initClass() {
-        System.setProperty(StringConstants.INITIALIZE_DATABASE.getValue(), "true");
-    }
-
-    @Before
-    public void init() throws Exception {
-        DB.initMemoryDb();
+        INJECTOR.resolve(dependency(HTTPServer.class));
+        System.setProperty(StringConstants.HTTP_INTERFACE_ADDRESS.getValue(),
+                           "http://localhost:" + System.getProperty(StringConstants.HTTP_LISTEN_PORT.getValue()));
+        try {
+            DB.initMemoryDb();
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
         OBJECT_FACTORY_REPOSITORY.registerObjectFactory(SimpleBeanObjectFactory.class.getName(),
-                                                      SimpleBean.class.getName(), false);
+                                                        SimpleBean.class.getName(), false);
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testMockCollectionField() throws Exception {
+        long start = System.currentTimeMillis();
         MockedFieldImpl field = new MockedFieldImpl();
         field.setActive(true);
         field.setClassName(CLASS_NAME);
@@ -104,65 +102,66 @@ public class PropertyManagerTest {
             assertTrue(re instanceof AnotherSimpleBean);
             assertEquals("test", ((AnotherSimpleBean) re).getTestMethod());
         }
+        System.out.println("elapsed" + (System.currentTimeMillis() - start));
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testMockByteField() throws Exception {
         insertField("byteField", "byte", "-1");
         byte res = PROPERTY_MANAGER.mockField(CTX, "byteField", CLASS_NAME, (byte) -2);
         assertEquals(-1, res);
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testMockShortField() throws Exception {
         insertField("shortField", "short", "-42");
         short res = PROPERTY_MANAGER.mockField(CTX, "shortField", CLASS_NAME, (short) -5);
         assertEquals(-42, res);
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testMockIntField() throws Exception {
         insertField("intField", "int", "42");
         int res = PROPERTY_MANAGER.mockField(CTX, "intField", CLASS_NAME, -42);
         assertEquals(42, res);
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testMockLongField() throws Exception {
         insertField("longField", "long", "666");
         long res = PROPERTY_MANAGER.mockField(CTX, "longField", CLASS_NAME, -666L);
         assertEquals(666L, res);
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testMockFloatField() throws Exception {
         insertField("floatField", "float", "42.00");
         float res = PROPERTY_MANAGER.mockField(CTX, "floatField", CLASS_NAME, -42.0F);
         assertEquals(42.0F, res, 0.0F);
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testMockDoubleField() throws Exception {
         insertField("doubleField", "double", "42.00");
         double res = PROPERTY_MANAGER.mockField(CTX, "doubleField", CLASS_NAME, -42.0D);
         assertEquals(42.0D, res, 0.0D);
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testMockCharField() throws Exception {
         insertField("charField", "char", "17");
         char res = PROPERTY_MANAGER.mockField(CTX, "charField", CLASS_NAME, (char) 17);
         assertEquals((char) 17, res);
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testMockBooleanField() throws Exception {
         insertField("booleanField", "boolean", "true");
         boolean res = PROPERTY_MANAGER.mockField(CTX, "booleanField", CLASS_NAME, false);
         assertTrue(res);
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testMockObjectArrayField() throws Exception {
         insertField("stringArrayField", "java.lang.String[]", "one,two,three");
         String[] res = PROPERTY_MANAGER.mockField(CTX, "stringArrayField", CLASS_NAME, String[].class, null);
@@ -173,7 +172,7 @@ public class PropertyManagerTest {
         assertEquals("three", res[2]);
     }
 
-    @Test(timeout = TIMEOUT)
+    @Test
     public void testMockObjectEnumField() throws Exception {
         insertField("enumField", "java.lang.annotation.ElementType", "METHOD");
         ElementType res = PROPERTY_MANAGER.mockField(CTX, "enumField", CLASS_NAME, ElementType.class, null);

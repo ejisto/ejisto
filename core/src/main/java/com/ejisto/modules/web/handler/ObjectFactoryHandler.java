@@ -19,17 +19,19 @@
 
 package com.ejisto.modules.web.handler;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.dao.ObjectFactoryDao;
 import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
+import com.ejisto.modules.web.RemoteRequestHandler;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import lombok.extern.log4j.Log4j;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+
+import static com.ejisto.constants.StringConstants.CTX_GET_OBJECT_FACTORY;
 
 /**
  * Created by IntelliJ IDEA.
@@ -38,7 +40,7 @@ import java.util.List;
  * Time: 11:09 AM
  */
 @Log4j
-public class ObjectFactoryHandler implements HttpHandler {
+public class ObjectFactoryHandler implements RemoteRequestHandler {
 
     private final ObjectFactoryDao objectFactoryDao;
 
@@ -53,9 +55,13 @@ public class ObjectFactoryHandler implements HttpHandler {
             String response = JSONUtil.encode(factories);
             httpExchange.sendResponseHeaders(200, response.length());
             os.write(response.getBytes());
-            os.close();
         } catch (Exception e) {
             log.error("error during objectFactory handling", e);
         }
+    }
+
+    @Override
+    public String getContextPath() {
+        return CTX_GET_OBJECT_FACTORY.getValue();
     }
 }

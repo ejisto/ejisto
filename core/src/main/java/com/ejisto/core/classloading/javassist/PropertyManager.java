@@ -27,12 +27,15 @@ import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
 import org.apache.log4j.Logger;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
 import static com.ejisto.core.classloading.util.ReflectionUtils.getActualType;
 
 public final class PropertyManager {
 
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
+    private static final AtomicReference<PropertyManager> REMOTE_INSTANCE = new AtomicReference<>();
     private final MockedFieldsRepository mockedFieldsRepository;
     private final ObjectFactoryRepository objectFactoryRepository;
 
@@ -43,7 +46,13 @@ public final class PropertyManager {
     }
 
     private static PropertyManager newRemoteInstance() {
-        return new PropertyManager(new MockedFieldsRepository(null), new ObjectFactoryRepository(null, null));
+        PropertyManager remote = REMOTE_INSTANCE.get();
+        if(remote != null) {
+            return remote;
+        }
+        remote = new PropertyManager(new MockedFieldsRepository(null), new ObjectFactoryRepository(null, null));
+        REMOTE_INSTANCE.compareAndSet(null, remote);
+        return remote;
     }
 
     private <T> T getFieldValue(String contextPath, String className, String fieldName, Class<T> type, T actualValue) {

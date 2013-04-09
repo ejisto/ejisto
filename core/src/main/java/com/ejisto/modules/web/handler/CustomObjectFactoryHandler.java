@@ -21,14 +21,16 @@ package com.ejisto.modules.web.handler;
 
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
+import com.ejisto.modules.web.RemoteRequestHandler;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import lombok.extern.log4j.Log4j;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+
+import static com.ejisto.constants.StringConstants.CTX_GET_CUSTOM_OBJECT_FACTORY;
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,7 +39,7 @@ import java.util.List;
  * Time: 11:09 AM
  */
 @Log4j
-public class CustomObjectFactoryHandler implements HttpHandler {
+public class CustomObjectFactoryHandler implements RemoteRequestHandler {
 
     private final CustomObjectFactoryRepository customObjectFactoryRepository;
 
@@ -56,5 +58,10 @@ public class CustomObjectFactoryHandler implements HttpHandler {
         } catch (Exception e) {
             log.error("error during customObjectFactory handling", e);
         }
+    }
+
+    @Override
+    public String getContextPath() {
+        return CTX_GET_CUSTOM_OBJECT_FACTORY.getValue();
     }
 }

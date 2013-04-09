@@ -22,6 +22,7 @@ package com.ejisto.modules.controller.wizard;
 import com.ejisto.modules.controller.wizard.installer.ApplicationScanningController;
 import com.ejisto.modules.executor.GuiTask;
 import com.ejisto.modules.executor.Task;
+import com.ejisto.modules.executor.TaskManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,7 +52,7 @@ public class AbstractStepControllerTest {
 
     @Before
     public void init() throws InvocationTargetException, InterruptedException {
-        applicationScanningController = new ApplicationScanningController(null, null, null, null, null) {
+        applicationScanningController = new ApplicationScanningController(null, null, null, null, new TaskManager()) {
             @Override
             protected Task<?> createNewTask() {
                 return new GuiTask<>(new Callable<Object>() {

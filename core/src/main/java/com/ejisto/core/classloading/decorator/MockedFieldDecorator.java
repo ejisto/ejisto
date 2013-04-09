@@ -52,7 +52,6 @@ public class MockedFieldDecorator implements MockedField {
         this.target = target;
     }
 
-
     @Override
     public boolean isSimpleValue() {
         CtClass clazz = null;
@@ -111,6 +110,14 @@ public class MockedFieldDecorator implements MockedField {
     public static MockedFieldDecorator copyOf(MockedField source) {
         Objects.requireNonNull(source);
         return new MockedFieldDecorator(MockedFieldImpl.copyOf((MockedFieldImpl)source.unwrap()));
+    }
+
+    public static MockedFieldDecorator from(MockedField source) {
+        Objects.requireNonNull(source);
+        if(source instanceof MockedFieldDecorator) {
+            return (MockedFieldDecorator) source;
+        }
+        return new MockedFieldDecorator((MockedFieldImpl)source);
     }
 
 }

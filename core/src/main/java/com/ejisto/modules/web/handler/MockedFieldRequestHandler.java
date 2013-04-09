@@ -22,16 +22,19 @@ package com.ejisto.modules.web.handler;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.web.MockedFieldRequest;
+import com.ejisto.modules.web.RemoteRequestHandler;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.ejisto.modules.web.util.MockedFieldsJSONUtil;
 import com.ejisto.util.IOUtils;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import lombok.extern.log4j.Log4j;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Collection;
+
+import static com.ejisto.constants.StringConstants.CTX_GET_MOCKED_FIELD;
 
 /**
  * Created by IntelliJ IDEA.
@@ -40,7 +43,7 @@ import java.util.Collection;
  * Time: 11:00 AM
  */
 @Log4j
-public class MockedFieldRequestHandler implements HttpHandler {
+public class MockedFieldRequestHandler implements RemoteRequestHandler {
 
     private final MockedFieldsRepository mockedFieldsRepository;
 
@@ -56,9 +59,14 @@ public class MockedFieldRequestHandler implements HttpHandler {
             Collection<MockedField> found = mockedFieldsRepository.load(request);
             String response = MockedFieldsJSONUtil.encodeMockedFields(found);
             httpExchange.sendResponseHeaders(200, response.length());
-            os.write(response.getBytes());
+            os.write(response.getBytes(Charset.forName("UTF-8")));
         } catch (Exception e) {
             log.error("error during mockedFieldRequest handling", e);
         }
+    }
+
+    @Override
+    public String getContextPath() {
+        return CTX_GET_MOCKED_FIELD.getValue();
     }
 }

@@ -25,7 +25,9 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static com.ejisto.util.IOUtils.findFirstAvailablePort;
@@ -41,12 +43,12 @@ public class HTTPServer {
     private final ConcurrentMap<String, HttpHandler> handlersMap;
     private final HttpServer server;
 
-    public HTTPServer(ConcurrentMap<String, HttpHandler> handlersMap) throws IOException {
-        this.handlersMap = handlersMap;
+    public HTTPServer(List<RemoteRequestHandler> handlers) throws IOException {
+        this.handlersMap = toHandlersMap(handlers);
         int port = findFirstAvailablePort(1706);
         server = HttpServer.create(new InetSocketAddress(port), 1024);
-        for (Map.Entry<String, HttpHandler> entry : handlersMap.entrySet()) {
-            server.createContext(entry.getKey(), entry.getValue());
+        for (RemoteRequestHandler handler : handlers) {
+            server.createContext(handler.getContextPath(), handler);
         }
         server.setExecutor(null);
         server.start();
@@ -59,6 +61,7 @@ public class HTTPServer {
         }
         HttpHandler existing = handlersMap.putIfAbsent(contextPath, handler);
         if (existing != null) {
+            handlersMap.put(contextPath, existing);
             return false;
         }
         server.createContext(contextPath, handler);
@@ -68,5 +71,13 @@ public class HTTPServer {
     public void removeContext(String contextPath) {
         server.removeContext(contextPath);
         handlersMap.remove(contextPath);
+    }
+
+    private static ConcurrentMap<String, HttpHandler> toHandlersMap(List<RemoteRequestHandler> remoteRequestHandlers) {
+        ConcurrentMap<String, HttpHandler> result = new ConcurrentHashMap<>();
+        for (RemoteRequestHandler handler : remoteRequestHandlers) {
+            result.put(handler.getContextPath(), handler);
+        }
+        return result;
     }
 }

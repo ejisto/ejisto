@@ -71,6 +71,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
         registerObjectFactory("com.ejisto.modules.factory.impl.MapFactory", MAP.getName(), false);
         registerObjectFactory("com.ejisto.modules.factory.impl.DateFactory", DATE.getName(), false);
         registerObjectFactory("com.ejisto.modules.factory.impl.LocaleFactory", LOCALE.getName(), false);
+        initialized.set(true);
     }
 
     public void registerObjectFactory(String objectFactoryClassName, String targetClassName) {

@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.dao.remote;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.web.MockedFieldRequest;
 import com.ejisto.modules.web.util.MockedFieldsJSONUtil;
@@ -26,6 +27,7 @@ import com.ejisto.modules.web.util.MockedFieldsJSONUtil;
 import java.util.Collection;
 import java.util.List;
 
+import static com.ejisto.constants.StringConstants.CTX_GET_MOCKED_FIELD;
 import static com.ejisto.modules.web.MockedFieldRequest.*;
 
 /**
@@ -36,7 +38,7 @@ import static com.ejisto.modules.web.MockedFieldRequest.*;
  */
 public class MockedFieldsDao extends BaseRemoteDao implements com.ejisto.modules.dao.MockedFieldsDao {
 
-    private static final String REQUEST_PATH = "/getField";
+    private static final String REQUEST_PATH = CTX_GET_MOCKED_FIELD.getValue();
 
     @Override
     public List<MockedField> loadAll() {

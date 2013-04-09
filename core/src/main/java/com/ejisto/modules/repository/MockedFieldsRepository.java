@@ -135,7 +135,7 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     private static final class MockedFieldConverter implements Converter<MockedField, MockedField> {
         @Override
         public MockedField convert(MockedField from) {
-            return new MockedFieldDecorator((MockedFieldImpl) from);
+            return MockedFieldDecorator.from(from);
         }
     }
 }

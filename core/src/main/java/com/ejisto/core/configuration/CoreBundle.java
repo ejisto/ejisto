@@ -21,6 +21,7 @@ package com.ejisto.core.configuration;
 
 import com.ejisto.core.configuration.binder.CoreBinder;
 import com.ejisto.core.configuration.binder.DAOBinder;
+import se.jbee.inject.bind.BuildinBundle;
 import se.jbee.inject.bootstrap.BootstrapperBundle;
 
 /**
@@ -34,5 +35,6 @@ public class CoreBundle extends BootstrapperBundle {
     protected void bootstrap() {
         install(DAOBinder.class);
         install(CoreBinder.class);
+        install(BuildinBundle.LIST);
     }
 }

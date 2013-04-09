@@ -17,22 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.core.configuration;
+package com.ejisto.modules.web;
 
-import com.ejisto.core.configuration.binder.ApplicationBinder;
-import se.jbee.inject.bind.BuildinBundle;
-import se.jbee.inject.bootstrap.BootstrapperBundle;
+import com.sun.net.httpserver.HttpHandler;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/27/13
- * Time: 8:15 AM
+ * Date: 4/8/13
+ * Time: 8:14 AM
  */
-public class RootBundle extends BootstrapperBundle {
-    @Override
-    protected void bootstrap() {
-        install(CoreBundle.class);
-        install(ApplicationBinder.class);
-    }
+public interface RemoteRequestHandler extends HttpHandler {
+
+    String getContextPath();
 }

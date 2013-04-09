@@ -151,7 +151,7 @@
             <dependency>
                 <groupId>org.mapdb</groupId>
                 <artifactId>mapdb</artifactId>
-                <version>0.9-SNAPSHOT</version>
+                <version>0.9.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>se.jbee</groupId>

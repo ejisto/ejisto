@@ -22,10 +22,10 @@ package com.ejisto.modules.web.handler;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.CollectedDataReceived;
 import com.ejisto.modules.recorder.CollectedData;
+import com.ejisto.modules.web.RemoteRequestHandler;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.ejisto.util.IOUtils;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import lombok.extern.log4j.Log4j;
 
 import java.io.IOException;
@@ -42,7 +42,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
  * Time: 5:25 PM
  */
 @Log4j
-public class DataCollectorHandler implements HttpHandler {
+public class DataCollectorHandler implements RemoteRequestHandler {
 
     private static final String OK = "OK";
     private static final String KO = "KO";
@@ -83,5 +83,10 @@ public class DataCollectorHandler implements HttpHandler {
         try (OutputStream out = exchange.getResponseBody()) {
             out.write(response.getBytes());
         }
+    }
+
+    @Override
+    public String getContextPath() {
+        return null;
     }
 }

@@ -21,15 +21,16 @@ package com.ejisto.modules.web.handler;
 
 import com.ejisto.modules.dao.SettingsDao;
 import com.ejisto.modules.dao.entities.Setting;
+import com.ejisto.modules.web.RemoteRequestHandler;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import lombok.extern.log4j.Log4j;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+
+import static com.ejisto.constants.StringConstants.CTX_GET_SETTINGS;
 
 /**
  * Created by IntelliJ IDEA.
@@ -38,7 +39,7 @@ import java.util.Collection;
  * Time: 12:29 PM
  */
 @Log4j
-public class SettingsHandler implements HttpHandler {
+public class SettingsHandler implements RemoteRequestHandler {
 
     private final SettingsDao settingsDao;
 
@@ -53,9 +54,13 @@ public class SettingsHandler implements HttpHandler {
             String response = JSONUtil.encode(factories);
             httpExchange.sendResponseHeaders(200, response.length());
             os.write(response.getBytes());
-            os.close();
         } catch (Exception e) {
             log.error("error during settings handling", e);
         }
+    }
+
+    @Override
+    public String getContextPath() {
+        return CTX_GET_SETTINGS.getValue();
     }
 }

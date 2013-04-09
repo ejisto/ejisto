@@ -22,6 +22,7 @@ package com.ejisto.core.configuration.binder;
 import com.ejisto.core.classloading.SharedClassLoader;
 import com.ejisto.core.classloading.javassist.PropertyManager;
 import com.ejisto.core.container.ContainerManager;
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.EventManager;
 import com.ejisto.modules.cargo.CargoManager;
 import com.ejisto.modules.conf.SettingsManager;
@@ -29,6 +30,8 @@ import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.repository.*;
 import com.ejisto.modules.web.HTTPServer;
+import com.ejisto.modules.web.RemoteRequestHandler;
+import com.ejisto.modules.web.handler.*;
 import ognl.OgnlContext;
 import se.jbee.inject.bind.BinderModule;
 
@@ -43,8 +46,14 @@ public class CoreBinder extends BinderModule {
     @Override
     protected void declare() {
         bind(ContainerManager.class).to(CargoManager.class);
+        construct(ApplicationEventDispatcher.class);
         construct(OgnlContext.class);
         construct(SharedClassLoader.class);
+        multibind(RemoteRequestHandler.class).to(DefaultHandler.class);
+        multibind(RemoteRequestHandler.class).to(ObjectFactoryHandler.class);
+        multibind(RemoteRequestHandler.class).to(MockedFieldRequestHandler.class);
+        multibind(RemoteRequestHandler.class).to(CustomObjectFactoryHandler.class);
+        multibind(RemoteRequestHandler.class).to(SettingsHandler.class);
         construct(HTTPServer.class);
         construct(MockedFieldsRepository.class);
         construct(ClassPoolRepository.class);
