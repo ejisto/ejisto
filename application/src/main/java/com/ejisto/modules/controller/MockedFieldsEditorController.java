@@ -97,7 +97,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         this.fieldsEditorContext = fieldsEditorContext;
         view.registerFieldEditingListener(this);
         lock = new ReentrantLock();
-        eventDispatcher.registerApplicationEventListener(ApplicationDeployed.class, new ApplicationListener<ApplicationDeployed>() {
+        eventDispatcher.registerApplicationEventListener(new ApplicationListener<ApplicationDeployed>() {
             @Override
             public void onApplicationEvent(final ApplicationDeployed event) {
                 runOnEDT(new Runnable() {
@@ -107,10 +107,14 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
                     }
                 });
             }
+
+            @Override
+            public Class<ApplicationDeployed> getTargetEvent() {
+                return ApplicationDeployed.class;
+            }
         });
 
-        eventDispatcher.registerApplicationEventListener(ChangeWebAppContextStatus.class,
-                                                         new ApplicationListener<ChangeWebAppContextStatus>() {
+        eventDispatcher.registerApplicationEventListener(new ApplicationListener<ChangeWebAppContextStatus>() {
                                                              @Override
                                                              public void onApplicationEvent(final ChangeWebAppContextStatus event) {
                                                                  runOnEDT(new Runnable() {
@@ -123,7 +127,12 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
                                                                      }
                                                                  });
                                                              }
-                                                         });
+
+            @Override
+            public Class<ChangeWebAppContextStatus> getTargetEvent() {
+                return ChangeWebAppContextStatus.class;
+            }
+        });
     }
 
     private void notifyContextInstalled(String contextPath) {

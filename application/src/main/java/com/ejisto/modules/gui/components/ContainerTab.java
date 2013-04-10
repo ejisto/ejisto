@@ -19,10 +19,10 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ApplicationDeployed;
 import com.ejisto.event.def.LogMessage;
-import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import org.jdesktop.swingx.JXPanel;
 
@@ -90,23 +90,33 @@ public class ContainerTab extends JSplitPane {
         initRightComponent();
         setDividerSize(2);
         setResizeWeight(1.0D);
-        eventDispatcher.registerApplicationEventListener(ApplicationDeployed.class,
-                                                                    new ApplicationListener<ApplicationDeployed>() {
-                                                                        @Override
-                                                                        public void onApplicationEvent(ApplicationDeployed event) {
-                                                                            applicationDeployed(event);
-                                                                        }
-                                                                    });
-        eventDispatcher.registerApplicationEventListener(LogMessage.class,
-                                                                    new ApplicationListener<LogMessage>() {
-                                                                        @Override
-                                                                        public void onApplicationEvent(final LogMessage event) {
-                                                                            if (containerId.equals(
-                                                                                    event.getContainerId())) {
-                                                                                log(event);
-                                                                            }
-                                                                        }
-                                                                    });
+        eventDispatcher.registerApplicationEventListener(
+                new ApplicationListener<ApplicationDeployed>() {
+                    @Override
+                    public void onApplicationEvent(ApplicationDeployed event) {
+                        applicationDeployed(event);
+                    }
+
+                    @Override
+                    public Class<ApplicationDeployed> getTargetEvent() {
+                        return ApplicationDeployed.class;
+                    }
+                });
+        eventDispatcher.registerApplicationEventListener(
+                new ApplicationListener<LogMessage>() {
+                    @Override
+                    public void onApplicationEvent(final LogMessage event) {
+                        if (containerId.equals(
+                                event.getContainerId())) {
+                            log(event);
+                        }
+                    }
+
+                    @Override
+                    public Class<LogMessage> getTargetEvent() {
+                        return LogMessage.class;
+                    }
+                });
     }
 
     private void applicationDeployed(ApplicationDeployed event) {

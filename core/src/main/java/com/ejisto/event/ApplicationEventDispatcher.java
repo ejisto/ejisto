@@ -45,7 +45,8 @@ public class ApplicationEventDispatcher {
         registeredListeners = new ConcurrentHashMap<>();
     }
 
-    public <T extends BaseApplicationEvent> void registerApplicationEventListener(Class<T> eventClass, ApplicationListener<T> applicationListener) {
+    public <T extends BaseApplicationEvent> void registerApplicationEventListener(ApplicationListener<T> applicationListener) {
+        Class<T> eventClass = applicationListener.getTargetEvent();
         registeredListeners.putIfAbsent(eventClass, new ArrayList<ApplicationListener<? extends BaseApplicationEvent>>());
         registeredListeners.get(eventClass).add(applicationListener);
     }

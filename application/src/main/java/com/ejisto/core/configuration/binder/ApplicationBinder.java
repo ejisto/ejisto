@@ -21,16 +21,14 @@ package com.ejisto.core.configuration.binder;
 
 import com.ejisto.core.launcher.ApplicationController;
 import com.ejisto.event.ApplicationEventDispatcher;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.listener.*;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.services.Service;
 import com.ejisto.services.shutdown.ContainerShutdown;
 import com.ejisto.services.shutdown.DatabaseMaintenance;
 import com.ejisto.services.shutdown.FolderCleaner;
-import com.ejisto.services.startup.ApplicationStartup;
-import com.ejisto.services.startup.ConstraintsVerifier;
-import com.ejisto.services.startup.ResourcesInitializer;
-import com.ejisto.services.startup.TaskInitializer;
+import com.ejisto.services.startup.*;
 import se.jbee.inject.bind.BinderModule;
 
 /**
@@ -55,7 +53,6 @@ public class ApplicationBinder extends BinderModule {
         construct(WebApplicationScanner.class);
         construct(TaskProgressNotifier.class);
         construct(SessionRecorderManager.class);
-        construct(ApplicationEventDispatcher.class);
         multibind(Service.class).to(ConstraintsVerifier.class);
         multibind(Service.class).to(ContainerShutdown.class);
         multibind(Service.class).to(ResourcesInitializer.class);
@@ -63,5 +60,17 @@ public class ApplicationBinder extends BinderModule {
         multibind(Service.class).to(ApplicationStartup.class);
         multibind(Service.class).to(DatabaseMaintenance.class);
         multibind(Service.class).to(FolderCleaner.class);
+        multibind(Service.class).to(EventListenerRegistrar.class);
+        multibind(ApplicationListener.class).to(CollectedDataNotifier.class);
+        multibind(ApplicationListener.class).to(ContainerInstaller.class);
+        multibind(ApplicationListener.class).to(DialogManager.class);
+        multibind(ApplicationListener.class).to(ErrorListener.class);
+        multibind(ApplicationListener.class).to(FieldsUpdateListener.class);
+        multibind(ApplicationListener.class).to(MockedFieldOperationListener.class);
+        multibind(ApplicationListener.class).to(ServerController.class);
+        multibind(ApplicationListener.class).to(SessionRecorderManager.class);
+        multibind(ApplicationListener.class).to(TaskProgressNotifier.class);
+        multibind(ApplicationListener.class).to(WebApplicationLoader.class);
+        multibind(ApplicationListener.class).to(WebApplicationScanner.class);
     }
 }

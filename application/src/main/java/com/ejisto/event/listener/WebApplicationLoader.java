@@ -110,6 +110,11 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         }
     }
 
+    @Override
+    public Class<LoadWebApplication> getTargetEvent() {
+        return LoadWebApplication.class;
+    }
+
     private void installNewWebApplication() throws NotInstalledException {
         ApplicationInstallerWizardController controller = new ApplicationInstallerWizardController(application,
                                                                                                    containerManager.getDefaultHome(),

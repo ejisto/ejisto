@@ -75,7 +75,6 @@ public class PropertyManagerTest {
 
     @Test
     public void testMockCollectionField() throws Exception {
-        long start = System.currentTimeMillis();
         MockedFieldImpl field = new MockedFieldImpl();
         field.setActive(true);
         field.setClassName(CLASS_NAME);
@@ -102,7 +101,6 @@ public class PropertyManagerTest {
             assertTrue(re instanceof AnotherSimpleBean);
             assertEquals("test", ((AnotherSimpleBean) re).getTestMethod());
         }
-        System.out.println("elapsed" + (System.currentTimeMillis() - start));
     }
 
     @Test

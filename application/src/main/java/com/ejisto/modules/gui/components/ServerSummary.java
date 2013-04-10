@@ -54,20 +54,30 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     public ServerSummary(String containerId, String serverName, ApplicationEventDispatcher eventDispatcher) {
         this.containerId = containerId;
         this.serverName = serverName;
-        eventDispatcher.registerApplicationEventListener(ServerRestartRequired.class, new ApplicationListener<ServerRestartRequired>() {
+        eventDispatcher.registerApplicationEventListener(new ApplicationListener<ServerRestartRequired>() {
             @Override
             public void onApplicationEvent(ServerRestartRequired event) {
                 if (ServerSummary.this.containerId.equals(event.getContainerId())) {
                     getInfo().setVisible(!getAction(START_CONTAINER.getValue()).isEnabled());
                 }
             }
+
+            @Override
+            public Class<ServerRestartRequired> getTargetEvent() {
+                return ServerRestartRequired.class;
+            }
         });
-        eventDispatcher.registerApplicationEventListener(ContainerStatusChanged.class, new ApplicationListener<ContainerStatusChanged>() {
+        eventDispatcher.registerApplicationEventListener(new ApplicationListener<ContainerStatusChanged>() {
             @Override
             public void onApplicationEvent(ContainerStatusChanged event) {
                 if (ServerSummary.this.containerId.equals(event.getContainerId()) && event.isStarted()) {
                     getInfo().setVisible(false);
                 }
+            }
+
+            @Override
+            public Class<ContainerStatusChanged> getTargetEvent() {
+                return ContainerStatusChanged.class;
             }
         });
         init();

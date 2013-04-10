@@ -42,6 +42,11 @@ public class ErrorListener implements ApplicationListener<ApplicationError> {
         JXErrorPane.showDialog(application, getErrorInfo(event));
     }
 
+    @Override
+    public Class<ApplicationError> getTargetEvent() {
+        return ApplicationError.class;
+    }
+
     private ErrorInfo getErrorInfo(ApplicationError event) {
         Throwable throwable = GuiUtils.getRootThrowable(event.getError());
         return new ErrorInfo(getMessage("error.dialog.title"),

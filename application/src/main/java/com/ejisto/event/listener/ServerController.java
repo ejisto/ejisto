@@ -76,6 +76,11 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
         }, event.getDescription()));
     }
 
+    @Override
+    public Class<ChangeServerStatus> getTargetEvent() {
+        return ChangeServerStatus.class;
+    }
+
     private void handleEvent(final ChangeServerStatus event) {
         try {
             boolean started;

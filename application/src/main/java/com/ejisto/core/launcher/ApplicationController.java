@@ -58,6 +58,11 @@ public class ApplicationController implements ApplicationListener<ShutdownReques
         shutdown();
     }
 
+    @Override
+    public Class<ShutdownRequest> getTargetEvent() {
+        return ShutdownRequest.class;
+    }
+
     private static List<Service> sortServices(List<Service> services) {
         return sort(services, on(Service.class).getPriority());
     }

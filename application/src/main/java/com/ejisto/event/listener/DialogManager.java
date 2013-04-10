@@ -57,4 +57,9 @@ public class DialogManager implements ApplicationListener<DialogRequested> {
         }
 
     }
+
+    @Override
+    public Class<DialogRequested> getTargetEvent() {
+        return DialogRequested.class;
+    }
 }

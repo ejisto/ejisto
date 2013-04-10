@@ -20,11 +20,11 @@
 package com.ejisto.modules.gui;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ContainerInstalled;
 import com.ejisto.event.def.SessionRecorderStart;
 import com.ejisto.event.def.StatusBarMessage;
-import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.gui.components.ContainerTab;
 import com.ejisto.modules.gui.components.MainPanel;
@@ -61,31 +61,43 @@ public class MainRootPane extends JXRootPane {
         super();
         this.mockedFieldsRepository = mockedFieldsRepository;
         this.containersRepository = containersRepository;
-        init();
-        eventDispatcher.registerApplicationEventListener(ContainerInstalled.class,
-                                                         new ApplicationListener<ContainerInstalled>() {
-                                                             @Override
-                                                             public void onApplicationEvent(ContainerInstalled event) {
-                                                                 createContainerMenu(containersMenu, loadContainer(
-                                                                         MainRootPane.this.containersRepository,
-                                                                         event.getContainerId()));
-                                                             }
-                                                         });
-        eventDispatcher.registerApplicationEventListener(StatusBarMessage.class,
-                                                         new ApplicationListener<StatusBarMessage>() {
-                                                             @Override
-                                                             public void onApplicationEvent(StatusBarMessage event) {
-                                                                 logStatusMessage(event.getMessage(), event.isError());
-                                                             }
-                                                         });
-        eventDispatcher.registerApplicationEventListener(ContainerInstalled.class,
-                                                         new ApplicationListener<ContainerInstalled>() {
-                                                             @Override
-                                                             public void onApplicationEvent(ContainerInstalled event) {
-                                                                 reloadContainerTabs();
-                                                             }
-                                                         });
         this.mainPanel = new MainPanel(mockedFieldsRepository, eventDispatcher);
+        init();
+        eventDispatcher.registerApplicationEventListener(new ApplicationListener<ContainerInstalled>() {
+            @Override
+            public void onApplicationEvent(ContainerInstalled event) {
+                createContainerMenu(containersMenu, loadContainer(
+                        MainRootPane.this.containersRepository,
+                        event.getContainerId()));
+            }
+
+            @Override
+            public Class<ContainerInstalled> getTargetEvent() {
+                return ContainerInstalled.class;
+            }
+        });
+        eventDispatcher.registerApplicationEventListener(new ApplicationListener<StatusBarMessage>() {
+            @Override
+            public void onApplicationEvent(StatusBarMessage event) {
+                logStatusMessage(event.getMessage(), event.isError());
+            }
+
+            @Override
+            public Class<StatusBarMessage> getTargetEvent() {
+                return StatusBarMessage.class;
+            }
+        });
+        eventDispatcher.registerApplicationEventListener(new ApplicationListener<ContainerInstalled>() {
+            @Override
+            public void onApplicationEvent(ContainerInstalled event) {
+                reloadContainerTabs();
+            }
+
+            @Override
+            public Class<ContainerInstalled> getTargetEvent() {
+                return ContainerInstalled.class;
+            }
+        });
     }
 
     private void reloadContainerTabs() {

@@ -37,4 +37,9 @@ public class CollectedDataNotifier implements ApplicationListener<CollectedDataR
         log.debug(String.format("collected data received: %s", event.getData().getRequestAttributes()));
     }
 
+    @Override
+    public Class<CollectedDataReceived> getTargetEvent() {
+        return CollectedDataReceived.class;
+    }
+
 }

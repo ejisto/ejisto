@@ -56,4 +56,9 @@ public class MockedFieldOperationListener implements ApplicationListener<MockedF
             }
         });
     }
+
+    @Override
+    public Class<MockedFieldOperation> getTargetEvent() {
+        return MockedFieldOperation.class;
+    }
 }

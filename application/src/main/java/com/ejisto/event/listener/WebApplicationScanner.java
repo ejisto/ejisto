@@ -81,4 +81,9 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
         }
         eventManager.publishEventAndWait(new BlockingTaskProgress(this, id, null, null, null, false));
     }
+
+    @Override
+    public Class<ApplicationScanRequired> getTargetEvent() {
+        return ApplicationScanRequired.class;
+    }
 }

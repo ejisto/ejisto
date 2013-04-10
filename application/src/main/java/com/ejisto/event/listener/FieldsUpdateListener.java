@@ -39,6 +39,11 @@ public class FieldsUpdateListener implements ApplicationListener<MockedFieldChan
         }
     }
 
+    @Override
+    public Class<MockedFieldChanged> getTargetEvent() {
+        return MockedFieldChanged.class;
+    }
+
     private void handleFieldChange(MockedField field) {
         mockedFieldsRepository.insert(field);
     }

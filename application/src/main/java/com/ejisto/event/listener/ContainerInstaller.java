@@ -122,6 +122,11 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         log.debug(String.format("Created download task with uuid %s", uuid));
     }
 
+    @Override
+    public Class<InstallContainer> getTargetEvent() {
+        return InstallContainer.class;
+    }
+
     private void notifyToPanel(final ProgressWithHeader panel, final String message) {
         runOnEDT(new Runnable() {
             @Override

@@ -114,6 +114,11 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         startSessionRecording(descriptor);
     }
 
+    @Override
+    public Class<SessionRecorderStart> getTargetEvent() {
+        return SessionRecorderStart.class;
+    }
+
     public void startSessionRecording(WebApplicationDescriptor webApplicationDescriptor) {
         try {
             log.debug("start listening for collected data...");
@@ -142,8 +147,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                     .withParentFrame(application)
                     .build();
             if (dialogController.compareAndSet(null, controller)) {
-                applicationEventDispatcher.registerApplicationEventListener(CollectedDataReceived.class,
-                                      new ApplicationListener<CollectedDataReceived>() {
+                applicationEventDispatcher.registerApplicationEventListener(new ApplicationListener<CollectedDataReceived>() {
                                           @Override
                                           public void onApplicationEvent(CollectedDataReceived event) {
                                               try {
@@ -160,6 +164,11 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                                               } catch (Exception e) {
                                                   SessionRecorderManager.log.error("got exception while collecting fields", e);
                                               }
+                                          }
+
+                                          @Override
+                                          public Class<CollectedDataReceived> getTargetEvent() {
+                                              return CollectedDataReceived.class;
                                           }
                                       });
                 controller.show(true, new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));

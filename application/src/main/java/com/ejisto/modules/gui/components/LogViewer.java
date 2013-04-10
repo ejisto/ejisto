@@ -52,11 +52,16 @@ public class LogViewer extends JXPanel {
                 }
             }
         }
+
+        @Override
+        public Class<ChangeServerStatus> getTargetEvent() {
+            return ChangeServerStatus.class;
+        }
     };
 
     public LogViewer(ApplicationEventDispatcher applicationEventDispatcher) {
         super();
-        applicationEventDispatcher.registerApplicationEventListener(ChangeServerStatus.class, listener);
+        applicationEventDispatcher.registerApplicationEventListener(listener);
         init();
     }
 

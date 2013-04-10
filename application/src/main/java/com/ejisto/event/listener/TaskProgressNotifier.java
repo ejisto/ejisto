@@ -82,6 +82,11 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
         }
     }
 
+    @Override
+    public Class<BlockingTaskProgress> getTargetEvent() {
+        return BlockingTaskProgress.class;
+    }
+
     private void closeActiveProgress(BlockingTaskProgress event) {
         try {
             log.debug("trying to close active progress for event id: " + event.getId());
