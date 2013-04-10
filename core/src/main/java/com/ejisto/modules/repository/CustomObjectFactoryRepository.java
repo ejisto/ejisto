@@ -23,7 +23,6 @@ import com.ejisto.modules.dao.CustomObjectFactoryDao;
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.util.ExternalizableService;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 /**

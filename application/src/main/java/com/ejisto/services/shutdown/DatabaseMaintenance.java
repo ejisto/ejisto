@@ -22,8 +22,6 @@ package com.ejisto.services.shutdown;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import lombok.extern.log4j.Log4j;
 
-import javax.annotation.Resource;
-
 @Log4j
 public class DatabaseMaintenance extends BaseShutdownService {
 

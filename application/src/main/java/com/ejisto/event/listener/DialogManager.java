@@ -24,6 +24,7 @@ import com.ejisto.event.def.DialogRequested;
 import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.AboutPanel;
+
 import javax.swing.*;
 
 /**

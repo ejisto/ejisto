@@ -19,11 +19,9 @@
 
 package com.ejisto.util;
 
-import com.ejisto.modules.conf.ObjectFactoryLoader;
 import com.ejisto.modules.executor.TaskManager;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;

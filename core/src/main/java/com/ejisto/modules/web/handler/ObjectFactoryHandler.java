@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.web.handler;
 
-import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.dao.ObjectFactoryDao;
 import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
 import com.ejisto.modules.web.RemoteRequestHandler;

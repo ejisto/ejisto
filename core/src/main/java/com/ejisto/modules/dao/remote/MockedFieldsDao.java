@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.dao.remote;
 
-import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.web.MockedFieldRequest;
 import com.ejisto.modules.web.util.MockedFieldsJSONUtil;

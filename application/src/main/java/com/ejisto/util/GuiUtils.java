@@ -21,9 +21,9 @@ package com.ejisto.util;
 
 import ch.lambdaj.Lambda;
 import com.ejisto.constants.StringConstants;
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.BaseApplicationEvent;
-import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.entities.MockedField;

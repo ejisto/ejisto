@@ -19,10 +19,10 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ContainerStatusChanged;
 import com.ejisto.event.def.ServerRestartRequired;
-import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.gui.EjistoAction;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;

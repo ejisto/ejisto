@@ -22,7 +22,6 @@ package com.ejisto.services.startup;
 import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.BaseApplicationEvent;
-import lombok.extern.log4j.Log4j;
 
 import java.util.List;
 

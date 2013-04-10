@@ -22,8 +22,6 @@ package com.ejisto.modules.repository;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.conf.SettingsManager;
 
-import javax.annotation.Resource;
-
 /**
  * Created by IntelliJ IDEA.
  * User: celestino

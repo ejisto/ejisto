@@ -21,8 +21,6 @@ package com.ejisto.modules.executor;
 
 import ch.lambdaj.Lambda;
 import com.ejisto.core.ApplicationException;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 
 import java.beans.PropertyChangeListener;
 import java.lang.ref.SoftReference;

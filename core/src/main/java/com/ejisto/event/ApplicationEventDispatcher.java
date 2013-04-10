@@ -19,7 +19,6 @@
 
 package com.ejisto.event;
 
-import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.event.def.ShutdownRequest;
 import lombok.extern.log4j.Log4j;

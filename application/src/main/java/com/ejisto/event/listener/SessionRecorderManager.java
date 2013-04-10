@@ -46,6 +46,7 @@ import org.codehaus.cargo.module.webapp.elements.Filter;
 import org.codehaus.cargo.module.webapp.elements.FilterMapping;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdom.JDOMException;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -62,7 +63,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_HEIGHT;
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
-import static com.ejisto.util.GuiUtils.*;
+import static com.ejisto.util.GuiUtils.getIcon;
+import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.IOUtils.*;
 
 /**

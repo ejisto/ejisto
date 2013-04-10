@@ -25,6 +25,7 @@ import com.ejisto.modules.gui.Application;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
+
 import java.util.logging.Level;
 
 import static com.ejisto.util.GuiUtils.getMessage;

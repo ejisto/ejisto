@@ -26,7 +26,6 @@ import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.EventManager;
 import com.ejisto.modules.cargo.CargoManager;
 import com.ejisto.modules.conf.SettingsManager;
-import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.repository.*;
 import com.ejisto.modules.web.HTTPServer;

@@ -23,7 +23,6 @@ import com.ejisto.constants.StringConstants;
 import com.ejisto.core.configuration.CoreBundle;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
-import com.ejisto.modules.repository.ObjectFactoryRepository;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

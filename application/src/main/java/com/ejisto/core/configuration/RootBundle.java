@@ -20,7 +20,6 @@
 package com.ejisto.core.configuration;
 
 import com.ejisto.core.configuration.binder.ApplicationBinder;
-import se.jbee.inject.bind.BuildinBundle;
 import se.jbee.inject.bootstrap.BootstrapperBundle;
 
 /**

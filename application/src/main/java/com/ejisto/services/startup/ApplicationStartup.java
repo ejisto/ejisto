@@ -22,8 +22,6 @@ package com.ejisto.services.startup;
 import com.ejisto.modules.gui.Application;
 import lombok.extern.log4j.Log4j;
 
-import javax.annotation.Resource;
-
 import static com.ejisto.util.GuiUtils.centerOnScreen;
 
 @Log4j

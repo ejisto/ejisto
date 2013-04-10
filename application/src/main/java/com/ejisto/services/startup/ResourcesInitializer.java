@@ -33,7 +33,6 @@ import lombok.extern.log4j.Log4j;
 import org.jdesktop.swingx.JXHeader;
 import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 
-import javax.annotation.Resource;
 import java.awt.*;
 import java.io.File;
 
