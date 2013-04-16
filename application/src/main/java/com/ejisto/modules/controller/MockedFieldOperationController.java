@@ -45,18 +45,15 @@ public class MockedFieldOperationController {
     private final MockedFieldOperation.OperationType operationType;
     private final Window container;
     private final MockedFieldsRepository mockedFieldsRepository;
-    private final ApplicationEventDispatcher eventDispatcher;
 
     public MockedFieldOperationController(Window container,
                                           MockedField field,
                                           MockedFieldOperation.OperationType operationType,
-                                          MockedFieldsRepository mockedFieldsRepository,
-                                          ApplicationEventDispatcher eventDispatcher) {
+                                          MockedFieldsRepository mockedFieldsRepository) {
         this.field = field;
         this.operationType = operationType;
         this.container = container;
         this.mockedFieldsRepository = mockedFieldsRepository;
-        this.eventDispatcher = eventDispatcher;
     }
 
     public void showDialog() {
@@ -83,7 +80,7 @@ public class MockedFieldOperationController {
     }
 
     private void activateFields() {
-        MockedFieldSelectionController selectionController = new MockedFieldSelectionController(null, eventDispatcher);
+        MockedFieldSelectionController selectionController = new MockedFieldSelectionController(mockedFieldsRepository);
         selectionController.showSelectionDialog();
         List<MockedField> selectedFields = selectionController.getSelectedFields();
         if (!CollectionUtils.isEmpty(selectedFields)) {

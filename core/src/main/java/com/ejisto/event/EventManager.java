@@ -19,51 +19,22 @@
 
 package com.ejisto.event;
 
-import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.BaseApplicationEvent;
-import com.ejisto.modules.executor.TaskManager;
 import lombok.extern.log4j.Log4j;
-
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.concurrent.Callable;
-
-import static com.ejisto.constants.StringConstants.GUI_TASK_EXCEPTION_PROPERTY;
-import static com.ejisto.event.def.ApplicationError.Priority.HIGH;
-import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 
 @Log4j
 public class EventManager {
-    private final TaskManager taskManager;
     private final ApplicationEventDispatcher applicationEventDispatcher;
 
-    public EventManager(TaskManager taskManager,
-                        ApplicationEventDispatcher applicationEventDispatcher) {
-        this.taskManager = taskManager;
+    public EventManager(ApplicationEventDispatcher applicationEventDispatcher) {
         this.applicationEventDispatcher = applicationEventDispatcher;
     }
 
     public void publishEvent(final BaseApplicationEvent event) {
-        taskManager.addNewTask(createNewGuiTask(new Callable<Void>() {
-            @Override
-            public Void call() {
-                publishEventAndWait(event);
-                return null;
-            }
-        }, event.toString(), listener));
+        ApplicationEventDispatcher.publish(event);
     }
 
     public void publishEventAndWait(BaseApplicationEvent event) {
-        applicationEventDispatcher.broadcastEvent(event);
+        applicationEventDispatcher.broadcast(event);
     }
-
-    private final PropertyChangeListener listener = new PropertyChangeListener() {
-        @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getPropertyName().equals(GUI_TASK_EXCEPTION_PROPERTY.getValue())) {
-                publishEventAndWait(new ApplicationError(this, HIGH, (Exception) evt.getNewValue()));
-            }
-        }
-    };
-
 }

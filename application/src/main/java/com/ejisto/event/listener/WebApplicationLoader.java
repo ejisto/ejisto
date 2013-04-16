@@ -111,7 +111,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     }
 
     @Override
-    public Class<LoadWebApplication> getTargetEvent() {
+    public Class<LoadWebApplication> getTargetEventType() {
         return LoadWebApplication.class;
     }
 
@@ -267,7 +267,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             return;
         }
         try {
-            Desktop.getDesktop().browse(URI.create(guessWebApplicationUri(descriptor)));
+            Desktop.getDesktop().browse(URI.create(guessWebApplicationUri(descriptor, settingsRepository)));
         } catch (IOException e) {
             log.error("unable to open system browser", e);
         }

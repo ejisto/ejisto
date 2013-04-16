@@ -43,6 +43,13 @@ import static se.jbee.inject.Dependency.dependency;
 public class Launcher {
     int launch() {
         try {
+            Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                @Override
+                public void uncaughtException(Thread t, Throwable e) {
+                    showErrorDialog("Unexpected error", "Thread ["+t.getName()+"] failed with the following Exception", e);
+                    Launcher.log.error("Unexpected exception", e);
+                }
+            });
             System.getProperties().list(System.out);
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             log.info("Starting Ejisto...");
@@ -50,24 +57,21 @@ public class Launcher {
             Thread.currentThread().setContextClassLoader(SharedClassLoader.getInstance());
             log.info("initializing Silk di");
             Injector injector = Bootstrap.injector(RootBundle.class);
-            log.info("initializing Spring framework");
-//            GenericXmlApplicationContext context = new GenericXmlApplicationContext();
-//            context.getEnvironment().setActiveProfiles("server");
-//            context.load("classpath:/spring-context.xml");
-//            context.refresh();
-//            context.registerShutdownHook();
-//            ApplicationController controller = context.getBean("applicationController", ApplicationController.class);
             ApplicationController controller = injector.resolve(dependency(ApplicationController.class));
             log.info("starting application... enjoy ejisto!!");
             controller.startup();
             return 0;
         } catch (Exception e) {
-            JXErrorPane.showDialog(null,
-                                   new ErrorInfo("Startup error", "Startup failed", null, "SEVERE", getRootThrowable(e),
-                                                 Level.SEVERE,
-                                                 null));
+            showErrorDialog("Startup error", "Startup failed", e);
             log.error("startup failed", e);
             return -1;
         }
+    }
+
+    private static void showErrorDialog(String title, String description, Throwable e) {
+        JXErrorPane.showDialog(null,
+                               new ErrorInfo(title, description, null, "SEVERE", getRootThrowable(e),
+                                             Level.SEVERE,
+                                             null));
     }
 }

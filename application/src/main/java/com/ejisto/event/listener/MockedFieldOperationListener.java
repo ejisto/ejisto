@@ -19,7 +19,6 @@
 
 package com.ejisto.event.listener;
 
-import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.MockedFieldOperation;
 import com.ejisto.modules.controller.MockedFieldOperationController;
@@ -37,12 +36,9 @@ import java.awt.*;
 public class MockedFieldOperationListener implements ApplicationListener<MockedFieldOperation> {
 
     private final MockedFieldsRepository mockedFieldsRepository;
-    private final ApplicationEventDispatcher eventDispatcher;
 
-    public MockedFieldOperationListener(MockedFieldsRepository mockedFieldsRepository,
-                                        ApplicationEventDispatcher eventDispatcher) {
+    public MockedFieldOperationListener(MockedFieldsRepository mockedFieldsRepository) {
         this.mockedFieldsRepository = mockedFieldsRepository;
-        this.eventDispatcher = eventDispatcher;
     }
 
     @Override
@@ -52,13 +48,13 @@ public class MockedFieldOperationListener implements ApplicationListener<MockedF
             public void run() {
                 Window window = SwingUtilities.windowForComponent((Component) event.getSource());
                 new MockedFieldOperationController(window, event.getMockedField(),
-                                                   event.getOperationType(), mockedFieldsRepository, eventDispatcher).showDialog();
+                                                   event.getOperationType(), mockedFieldsRepository).showDialog();
             }
         });
     }
 
     @Override
-    public Class<MockedFieldOperation> getTargetEvent() {
+    public Class<MockedFieldOperation> getTargetEventType() {
         return MockedFieldOperation.class;
     }
 }

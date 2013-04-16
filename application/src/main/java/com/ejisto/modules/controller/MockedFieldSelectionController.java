@@ -44,10 +44,9 @@ public class MockedFieldSelectionController extends AbstractDialogManager {
     private final MockedFieldsEditorController controller;
     private List<MockedField> selectedFields;
 
-    public MockedFieldSelectionController(MockedFieldsRepository mockedFieldsRepository,
-                                          ApplicationEventDispatcher eventDispatcher) {
+    public MockedFieldSelectionController(MockedFieldsRepository mockedFieldsRepository) {
         super();
-        this.controller = new MockedFieldsEditorController(mockedFieldsRepository, eventDispatcher, ADD_FIELD);
+        this.controller = new MockedFieldsEditorController(mockedFieldsRepository, ADD_FIELD);
     }
 
     @Override

@@ -33,6 +33,7 @@ import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.ProgressWithHeader;
+import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.util.GuiUtils;
 import lombok.extern.log4j.Log4j;
 
@@ -63,17 +64,20 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
     private final SettingsManager settingsManager;
     private final EventManager eventManager;
     private final TaskManager taskManager;
+    private final SettingsRepository settingsRepository;
 
     public ContainerInstaller(Application application,
                               CargoManager cargoManager,
                               SettingsManager settingsManager,
                               EventManager eventManager,
-                              TaskManager taskManager) {
+                              TaskManager taskManager,
+                              SettingsRepository settingsRepository) {
         this.application = application;
         this.cargoManager = cargoManager;
         this.settingsManager = settingsManager;
         this.eventManager = eventManager;
         this.taskManager = taskManager;
+        this.settingsRepository = settingsRepository;
     }
 
     @Override
@@ -123,7 +127,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
     }
 
     @Override
-    public Class<InstallContainer> getTargetEvent() {
+    public Class<InstallContainer> getTargetEventType() {
         return InstallContainer.class;
     }
 
@@ -171,7 +175,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         JOptionPane.showMessageDialog(null, getMessage(messageKey, containerDescription),
                                       "error",
                                       JOptionPane.ERROR_MESSAGE);
-        File localFile = selectFile(null, null, false, "zip", "gz", "bz2");
+        File localFile = selectFile(null, null, false, settingsRepository, "zip", "gz", "bz2");
         if (localFile == null) {
             return null;
         }

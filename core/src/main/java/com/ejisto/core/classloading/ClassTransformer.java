@@ -50,10 +50,10 @@ public class ClassTransformer implements ClassFileTransformer {
     private final Collection<String> registeredClassNames;
     private final MockedFieldsRepository mockedFieldsRepository;
 
-    public ClassTransformer(String contextPath) {
+    public ClassTransformer(String contextPath, MockedFieldsRepository mockedFieldsRepository) {
         this.contextPath = contextPath;
-        this.registeredClassNames = loadAllRegisteredClassNames(contextPath);
-        this.mockedFieldsRepository = new MockedFieldsRepository(null);
+        this.mockedFieldsRepository = mockedFieldsRepository;
+        this.registeredClassNames = loadAllRegisteredClassNames(contextPath, mockedFieldsRepository);
         initClassPool();
     }
 
@@ -210,7 +210,8 @@ public class ClassTransformer implements ClassFileTransformer {
         }
     }
 
-    private Collection<String> loadAllRegisteredClassNames(String contextPath) {
+    private static Collection<String> loadAllRegisteredClassNames(String contextPath,
+                                                                  MockedFieldsRepository mockedFieldsRepository) {
         Collection<MockedField> fields = mockedFieldsRepository.load(requestAllClasses(contextPath));
         Set<String> classes = new HashSet<>(Lambda.<MockedField, String>extractProperty(fields, "className"));
         trace(format("filtered classes for %s: %s of %s", contextPath, classes, fields));

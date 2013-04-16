@@ -42,7 +42,7 @@ public abstract class BaseApplicationEvent extends EventObject {
         return getDescription();
     }
 
-    public boolean isRunOnEDT() {
+    public boolean shouldRunOnEDT() {
         return false;
     }
 }

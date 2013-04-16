@@ -30,6 +30,7 @@ import java.awt.*;
 
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
 import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.registerApplicationEventListener;
 
 @Log4j
 public class LogViewer extends JXPanel {
@@ -54,14 +55,14 @@ public class LogViewer extends JXPanel {
         }
 
         @Override
-        public Class<ChangeServerStatus> getTargetEvent() {
+        public Class<ChangeServerStatus> getTargetEventType() {
             return ChangeServerStatus.class;
         }
     };
 
-    public LogViewer(ApplicationEventDispatcher applicationEventDispatcher) {
+    public LogViewer() {
         super();
-        applicationEventDispatcher.registerApplicationEventListener(listener);
+        registerApplicationEventListener(listener);
         init();
     }
 

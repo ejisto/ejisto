@@ -22,6 +22,7 @@ package com.ejisto.util;
 import ch.lambdaj.Lambda;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.event.ApplicationEventDispatcher;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.modules.cargo.NotInstalledException;
@@ -198,7 +199,7 @@ public abstract class GuiUtils {
         List<com.ejisto.modules.dao.entities.Container> containers = containersRepository.loadContainers();
         List<ContainerTab> containerTabs = new ArrayList<>();
         for (Container container : containers) {
-            containerTabs.add(buildContainerTab(container, webApplicationRepository, null));
+            containerTabs.add(buildContainerTab(container, webApplicationRepository));
         }
         return containerTabs;
     }
@@ -216,10 +217,8 @@ public abstract class GuiUtils {
     }
 
     private static ContainerTab buildContainerTab(Container container,
-                                                  WebApplicationRepository webApplicationRepository,
-                                                  ApplicationEventDispatcher applicationEventDispatcher) {
-        return new ContainerTab(container.getDescription(), container.getId(), webApplicationRepository,
-                                applicationEventDispatcher);
+                                                  WebApplicationRepository webApplicationRepository) {
+        return new ContainerTab(container.getDescription(), container.getId(), webApplicationRepository);
     }
 
     public abstract static class EditorColumnFillStrategy {
@@ -264,17 +263,24 @@ public abstract class GuiUtils {
         disableFocusPainting(button);
     }
 
-    public static File selectDirectory(Component parent, String directoryPath, boolean saveLastSelectionPath) {
+    public static File selectDirectory(Component parent,
+                                       String directoryPath,
+                                       boolean saveLastSelectionPath,
+                                       SettingsRepository settingsRepository) {
         JFileChooser fileChooser = new JFileChooser(directoryPath);
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_OUTPUT_PATH, null);
+        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_OUTPUT_PATH, settingsRepository);
     }
 
-    public static File selectFile(Component parent, String directoryPath, boolean saveLastSelectionPath, String... extensions) {
+    public static File selectFile(Component parent,
+                                  String directoryPath,
+                                  boolean saveLastSelectionPath,
+                                  SettingsRepository settingsRepository,
+                                  String... extensions) {
         JFileChooser fileChooser = new JFileChooser(directoryPath);
         fileChooser.setFileFilter(new FileNameExtensionFilter("*." + join(extensions, ", *."), extensions));
-        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_FILESELECTION_PATH, null);
+        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_FILESELECTION_PATH, settingsRepository);
     }
 
     private static File openFileSelectionDialog(Component parent,
@@ -308,7 +314,11 @@ public abstract class GuiUtils {
     }
 
     public static void publishEvent(BaseApplicationEvent event) {
-        EVENT_DISPATCHER.get().broadcastEvent(event);
+        ApplicationEventDispatcher.publish(event);
+    }
+
+    public static <T extends BaseApplicationEvent> void registerApplicationEventListener(ApplicationListener<T> listener) {
+        EVENT_DISPATCHER.get().registerApplicationEventListener(listener);
     }
 
 }

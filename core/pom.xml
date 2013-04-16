@@ -31,7 +31,7 @@
     <dependencies>
         <dependency>
             <groupId>com.ejisto</groupId>
-            <artifactId>ejisto-agent</artifactId>
+            <artifactId>ejisto-embeddable</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

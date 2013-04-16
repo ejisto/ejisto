@@ -40,7 +40,7 @@ public class FieldsUpdateListener implements ApplicationListener<MockedFieldChan
     }
 
     @Override
-    public Class<MockedFieldChanged> getTargetEvent() {
+    public Class<MockedFieldChanged> getTargetEventType() {
         return MockedFieldChanged.class;
     }
 

@@ -21,13 +21,15 @@ package com.ejisto.event;
 
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.event.def.ShutdownRequest;
+import com.ejisto.modules.executor.BackgroundTask;
+import com.ejisto.modules.executor.TaskManager;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,38 +39,73 @@ import java.util.concurrent.ConcurrentMap;
  */
 @Log4j
 public class ApplicationEventDispatcher {
+    private static final BlockingQueue<BaseApplicationEvent> EVENT_QUEUE = new LinkedBlockingQueue<>();
+    private static final long DELAY = 2000L;
     private final ConcurrentMap<Class<? extends BaseApplicationEvent>, List<ApplicationListener<? extends BaseApplicationEvent>>> registeredListeners;
-    private volatile boolean running = true;
+    private volatile boolean running = false;
+    private final TaskManager taskManager;
 
-    public ApplicationEventDispatcher() {
-        registeredListeners = new ConcurrentHashMap<>();
+    public ApplicationEventDispatcher(TaskManager taskManager) {
+        this.registeredListeners = new ConcurrentHashMap<>();
+        this.taskManager = taskManager;
+        this.running = true;
+        this.taskManager.addNewTask(new BackgroundTask<>(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                processPendingEvents();
+                return null;
+            }
+        }));
     }
 
     public <T extends BaseApplicationEvent> void registerApplicationEventListener(ApplicationListener<T> applicationListener) {
-        Class<T> eventClass = applicationListener.getTargetEvent();
-        registeredListeners.putIfAbsent(eventClass, new ArrayList<ApplicationListener<? extends BaseApplicationEvent>>());
+        Class<T> eventClass = applicationListener.getTargetEventType();
+        registeredListeners.putIfAbsent(eventClass,
+                                        new ArrayList<ApplicationListener<? extends BaseApplicationEvent>>());
         registeredListeners.get(eventClass).add(applicationListener);
     }
 
-    public <T extends BaseApplicationEvent> void broadcastEvent(final T event) {
+    public <T extends BaseApplicationEvent> void broadcast(final T event) {
         if (!running) {
             return;
         }
-        ApplicationEventDispatcher.log.trace("got event of type [" + event.getClass().getName() + "]");
-        if (registeredListeners.containsKey(event.getClass())) {
-            notifyListeners(event);
-        }
-        if (ShutdownRequest.class.isInstance(event)) {//poison pill...
+        log.trace("got event of type [" + event.getClass().getName() + "]");
+        taskManager.addNewTask(new BackgroundTask<Void>(new Runnable() {
+            @Override
+            public void run() {
+                notifyListeners(event);
+            }
+        }, null));
+        if (ShutdownRequest.class.isInstance(event)) {//poison pill
             running = false;
         }
+    }
+
+    public static void publish(BaseApplicationEvent event) {
+        EVENT_QUEUE.add(event);
+    }
+
+    private void processPendingEvents() throws InterruptedException {
+        while (running) {
+            BaseApplicationEvent event = EVENT_QUEUE.poll(DELAY, TimeUnit.MILLISECONDS);
+            if (event != null) {
+                broadcast(event);
+            }
+        }
+        EVENT_QUEUE.clear();
     }
 
     @SuppressWarnings("unchecked")
     private void notifyListeners(final BaseApplicationEvent applicationEvent) {
         final Class<BaseApplicationEvent> eventClass = (Class<BaseApplicationEvent>) applicationEvent.getClass();
-        for (final ApplicationListener listener : registeredListeners.get(eventClass)) {
-            ApplicationEventDispatcher.log.trace("forwarding event to listener " + listener);
-            if (applicationEvent.isRunOnEDT()) {
+        log.trace("got event of type: " + eventClass.getName());
+        List<ApplicationListener<? extends BaseApplicationEvent>> listeners = registeredListeners.get(eventClass);
+        if (CollectionUtils.isEmpty(listeners)) {
+            return;
+        }
+        for (final ApplicationListener listener : listeners) {
+            log.trace("forwarding event to listener " + listener);
+            if (applicationEvent.shouldRunOnEDT()) {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {

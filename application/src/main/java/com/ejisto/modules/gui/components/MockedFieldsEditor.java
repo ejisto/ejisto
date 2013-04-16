@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.ejisto.util.GuiUtils.getMessage;
+import static com.ejisto.util.GuiUtils.registerApplicationEventListener;
 import static com.ejisto.util.GuiUtils.runOnEDT;
 
 public class MockedFieldsEditor extends JXPanel implements ItemListener {
@@ -60,13 +61,10 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     private JPanel editorPanel;
     private transient MockedFieldsEditorController controller;
     private final FieldsEditorContext fieldsEditorContext;
-    private final ApplicationEventDispatcher eventDispatcher;
 
     public MockedFieldsEditor(FieldsEditorContext fieldsEditorContext,
-                              ApplicationEventDispatcher eventDispatcher,
                               ActionMap actionMap) {
         this.fieldsEditorContext = fieldsEditorContext;
-        this.eventDispatcher = eventDispatcher;
         getActionMap().setParent(actionMap);
         init();
         initActionMap(actionMap);
@@ -149,7 +147,7 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         setName(getMessage("main.propertieseditor.title.text"));
         setLayout(new BorderLayout());
         add(getEditorContainer(), BorderLayout.CENTER);
-        eventDispatcher.registerApplicationEventListener(new ApplicationListener<MockedFieldChanged>() {
+        registerApplicationEventListener(new ApplicationListener<MockedFieldChanged>() {
             @Override
             public void onApplicationEvent(final MockedFieldChanged event) {
                 runOnEDT(new Runnable() {
@@ -161,7 +159,7 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
             }
 
             @Override
-            public Class<MockedFieldChanged> getTargetEvent() {
+            public Class<MockedFieldChanged> getTargetEventType() {
                 return MockedFieldChanged.class;
             }
         });

@@ -55,8 +55,4 @@ public class Main {
             System.exit(status);
         }
     }
-
-    public static final OutputStream DEV_NULL = new OutputStream() {
-        public void write(int b) { }
-    };
 }

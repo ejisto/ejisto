@@ -55,12 +55,8 @@ public class HTTPServer {
     }
 
     public boolean createContext(String contextPath, HttpHandler handler) {
-        if (handlersMap.containsKey(contextPath)) {
-            return false;
-        }
         HttpHandler existing = handlersMap.putIfAbsent(contextPath, handler);
         if (existing != null) {
-            handlersMap.put(contextPath, existing);
             return false;
         }
         server.createContext(contextPath, handler);

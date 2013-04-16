@@ -19,6 +19,7 @@
 
 package com.ejisto.core.launcher;
 
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.services.Service;
@@ -35,13 +36,17 @@ public class ApplicationController implements ApplicationListener<ShutdownReques
 
     private final List<Service> startupServices;
     private final List<Service> shutdownServices;
+    private final ApplicationEventDispatcher eventDispatcher;
 
-    public ApplicationController(List<Service> services) {
+    public ApplicationController(List<Service> services, ApplicationEventDispatcher eventDispatcher) {
+        this.eventDispatcher = eventDispatcher;
         this.startupServices = sortServices(filterServices(services, ServiceType.STARTUP));
         this.shutdownServices = sortServices(filterServices(services, ServiceType.SHUTDOWN));
     }
 
     public void startup() {
+        log.debug("registering shutdown hook...");
+        eventDispatcher.registerApplicationEventListener(this);
         log.debug("invoking startup services...");
         forEach(startupServices, Service.class).execute();
     }
@@ -59,7 +64,7 @@ public class ApplicationController implements ApplicationListener<ShutdownReques
     }
 
     @Override
-    public Class<ShutdownRequest> getTargetEvent() {
+    public Class<ShutdownRequest> getTargetEventType() {
         return ShutdownRequest.class;
     }
 

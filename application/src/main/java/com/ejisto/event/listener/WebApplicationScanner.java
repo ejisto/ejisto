@@ -71,7 +71,7 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
                                                            "application.deploy.preprocessing.description",
                                                            "icon.work.in.progress", true));
         Group<MockedField> groupedByClassName = group(fields, "className");
-        ScanAction action = new ScanAction(descriptor, groupedByClassName.subgroups());
+        ScanAction action = new ScanAction(descriptor, groupedByClassName.subgroups(), mockedFieldsRepository);
         try {
             forkJoinPool.invoke(action);
             action.get();
@@ -83,7 +83,7 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
     }
 
     @Override
-    public Class<ApplicationScanRequired> getTargetEvent() {
+    public Class<ApplicationScanRequired> getTargetEventType() {
         return ApplicationScanRequired.class;
     }
 }

@@ -19,7 +19,7 @@
 
 package com.ejisto.modules.cargo.logging;
 
-import com.ejisto.event.EventManager;
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.def.LogMessage;
 import org.apache.log4j.MDC;
 
@@ -33,13 +33,11 @@ public class EventOutputStream extends OutputStream {
 
     private final StringBuffer buffer;
     private final LinkedBlockingQueue<LogMessage> queue;
-    private final EventManager eventManager;
 
-    public EventOutputStream(EventManager eventManager) {
+    public EventOutputStream() {
         super();
         this.queue = new LinkedBlockingQueue<>();
         this.buffer = new StringBuffer();
-        this.eventManager = eventManager;
     }
 
     @Override
@@ -51,15 +49,13 @@ public class EventOutputStream extends OutputStream {
     public void flush() throws IOException {
         String containerId = (String) MDC.get(CONTAINER_ID.getValue());
         queue.offer(new LogMessage(this, buffer.toString(), containerId));
-        if (eventManager != null) {
-            publishEvents();
-        }
+        publishEvents();
     }
 
     private void publishEvents() {
         LogMessage logMessage;
         while ((logMessage = queue.poll()) != null) {
-            eventManager.publishEvent(logMessage);
+            ApplicationEventDispatcher.publish(logMessage);
         }
     }
 

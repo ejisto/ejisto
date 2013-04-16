@@ -106,7 +106,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         WebApplicationDescriptor descriptor = webApplicationDescriptorDao.load(event.getWebApplicationContextPath());
         if (descriptor.getWarFile() == null) {
             File war = GuiUtils.selectFile(application, settingsRepository.getSettingValue(LAST_FILESELECTION_PATH),
-                                           false, "war");
+                                           false, settingsRepository, "war");
             if (war == null) {
                 GuiUtils.showErrorMessage(application, getMessage("wizard.file.selected.default.text"));
                 return;
@@ -117,7 +117,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     }
 
     @Override
-    public Class<SessionRecorderStart> getTargetEvent() {
+    public Class<SessionRecorderStart> getTargetEventType() {
         return SessionRecorderStart.class;
     }
 
@@ -125,7 +125,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         try {
             log.debug("start listening for collected data...");
             File outputDir = GuiUtils.selectDirectory(application, settingsRepository.getSettingValue(LAST_OUTPUT_PATH),
-                                                      true);
+                                                      true, settingsRepository);
             final WebApplicationDescriptor descriptor = createTempWebApplicationDescriptor(webApplicationDescriptor);
             zipDirectory(new File(descriptor.getDeployablePath()),
                          FilenameUtils.normalize(outputDir.getAbsolutePath() + descriptor.getContextPath() + ".war"));
@@ -133,7 +133,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                 log.warn("attempt to create httpHandler failed. A Handler has already been defined.");
             }
             log.debug("done.");
-            final MockedFieldsEditor editor = new MockedFieldsEditor(FieldsEditorContext.ADD_FIELD, applicationEventDispatcher, new ActionMap());
+            final MockedFieldsEditor editor = new MockedFieldsEditor(FieldsEditorContext.ADD_FIELD, new ActionMap());
             DialogController controller = DialogController.Builder.newInstance()
                     .resizable(true)
                     .withActions(new AbstractActionExt(getMessage("session.record.stop"), getIcon(
@@ -169,7 +169,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                                           }
 
                                           @Override
-                                          public Class<CollectedDataReceived> getTargetEvent() {
+                                          public Class<CollectedDataReceived> getTargetEventType() {
                                               return CollectedDataReceived.class;
                                           }
                                       });
@@ -219,8 +219,8 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         //copyDirContentExcludingMatchingFiles(new File(original.getDeployablePath()), new File(path.toString()), new String[] {COPIED_FILES_PREFIX});
         unzipFile(original.getWarFile(), path.toString());
         File targetDir = new File(FilenameUtils.normalize(path.toString() + "/WEB-INF/lib/"));
-        copyFile(System.getProperty("ejisto.agent.jar.path"), targetDir);
-        copyEjistoLibs(new String[]{"jackson", "commons-lang"}, targetDir);
+        //copyFile(System.getProperty("ejisto.agent.jar.path"), targetDir);
+        copyEjistoLibs(new String[]{"ejisto-embeddable", "jackson", "commons-lang"}, targetDir);
         WebApplicationDescriptor temp = WebApplicationDescriptor.copyOf(original);
         temp.setDeployablePath(path.toString());
         modifyWebXml(temp);

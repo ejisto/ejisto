@@ -46,7 +46,7 @@ public class ContainerInstaller extends ZipURLInstaller {
     }
 
     @Override
-    protected void download() {
+    public void download() {
         log.debug("called download()");
         if (url.getProtocol().equals("file")) {
             copyFromLocalFile();

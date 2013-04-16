@@ -22,6 +22,7 @@ package com.ejisto.services.startup;
 import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.BaseApplicationEvent;
+import com.ejisto.util.GuiUtils;
 
 import java.util.List;
 
@@ -48,6 +49,7 @@ public class EventListenerRegistrar extends BaseStartupService {
         for (ApplicationListener<BaseApplicationEvent> listener : applicationListeners) {
             eventDispatcher.registerApplicationEventListener(listener);
         }
+        GuiUtils.EVENT_DISPATCHER.set(eventDispatcher);
     }
 
     @Override

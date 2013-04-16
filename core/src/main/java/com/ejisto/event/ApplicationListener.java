@@ -33,6 +33,6 @@ public interface ApplicationListener<T extends BaseApplicationEvent> extends Eve
 
     void onApplicationEvent(T event);
 
-    Class<T> getTargetEvent();
+    Class<T> getTargetEventType();
 
 }

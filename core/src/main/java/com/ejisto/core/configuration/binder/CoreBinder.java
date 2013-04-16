@@ -25,6 +25,7 @@ import com.ejisto.core.container.ContainerManager;
 import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.EventManager;
 import com.ejisto.modules.cargo.CargoManager;
+import com.ejisto.modules.cargo.logging.EventOutputStream;
 import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.repository.*;
@@ -65,5 +66,6 @@ public class CoreBinder extends BinderModule {
         construct(SettingsManager.class);
         construct(EventManager.class);
         construct(PropertyManager.class);
+        construct(EventOutputStream.class);
     }
 }

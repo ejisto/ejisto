@@ -77,7 +77,7 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
     }
 
     @Override
-    public Class<ChangeServerStatus> getTargetEvent() {
+    public Class<ChangeServerStatus> getTargetEventType() {
         return ChangeServerStatus.class;
     }
 

@@ -38,7 +38,7 @@ public class CollectedDataNotifier implements ApplicationListener<CollectedDataR
     }
 
     @Override
-    public Class<CollectedDataReceived> getTargetEvent() {
+    public Class<CollectedDataReceived> getTargetEventType() {
         return CollectedDataReceived.class;
     }
 

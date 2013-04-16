@@ -35,10 +35,9 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
 
 
     public PropertiesEditingController(EjistoDialog dialog,
-                                       MockedFieldsRepository mockedFieldsRepository,
-                                       ApplicationEventDispatcher eventDispatcher) {
+                                       MockedFieldsRepository mockedFieldsRepository) {
         super(dialog, null);
-        this.editorController = new MockedFieldsEditorController(mockedFieldsRepository, eventDispatcher);
+        this.editorController = new MockedFieldsEditorController(mockedFieldsRepository);
     }
 
     @Override

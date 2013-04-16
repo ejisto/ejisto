@@ -51,10 +51,10 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     private JXLabel serverStatus;
     private JXLabel info;
 
-    public ServerSummary(String containerId, String serverName, ApplicationEventDispatcher eventDispatcher) {
+    public ServerSummary(String containerId, String serverName) {
         this.containerId = containerId;
         this.serverName = serverName;
-        eventDispatcher.registerApplicationEventListener(new ApplicationListener<ServerRestartRequired>() {
+        registerApplicationEventListener(new ApplicationListener<ServerRestartRequired>() {
             @Override
             public void onApplicationEvent(ServerRestartRequired event) {
                 if (ServerSummary.this.containerId.equals(event.getContainerId())) {
@@ -63,11 +63,11 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
             }
 
             @Override
-            public Class<ServerRestartRequired> getTargetEvent() {
+            public Class<ServerRestartRequired> getTargetEventType() {
                 return ServerRestartRequired.class;
             }
         });
-        eventDispatcher.registerApplicationEventListener(new ApplicationListener<ContainerStatusChanged>() {
+        registerApplicationEventListener(new ApplicationListener<ContainerStatusChanged>() {
             @Override
             public void onApplicationEvent(ContainerStatusChanged event) {
                 if (ServerSummary.this.containerId.equals(event.getContainerId()) && event.isStarted()) {
@@ -76,7 +76,7 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
             }
 
             @Override
-            public Class<ContainerStatusChanged> getTargetEvent() {
+            public Class<ContainerStatusChanged> getTargetEventType() {
                 return ContainerStatusChanged.class;
             }
         });

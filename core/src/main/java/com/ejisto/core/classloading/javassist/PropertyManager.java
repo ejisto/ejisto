@@ -45,7 +45,7 @@ public final class PropertyManager {
         this.objectFactoryRepository = objectFactoryRepository;
     }
 
-    private static PropertyManager newRemoteInstance() {
+    public static PropertyManager newRemoteInstance() {
         PropertyManager remote = REMOTE_INSTANCE.get();
         if(remote != null) {
             return remote;
@@ -108,47 +108,47 @@ public final class PropertyManager {
         return objectFactory.create(mockedField, actualValue);
     }
 
-    <T> T mockField(String contextPath, String fieldName, String className, Class<T> type, T actual) {
+    public <T> T mockField(String contextPath, String fieldName, String className, Class<T> type, T actual) {
         trace("calling mockField with " + type + " value");
         return getFieldValue(contextPath, className, fieldName, type, actual);
     }
 
-    byte mockField(String contextPath, String fieldName, String className, byte actual) {
+    public byte mockField(String contextPath, String fieldName, String className, byte actual) {
         trace("calling mockField with byte value");
         return getFieldValue(contextPath, className, fieldName, Byte.class, actual);
     }
 
-    short mockField(String contextPath, String fieldName, String className, short actual) {
+    public short mockField(String contextPath, String fieldName, String className, short actual) {
         trace("calling mockField with short value");
         return getFieldValue(contextPath, className, fieldName, Short.class, actual);
     }
 
-    int mockField(String contextPath, String fieldName, String className, int actual) {
+    public int mockField(String contextPath, String fieldName, String className, int actual) {
         trace("calling mockField with int value");
         return getFieldValue(contextPath, className, fieldName, Integer.class, actual);
     }
 
-    long mockField(String contextPath, String fieldName, String className, long actual) {
+    public long mockField(String contextPath, String fieldName, String className, long actual) {
         trace("calling mockField with long value");
         return getFieldValue(contextPath, className, fieldName, Long.class, actual);
     }
 
-    float mockField(String contextPath, String fieldName, String className, float actual) {
+    public float mockField(String contextPath, String fieldName, String className, float actual) {
         trace("calling mockField with float value");
         return getFieldValue(contextPath, className, fieldName, Float.class, actual);
     }
 
-    double mockField(String contextPath, String fieldName, String className, double actual) {
+    public double mockField(String contextPath, String fieldName, String className, double actual) {
         trace("calling mockField with double value");
         return getFieldValue(contextPath, className, fieldName, Double.class, actual);
     }
 
-    char mockField(String contextPath, String fieldName, String className, char actual) {
+    public char mockField(String contextPath, String fieldName, String className, char actual) {
         trace("calling mockField with char value");
         return getFieldValue(contextPath, className, fieldName, Character.class, actual);
     }
 
-    boolean mockField(String contextPath, String fieldName, String className, boolean actual) {
+    public boolean mockField(String contextPath, String fieldName, String className, boolean actual) {
         trace("calling mockField with boolean value");
         return getFieldValue(contextPath, className, fieldName, Boolean.class, actual);
     }

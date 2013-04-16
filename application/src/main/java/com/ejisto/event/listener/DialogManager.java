@@ -60,7 +60,7 @@ public class DialogManager implements ApplicationListener<DialogRequested> {
     }
 
     @Override
-    public Class<DialogRequested> getTargetEvent() {
+    public Class<DialogRequested> getTargetEventType() {
         return DialogRequested.class;
     }
 }

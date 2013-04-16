@@ -95,7 +95,7 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
         controllers.add(new ClassesFilteringController(dialog, taskManager));
         controllers.add(new ApplicationScanningController(dialog, containerHome, mockedFieldsRepository,
                                                           customObjectFactoryRepository, taskManager));
-        controllers.add(new PropertiesEditingController(dialog, mockedFieldsRepository, eventDispatcher));
+        controllers.add(new PropertiesEditingController(dialog, mockedFieldsRepository));
         controllers.add(new SummaryController(dialog));
         sort(controllers, new StepControllerComparator());
         //setTypes session object

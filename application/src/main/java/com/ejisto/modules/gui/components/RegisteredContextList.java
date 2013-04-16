@@ -43,7 +43,6 @@ public class RegisteredContextList extends JXPanel {
 
     private static final long serialVersionUID = -157871898009911909L;
     private final WebApplicationRepository webApplicationRepository;
-    private final ApplicationEventDispatcher eventDispatcher;
     private final transient ApplicationListener<ChangeWebAppContextStatus> contextChangeListener = new ApplicationListener<ChangeWebAppContextStatus>() {
         @Override
         public void onApplicationEvent(ChangeWebAppContextStatus event) {
@@ -51,7 +50,7 @@ public class RegisteredContextList extends JXPanel {
         }
 
         @Override
-        public Class<ChangeWebAppContextStatus> getTargetEvent() {
+        public Class<ChangeWebAppContextStatus> getTargetEventType() {
             return ChangeWebAppContextStatus.class;
         }
     };
@@ -63,7 +62,7 @@ public class RegisteredContextList extends JXPanel {
         }
 
         @Override
-        public Class<ApplicationDeployed> getTargetEvent() {
+        public Class<ApplicationDeployed> getTargetEventType() {
             return ApplicationDeployed.class;
         }
     };
@@ -82,16 +81,15 @@ public class RegisteredContextList extends JXPanel {
         }
 
         @Override
-        public Class<ContainerStatusChanged> getTargetEvent() {
+        public Class<ContainerStatusChanged> getTargetEventType() {
             return ContainerStatusChanged.class;
         }
     };
 
 
-    public RegisteredContextList(WebApplicationRepository webApplicationRepository, ApplicationEventDispatcher eventDispatcher) {
+    public RegisteredContextList(WebApplicationRepository webApplicationRepository) {
         super();
         this.webApplicationRepository = webApplicationRepository;
-        this.eventDispatcher = eventDispatcher;
         init();
     }
 
@@ -115,9 +113,9 @@ public class RegisteredContextList extends JXPanel {
     }
 
     private void init() {
-        eventDispatcher.registerApplicationEventListener(contextChangeListener);
-        eventDispatcher.registerApplicationEventListener(applicationDeployListener);
-        eventDispatcher.registerApplicationEventListener(serverStartListener);
+        registerApplicationEventListener(contextChangeListener);
+        registerApplicationEventListener(applicationDeployListener);
+        registerApplicationEventListener(serverStartListener);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setBackground(Color.WHITE);
         setName(getMessage("main.tab.webappcontext.text"));

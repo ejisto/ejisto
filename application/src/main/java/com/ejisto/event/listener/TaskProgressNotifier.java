@@ -83,7 +83,7 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
     }
 
     @Override
-    public Class<BlockingTaskProgress> getTargetEvent() {
+    public Class<BlockingTaskProgress> getTargetEventType() {
         return BlockingTaskProgress.class;
     }
 

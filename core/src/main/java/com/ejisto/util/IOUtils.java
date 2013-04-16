@@ -335,8 +335,8 @@ public final class IOUtils {
         return getName(filename);
     }
 
-    public static String guessWebApplicationUri(WebApplicationDescriptor descriptor) {
-        return guessWebApplicationUri(descriptor.getContextPath(), null);
+    public static String guessWebApplicationUri(WebApplicationDescriptor descriptor, SettingsRepository settingsRepository) {
+        return guessWebApplicationUri(descriptor.getContextPath(), settingsRepository);
     }
 
     public static String guessWebApplicationUri(String contextPath, SettingsRepository settingsRepository) {
