@@ -40,7 +40,6 @@ import java.util.concurrent.*;
 @Log4j
 public class ApplicationEventDispatcher {
     private static final BlockingQueue<BaseApplicationEvent> EVENT_QUEUE = new LinkedBlockingQueue<>();
-    private static final long DELAY = 2000L;
     private final ConcurrentMap<Class<? extends BaseApplicationEvent>, List<ApplicationListener<? extends BaseApplicationEvent>>> registeredListeners;
     private volatile boolean running = false;
     private final TaskManager taskManager;
@@ -49,13 +48,19 @@ public class ApplicationEventDispatcher {
         this.registeredListeners = new ConcurrentHashMap<>();
         this.taskManager = taskManager;
         this.running = true;
-        this.taskManager.addNewTask(new BackgroundTask<>(new Callable<Void>() {
+        Thread t = new Thread(new Runnable() {
             @Override
-            public Void call() throws Exception {
-                processPendingEvents();
-                return null;
+            public void run() {
+                try {
+                    processPendingEvents();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException(e);
+                }
             }
-        }));
+        }, "applicationEventDispatcher");
+        t.setDaemon(true);
+        t.start();
     }
 
     public <T extends BaseApplicationEvent> void registerApplicationEventListener(ApplicationListener<T> applicationListener) {
@@ -87,10 +92,7 @@ public class ApplicationEventDispatcher {
 
     private void processPendingEvents() throws InterruptedException {
         while (running) {
-            BaseApplicationEvent event = EVENT_QUEUE.poll(DELAY, TimeUnit.MILLISECONDS);
-            if (event != null) {
-                broadcast(event);
-            }
+            broadcast(EVENT_QUEUE.take());
         }
         EVENT_QUEUE.clear();
     }

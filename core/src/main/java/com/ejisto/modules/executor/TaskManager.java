@@ -97,7 +97,7 @@ public final class TaskManager {
             if (task.supportsProcessChangeNotification()) {
                 future = task;
             } else {
-                future = internalAddTask(task, uuid);
+                future = internalAddTask(task);
             }
             task.work();
             registerTask(uuid, task, future);
@@ -111,7 +111,7 @@ public final class TaskManager {
         }
     }
 
-    private Future<?> internalAddTask(Task<?> task, String uuid) {
+    private Future<?> internalAddTask(Task<?> task) {
         return executorService.submit(task);
     }
 
