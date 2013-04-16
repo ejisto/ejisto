@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.gui.components;
 
-import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ContainerStatusChanged;
 import com.ejisto.event.def.ServerRestartRequired;

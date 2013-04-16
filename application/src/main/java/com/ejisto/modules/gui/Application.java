@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.gui;
 
-import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.event.def.ChangeServerStatus.Command;

@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.controller.wizard.installer;
 
-import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.gui.components.EjistoDialog;

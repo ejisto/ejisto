@@ -20,7 +20,6 @@
 package com.ejisto.modules.gui;
 
 import com.ejisto.constants.StringConstants;
-import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ContainerInstalled;
 import com.ejisto.event.def.SessionRecorderStart;

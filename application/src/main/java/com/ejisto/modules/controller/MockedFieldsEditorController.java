@@ -21,7 +21,6 @@ package com.ejisto.modules.controller;
 
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.convert.PropertyExtractor;
-import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ApplicationDeployed;
 import com.ejisto.event.def.ChangeWebAppContextStatus;
@@ -45,9 +44,7 @@ import static ch.lambdaj.Lambda.convert;
 import static com.ejisto.modules.gui.components.helper.EditorType.FLATTEN;
 import static com.ejisto.modules.gui.components.helper.EditorType.HIERARCHICAL;
 import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.APPLICATION_INSTALLER_WIZARD;
-import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.GuiUtils.registerApplicationEventListener;
-import static com.ejisto.util.GuiUtils.runOnEDT;
+import static com.ejisto.util.GuiUtils.*;
 
 /**
  * Created by IntelliJ IDEA.

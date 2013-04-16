@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.controller;
 
-import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import org.jdesktop.swingx.JXPanel;

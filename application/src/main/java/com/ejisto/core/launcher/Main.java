@@ -23,7 +23,6 @@ import com.ejisto.core.ApplicationException;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.OutputStream;
 
 
 public class Main {

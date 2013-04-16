@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.gui.components;
 
-import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
@@ -43,9 +42,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.GuiUtils.registerApplicationEventListener;
-import static com.ejisto.util.GuiUtils.runOnEDT;
+import static com.ejisto.util.GuiUtils.*;
 
 public class MockedFieldsEditor extends JXPanel implements ItemListener {
     private static final long serialVersionUID = 4090818654347648102L;
