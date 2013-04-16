@@ -27,25 +27,32 @@ import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
 import org.apache.log4j.Logger;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
 import static com.ejisto.core.classloading.util.ReflectionUtils.getActualType;
 
 public final class PropertyManager {
 
-    private static final PropertyManager INSTANCE = new PropertyManager();
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
-    private MockedFieldsRepository mockedFieldsRepository;
-    //    private OgnlAdapter ognlAdapter;
-    private ObjectFactoryRepository objectFactoryRepository;
+    private static final AtomicReference<PropertyManager> REMOTE_INSTANCE = new AtomicReference<>();
+    private final MockedFieldsRepository mockedFieldsRepository;
+    private final ObjectFactoryRepository objectFactoryRepository;
 
-    private PropertyManager() {
-//        this.ognlAdapter = new OgnlAdapter(new OgnlContext(), ejistoProxyFactory);
-        this.mockedFieldsRepository = MockedFieldsRepository.getInstance();
-        this.objectFactoryRepository = ObjectFactoryRepository.getInstance();
+    public PropertyManager(MockedFieldsRepository mockedFieldsRepository,
+                            ObjectFactoryRepository objectFactoryRepository) {
+        this.mockedFieldsRepository = mockedFieldsRepository;
+        this.objectFactoryRepository = objectFactoryRepository;
     }
 
-    public static PropertyManager getInstance() {
-        return INSTANCE;
+    public static PropertyManager newRemoteInstance() {
+        PropertyManager remote = REMOTE_INSTANCE.get();
+        if(remote != null) {
+            return remote;
+        }
+        remote = new PropertyManager(new MockedFieldsRepository(null), new ObjectFactoryRepository(null, null));
+        REMOTE_INSTANCE.compareAndSet(null, remote);
+        return remote;
     }
 
     private <T> T getFieldValue(String contextPath, String className, String fieldName, Class<T> type, T actualValue) {
@@ -101,55 +108,49 @@ public final class PropertyManager {
         return objectFactory.create(mockedField, actualValue);
     }
 
-//    private <T> T parseExpression(MockedField mockedField, Class<T> type) throws Exception {
-//        T instance = ejistoProxyFactory.proxyClass(type, mockedField);
-//        ognlAdapter.apply(instance, mockedField);
-//        return instance;
-//    }
-
-    public static <T> T mockField(String contextPath, String fieldName, String className, Class<T> type, T actual) {
+    public <T> T mockField(String contextPath, String fieldName, String className, Class<T> type, T actual) {
         trace("calling mockField with " + type + " value");
-        return INSTANCE.getFieldValue(contextPath, className, fieldName, type, actual);
+        return getFieldValue(contextPath, className, fieldName, type, actual);
     }
 
-    public static byte mockField(String contextPath, String fieldName, String className, byte actual) {
+    public byte mockField(String contextPath, String fieldName, String className, byte actual) {
         trace("calling mockField with byte value");
-        return INSTANCE.getFieldValue(contextPath, className, fieldName, Byte.class, actual);
+        return getFieldValue(contextPath, className, fieldName, Byte.class, actual);
     }
 
-    public static short mockField(String contextPath, String fieldName, String className, short actual) {
+    public short mockField(String contextPath, String fieldName, String className, short actual) {
         trace("calling mockField with short value");
-        return INSTANCE.getFieldValue(contextPath, className, fieldName, Short.class, actual);
+        return getFieldValue(contextPath, className, fieldName, Short.class, actual);
     }
 
-    public static int mockField(String contextPath, String fieldName, String className, int actual) {
+    public int mockField(String contextPath, String fieldName, String className, int actual) {
         trace("calling mockField with int value");
-        return INSTANCE.getFieldValue(contextPath, className, fieldName, Integer.class, actual);
+        return getFieldValue(contextPath, className, fieldName, Integer.class, actual);
     }
 
-    public static long mockField(String contextPath, String fieldName, String className, long actual) {
+    public long mockField(String contextPath, String fieldName, String className, long actual) {
         trace("calling mockField with long value");
-        return INSTANCE.getFieldValue(contextPath, className, fieldName, Long.class, actual);
+        return getFieldValue(contextPath, className, fieldName, Long.class, actual);
     }
 
-    public static float mockField(String contextPath, String fieldName, String className, float actual) {
+    public float mockField(String contextPath, String fieldName, String className, float actual) {
         trace("calling mockField with float value");
-        return INSTANCE.getFieldValue(contextPath, className, fieldName, Float.class, actual);
+        return getFieldValue(contextPath, className, fieldName, Float.class, actual);
     }
 
-    public static double mockField(String contextPath, String fieldName, String className, double actual) {
+    public double mockField(String contextPath, String fieldName, String className, double actual) {
         trace("calling mockField with double value");
-        return INSTANCE.getFieldValue(contextPath, className, fieldName, Double.class, actual);
+        return getFieldValue(contextPath, className, fieldName, Double.class, actual);
     }
 
-    public static char mockField(String contextPath, String fieldName, String className, char actual) {
+    public char mockField(String contextPath, String fieldName, String className, char actual) {
         trace("calling mockField with char value");
-        return INSTANCE.getFieldValue(contextPath, className, fieldName, Character.class, actual);
+        return getFieldValue(contextPath, className, fieldName, Character.class, actual);
     }
 
-    public static boolean mockField(String contextPath, String fieldName, String className, boolean actual) {
+    public boolean mockField(String contextPath, String fieldName, String className, boolean actual) {
         trace("calling mockField with boolean value");
-        return INSTANCE.getFieldValue(contextPath, className, fieldName, Boolean.class, actual);
+        return getFieldValue(contextPath, className, fieldName, Boolean.class, actual);
     }
 
     private static void trace(String s) {

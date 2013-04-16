@@ -19,6 +19,7 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.event.def.ContainerInstalled;
@@ -32,11 +33,10 @@ import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.ProgressWithHeader;
+import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.util.GuiUtils;
 import lombok.extern.log4j.Log4j;
-import org.springframework.context.ApplicationListener;
 
-import javax.annotation.Resource;
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -59,10 +59,26 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  */
 @Log4j
 public class ContainerInstaller implements ApplicationListener<InstallContainer>, PropertyChangeListener {
-    @Resource private Application application;
-    @Resource private CargoManager cargoManager;
-    @Resource private SettingsManager settingsManager;
-    @Resource private EventManager eventManager;
+    private final Application application;
+    private final CargoManager cargoManager;
+    private final SettingsManager settingsManager;
+    private final EventManager eventManager;
+    private final TaskManager taskManager;
+    private final SettingsRepository settingsRepository;
+
+    public ContainerInstaller(Application application,
+                              CargoManager cargoManager,
+                              SettingsManager settingsManager,
+                              EventManager eventManager,
+                              TaskManager taskManager,
+                              SettingsRepository settingsRepository) {
+        this.application = application;
+        this.cargoManager = cargoManager;
+        this.settingsManager = settingsManager;
+        this.eventManager = eventManager;
+        this.taskManager = taskManager;
+        this.settingsRepository = settingsRepository;
+    }
 
     @Override
     public void onApplicationEvent(final InstallContainer event) {
@@ -106,8 +122,13 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
             }
         };
 
-        String uuid = TaskManager.getInstance().addNewTask(createNewGuiTask(action, "download server", this));
+        String uuid = taskManager.addNewTask(createNewGuiTask(action, "download server", this));
         log.debug(String.format("Created download task with uuid %s", uuid));
+    }
+
+    @Override
+    public Class<InstallContainer> getTargetEventType() {
+        return InstallContainer.class;
     }
 
     private void notifyToPanel(final ProgressWithHeader panel, final String message) {
@@ -154,7 +175,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         JOptionPane.showMessageDialog(null, getMessage(messageKey, containerDescription),
                                       "error",
                                       JOptionPane.ERROR_MESSAGE);
-        File localFile = selectFile(null, null, false, "zip", "gz", "bz2");
+        File localFile = selectFile(null, null, false, settingsRepository, "zip", "gz", "bz2");
         if (localFile == null) {
             return null;
         }

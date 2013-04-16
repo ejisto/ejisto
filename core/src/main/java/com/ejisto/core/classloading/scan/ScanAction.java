@@ -24,13 +24,14 @@ import com.ejisto.core.ApplicationException;
 import com.ejisto.core.classloading.ClassTransformer;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,10 +52,14 @@ public final class ScanAction extends RecursiveAction {
     private static final int SIZE_THRESHOLD = 25;
     private final WebApplicationDescriptor descriptor;
     private final List<Group<MockedField>> groupedFields;
+    private final MockedFieldsRepository mockedFieldsRepository;
 
-    public ScanAction(WebApplicationDescriptor descriptor, List<Group<MockedField>> groupedFields) {
+    public ScanAction(WebApplicationDescriptor descriptor,
+                      List<Group<MockedField>> groupedFields,
+                      MockedFieldsRepository mockedFieldsRepository) {
         this.descriptor = descriptor;
         this.groupedFields = groupedFields;
+        this.mockedFieldsRepository = mockedFieldsRepository;
     }
 
     @Override
@@ -74,11 +79,11 @@ public final class ScanAction extends RecursiveAction {
             toBeScanned = new ArrayList<>(groupedFields);
             toBeForked = null;
         }
-        invokeAll(new ScanAction(descriptor, toBeForked));
+        invokeAll(new ScanAction(descriptor, toBeForked, mockedFieldsRepository));
         scanGroups(toBeScanned, descriptor);
     }
 
-    private static void scanGroups(List<Group<MockedField>> groups, WebApplicationDescriptor descriptor) {
+    private void scanGroups(List<Group<MockedField>> groups, WebApplicationDescriptor descriptor) {
         try {
             ClassPool classPool = new ClassPool();
             String webInf = FilenameUtils.normalizeNoEndSeparator(
@@ -86,7 +91,7 @@ public final class ScanAction extends RecursiveAction {
             classPool.appendClassPath(webInf + File.separator + "classes");
             classPool.appendClassPath(webInf + File.separator + "lib/*");
             classPool.appendSystemPath();
-            ClassTransformer transformer = new ClassTransformer(descriptor.getContextPath());
+            ClassTransformer transformer = new ClassTransformer(descriptor.getContextPath(), mockedFieldsRepository);
             for (Group<MockedField> group : groups) {
                 scanClass(group, classPool, transformer, normalize(webInf + File.separator + "classes/", true));
             }

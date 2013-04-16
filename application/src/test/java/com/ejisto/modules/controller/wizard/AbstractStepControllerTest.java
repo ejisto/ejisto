@@ -22,6 +22,7 @@ package com.ejisto.modules.controller.wizard;
 import com.ejisto.modules.controller.wizard.installer.ApplicationScanningController;
 import com.ejisto.modules.executor.GuiTask;
 import com.ejisto.modules.executor.Task;
+import com.ejisto.modules.executor.TaskManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,14 +39,20 @@ import static org.junit.Assert.assertEquals;
  * Time: 8:54 AM
  */
 public class AbstractStepControllerTest {
-    ApplicationScanningController applicationScanningController;
-    CyclicBarrier threadSynchronizer;
+    protected ApplicationScanningController applicationScanningController;
+    protected final CyclicBarrier threadSynchronizer;
     private static final int TASKS = 10;
+
+
+
+    public AbstractStepControllerTest() {
+        this.threadSynchronizer = new CyclicBarrier(TASKS + 1);
+    }
+
 
     @Before
     public void init() throws InvocationTargetException, InterruptedException {
-        threadSynchronizer = new CyclicBarrier(TASKS + 1);
-        applicationScanningController = new ApplicationScanningController(null, null) {
+        applicationScanningController = new ApplicationScanningController(null, null, null, null, new TaskManager()) {
             @Override
             protected Task<?> createNewTask() {
                 return new GuiTask<>(new Callable<Object>() {

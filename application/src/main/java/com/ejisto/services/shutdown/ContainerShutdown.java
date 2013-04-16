@@ -22,13 +22,15 @@ package com.ejisto.services.shutdown;
 import com.ejisto.core.container.ContainerManager;
 import lombok.extern.log4j.Log4j;
 
-import javax.annotation.Resource;
-
 @Log4j
 public class ContainerShutdown extends BaseShutdownService {
 
-    @Resource
-    private ContainerManager containerManager;
+    private final ContainerManager containerManager;
+
+    public ContainerShutdown(ContainerManager containerManager) {
+        this.containerManager = containerManager;
+    }
+
 
     @Override
     public void execute() {
@@ -37,6 +39,11 @@ public class ContainerShutdown extends BaseShutdownService {
         } catch (Exception e) {
             log.error("error during server shutdown", e);
         }
+    }
+
+    @Override
+    public int getPriority() {
+        return 0;
     }
 
 }

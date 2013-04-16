@@ -40,6 +40,8 @@ import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.selectFile;
 
 public class FileSelectionController extends AbstractApplicationInstallerController {
+
+    private final SettingsRepository settingsRepository;
     private JXPanel fileSelectionTab;
     private JXPanel fileSelectionPanel;
     private JXLabel selectedFilePath;
@@ -47,8 +49,9 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
     private File selectedFile;
     private Closure1<ActionEvent> callActionPerformed;
 
-    public FileSelectionController(EjistoDialog dialog) {
-        super(dialog);
+    public FileSelectionController(EjistoDialog dialog, SettingsRepository settingsRepository) {
+        super(dialog, null);
+        this.settingsRepository = settingsRepository;
     }
 
     @Override
@@ -90,8 +93,8 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
     }
 
     private File openFileSelectionDialog() {
-        return selectFile(getDialog(), SettingsRepository.getInstance().getSettingValue(LAST_FILESELECTION_PATH), true,
-                          "war");
+        return selectFile(getDialog(), settingsRepository.getSettingValue(LAST_FILESELECTION_PATH), true,
+                          settingsRepository, "war");
     }
 
     private JXPanel getFileSelectionTab() {

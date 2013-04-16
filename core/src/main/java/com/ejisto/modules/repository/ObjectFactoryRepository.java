@@ -32,9 +32,7 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.InitializingBean;
 
-import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,27 +49,18 @@ import static java.lang.Thread.currentThread;
  * Time: 4:41 PM
  */
 
-public class ObjectFactoryRepository extends ExternalizableService<ObjectFactoryDao> implements InitializingBean {
+public class ObjectFactoryRepository extends ExternalizableService<ObjectFactoryDao> {
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private static final String DEFAULT = "java.lang.Object";
-    private static final ObjectFactoryRepository INSTANCE = new ObjectFactoryRepository();
     private static final String ENUM_FACTORY_CLASS_NAME = "com.ejisto.modules.factory.impl.EnumFactory";
     private final Map<String, String> factories = new HashMap<>();
     private final AtomicBoolean initialized = new AtomicBoolean(false);
 
-    enum ObjectType {
-        ARRAY, ENUM, OBJECT
-    }
+    private final EventManager eventManager;
 
-
-    @Resource private EventManager eventManager;
-    @Resource private com.ejisto.modules.dao.ObjectFactoryDao objectFactoryDao;
-
-    public static ObjectFactoryRepository getInstance() {
-        return INSTANCE;
-    }
-
-    private ObjectFactoryRepository() {
+    public ObjectFactoryRepository(EventManager eventManager, ObjectFactoryDao objectFactoryDao) {
+        super(objectFactoryDao);
+        this.eventManager = eventManager;
         registerObjectFactory("com.ejisto.modules.factory.impl.AtomicIntegerFactory", ATOMIC_INTEGER.getName(), false);
         registerObjectFactory("com.ejisto.modules.factory.impl.AtomicLongFactory", ATOMIC_LONG.getName(), false);
         registerObjectFactory("com.ejisto.modules.factory.impl.BooleanFactory", BOOLEAN.getName(), false);
@@ -82,6 +71,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
         registerObjectFactory("com.ejisto.modules.factory.impl.MapFactory", MAP.getName(), false);
         registerObjectFactory("com.ejisto.modules.factory.impl.DateFactory", DATE.getName(), false);
         registerObjectFactory("com.ejisto.modules.factory.impl.LocaleFactory", LOCALE.getName(), false);
+        initialized.set(true);
     }
 
     public void registerObjectFactory(String objectFactoryClassName, String targetClassName) {
@@ -146,14 +136,13 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
 
     private void insertObjectFactory(String objectFactoryClassName, String targetClassName) {
         if (initialized.get()) {
-            objectFactoryDao.insert(new RegisteredObjectFactory(objectFactoryClassName, targetClassName));
+            getDao().insert(new RegisteredObjectFactory(objectFactoryClassName, targetClassName));
         }
     }
 
     private synchronized void syncObjectFactories() {
         if (!initialized.get()) {
-            checkDao();
-            for (RegisteredObjectFactory registeredObjectFactory : objectFactoryDao.loadAll()) {
+            for (RegisteredObjectFactory registeredObjectFactory : getDao().loadAll()) {
                 factories.put(registeredObjectFactory.getTargetClassName(), registeredObjectFactory.getClassName());
             }
             initialized.compareAndSet(false, true);
@@ -204,22 +193,8 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
     }
 
     @Override
-    protected com.ejisto.modules.dao.ObjectFactoryDao getDaoInstance() {
-        return objectFactoryDao;
-    }
-
-    @Override
-    protected void setDaoInstance(com.ejisto.modules.dao.ObjectFactoryDao daoInstance) {
-        this.objectFactoryDao = daoInstance;
-    }
-
-    @Override
     protected ObjectFactoryDao newRemoteDaoInstance() {
         return new com.ejisto.modules.dao.remote.ObjectFactoryDao();
     }
 
-    @Override
-    public void afterPropertiesSet() {
-        initialized.compareAndSet(false, true);
-    }
 }

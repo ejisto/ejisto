@@ -21,6 +21,8 @@ package com.ejisto.event.listener;
 
 import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.core.container.ContainerManager;
+import com.ejisto.event.ApplicationEventDispatcher;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.*;
 import com.ejisto.event.def.ChangeWebAppContextStatus.WebAppContextStatusCommand;
@@ -28,19 +30,18 @@ import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.controller.ApplicationInstallerWizardController;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.local.WebApplicationDescriptorDao;
+import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.repository.ClassPoolRepository;
+import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import com.ejisto.modules.repository.WebApplicationRepository;
+import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.util.IOUtils;
 import javassist.ClassPool;
 import javassist.LoaderClassPath;
 import lombok.extern.log4j.Log4j;
-import org.springframework.context.ApplicationListener;
-import org.springframework.util.Assert;
 
-import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -60,14 +61,37 @@ import static com.ejisto.util.IOUtils.guessWebApplicationUri;
 public class WebApplicationLoader implements ApplicationListener<LoadWebApplication> {
 
     private static final Pattern SPLIT_PATTERN = Pattern.compile(Pattern.quote(CONTEXT_PREFIX_SEPARATOR.getValue()));
-    @Resource private Application application;
-    @Resource private EventManager eventManager;
-    @Resource private MockedFieldsRepository mockedFieldsRepository;
-    @Resource private WebApplicationDescriptorDao webApplicationDescriptorDao;
-    @Resource private ContainerManager containerManager;
-    @Resource private WebApplicationRepository webApplicationRepository;
+    private final Application application;
+    private final EventManager eventManager;
+    private final MockedFieldsRepository mockedFieldsRepository;
+    private final WebApplicationDescriptorDao webApplicationDescriptorDao;
+    private final ContainerManager containerManager;
+    private final CustomObjectFactoryRepository customObjectFactoryRepository;
+    private final SettingsRepository settingsRepository;
+    private final TaskManager taskManager;
+    private final ApplicationEventDispatcher eventDispatcher;
 
     private Closure1<ActionEvent> callNotifyCommand;
+
+    public WebApplicationLoader(Application application,
+                                EventManager eventManager,
+                                MockedFieldsRepository mockedFieldsRepository,
+                                WebApplicationDescriptorDao webApplicationDescriptorDao,
+                                ContainerManager containerManager,
+                                CustomObjectFactoryRepository customObjectFactoryRepository,
+                                SettingsRepository settingsRepository,
+                                TaskManager taskManager,
+                                ApplicationEventDispatcher eventDispatcher) {
+        this.application = application;
+        this.eventManager = eventManager;
+        this.mockedFieldsRepository = mockedFieldsRepository;
+        this.webApplicationDescriptorDao = webApplicationDescriptorDao;
+        this.containerManager = containerManager;
+        this.customObjectFactoryRepository = customObjectFactoryRepository;
+        this.settingsRepository = settingsRepository;
+        this.taskManager = taskManager;
+        this.eventDispatcher = eventDispatcher;
+    }
 
     @Override
     public void onApplicationEvent(LoadWebApplication event) {
@@ -86,9 +110,19 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
         }
     }
 
+    @Override
+    public Class<LoadWebApplication> getTargetEventType() {
+        return LoadWebApplication.class;
+    }
+
     private void installNewWebApplication() throws NotInstalledException {
         ApplicationInstallerWizardController controller = new ApplicationInstallerWizardController(application,
-                                                                                                   containerManager.getDefaultHome());
+                                                                                                   containerManager.getDefaultHome(),
+                                                                                                   mockedFieldsRepository,
+                                                                                                   customObjectFactoryRepository,
+                                                                                                   settingsRepository,
+                                                                                                   taskManager,
+                                                                                                   eventDispatcher);
         if (!controller.showWizard()) {
             return;
         }
@@ -155,7 +189,9 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     void notifyCommand(ActionEvent event) {
         try {
             String[] command = SPLIT_PATTERN.split(event.getActionCommand());
-            Assert.state(command.length == 3);
+            if(command.length != 3) {
+                throw new IllegalArgumentException(event.getActionCommand());
+            }
             WebAppContextStatusCommand statusCommand = WebAppContextStatusCommand.fromString(command[1]);
             switch (statusCommand) {
                 case START:
@@ -231,7 +267,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             return;
         }
         try {
-            Desktop.getDesktop().browse(URI.create(guessWebApplicationUri(descriptor)));
+            Desktop.getDesktop().browse(URI.create(guessWebApplicationUri(descriptor, settingsRepository)));
         } catch (IOException e) {
             log.error("unable to open system browser", e);
         }

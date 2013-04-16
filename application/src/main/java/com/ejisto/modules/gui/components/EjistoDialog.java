@@ -20,8 +20,7 @@
 package com.ejisto.modules.gui.components;
 
 import lombok.extern.log4j.Log4j;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,6 +30,7 @@ import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 
 import static com.ejisto.util.GuiUtils.*;
 
@@ -169,7 +169,7 @@ public class EjistoDialog extends JDialog {
     }
 
     protected JPanel getContent() {
-        Assert.notNull(content);
+        Objects.requireNonNull(content);
         return content;
     }
 

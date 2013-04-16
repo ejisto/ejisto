@@ -21,19 +21,23 @@ package com.ejisto.modules.controller;
 
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.closure.Closure1;
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.controller.wizard.StepController;
 import com.ejisto.modules.controller.wizard.StepControllerComparator;
 import com.ejisto.modules.controller.wizard.installer.*;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.executor.TaskManager;
+import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.ApplicationInstallerWizard;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
+import com.ejisto.modules.repository.CustomObjectFactoryRepository;
+import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.modules.repository.SettingsRepository;
 import lombok.extern.log4j.Log4j;
 
 import javax.swing.*;
 import java.awt.Dialog.ModalityType;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -56,25 +60,42 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
     private Closure1<ActionEvent> callActionPerformed;
     private Closure0 closeDialog;
     private Closure0 confirm;
-    private final Frame application;
+    private final Application application;
     private EjistoDialog dialog;
     private AtomicInteger currentIndex = new AtomicInteger(-1);
     private StepController<WebApplicationDescriptor> currentController;
     private boolean success;
     private final String containerHome;
+    private final MockedFieldsRepository mockedFieldsRepository;
+    private final CustomObjectFactoryRepository customObjectFactoryRepository;
+    private final SettingsRepository settingsRepository;
+    private final TaskManager taskManager;
+    private final ApplicationEventDispatcher eventDispatcher;
 
-    public ApplicationInstallerWizardController(Frame application, String containerHome) {
+    public ApplicationInstallerWizardController(Application application,
+                                                String containerHome,
+                                                MockedFieldsRepository mockedFieldsRepository,
+                                                CustomObjectFactoryRepository customObjectFactoryRepository,
+                                                SettingsRepository settingsRepository,
+                                                TaskManager taskManager,
+                                                ApplicationEventDispatcher eventDispatcher) {
         this.application = application;
         this.containerHome = containerHome;
+        this.mockedFieldsRepository = mockedFieldsRepository;
+        this.customObjectFactoryRepository = customObjectFactoryRepository;
+        this.settingsRepository = settingsRepository;
+        this.taskManager = taskManager;
+        this.eventDispatcher = eventDispatcher;
     }
 
     private void initAndSortControllers(EjistoDialog dialog) {
         controllers = new ArrayList<>();
-        controllers.add(new FileSelectionController(dialog));
-        controllers.add(new FileExtractionController(dialog));
-        controllers.add(new ClassesFilteringController(dialog));
-        controllers.add(new ApplicationScanningController(dialog, containerHome));
-        controllers.add(new PropertiesEditingController(dialog));
+        controllers.add(new FileSelectionController(dialog, settingsRepository));
+        controllers.add(new FileExtractionController(dialog, taskManager));
+        controllers.add(new ClassesFilteringController(dialog, taskManager));
+        controllers.add(new ApplicationScanningController(dialog, containerHome, mockedFieldsRepository,
+                                                          customObjectFactoryRepository, taskManager));
+        controllers.add(new PropertiesEditingController(dialog, mockedFieldsRepository));
         controllers.add(new SummaryController(dialog));
         sort(controllers, new StepControllerComparator());
         //setTypes session object
@@ -139,7 +160,7 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
     }
 
     synchronized void actionPerformed(final ActionEvent e) {
-        TaskManager.getInstance().addNewTask(createNewGuiTask(new Callable<Void>() {
+        taskManager.addNewTask(createNewGuiTask(new Callable<Void>() {
             @Override
             public Void call() {
                 navigate(e.getActionCommand().equals(NEXT_STEP_COMMAND.getValue()));

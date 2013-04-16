@@ -21,11 +21,12 @@ package com.ejisto.modules.dao.local;
 
 import ch.lambdaj.Lambda;
 import com.ejisto.core.ApplicationException;
+import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.db.util.MockedFieldContainer;
 import com.ejisto.modules.dao.db.util.MockedFieldExtractor;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -35,6 +36,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 
 public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.dao.MockedFieldsDao {
+
+    public MockedFieldsDao(EmbeddedDatabaseManager database) {
+        super(database);
+    }
 
     @Override
     public List<MockedField> loadAll() {

@@ -19,9 +19,10 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.MockedFieldOperation;
 import com.ejisto.modules.controller.MockedFieldOperationController;
-import org.springframework.context.ApplicationListener;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,6 +34,13 @@ import java.awt.*;
  * Time: 8:28 AM
  */
 public class MockedFieldOperationListener implements ApplicationListener<MockedFieldOperation> {
+
+    private final MockedFieldsRepository mockedFieldsRepository;
+
+    public MockedFieldOperationListener(MockedFieldsRepository mockedFieldsRepository) {
+        this.mockedFieldsRepository = mockedFieldsRepository;
+    }
+
     @Override
     public void onApplicationEvent(final MockedFieldOperation event) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -40,8 +48,13 @@ public class MockedFieldOperationListener implements ApplicationListener<MockedF
             public void run() {
                 Window window = SwingUtilities.windowForComponent((Component) event.getSource());
                 new MockedFieldOperationController(window, event.getMockedField(),
-                                                   event.getOperationType()).showDialog();
+                                                   event.getOperationType(), mockedFieldsRepository).showDialog();
             }
         });
+    }
+
+    @Override
+    public Class<MockedFieldOperation> getTargetEventType() {
+        return MockedFieldOperation.class;
     }
 }

@@ -55,7 +55,7 @@ public class ApplicationDeployed extends BaseApplicationEvent {
     }
 
     @Override
-    public boolean isRunOnEDT() {
+    public boolean shouldRunOnEDT() {
         return true;
     }
 }

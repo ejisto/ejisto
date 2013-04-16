@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.dao.local;
 
+import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.exception.UniqueConstraintViolated;
 
@@ -33,6 +34,10 @@ import java.util.concurrent.Callable;
  * Time: 8:54 AM
  */
 public class ContainersDao extends BaseLocalDao {
+
+    public ContainersDao(EmbeddedDatabaseManager database) {
+        super(database);
+    }
 
     public List<Container> loadAll() {
         return new ArrayList<>(getDatabase().getContainers().values());

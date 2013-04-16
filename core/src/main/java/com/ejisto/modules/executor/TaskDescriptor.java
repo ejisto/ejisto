@@ -26,16 +26,9 @@ package com.ejisto.modules.executor;
  * Time: 7:47 PM
  */
 public class TaskDescriptor {
-    private String uuid;
-    private String description;
-    private ExecutionState executionState;
-    private long initialDelay;
-    private long period;
-    private Runnable task;
-
-    public TaskDescriptor() {
-
-    }
+    private final String uuid;
+    private final String description;
+    private final ExecutionState executionState;
 
     public TaskDescriptor(String uuid, String description, ExecutionState executionState) {
         this.description = description;
@@ -53,29 +46,5 @@ public class TaskDescriptor {
 
     public String getUuid() {
         return uuid;
-    }
-
-    public long getInitialDelay() {
-        return initialDelay;
-    }
-
-    public void setInitialDelay(long initialDelay) {
-        this.initialDelay = initialDelay;
-    }
-
-    public long getPeriod() {
-        return period;
-    }
-
-    public void setPeriod(long period) {
-        this.period = period;
-    }
-
-    public Runnable getTask() {
-        return task;
-    }
-
-    public void setTask(Runnable task) {
-        this.task = task;
     }
 }

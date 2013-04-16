@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.dao.local;
 
+import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
 
 import java.util.ArrayList;
@@ -32,6 +33,10 @@ import java.util.concurrent.Callable;
  * Time: 6:46 PM
  */
 public class ObjectFactoryDao extends BaseLocalDao implements com.ejisto.modules.dao.ObjectFactoryDao {
+
+    public ObjectFactoryDao(EmbeddedDatabaseManager database) {
+        super(database);
+    }
 
     @Override
     public List<RegisteredObjectFactory> loadAll() {

@@ -23,13 +23,11 @@ import ch.lambdaj.function.convert.Converter;
 import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.web.MockedFieldRequest;
 import com.ejisto.util.ExternalizableService;
 import lombok.extern.log4j.Log4j;
 import org.hamcrest.Matcher;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -45,18 +43,12 @@ import static org.hamcrest.Matchers.equalTo;
  */
 @Log4j
 public final class MockedFieldsRepository extends ExternalizableService<MockedFieldsDao> {
-    private static final MockedFieldsRepository INSTANCE = new MockedFieldsRepository();
 
-    @Resource
-    private MockedFieldsDao mockedFieldsDao;
-    private MockedFieldConverter mockedFieldConverter;
+    private final MockedFieldConverter mockedFieldConverter;
 
-    public static MockedFieldsRepository getInstance() {
-        return INSTANCE;
-    }
-
-    private MockedFieldsRepository() {
-        mockedFieldConverter = new MockedFieldConverter();
+    public MockedFieldsRepository(MockedFieldsDao dao) {
+        super(dao);
+        this.mockedFieldConverter = new MockedFieldConverter();
     }
 
     public List<MockedField> loadAll(Matcher<MockedField> matcher) {
@@ -115,18 +107,7 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     }
 
     private MockedFieldsDao getMockedFieldsDao() {
-        checkDao();
-        return getDaoInstance();
-    }
-
-    @Override
-    protected MockedFieldsDao getDaoInstance() {
-        return mockedFieldsDao;
-    }
-
-    @Override
-    protected void setDaoInstance(MockedFieldsDao daoInstance) {
-        this.mockedFieldsDao = daoInstance;
+        return getDao();
     }
 
     @Override
@@ -135,7 +116,7 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     }
 
     public List<MockedField> loadActiveFields(String contextPath, String className) {
-        return select(mockedFieldsDao.loadByContextPathAndClassName(contextPath, className),
+        return select(getDao().loadByContextPathAndClassName(contextPath, className),
                       having(on(MockedField.class).isActive(), equalTo(true)));
     }
 
@@ -153,7 +134,7 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     private static final class MockedFieldConverter implements Converter<MockedField, MockedField> {
         @Override
         public MockedField convert(MockedField from) {
-            return new MockedFieldDecorator((MockedFieldImpl)from);
+            return MockedFieldDecorator.from(from);
         }
     }
 }

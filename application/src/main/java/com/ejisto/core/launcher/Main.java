@@ -23,7 +23,6 @@ import com.ejisto.core.ApplicationException;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.OutputStream;
 
 
 public class Main {
@@ -55,8 +54,4 @@ public class Main {
             System.exit(status);
         }
     }
-
-    public static final OutputStream DEV_NULL = new OutputStream() {
-        public void write(int b) { }
-    };
 }

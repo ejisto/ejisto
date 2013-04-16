@@ -25,9 +25,8 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.gui.components.helper.*;
 import com.ejisto.modules.validation.MockedFieldValidator;
-import com.ejisto.modules.validation.ValidationErrors;
+import com.ejisto.util.GuiUtils;
 import lombok.extern.log4j.Log4j;
-import org.springframework.validation.Errors;
 
 import javax.swing.*;
 import javax.swing.event.CellEditorListener;
@@ -49,7 +48,6 @@ import java.util.List;
 import static com.ejisto.modules.gui.components.helper.FillStrategies.applyStrategy;
 import static com.ejisto.modules.gui.components.helper.FillStrategies.bestStrategyFor;
 import static com.ejisto.util.GuiUtils.*;
-import static com.ejisto.util.SpringBridge.publishApplicationEvent;
 
 @Log4j
 public class MockedFieldTree extends JTree implements CellEditorListener, MockedFieldsEditorComponent {
@@ -289,20 +287,18 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
         String previousType = mf.getFieldType();
         String previousValue = mf.getFieldValue();
         mf.setFieldValue(String.valueOf(getCellEditor().getCellEditorValue()));
-        Errors errors = new ValidationErrors("MockedField");
-        validator.validate(mf, errors);
-        if (errors.hasErrors()) {
+        if (!validator.validate(mf)) {
             mf.setFieldValue(previousValue);
             mf.setFieldType(previousType);
-            publishApplicationEvent(new StatusBarMessage(this,
-                                                         getMessage("propertieseditor.invalid.input",
-                                                                    String.valueOf(cellEditor.getCellEditorValue()),
-                                                                    mf.getFieldName()), true));
+            GuiUtils.publishEvent(new StatusBarMessage(this,
+                                                       getMessage("propertieseditor.invalid.input",
+                                                                  String.valueOf(cellEditor.getCellEditorValue()),
+                                                                  mf.getFieldName()), true));
         }
         getModel().reload(node);
         if (fieldsEditorContext.isNotifyChangeNeeded()) {
             MockedFieldChanged event = new MockedFieldChanged(this, mf);
-            publishApplicationEvent(event);
+            GuiUtils.publishEvent(event);
         }
     }
 

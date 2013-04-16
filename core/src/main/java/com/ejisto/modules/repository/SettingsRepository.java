@@ -22,8 +22,6 @@ package com.ejisto.modules.repository;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.conf.SettingsManager;
 
-import javax.annotation.Resource;
-
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -31,16 +29,11 @@ import javax.annotation.Resource;
  * Time: 6:07:09 PM
  */
 public final class SettingsRepository {
-    private static final SettingsRepository INSTANCE = new SettingsRepository();
-    @Resource
-    private SettingsManager settingsManager;
 
-    public static SettingsRepository getInstance() {
-        return INSTANCE;
-    }
+    private final SettingsManager settingsManager;
 
-    private SettingsRepository() {
-
+    private SettingsRepository(SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
     }
 
     public String getSettingValue(StringConstants key) {

@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.dao.local;
 
+import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 
 import java.util.ArrayList;
@@ -27,6 +28,10 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class WebApplicationDescriptorDao extends BaseLocalDao {
+
+    public WebApplicationDescriptorDao(EmbeddedDatabaseManager database) {
+        super(database);
+    }
 
     public WebApplicationDescriptor load(String contextPath) {
         return getDatabase().getWebApplicationDescriptors().get(contextPath);

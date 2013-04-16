@@ -28,7 +28,6 @@ import com.ejisto.util.visitor.MultipurposeFileVisitor;
 import com.ejisto.util.visitor.PrefixBasedCopyFileVisitor;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.io.FileUtils;
-import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -320,7 +319,9 @@ public final class IOUtils {
         if (!Files.exists(out)) {
             Files.createDirectories(out);
         }
-        Assert.isTrue(Files.isDirectory(out));
+        if(!Files.isDirectory(out)) {
+            throw new IllegalStateException(out.toString() + " is not a directory");
+        }
         try (FileSystem fileSystem = FileSystems.newFileSystem(URI.create("jar:file:" + src.getAbsolutePath()),
                                                                Collections.<String, Object>emptyMap())) {
             final Path srcRoot = fileSystem.getPath("/");
@@ -334,13 +335,13 @@ public final class IOUtils {
         return getName(filename);
     }
 
-    public static String guessWebApplicationUri(WebApplicationDescriptor descriptor) {
-        return guessWebApplicationUri(descriptor.getContextPath());
+    public static String guessWebApplicationUri(WebApplicationDescriptor descriptor, SettingsRepository settingsRepository) {
+        return guessWebApplicationUri(descriptor.getContextPath(), settingsRepository);
     }
 
-    public static String guessWebApplicationUri(String contextPath) {
+    public static String guessWebApplicationUri(String contextPath, SettingsRepository settingsRepository) {
         return format("http://localhost:%s%s/",
-                      SettingsRepository.getInstance().getSettingValue(DEFAULT_SERVER_PORT), contextPath);
+                      settingsRepository.getSettingValue(DEFAULT_SERVER_PORT), contextPath);
     }
 
     public static int findFirstAvailablePort(int startPort) {
@@ -370,13 +371,13 @@ public final class IOUtils {
         copyFilteredDirContent(new File(path.toString()), targetDir, prefixes, COPIED_FILES_PREFIX);
     }
 
-    public static String getEjistoCoreClasspathEntry() {
+    public static String getEjistoCoreClasspathEntry(SettingsRepository settingsRepository) {
         StringBuilder path = new StringBuilder(System.getProperty("user.dir"));
         path.append(File.separator);
         path.append("lib");
         path.append(File.separator);
         path.append("ejisto-core-");
-        path.append(SettingsRepository.getInstance().getSettingValue(EJISTO_VERSION));
+        path.append(settingsRepository.getSettingValue(EJISTO_VERSION));
         path.append(".jar");
         return path.toString();
     }

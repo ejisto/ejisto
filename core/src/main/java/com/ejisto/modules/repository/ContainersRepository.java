@@ -22,9 +22,7 @@ package com.ejisto.modules.repository;
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.local.ContainersDao;
-import org.springframework.util.Assert;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,15 +37,13 @@ import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
  * Time: 8:42 AM
  */
 public final class ContainersRepository {
-    private static final ContainersRepository INSTANCE = new ContainersRepository();
-    @Resource private ContainersDao containersDao;
+
+    private final ContainersDao containersDao;
     private final ConcurrentMap<String, Container> temporaryContainers = new ConcurrentHashMap<>();
 
-    public static ContainersRepository getInstance() {
-        return INSTANCE;
+    private ContainersRepository(ContainersDao containersDao) {
+        this.containersDao = containersDao;
     }
-
-    private ContainersRepository() {}
 
     public List<Container> loadContainers() {
         return containersDao.loadAll();
@@ -63,7 +59,9 @@ public final class ContainersRepository {
 
     public void registerTemporaryContainer(Container container) {
         Container existing = temporaryContainers.putIfAbsent(container.getId(), container);
-        Assert.isNull(existing);
+        if (existing != null) {
+            throw new IllegalStateException(existing + " is not null");
+        }
     }
 
     public Container registerContainer(String id, String cargoId, String homeDir, String description) {

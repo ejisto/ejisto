@@ -22,12 +22,11 @@ package com.ejisto.modules.web;
 import com.ejisto.constants.StringConstants;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import org.springframework.beans.factory.InitializingBean;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Map;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static com.ejisto.util.IOUtils.findFirstAvailablePort;
@@ -38,26 +37,17 @@ import static com.ejisto.util.IOUtils.findFirstAvailablePort;
  * Date: 6/26/12
  * Time: 4:24 PM
  */
-public class HTTPServer implements InitializingBean {
+public class HTTPServer {
 
-    private static final HTTPServer INSTANCE = new HTTPServer();
+    private final ConcurrentMap<String, HttpHandler> handlersMap;
+    private final HttpServer server;
 
-    @Resource(name = "httpHandlers") private ConcurrentMap<String, HttpHandler> handlersMap;
-    private HttpServer server;
-
-    public static HTTPServer getInstance() {
-        return INSTANCE;
-    }
-
-    private HTTPServer() {
-    }
-
-    @Override
-    public void afterPropertiesSet() throws IOException {
+    public HTTPServer(List<RemoteRequestHandler> handlers) throws IOException {
+        this.handlersMap = toHandlersMap(handlers);
         int port = findFirstAvailablePort(1706);
         server = HttpServer.create(new InetSocketAddress(port), 1024);
-        for (Map.Entry<String, HttpHandler> entry : handlersMap.entrySet()) {
-            server.createContext(entry.getKey(), entry.getValue());
+        for (RemoteRequestHandler handler : handlers) {
+            server.createContext(handler.getContextPath(), handler);
         }
         server.setExecutor(null);
         server.start();
@@ -65,9 +55,6 @@ public class HTTPServer implements InitializingBean {
     }
 
     public boolean createContext(String contextPath, HttpHandler handler) {
-        if (handlersMap.containsKey(contextPath)) {
-            return false;
-        }
         HttpHandler existing = handlersMap.putIfAbsent(contextPath, handler);
         if (existing != null) {
             return false;
@@ -79,5 +66,13 @@ public class HTTPServer implements InitializingBean {
     public void removeContext(String contextPath) {
         server.removeContext(contextPath);
         handlersMap.remove(contextPath);
+    }
+
+    private static ConcurrentMap<String, HttpHandler> toHandlersMap(List<RemoteRequestHandler> remoteRequestHandlers) {
+        ConcurrentMap<String, HttpHandler> result = new ConcurrentHashMap<>();
+        for (RemoteRequestHandler handler : remoteRequestHandlers) {
+            result.put(handler.getContextPath(), handler);
+        }
+        return result;
     }
 }

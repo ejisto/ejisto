@@ -20,6 +20,8 @@
 package com.ejisto.event.listener;
 
 import ch.lambdaj.Lambda;
+import com.ejisto.event.ApplicationEventDispatcher;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.CollectedDataReceived;
@@ -44,10 +46,7 @@ import org.codehaus.cargo.module.webapp.elements.Filter;
 import org.codehaus.cargo.module.webapp.elements.FilterMapping;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdom.JDOMException;
-import org.springframework.context.ApplicationListener;
-import org.springframework.util.Assert;
 
-import javax.annotation.Resource;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -64,7 +63,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_HEIGHT;
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
-import static com.ejisto.util.GuiUtils.*;
+import static com.ejisto.util.GuiUtils.getIcon;
+import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.IOUtils.*;
 
 /**
@@ -78,12 +78,27 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
 
     private static final ConcurrentMap<String, Set<MockedField>> RECORDED_FIELDS = new ConcurrentHashMap<>();
     private static final ConcurrentMap<String, Set<CollectedData>> RECORDED_DATA = new ConcurrentHashMap<>();
-    @Resource private EventManager eventManager;
-    @Resource private Application application;
-    @Resource private WebApplicationDescriptorDao webApplicationDescriptorDao;
-    @Resource private HTTPServer httpServer;
-    @Resource private SettingsRepository settingsRepository;
+    private final EventManager eventManager;
+    private final Application application;
+    private final WebApplicationDescriptorDao webApplicationDescriptorDao;
+    private final HTTPServer httpServer;
+    private final SettingsRepository settingsRepository;
+    private final ApplicationEventDispatcher applicationEventDispatcher;
     private final AtomicReference<DialogController> dialogController = new AtomicReference<>();
+
+    public SessionRecorderManager(EventManager eventManager,
+                                  Application application,
+                                  WebApplicationDescriptorDao webApplicationDescriptorDao,
+                                  HTTPServer httpServer,
+                                  SettingsRepository settingsRepository,
+                                  ApplicationEventDispatcher applicationEventDispatcher) {
+        this.eventManager = eventManager;
+        this.application = application;
+        this.webApplicationDescriptorDao = webApplicationDescriptorDao;
+        this.httpServer = httpServer;
+        this.settingsRepository = settingsRepository;
+        this.applicationEventDispatcher = applicationEventDispatcher;
+    }
 
 
     @Override
@@ -91,7 +106,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         WebApplicationDescriptor descriptor = webApplicationDescriptorDao.load(event.getWebApplicationContextPath());
         if (descriptor.getWarFile() == null) {
             File war = GuiUtils.selectFile(application, settingsRepository.getSettingValue(LAST_FILESELECTION_PATH),
-                                           false, "war");
+                                           false, settingsRepository, "war");
             if (war == null) {
                 GuiUtils.showErrorMessage(application, getMessage("wizard.file.selected.default.text"));
                 return;
@@ -101,11 +116,16 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         startSessionRecording(descriptor);
     }
 
+    @Override
+    public Class<SessionRecorderStart> getTargetEventType() {
+        return SessionRecorderStart.class;
+    }
+
     public void startSessionRecording(WebApplicationDescriptor webApplicationDescriptor) {
         try {
             log.debug("start listening for collected data...");
             File outputDir = GuiUtils.selectDirectory(application, settingsRepository.getSettingValue(LAST_OUTPUT_PATH),
-                                                      true);
+                                                      true, settingsRepository);
             final WebApplicationDescriptor descriptor = createTempWebApplicationDescriptor(webApplicationDescriptor);
             zipDirectory(new File(descriptor.getDeployablePath()),
                          FilenameUtils.normalize(outputDir.getAbsolutePath() + descriptor.getContextPath() + ".war"));
@@ -129,8 +149,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                     .withParentFrame(application)
                     .build();
             if (dialogController.compareAndSet(null, controller)) {
-                registerEventListener(CollectedDataReceived.class,
-                                      new ApplicationListener<CollectedDataReceived>() {
+                applicationEventDispatcher.registerApplicationEventListener(new ApplicationListener<CollectedDataReceived>() {
                                           @Override
                                           public void onApplicationEvent(CollectedDataReceived event) {
                                               try {
@@ -147,6 +166,11 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                                               } catch (Exception e) {
                                                   SessionRecorderManager.log.error("got exception while collecting fields", e);
                                               }
+                                          }
+
+                                          @Override
+                                          public Class<CollectedDataReceived> getTargetEventType() {
+                                              return CollectedDataReceived.class;
                                           }
                                       });
                 controller.show(true, new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
@@ -195,8 +219,8 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         //copyDirContentExcludingMatchingFiles(new File(original.getDeployablePath()), new File(path.toString()), new String[] {COPIED_FILES_PREFIX});
         unzipFile(original.getWarFile(), path.toString());
         File targetDir = new File(FilenameUtils.normalize(path.toString() + "/WEB-INF/lib/"));
-        copyFile(System.getProperty("ejisto.agent.jar.path"), targetDir);
-        copyEjistoLibs(new String[]{"jackson", "commons-lang"}, targetDir);
+        //copyFile(System.getProperty("ejisto.agent.jar.path"), targetDir);
+        copyEjistoLibs(new String[]{"ejisto-embeddable", "jackson", "commons-lang"}, targetDir);
         WebApplicationDescriptor temp = WebApplicationDescriptor.copyOf(original);
         temp.setDeployablePath(path.toString());
         modifyWebXml(temp);
@@ -207,7 +231,9 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         String path = FilenameUtils.normalizeNoEndSeparator(descriptor.getDeployablePath()) + File.separator +
                 "WEB-INF" + File.separator + "web.xml";
         File webXml = new File(path);
-        Assert.isTrue(webXml.exists());
+        if(!webXml.exists()) {
+            throw new IllegalStateException("web.xml doesn't exist");
+        }
         WebXml xml = WebXmlIo.parseWebXmlFromFile(webXml, null);
         DescriptorElement param = (DescriptorElement) WebXmlUtils.getContextParam(xml, TARGET_CONTEXT_PATH.getValue());
         if (param == null) {

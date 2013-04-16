@@ -47,24 +47,7 @@ public class SummaryTab extends JXPanel {
     private void initialize() {
         setLayout(new BorderLayout());
         add(getScrollPane(), BorderLayout.CENTER);
-//        add(getButtonsPanel(), BorderLayout.SOUTH);
     }
-
-//    private JPanel getButtonsPanel() {
-//        if(this.buttonsPanel != null) {
-//            return this.buttonsPanel;
-//        }
-//        buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-//        JButton b = new JButton(new AbstractAction() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                GuiUtils.publishEvent(new SessionRecorderStart(this, null));
-//            }
-//        });
-//        b.setText("start");
-//        buttonsPanel.add(b);
-//        return buttonsPanel;
-//    }
 
     private JScrollPane getScrollPane() {
         if (this.scrollPane != null) {

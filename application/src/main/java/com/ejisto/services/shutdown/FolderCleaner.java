@@ -33,6 +33,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  */
 @Log4j
 public class FolderCleaner extends BaseShutdownService {
+
     @Override
     public void execute() {
         Path path = FileSystems.getDefault().getPath(System.getProperty("java.io.tmpdir"));
@@ -41,6 +42,11 @@ public class FolderCleaner extends BaseShutdownService {
         } catch (IOException e) {
             log.warn("unable to delete temporary files", e);
         }
+    }
+
+    @Override
+    public int getPriority() {
+        return Integer.MAX_VALUE;
     }
 
     private void deleteAllFiles(Path path) throws IOException {

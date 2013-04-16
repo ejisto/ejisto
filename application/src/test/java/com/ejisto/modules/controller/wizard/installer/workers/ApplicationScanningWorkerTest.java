@@ -31,12 +31,12 @@ public class ApplicationScanningWorkerTest {
 
     @Before
     public void init() {
-        controller = new ApplicationScanningController(null, "");
+        controller = new ApplicationScanningController(null, "", null, null, null);
     }
 
     @Test
     public void testGetContextPath() {
-        ApplicationScanningWorker worker = new ApplicationScanningWorker(controller, "");
+        ApplicationScanningWorker worker = new ApplicationScanningWorker(controller, null, null, "");
         assertEquals("/simpleWarProject",
                      worker.getContextPath("/tmp/ejisto/jetty/webapps/simpleWarProject/"));
         assertEquals("/simpleWarProject", worker.getContextPath(

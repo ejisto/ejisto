@@ -45,7 +45,7 @@ public class LogMessage extends BaseApplicationEvent {
     }
 
     @Override
-    public boolean isRunOnEDT() {
+    public boolean shouldRunOnEDT() {
         return true;
     }
 

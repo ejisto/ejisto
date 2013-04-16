@@ -19,26 +19,35 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.util.GuiUtils;
+import lombok.extern.log4j.Log4j;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
-import org.springframework.context.ApplicationListener;
 
-import javax.annotation.Resource;
 import java.util.logging.Level;
 
 import static com.ejisto.util.GuiUtils.getMessage;
-
+@Log4j
 public class ErrorListener implements ApplicationListener<ApplicationError> {
 
-    @Resource
-    private Application application;
+    private final Application application;
+
+    public ErrorListener(Application application) {
+        this.application = application;
+    }
 
     @Override
     public void onApplicationEvent(ApplicationError event) {
         JXErrorPane.showDialog(application, getErrorInfo(event));
+        log.error(event.getDescription(), event.getError());
+    }
+
+    @Override
+    public Class<ApplicationError> getTargetEventType() {
+        return ApplicationError.class;
     }
 
     private ErrorInfo getErrorInfo(ApplicationError event) {

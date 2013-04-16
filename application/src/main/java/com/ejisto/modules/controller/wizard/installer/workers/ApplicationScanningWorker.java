@@ -68,15 +68,22 @@ import static com.ejisto.util.IOUtils.*;
  */
 @Log4j
 public class ApplicationScanningWorker extends GuiTask<Void> implements ProgressListener {
-    private static final String[] entries = {"ejisto-core", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "cglib", "commons", "asm", "jackson"};
+    private static final String[] entries = {"ejisto-core","ejisto-embeddable","ejisto-agent", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "cglib", "commons", "asm", "jackson"};
     private static final Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
     private static final ForkJoinPool forkJoinPool = new ForkJoinPool();
     private final AtomicInteger counter = new AtomicInteger();
-    private WebApplicationDescriptor session;
+    private final MockedFieldsRepository mockedFieldsRepository;
+    private final CustomObjectFactoryRepository customObjectFactoryRepository;
+    private final WebApplicationDescriptor session;
     private String containerHome;
 
-    public ApplicationScanningWorker(ApplicationScanningController controller, String containerHome) {
+    public ApplicationScanningWorker(ApplicationScanningController controller,
+                                     MockedFieldsRepository mockedFieldsRepository,
+                                     CustomObjectFactoryRepository customObjectFactoryRepository,
+                                     String containerHome) {
         super();
+        this.mockedFieldsRepository = mockedFieldsRepository;
+        this.customObjectFactoryRepository = customObjectFactoryRepository;
         this.session = controller.getSession();
         this.containerHome = containerHome;
         addPropertyChangeListener(controller);
@@ -92,7 +99,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
         Objects.requireNonNull(getSession().getInstallationPath());
         String basePath = getSession().getInstallationPath();
         getSession().setContextPath(getContextPath(basePath));
-        MockedFieldsRepository.getInstance().createContext(getSession().getContextPath());
+        mockedFieldsRepository.createContext(getSession().getContextPath());
         getSession().setClassPathElements(getClasspathEntries(basePath));
         loadAllClasses(findAllWebApplicationClasses(basePath, getSession()), getSession());
         processWebXmlDescriptor(getSession());
@@ -118,7 +125,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(contextPath);
         cp.appendClassPath(new LoaderClassPath(loader));
         List<MockedField> fields = forkJoinPool.invoke(
-                new LoadClassAction(new ArrayList<>(classNames), loader, descriptor, this));
+                new LoadClassAction(new ArrayList<>(classNames), loader, descriptor, this, mockedFieldsRepository));
         for (MockedField field : fields) {
             descriptor.addField(field);
         }
@@ -158,7 +165,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
             String libDir = String.format("%sWEB-INF%slib%s", session.getInstallationPath(), File.separator,
                                           File.separator);
             File dir = new File(libDir);
-            List<CustomObjectFactory> jars = CustomObjectFactoryRepository.getInstance().getCustomObjectFactories();
+            List<CustomObjectFactory> jars = customObjectFactoryRepository.getCustomObjectFactories();
             for (CustomObjectFactory jar : jars) {
                 copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir);
             }

@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.modules.controller.MockedFieldsEditorController;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -29,7 +30,6 @@ import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXRadioGroup;
-import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
@@ -57,9 +57,10 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     private JPanel editorSelectionPanel;
     private JPanel editorPanel;
     private transient MockedFieldsEditorController controller;
-    private FieldsEditorContext fieldsEditorContext;
+    private final FieldsEditorContext fieldsEditorContext;
 
-    public MockedFieldsEditor(FieldsEditorContext fieldsEditorContext, ActionMap actionMap) {
+    public MockedFieldsEditor(FieldsEditorContext fieldsEditorContext,
+                              ActionMap actionMap) {
         this.fieldsEditorContext = fieldsEditorContext;
         getActionMap().setParent(actionMap);
         init();
@@ -143,7 +144,7 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         setName(getMessage("main.propertieseditor.title.text"));
         setLayout(new BorderLayout());
         add(getEditorContainer(), BorderLayout.CENTER);
-        registerEventListener(MockedFieldChanged.class, new ApplicationListener<MockedFieldChanged>() {
+        registerApplicationEventListener(new ApplicationListener<MockedFieldChanged>() {
             @Override
             public void onApplicationEvent(final MockedFieldChanged event) {
                 runOnEDT(new Runnable() {
@@ -152,6 +153,11 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
                         fieldsChanged(event.getMockedFields());
                     }
                 });
+            }
+
+            @Override
+            public Class<MockedFieldChanged> getTargetEventType() {
+                return MockedFieldChanged.class;
             }
         });
     }

@@ -58,7 +58,6 @@ import org.codehaus.cargo.generic.deployable.DeployableFactory;
 import org.codehaus.cargo.generic.deployer.DefaultDeployerFactory;
 import org.codehaus.cargo.generic.deployer.DeployerFactory;
 
-import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -85,14 +84,24 @@ import static org.hamcrest.Matchers.equalTo;
 @Log4j
 public class CargoManager implements ContainerManager {
 
-    @Resource private ContainersRepository containersRepository;
-    @Resource private SettingsRepository settingsRepository;
-    @Resource private WebApplicationRepository webApplicationRepository;
-    @Resource private EventManager eventManager;
+    private final ContainersRepository containersRepository;
+    private final SettingsRepository settingsRepository;
+    private final WebApplicationRepository webApplicationRepository;
+    private final EventManager eventManager;
 
     private final ConcurrentMap<String, AbstractInstalledLocalContainer> installedContainers = new ConcurrentHashMap<>();
     private final ReentrantLock lifeCycleOperationLock = new ReentrantLock();
     private final Set<String> runningContainers = Collections.synchronizedSet(new HashSet<String>());
+
+    public CargoManager(ContainersRepository containersRepository,
+                        SettingsRepository settingsRepository,
+                        WebApplicationRepository webApplicationRepository,
+                        EventManager eventManager) {
+        this.containersRepository = containersRepository;
+        this.settingsRepository = settingsRepository;
+        this.webApplicationRepository = webApplicationRepository;
+        this.eventManager = eventManager;
+    }
 
     @Override
     public String downloadAndInstall(String urlToString, String folder) throws IOException {
@@ -392,7 +401,7 @@ public class CargoManager implements ContainerManager {
 
     private boolean undeploy(String containerId, String contextPath, Deployable deployable, LocalContainer container) {
         try {
-            URLDeployableMonitor monitor = new URLDeployableMonitor(new URL(guessWebApplicationUri(contextPath)));
+            URLDeployableMonitor monitor = new URLDeployableMonitor(new URL(guessWebApplicationUri(contextPath, settingsRepository)));
             getDeployerFor(container).undeploy(deployable, monitor);
             webApplicationRepository.unregisterWebApplication(containerId, contextPath);
             return true;

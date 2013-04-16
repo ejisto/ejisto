@@ -22,12 +22,14 @@ package com.ejisto.services.shutdown;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import lombok.extern.log4j.Log4j;
 
-import javax.annotation.Resource;
-
 @Log4j
 public class DatabaseMaintenance extends BaseShutdownService {
 
-    @Resource private EmbeddedDatabaseManager databaseManager;
+    private final EmbeddedDatabaseManager databaseManager;
+
+    public DatabaseMaintenance(EmbeddedDatabaseManager databaseManager) {
+        this.databaseManager = databaseManager;
+    }
 
     @Override
     public void execute() {
@@ -39,6 +41,11 @@ public class DatabaseMaintenance extends BaseShutdownService {
         } catch (InterruptedException e) {
             log.fatal("Unable to do maintenance tasks", e);
         }
+    }
+
+    @Override
+    public int getPriority() {
+        return 1;
     }
 
 }

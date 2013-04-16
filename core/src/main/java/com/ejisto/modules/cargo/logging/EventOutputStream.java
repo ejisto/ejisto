@@ -19,9 +19,8 @@
 
 package com.ejisto.modules.cargo.logging;
 
-import com.ejisto.event.EventManager;
+import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.def.LogMessage;
-import com.ejisto.util.SpringBridge;
 import org.apache.log4j.MDC;
 
 import java.io.IOException;
@@ -34,7 +33,6 @@ public class EventOutputStream extends OutputStream {
 
     private final StringBuffer buffer;
     private final LinkedBlockingQueue<LogMessage> queue;
-    private EventManager eventManager;
 
     public EventOutputStream() {
         super();
@@ -49,18 +47,15 @@ public class EventOutputStream extends OutputStream {
 
     @Override
     public void flush() throws IOException {
-        eventManager = SpringBridge.getInstance().getBean("eventManager", EventManager.class);
         String containerId = (String) MDC.get(CONTAINER_ID.getValue());
         queue.offer(new LogMessage(this, buffer.toString(), containerId));
-        if (eventManager != null) {
-            publishEvents();
-        }
+        publishEvents();
     }
 
     private void publishEvents() {
         LogMessage logMessage;
         while ((logMessage = queue.poll()) != null) {
-            eventManager.publishEvent(logMessage);
+            ApplicationEventDispatcher.publish(logMessage);
         }
     }
 

@@ -20,14 +20,12 @@
 package com.ejisto.modules.validation;
 
 import com.ejisto.modules.dao.entities.MockedField;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class MockedFieldValidator implements Validator {
+public class MockedFieldValidator {
 
     private static Map<String, Pattern> validatorMap;
 
@@ -52,19 +50,14 @@ public class MockedFieldValidator implements Validator {
     public MockedFieldValidator() {
     }
 
-    @Override
-    public boolean supports(Class<?> clazz) {
-        return MockedField.class.isAssignableFrom(clazz);
-    }
-
-    @Override
-    public void validate(Object target, Errors errors) {
+    public boolean validate(Object target) {
         MockedField field = (MockedField) target;
         String type = field.getFieldType();
         if (validatorMap.containsKey(type)) {
             if (!validatorMap.get(type).matcher(field.getFieldValue()).matches()) {
-                errors.rejectValue("fieldValue", "mockedfield.notvalid");
+                return false;
             }
         }
+        return true;
     }
 }

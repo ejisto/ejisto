@@ -53,21 +53,21 @@ public abstract class JSONUtil implements Serializable {
         }
     }
 
-    public static <T> T decode(String httpRequestBody, Class<T> objectClass) {
+    public static <T> T decode(String httpMessageBody, Class<T> objectClass) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(httpRequestBody, objectClass);
+            return mapper.readValue(httpMessageBody, objectClass);
         } catch (IOException e) {
-            throw new IllegalArgumentException("httpRequestBody is not a valid JSON", e);
+            throw new IllegalArgumentException("httpMessageBody is not a valid JSON", e);
         }
     }
 
-    public static <T> T decode(String httpRequestBody, TypeReference<T> typeReference) {
+    public static <T> T decode(String httpMessageBody, TypeReference<T> typeReference) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(httpRequestBody, typeReference);
+            return mapper.readValue(httpMessageBody, typeReference);
         } catch (IOException e) {
-            throw new IllegalArgumentException("httpRequestBody is not a valid JSON", e);
+            throw new IllegalArgumentException("httpMessageBody is not a valid JSON", e);
         }
     }
 

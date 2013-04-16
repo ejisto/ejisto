@@ -23,6 +23,7 @@ import com.ejisto.InstrumentationHolder;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.core.classloading.ClassTransformer;
 import com.ejisto.modules.repository.ClassPoolRepository;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.web.util.ConfigurationManager;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -68,7 +69,7 @@ public class ContextListener implements ServletContextListener {
         sessionRecordingActive.set(Boolean.getBoolean(SESSION_RECORDING_ACTIVE.getValue()));
         initLog();
         context.log("<Ejisto> ClassTransformer initialization...");
-        classTransformer = new ClassTransformer(targetContextPath);
+        classTransformer = new ClassTransformer(targetContextPath, new MockedFieldsRepository(null));
         InstrumentationHolder.getInstrumentation().addTransformer(classTransformer);
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(targetContextPath);
         cp.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));

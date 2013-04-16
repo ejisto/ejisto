@@ -26,6 +26,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.Collection;
 import java.util.List;
 
+import static com.ejisto.constants.StringConstants.CTX_GET_SETTINGS;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -36,7 +38,7 @@ public class SettingsDao extends BaseRemoteDao implements com.ejisto.modules.dao
 
     @Override
     public Collection<Setting> loadAll() {
-        return JSONUtil.decode(remoteCall(encodeRequest("loadAll"), "/getCustomObjectFactory"),
+        return JSONUtil.decode(remoteCall(encodeRequest("loadAll"), CTX_GET_SETTINGS.getValue()),
                                new TypeReference<List<Setting>>() {
                                });
     }

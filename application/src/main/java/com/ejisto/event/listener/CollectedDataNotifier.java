@@ -19,9 +19,9 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.CollectedDataReceived;
 import lombok.extern.log4j.Log4j;
-import org.springframework.context.ApplicationListener;
 
 /**
  * Created by IntelliJ IDEA.
@@ -35,6 +35,11 @@ public class CollectedDataNotifier implements ApplicationListener<CollectedDataR
     @Override
     public void onApplicationEvent(CollectedDataReceived event) {
         log.debug(String.format("collected data received: %s", event.getData().getRequestAttributes()));
+    }
+
+    @Override
+    public Class<CollectedDataReceived> getTargetEventType() {
+        return CollectedDataReceived.class;
     }
 
 }

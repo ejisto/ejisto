@@ -36,7 +36,7 @@ public class CargoManagerTest {
     @Test
     @Ignore
     public void testDownloadAndInstall() throws Exception {
-        CargoManager manager = new CargoManager();
+        CargoManager manager = new CargoManager(null, null, null, null);
         try {
             String tmp = System.getProperty("java.io.tmpdir");
             String home = manager.downloadAndInstall(

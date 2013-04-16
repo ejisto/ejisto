@@ -38,10 +38,10 @@ import static org.hamcrest.Matchers.equalTo;
  */
 public class TaskController {
     private TaskView view;
-    private TaskManager taskManager;
+    private final TaskManager taskManager;
 
-    public TaskController() {
-        taskManager = TaskManager.getInstance();
+    public TaskController(TaskManager taskManager) {
+        this.taskManager = taskManager;
         taskManager.scheduleTaskAtFixedRate(new Runnable() {
             @Override
             public void run() {

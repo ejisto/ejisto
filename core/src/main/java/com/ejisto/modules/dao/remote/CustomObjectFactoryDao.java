@@ -25,6 +25,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.List;
 
+import static com.ejisto.constants.StringConstants.CTX_GET_CUSTOM_OBJECT_FACTORY;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -34,7 +36,7 @@ import java.util.List;
 public class CustomObjectFactoryDao extends BaseRemoteDao implements com.ejisto.modules.dao.CustomObjectFactoryDao {
     @Override
     public List<CustomObjectFactory> loadAll() {
-        return JSONUtil.decode(remoteCall(encodeRequest("loadAll"), "/getCustomObjectFactory"),
+        return JSONUtil.decode(remoteCall(encodeRequest("loadAll"), CTX_GET_CUSTOM_OBJECT_FACTORY.getValue()),
                                new TypeReference<List<CustomObjectFactory>>() {
                                });
     }

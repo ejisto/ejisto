@@ -22,15 +22,16 @@ package com.ejisto.services.startup;
 import com.ejisto.modules.gui.Application;
 import lombok.extern.log4j.Log4j;
 
-import javax.annotation.Resource;
-
 import static com.ejisto.util.GuiUtils.centerOnScreen;
 
 @Log4j
 public class ApplicationStartup extends BaseStartupService {
 
-    @Resource
-    private Application application;
+    private final Application application;
+
+    public ApplicationStartup(Application application) {
+        this.application = application;
+    }
 
     @Override
     public void execute() {
@@ -38,6 +39,11 @@ public class ApplicationStartup extends BaseStartupService {
         application.init();
         centerOnScreen(application);
         application.setVisible(true);
+    }
+
+    @Override
+    public int getPriority() {
+        return Integer.MAX_VALUE;
     }
 
 }

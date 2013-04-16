@@ -21,11 +21,12 @@ package com.ejisto.modules.controller.wizard.installer;
 
 import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.modules.controller.WizardException;
+import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ResourcesFilter;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.gui.components.helper.Step;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.awt.event.ActionEvent;
 
@@ -39,8 +40,8 @@ public class ClassesFilteringController extends AbstractApplicationInstallerCont
 
     private ResourcesFilter classesFilteringTab;
 
-    public ClassesFilteringController(EjistoDialog dialog) {
-        super(dialog);
+    public ClassesFilteringController(EjistoDialog dialog, TaskManager taskManager) {
+        super(dialog, taskManager);
     }
 
     @Override
@@ -61,7 +62,7 @@ public class ClassesFilteringController extends AbstractApplicationInstallerCont
 
     @Override
     public boolean canProceed() {
-        return !CollectionUtils.isEmpty(getSession().getIncludedJars());
+        return CollectionUtils.isNotEmpty(getSession().getIncludedJars());
     }
 
     @Override

@@ -23,6 +23,7 @@ import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.controller.wizard.installer.workers.FileExtractionWorker;
 import com.ejisto.modules.executor.ProgressDescriptor;
 import com.ejisto.modules.executor.Task;
+import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
@@ -35,8 +36,8 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
 
     private ProgressPanel fileExtractionTab;
 
-    public FileExtractionController(EjistoDialog dialog) {
-        super(dialog);
+    public FileExtractionController(EjistoDialog dialog, TaskManager taskManager) {
+        super(dialog, taskManager);
     }
 
     @Override

@@ -19,17 +19,18 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import org.springframework.context.ApplicationListener;
-
-import javax.annotation.Resource;
 
 public class FieldsUpdateListener implements ApplicationListener<MockedFieldChanged> {
 
-    @Resource
-    private MockedFieldsRepository mockedFieldsRepository;
+    private final MockedFieldsRepository mockedFieldsRepository;
+
+    public FieldsUpdateListener(MockedFieldsRepository mockedFieldsRepository) {
+        this.mockedFieldsRepository = mockedFieldsRepository;
+    }
 
     @Override
     public void onApplicationEvent(MockedFieldChanged event) {
@@ -38,8 +39,13 @@ public class FieldsUpdateListener implements ApplicationListener<MockedFieldChan
         }
     }
 
+    @Override
+    public Class<MockedFieldChanged> getTargetEventType() {
+        return MockedFieldChanged.class;
+    }
+
     private void handleFieldChange(MockedField field) {
-            mockedFieldsRepository.insert(field);
+        mockedFieldsRepository.insert(field);
     }
 
 }

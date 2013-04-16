@@ -49,7 +49,7 @@ public class StatusBarMessage extends BaseApplicationEvent {
     }
 
     @Override
-    public boolean isRunOnEDT() {
+    public boolean shouldRunOnEDT() {
         return true;
     }
 }

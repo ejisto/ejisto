@@ -21,7 +21,6 @@ package com.ejisto.modules.executor;
 
 import ch.lambdaj.Lambda;
 import com.ejisto.core.ApplicationException;
-import org.springframework.beans.factory.DisposableBean;
 
 import java.beans.PropertyChangeListener;
 import java.lang.ref.SoftReference;
@@ -35,7 +34,7 @@ import static ch.lambdaj.Lambda.forEach;
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.apache.commons.collections.MapUtils.isEmpty;
 
 /**
  * Created by IntelliJ IDEA.
@@ -43,18 +42,14 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * Date: 4/2/11
  * Time: 6:48 PM
  */
-public final class TaskManager implements DisposableBean {
-    private static final TaskManager INSTANCE = new TaskManager();
+public final class TaskManager {
+
     private ExecutorService executorService;
     private ScheduledExecutorService scheduler;
     private final ReentrantLock lock = new ReentrantLock();
     private final ConcurrentMap<String, TaskEntry> registry;
 
-    public static TaskManager getInstance() {
-        return INSTANCE;
-    }
-
-    private TaskManager() {
+    public TaskManager() {
         this.registry = new ConcurrentHashMap<>();
         this.executorService = Executors.newCachedThreadPool();
         this.scheduler = Executors.newScheduledThreadPool(5);
@@ -102,7 +97,7 @@ public final class TaskManager implements DisposableBean {
             if (task.supportsProcessChangeNotification()) {
                 future = task;
             } else {
-                future = internalAddTask(task, uuid);
+                future = internalAddTask(task);
             }
             task.work();
             registerTask(uuid, task, future);
@@ -116,7 +111,7 @@ public final class TaskManager implements DisposableBean {
         }
     }
 
-    private Future<?> internalAddTask(Task<?> task, String uuid) {
+    private Future<?> internalAddTask(Task<?> task) {
         return executorService.submit(task);
     }
 
@@ -181,12 +176,6 @@ public final class TaskManager implements DisposableBean {
         }
     }
 
-    @Override
-    public void destroy() {
-        shutdownExecutorService(this.executorService);
-        shutdownExecutorService(this.scheduler);
-    }
-
     private final class TaskEntry {
         private final SoftReference<Future<?>> future;
         private final TaskDescriptor descriptor;
@@ -221,6 +210,30 @@ public final class TaskManager implements DisposableBean {
 
     public static <T> BackgroundTask<T> createNewBackgroundTask(Callable<T> callable, String description) {
         return new BackgroundTask<>(callable);
+    }
+
+    public static final class Descriptor {
+        private final Runnable task;
+        private final long initialDelay;
+        private final long period;
+
+        public Descriptor(Runnable task, long initialDelay, long period) {
+            this.task = task;
+            this.initialDelay = initialDelay;
+            this.period = period;
+        }
+
+        public Runnable getTask() {
+            return task;
+        }
+
+        public long getInitialDelay() {
+            return initialDelay;
+        }
+
+        public long getPeriod() {
+            return period;
+        }
     }
 
 }

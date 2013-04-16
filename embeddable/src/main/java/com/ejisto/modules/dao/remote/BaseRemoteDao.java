@@ -47,20 +47,20 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Log
 public class BaseRemoteDao {
 
-    private static final Semaphore concurrentRequestManager = new Semaphore(50);
+    private static final Semaphore CONCURRENT_REQUEST_MANAGER = new Semaphore(50);
     private static final String SERVER_ADDRESS = "http://localhost:%s";
     private final String serverAddress;
 
     public BaseRemoteDao() {
         String address = getProperty(HTTP_INTERFACE_ADDRESS.getValue());
-        log.log(Level.INFO, "address is: " + address);
+        log.log(Level.FINEST, "address is: " + address);
         serverAddress = evaluateServerAddress(address);
-        log.log(Level.INFO, "server address set to: " + this.serverAddress);
+        log.log(Level.FINEST, "server address set to: " + this.serverAddress);
     }
 
     protected BaseRemoteDao(String serverAddress) {
         this.serverAddress = evaluateServerAddress(serverAddress);
-        log.log(Level.INFO, "server address set to: " + this.serverAddress);
+        log.log(Level.FINEST, "server address set to: " + this.serverAddress);
     }
 
     private static String evaluateServerAddress(String in) {
@@ -77,7 +77,7 @@ public class BaseRemoteDao {
     protected String remoteCall(String request, String requestPath, String method) {
         boolean acquired = false;
         try {
-            concurrentRequestManager.acquire();
+            CONCURRENT_REQUEST_MANAGER.acquire();
             acquired = true;
             HttpURLConnection connection = openConnection(requestPath, method);
             OutputStream out = connection.getOutputStream();
@@ -92,7 +92,7 @@ public class BaseRemoteDao {
             throw new IllegalStateException("IOException", e);
         } finally {
             if (acquired) {
-                concurrentRequestManager.release();
+                CONCURRENT_REQUEST_MANAGER.release();
             }
         }
     }
@@ -102,7 +102,7 @@ public class BaseRemoteDao {
         int read;
         byte[] buffer = new byte[4096];
         while ((read = in.read(buffer)) != -1) {
-            out.write(read);
+            out.write(buffer, 0, read);
         }
         return out.toByteArray();
     }
@@ -113,7 +113,7 @@ public class BaseRemoteDao {
 
     private HttpURLConnection openConnection(String requestPath, String method) throws IOException {
         String destination = serverAddress + defaultIfEmpty(requestPath, "/");
-        log.log(Level.INFO, "url destination: " + destination);
+        log.log(Level.FINEST, "url destination: " + destination);
         HttpURLConnection connection = (HttpURLConnection) new URL(destination).openConnection();
         connection.setDoInput(true);
         connection.setDoOutput(true);

@@ -19,10 +19,11 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ApplicationDeployed;
 import com.ejisto.event.def.LogMessage;
+import com.ejisto.modules.repository.WebApplicationRepository;
 import org.jdesktop.swingx.JXPanel;
-import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +31,7 @@ import java.awt.*;
 import static com.ejisto.constants.StringConstants.DEFAULT_CARGO_ID;
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
 import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.GuiUtils.registerEventListener;
+import static com.ejisto.util.GuiUtils.registerApplicationEventListener;
 import static java.lang.String.format;
 
 /**
@@ -47,11 +48,15 @@ public class ContainerTab extends JSplitPane {
     private RegisteredContextList contextList;
     private JPanel serverSummaryPane;
     private String serverName;
+    private final WebApplicationRepository webApplicationRepository;
 
-    public ContainerTab(String serverName, String containerId) {
+    public ContainerTab(String serverName,
+                        String containerId,
+                        WebApplicationRepository webApplicationRepository) {
         super();
         this.containerId = containerId;
         this.serverName = serverName;
+        this.webApplicationRepository = webApplicationRepository;
         setName(serverName);
         init();
     }
@@ -82,20 +87,33 @@ public class ContainerTab extends JSplitPane {
         initRightComponent();
         setDividerSize(2);
         setResizeWeight(1.0D);
-        registerEventListener(ApplicationDeployed.class, new ApplicationListener<ApplicationDeployed>() {
-            @Override
-            public void onApplicationEvent(ApplicationDeployed event) {
-                applicationDeployed(event);
-            }
-        });
-        registerEventListener(LogMessage.class, new ApplicationListener<LogMessage>() {
-            @Override
-            public void onApplicationEvent(final LogMessage event) {
-                if (containerId.equals(event.getContainerId())) {
-                    log(event);
-                }
-            }
-        });
+        registerApplicationEventListener(
+                new ApplicationListener<ApplicationDeployed>() {
+                    @Override
+                    public void onApplicationEvent(ApplicationDeployed event) {
+                        applicationDeployed(event);
+                    }
+
+                    @Override
+                    public Class<ApplicationDeployed> getTargetEventType() {
+                        return ApplicationDeployed.class;
+                    }
+                });
+        registerApplicationEventListener(
+                new ApplicationListener<LogMessage>() {
+                    @Override
+                    public void onApplicationEvent(final LogMessage event) {
+                        if (containerId.equals(
+                                event.getContainerId())) {
+                            log(event);
+                        }
+                    }
+
+                    @Override
+                    public Class<LogMessage> getTargetEventType() {
+                        return LogMessage.class;
+                    }
+                });
     }
 
     private void applicationDeployed(ApplicationDeployed event) {
@@ -152,7 +170,7 @@ public class ContainerTab extends JSplitPane {
         if (this.contextList != null) {
             return this.contextList;
         }
-        contextList = new RegisteredContextList();
+        contextList = new RegisteredContextList(webApplicationRepository);
         return contextList;
     }
 

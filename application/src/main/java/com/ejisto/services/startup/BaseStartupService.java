@@ -23,6 +23,7 @@ import com.ejisto.services.Service;
 import com.ejisto.services.ServiceType;
 
 public abstract class BaseStartupService implements Service {
+
     @Override
     public final ServiceType getServiceType() {
         return ServiceType.STARTUP;

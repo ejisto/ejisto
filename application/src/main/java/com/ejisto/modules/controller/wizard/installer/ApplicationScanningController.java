@@ -24,9 +24,12 @@ import com.ejisto.modules.controller.wizard.installer.workers.ApplicationScannin
 import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.executor.ProgressDescriptor;
 import com.ejisto.modules.executor.Task;
+import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import com.ejisto.modules.gui.components.helper.Step;
+import com.ejisto.modules.repository.CustomObjectFactoryRepository;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 
 import java.beans.PropertyChangeEvent;
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,12 +41,20 @@ import static com.ejisto.util.GuiUtils.runOnEDT;
 public class ApplicationScanningController extends AbstractApplicationInstallerController {
     private ProgressPanel applicationScanningTab;
     private final String containerHome;
-    private AtomicReference<ProgressDescriptor.ProgressState> progressState = new AtomicReference<>(
+    private final AtomicReference<ProgressDescriptor.ProgressState> progressState = new AtomicReference<>(
             INDETERMINATE);
+    private final MockedFieldsRepository mockedFieldsRepository;
+    private final CustomObjectFactoryRepository customObjectFactoryRepository;
 
-    public ApplicationScanningController(EjistoDialog dialog, String containerHome) {
-        super(dialog);
+    public ApplicationScanningController(EjistoDialog dialog,
+                                         String containerHome,
+                                         MockedFieldsRepository mockedFieldsRepository,
+                                         CustomObjectFactoryRepository customObjectFactoryRepository,
+                                         TaskManager taskManager) {
+        super(dialog, taskManager);
         this.containerHome = containerHome;
+        this.mockedFieldsRepository = mockedFieldsRepository;
+        this.customObjectFactoryRepository = customObjectFactoryRepository;
     }
 
     @Override
@@ -77,7 +88,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
 
     @Override
     protected Task<?> createNewTask() {
-        return new ApplicationScanningWorker(this, containerHome);
+        return new ApplicationScanningWorker(this, mockedFieldsRepository, customObjectFactoryRepository, containerHome);
     }
 
     private void notifyStart(final int numJobs) {

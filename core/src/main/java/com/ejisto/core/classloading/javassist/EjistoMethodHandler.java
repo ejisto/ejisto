@@ -21,11 +21,11 @@ package com.ejisto.core.classloading.javassist;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import javassist.util.proxy.MethodHandler;
-import org.springframework.util.Assert;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Objects;
 
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.core.classloading.util.ReflectionUtils.getFieldName;
@@ -47,12 +47,14 @@ public class EjistoMethodHandler implements MethodHandler {
 
     private Object getFieldValue(Method method) throws Exception {
         MockedField mockedField = retrieveFieldToMock(method.getName());
-        Assert.notNull(mockedField);
+        Objects.requireNonNull(mockedField);
         if (!mockedField.isActive()) {
             return null;
         }
-        Assert.isTrue(isGetterForProperty(method.getName(), mockedField.getFieldName()),
-                      "error: undefined method [" + method.getName() + "]");
+        if(!isGetterForProperty(method.getName(), mockedField.getFieldName())) {
+            throw new IllegalArgumentException("error: undefined method [" + method.getName() + "]");
+        }
+
         Class<?> returnType = method.getReturnType();
         Constructor<?> constructor = returnType.getConstructor(String.class);
         return constructor.newInstance(mockedField.getFieldValue());

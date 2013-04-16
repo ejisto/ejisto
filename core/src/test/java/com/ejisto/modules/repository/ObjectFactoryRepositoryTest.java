@@ -19,15 +19,19 @@
 
 package com.ejisto.modules.repository;
 
+import com.ejisto.core.configuration.CoreBundle;
+import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
 import com.ejisto.modules.dao.local.ObjectFactoryDao;
-import org.junit.Before;
 import org.junit.Test;
+import se.jbee.inject.Injector;
+import se.jbee.inject.bootstrap.Bootstrap;
 
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static se.jbee.inject.Dependency.dependency;
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,13 +41,14 @@ import static org.junit.Assert.assertEquals;
  */
 public class ObjectFactoryRepositoryTest {
 
-    private ObjectFactoryRepository repository;
+    private static final Injector INJECTOR = Bootstrap.injector(CoreBundle.class);
+    private final ObjectFactoryRepository repository;
+    private final EmbeddedDatabaseManager db;
     private String context = "/myContext";
 
-    @Before
-    public void init() {
-        repository = ObjectFactoryRepository.getInstance();
-        repository.setDaoInstance(new ObjectFactoryDao() {
+    public ObjectFactoryRepositoryTest() {
+        db = INJECTOR.resolve(dependency(EmbeddedDatabaseManager.class));
+        repository = new ObjectFactoryRepository(null, new ObjectFactoryDao(db) {
             @Override
             public List<RegisteredObjectFactory> loadAll() {
                 return Collections.emptyList();

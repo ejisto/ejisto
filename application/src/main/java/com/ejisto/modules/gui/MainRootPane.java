@@ -20,18 +20,21 @@
 package com.ejisto.modules.gui;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ContainerInstalled;
 import com.ejisto.event.def.SessionRecorderStart;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.gui.components.ContainerTab;
 import com.ejisto.modules.gui.components.MainPanel;
+import com.ejisto.modules.repository.ContainersRepository;
+import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.modules.repository.WebApplicationRepository;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXRootPane;
 import org.jdesktop.swingx.JXStatusBar;
 import org.jdesktop.swingx.plaf.basic.BasicStatusBarUI;
-import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,35 +47,57 @@ import static com.ejisto.util.GuiUtils.*;
 
 public class MainRootPane extends JXRootPane {
     private static final long serialVersionUID = -3265545519465961578L;
-    //    private TaskController taskController;
     private JMenu containersMenu;
     private JXLabel statusLog;
     private JTabbedPane containersTabPane;
     private List<ContainerTab> containerTabs;
+    private final ContainersRepository containersRepository;
+    private final WebApplicationRepository webApplicationRepository;
+    private final MainPanel mainPanel;
 
-    public MainRootPane() {
+    public MainRootPane(MockedFieldsRepository mockedFieldsRepository,
+                        ContainersRepository containersRepository,
+                        WebApplicationRepository webApplicationRepository) {
         super();
+        this.containersRepository = containersRepository;
+        this.webApplicationRepository = webApplicationRepository;
+        this.mainPanel = new MainPanel(mockedFieldsRepository);
         init();
-        registerEventListener(ContainerInstalled.class, new ApplicationListener<ContainerInstalled>() {
+        registerApplicationEventListener(new ApplicationListener<ContainerInstalled>() {
             @Override
             public void onApplicationEvent(ContainerInstalled event) {
-                createContainerMenu(containersMenu, GuiUtils.loadContainer(event.getContainerId()));
+                createContainerMenu(containersMenu, loadContainer(
+                        MainRootPane.this.containersRepository,
+                        event.getContainerId()));
+            }
+
+            @Override
+            public Class<ContainerInstalled> getTargetEventType() {
+                return ContainerInstalled.class;
             }
         });
-        registerEventListener(StatusBarMessage.class, new ApplicationListener<StatusBarMessage>() {
+        registerApplicationEventListener(new ApplicationListener<StatusBarMessage>() {
             @Override
             public void onApplicationEvent(StatusBarMessage event) {
                 logStatusMessage(event.getMessage(), event.isError());
             }
+
+            @Override
+            public Class<StatusBarMessage> getTargetEventType() {
+                return StatusBarMessage.class;
+            }
         });
-        registerEventListener(ContainerInstalled.class, new ApplicationListener<ContainerInstalled>() {
+        registerApplicationEventListener(new ApplicationListener<ContainerInstalled>() {
             @Override
             public void onApplicationEvent(ContainerInstalled event) {
                 reloadContainerTabs();
             }
+
+            @Override
+            public Class<ContainerInstalled> getTargetEventType() {
+                return ContainerInstalled.class;
+            }
         });
-
-
     }
 
     private void reloadContainerTabs() {
@@ -85,7 +110,7 @@ public class MainRootPane extends JXRootPane {
 
     private void init() {
         initMenuBar();
-        getContentPane().add(new MainPanel(), BorderLayout.CENTER);
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
         getContentPane().add(getContainersTabPane(), BorderLayout.SOUTH);
         initStatusBar();
     }
@@ -103,12 +128,12 @@ public class MainRootPane extends JXRootPane {
         if (containerTabs != null) {
             return containerTabs;
         }
-        containerTabs = getRegisteredContainers();
+        containerTabs = getRegisteredContainers(containersRepository, webApplicationRepository);
         return containerTabs;
     }
 
     private void refreshContainerTabs(JTabbedPane mainTabbedPane) {
-        containerTabs = getRegisteredContainers();
+        containerTabs = getRegisteredContainers(containersRepository, webApplicationRepository);
         for (ContainerTab containerTab : getContainerTabs()) {
             mainTabbedPane.addTab(containerTab.getName(), containerTab.getIcon(), containerTab);
         }
@@ -166,7 +191,7 @@ public class MainRootPane extends JXRootPane {
     }
 
     private void createContainerMenus(JMenu root) {
-        List<Container> containers = getActiveContainers();
+        List<Container> containers = getActiveContainers(containersRepository);
         for (Container container : containers) {
             createContainerMenu(root, container);
         }
@@ -178,11 +203,6 @@ public class MainRootPane extends JXRootPane {
         menu.add(getAction(StringConstants.STOP_CONTAINER.getValue()));
         root.add(menu);
     }
-
-//    private TaskView initTaskView() {
-//        if (this.taskController == null) this.taskController = new TaskController();
-//        return taskController.getView();
-//    }
 
     void logStatusMessage(String message, boolean error) {
         getStatusLog().setForeground(error ? Color.RED : Color.BLACK);

@@ -21,20 +21,18 @@ package com.ejisto.event.listener;
 
 import ch.lambdaj.group.Group;
 import com.ejisto.core.classloading.scan.ScanAction;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.ApplicationScanRequired;
 import com.ejisto.event.def.BlockingTaskProgress;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
-import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.FieldsEditorContextMatcher;
 import lombok.extern.log4j.Log4j;
-import org.springframework.context.ApplicationListener;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
@@ -51,10 +49,14 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
 @Log4j
 public class WebApplicationScanner implements ApplicationListener<ApplicationScanRequired> {
 
-    @Resource private EventManager eventManager;
-    @Resource private MockedFieldsRepository mockedFieldsRepository;
-    @Resource private Application application;
+    private final EventManager eventManager;
+    private final MockedFieldsRepository mockedFieldsRepository;
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
+
+    public WebApplicationScanner(EventManager eventManager, MockedFieldsRepository mockedFieldsRepository) {
+        this.eventManager = eventManager;
+        this.mockedFieldsRepository = mockedFieldsRepository;
+    }
 
     @Override
     public void onApplicationEvent(ApplicationScanRequired event) {
@@ -69,7 +71,7 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
                                                            "application.deploy.preprocessing.description",
                                                            "icon.work.in.progress", true));
         Group<MockedField> groupedByClassName = group(fields, "className");
-        ScanAction action = new ScanAction(descriptor, groupedByClassName.subgroups());
+        ScanAction action = new ScanAction(descriptor, groupedByClassName.subgroups(), mockedFieldsRepository);
         try {
             forkJoinPool.invoke(action);
             action.get();
@@ -78,5 +80,10 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
             eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, ex));
         }
         eventManager.publishEventAndWait(new BlockingTaskProgress(this, id, null, null, null, false));
+    }
+
+    @Override
+    public Class<ApplicationScanRequired> getTargetEventType() {
+        return ApplicationScanRequired.class;
     }
 }

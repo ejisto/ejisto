@@ -39,6 +39,7 @@ import java.util.*;
  * Time: 11:44 PM
  */
 public class MapFactory<K, V> extends AbstractContainerFactory<Map<K, V>, V> {
+
     @Override
     public String getTargetClassName() {
         return "java.util.Map";

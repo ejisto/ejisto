@@ -30,22 +30,22 @@ import com.ejisto.modules.dao.Dao;
  */
 public abstract class ExternalizableService<T extends Dao> {
 
-    protected void checkDao() {
-        T dao = getDaoInstance();
+    private final T dao;
+
+    public ExternalizableService(T dao) {
+        this.dao = dao;
+    }
+
+    protected T getDao() {
         if (dao != null) {
-            return;//value injected by Spring AOP or previously created
+            return dao;//value previously injected
         }
         try {
-            dao = newRemoteDaoInstance();
-            setDaoInstance(dao);
+            return newRemoteDaoInstance();
         } catch (Exception e) {
             throw new ApplicationException("Unable to load dao for [" + this.getClass() + "]", e);
         }
     }
-
-    protected abstract T getDaoInstance();
-
-    protected abstract void setDaoInstance(T daoInstance);
 
     protected abstract T newRemoteDaoInstance();
 

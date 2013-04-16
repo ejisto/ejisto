@@ -21,6 +21,7 @@ package com.ejisto.modules.controller;
 
 import ch.lambdaj.function.closure.Closure0;
 import ch.lambdaj.function.convert.PropertyExtractor;
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ApplicationDeployed;
 import com.ejisto.event.def.ChangeWebAppContextStatus;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -28,7 +29,6 @@ import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.*;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.FieldsEditorContextMatcher;
-import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -55,21 +55,24 @@ import static com.ejisto.util.GuiUtils.*;
 public class MockedFieldsEditorController implements ActionListener, FieldEditingListener {
     public static final String STOP_EDITING = "STOP_EDITING";
     public static final String CANCEL_EDITING = "CANCEL_EDITING";
+    private final MockedFieldsRepository mockedFieldsRepository;
+    private final ReentrantLock lock;
     private MockedField editedField;
-    private ReentrantLock lock;
     private Point currentEditingLocation;
     private MockedFieldsEditor view;
     private ActionMap actionMap;
     private Collection<MockedField> wizardFields = Collections.emptyList();
     private volatile int selectedIndex = 0;
-    private FieldsEditorContextMatcher contextMatcher;
-    private FieldsEditorContext fieldsEditorContext;
+    private final FieldsEditorContextMatcher contextMatcher;
+    private final FieldsEditorContext fieldsEditorContext;
 
-    public MockedFieldsEditorController() {
-        this(APPLICATION_INSTALLER_WIZARD);
+    public MockedFieldsEditorController(MockedFieldsRepository mockedFieldsRepository) {
+        this(mockedFieldsRepository, APPLICATION_INSTALLER_WIZARD);
+
     }
 
-    public MockedFieldsEditorController(FieldsEditorContext fieldsEditorContext) {
+    public MockedFieldsEditorController(MockedFieldsRepository mockedFieldsRepository, FieldsEditorContext fieldsEditorContext) {
+        this.mockedFieldsRepository = mockedFieldsRepository;
         actionMap = new ActionMap();
         initActions();
         view = new MockedFieldsEditor(fieldsEditorContext, getActionMap());
@@ -86,12 +89,12 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         });
         contextMatcher = new FieldsEditorContextMatcher(fieldsEditorContext);
         if (fieldsEditorContext != APPLICATION_INSTALLER_WIZARD) {
-            view.setFields(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
+            view.setFields(mockedFieldsRepository.loadAll(contextMatcher));
         }
         this.fieldsEditorContext = fieldsEditorContext;
         view.registerFieldEditingListener(this);
         lock = new ReentrantLock();
-        registerEventListener(ApplicationDeployed.class, new ApplicationListener<ApplicationDeployed>() {
+        registerApplicationEventListener(new ApplicationListener<ApplicationDeployed>() {
             @Override
             public void onApplicationEvent(final ApplicationDeployed event) {
                 runOnEDT(new Runnable() {
@@ -101,30 +104,41 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
                     }
                 });
             }
+
+            @Override
+            public Class<ApplicationDeployed> getTargetEventType() {
+                return ApplicationDeployed.class;
+            }
         });
 
-        registerEventListener(ChangeWebAppContextStatus.class, new ApplicationListener<ChangeWebAppContextStatus>() {
+        registerApplicationEventListener(new ApplicationListener<ChangeWebAppContextStatus>() {
             @Override
             public void onApplicationEvent(final ChangeWebAppContextStatus event) {
                 runOnEDT(new Runnable() {
                     @Override
                     public void run() {
                         if (event.getCommand() == ChangeWebAppContextStatus.WebAppContextStatusCommand.DELETE) {
-                            notifyContextDeleted(event.getContextPath());
+                            notifyContextDeleted(
+                                    event.getContextPath());
                         }
                     }
                 });
+            }
+
+            @Override
+            public Class<ChangeWebAppContextStatus> getTargetEventType() {
+                return ChangeWebAppContextStatus.class;
             }
         });
     }
 
     private void notifyContextInstalled(String contextPath) {
-        view.contextInstalled(contextPath, MockedFieldsRepository.getInstance().loadActiveFields(contextPath,
+        view.contextInstalled(contextPath, mockedFieldsRepository.loadActiveFields(contextPath,
                 new FieldsEditorContextMatcher(fieldsEditorContext)));
     }
 
     private void notifyContextDeleted(String contextPath) {
-        view.contextRemoved(contextPath, MockedFieldsRepository.getInstance().loadAll(contextPath,
+        view.contextRemoved(contextPath, mockedFieldsRepository.loadAll(contextPath,
                 new FieldsEditorContextMatcher(fieldsEditorContext)));
     }
 
@@ -214,7 +228,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
 
     private Collection<String> selectMockedFieldTypes() {
         Collection<MockedField> fields = new ArrayList<>(wizardFields);
-        fields.addAll(MockedFieldsRepository.getInstance().loadAll(contextMatcher));
+        fields.addAll(mockedFieldsRepository.loadAll(contextMatcher));
         return new HashSet<>(convert(fields, new PropertyExtractor<Object, String>("className")));
     }
 

@@ -71,7 +71,13 @@ public enum StringConstants {
     CONTAINER_ID("container-id"),
     DEFAULT_CONTAINER_ID("__DEFAULT__"),
     HTTP_INTERFACE_ADDRESS("http-interface-address"),
-    REQUEST_ATTRIBUTE("request-attribute");
+    REQUEST_ATTRIBUTE("request-attribute"),
+    CTX_GET_OBJECT_FACTORY("/getObjectFactory"),
+    CTX_GET_CUSTOM_OBJECT_FACTORY("/getCustomObjectFactory"),
+    CTX_GET_MOCKED_FIELD("/getField"),
+    CTX_GET_SETTINGS("/getSettings"),
+
+    ;
 
     private final String value;
 

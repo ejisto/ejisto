@@ -45,14 +45,15 @@ import static java.lang.Thread.currentThread;
 public class ClassTransformer implements ClassFileTransformer {
 
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
-    //    private EjistoClassLoader classLoader;
     private ClassPool classPool;
     private final String contextPath;
     private final Collection<String> registeredClassNames;
+    private final MockedFieldsRepository mockedFieldsRepository;
 
-    public ClassTransformer(String contextPath) {
+    public ClassTransformer(String contextPath, MockedFieldsRepository mockedFieldsRepository) {
         this.contextPath = contextPath;
-        this.registeredClassNames = loadAllRegisteredClassNames(contextPath);
+        this.mockedFieldsRepository = mockedFieldsRepository;
+        this.registeredClassNames = loadAllRegisteredClassNames(contextPath, mockedFieldsRepository);
         initClassPool();
     }
 
@@ -192,7 +193,7 @@ public class ClassTransformer implements ClassFileTransformer {
     }
 
     private List<MockedField> getFieldsFor(String className) {
-        return MockedFieldsRepository.getInstance().load(contextPath, className);
+        return mockedFieldsRepository.load(contextPath, className);
     }
 
     private String getCanonicalClassName(String path) {
@@ -209,8 +210,9 @@ public class ClassTransformer implements ClassFileTransformer {
         }
     }
 
-    private static Collection<String> loadAllRegisteredClassNames(String contextPath) {
-        Collection<MockedField> fields = MockedFieldsRepository.getInstance().load(requestAllClasses(contextPath));
+    private static Collection<String> loadAllRegisteredClassNames(String contextPath,
+                                                                  MockedFieldsRepository mockedFieldsRepository) {
+        Collection<MockedField> fields = mockedFieldsRepository.load(requestAllClasses(contextPath));
         Set<String> classes = new HashSet<>(Lambda.<MockedField, String>extractProperty(fields, "className"));
         trace(format("filtered classes for %s: %s of %s", contextPath, classes, fields));
         return classes;

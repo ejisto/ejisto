@@ -38,19 +38,20 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public abstract class AbstractStepController<K> implements StepController<K>, PropertyChangeListener, TaskExecutionListener {
     private final EjistoDialog dialog;
     private K session;
-    private final TaskManager taskManager = TaskManager.getInstance();
-    private AtomicBoolean done = new AtomicBoolean(false);
-    private Semaphore insertPermit = new Semaphore(1);
-    private CyclicBarrier barrier = new CyclicBarrier(2, new Runnable() {
+    private final TaskManager taskManager;
+    private final AtomicBoolean done = new AtomicBoolean(false);
+    private final Semaphore insertPermit = new Semaphore(1);
+    private final CyclicBarrier barrier = new CyclicBarrier(2, new Runnable() {
         @Override
         public void run() {
             insertPermit.release();
         }
     });
-    private String currentTaskUUID;
+    private volatile String currentTaskUUID;
 
-    protected AbstractStepController(EjistoDialog dialog) {
+    protected AbstractStepController(EjistoDialog dialog, TaskManager taskManager) {
         this.dialog = dialog;
+        this.taskManager = taskManager;
     }
 
     public void setSession(K session) {

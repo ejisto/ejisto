@@ -19,16 +19,13 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.DialogRequested;
 import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.AboutPanel;
-import org.springframework.context.ApplicationListener;
 
-import javax.annotation.Resource;
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,16 +33,19 @@ import java.awt.event.ActionListener;
  * Date: 1/24/12
  * Time: 7:33 PM
  */
-public class DialogManager implements ApplicationListener<DialogRequested>, ActionListener {
+public class DialogManager implements ApplicationListener<DialogRequested> {
 
-    @Resource private Application application;
-    private DialogController controller;
+    private final Application application;
+
+    public DialogManager(Application application) {
+        this.application = application;
+    }
 
     @Override
     public void onApplicationEvent(DialogRequested event) {
         try {
             JPanel view = new AboutPanel();
-            controller = DialogController.Builder
+            DialogController controller = DialogController.Builder
                     .newInstance()
                     .withParentFrame(application)
                     .withIconKey("field.add.icon")
@@ -60,7 +60,7 @@ public class DialogManager implements ApplicationListener<DialogRequested>, Acti
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        controller.hide();
+    public Class<DialogRequested> getTargetEventType() {
+        return DialogRequested.class;
     }
 }

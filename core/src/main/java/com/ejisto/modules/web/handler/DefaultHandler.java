@@ -19,8 +19,8 @@
 
 package com.ejisto.modules.web.handler;
 
+import com.ejisto.modules.web.RemoteRequestHandler;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,15 +31,21 @@ import java.io.OutputStream;
  * Date: 7/4/12
  * Time: 10:59 AM
  */
-public class DefaultHandler implements HttpHandler {
+public class DefaultHandler implements RemoteRequestHandler {
 
     private static final byte[] GREETINGS = "Hi, I'm ejisto. How can I help you? :)".getBytes();
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-        httpExchange.sendResponseHeaders(200, GREETINGS.length);
-        OutputStream os = httpExchange.getResponseBody();
-        os.write(GREETINGS);
-        os.close();
+        try (OutputStream os = httpExchange.getResponseBody()) {
+            httpExchange.sendResponseHeaders(200, GREETINGS.length);
+            os.write(GREETINGS);
+            os.close();
+        }
+    }
+
+    @Override
+    public String getContextPath() {
+        return "/";
     }
 }

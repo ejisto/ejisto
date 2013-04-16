@@ -19,6 +19,7 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.BlockingTaskProgress;
 import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.executor.BackgroundTask;
@@ -26,9 +27,7 @@ import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.ProgressPanel;
 import lombok.extern.log4j.Log4j;
-import org.springframework.context.ApplicationListener;
 
-import javax.annotation.Resource;
 import javax.swing.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,10 +45,15 @@ import static com.ejisto.util.GuiUtils.getMessage;
 @Log4j
 public class TaskProgressNotifier implements ApplicationListener<BlockingTaskProgress> {
 
-    @Resource private Application application;
-    @Resource TaskManager taskManager;
+    private final Application application;
+    private final TaskManager taskManager;
     private final ConcurrentMap<String, DialogController> activeControllers = new ConcurrentHashMap<>();
     private final AtomicReference<DialogController> currentController = new AtomicReference<>();
+
+    public TaskProgressNotifier(Application application, TaskManager taskManager) {
+        this.application = application;
+        this.taskManager = taskManager;
+    }
 
     @Override
     public void onApplicationEvent(final BlockingTaskProgress event) {
@@ -76,6 +80,11 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
         } else {
             closeActiveProgress(event);
         }
+    }
+
+    @Override
+    public Class<BlockingTaskProgress> getTargetEventType() {
+        return BlockingTaskProgress.class;
     }
 
     private void closeActiveProgress(BlockingTaskProgress event) {

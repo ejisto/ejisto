@@ -47,7 +47,7 @@ public class ContainerInstalled extends BaseApplicationEvent {
     }
 
     @Override
-    public boolean isRunOnEDT() {
+    public boolean shouldRunOnEDT() {
         return false;
     }
 

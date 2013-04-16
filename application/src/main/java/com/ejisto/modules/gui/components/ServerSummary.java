@@ -19,12 +19,12 @@
 
 package com.ejisto.modules.gui.components;
 
+import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ContainerStatusChanged;
 import com.ejisto.event.def.ServerRestartRequired;
 import com.ejisto.modules.gui.EjistoAction;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
-import org.springframework.context.ApplicationListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,8 +44,8 @@ import static com.ejisto.util.GuiUtils.*;
 public class ServerSummary extends JXPanel implements PropertyChangeListener {
 
     private JPanel header;
-    private String containerId;
-    private String serverName;
+    private final String containerId;
+    private final String serverName;
     private JPanel buttonsPanel;
     private JXLabel serverStatus;
     private JXLabel info;
@@ -53,6 +53,32 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
     public ServerSummary(String containerId, String serverName) {
         this.containerId = containerId;
         this.serverName = serverName;
+        registerApplicationEventListener(new ApplicationListener<ServerRestartRequired>() {
+            @Override
+            public void onApplicationEvent(ServerRestartRequired event) {
+                if (ServerSummary.this.containerId.equals(event.getContainerId())) {
+                    getInfo().setVisible(!getAction(START_CONTAINER.getValue()).isEnabled());
+                }
+            }
+
+            @Override
+            public Class<ServerRestartRequired> getTargetEventType() {
+                return ServerRestartRequired.class;
+            }
+        });
+        registerApplicationEventListener(new ApplicationListener<ContainerStatusChanged>() {
+            @Override
+            public void onApplicationEvent(ContainerStatusChanged event) {
+                if (ServerSummary.this.containerId.equals(event.getContainerId()) && event.isStarted()) {
+                    getInfo().setVisible(false);
+                }
+            }
+
+            @Override
+            public Class<ContainerStatusChanged> getTargetEventType() {
+                return ContainerStatusChanged.class;
+            }
+        });
         init();
     }
 
@@ -84,22 +110,6 @@ public class ServerSummary extends JXPanel implements PropertyChangeListener {
         add(getHeader(), BorderLayout.WEST);
         add(getButtonsPanel(), BorderLayout.EAST);
         getAction(START_CONTAINER.getValue()).addPropertyChangeListener(this);
-        registerEventListener(ServerRestartRequired.class, new ApplicationListener<ServerRestartRequired>() {
-            @Override
-            public void onApplicationEvent(ServerRestartRequired event) {
-                if (containerId.equals(event.getContainerId())) {
-                    getInfo().setVisible(!getAction(START_CONTAINER.getValue()).isEnabled());
-                }
-            }
-        });
-        registerEventListener(ContainerStatusChanged.class, new ApplicationListener<ContainerStatusChanged>() {
-            @Override
-            public void onApplicationEvent(ContainerStatusChanged event) {
-                if (containerId.equals(event.getContainerId()) && event.isStarted()) {
-                    getInfo().setVisible(false);
-                }
-            }
-        });
     }
 
 
