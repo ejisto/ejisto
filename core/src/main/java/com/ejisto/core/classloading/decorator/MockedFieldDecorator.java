@@ -67,9 +67,7 @@ public class MockedFieldDecorator implements MockedField {
                 clazz.detach();
             }
             return true;
-        } /*catch (NotFoundException e) {
-            throw new IllegalStateException(e);//should never happens
-        } */ catch (Exception e) {
+        } catch (Exception e) {
             log.error("cannot check if field " + target.getFieldName() + " is simple type", e);
             return true;
         } finally {

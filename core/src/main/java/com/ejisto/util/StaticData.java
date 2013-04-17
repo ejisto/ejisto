@@ -37,8 +37,6 @@ public final class StaticData {
     public static final Properties SETTINGS;
 
     static {
-        //TASK_DESCRIPTORS = Arrays.asList(new TaskManager.Descriptor(new ObjectFactoryLoader(objectFactoryRepository,
-        //                                                                                    customObjectFactoryDao), 0L, 1L));
         SETTINGS = new Properties();
         try {
             SETTINGS.load(Object.class.getResourceAsStream("/settings.properties"));

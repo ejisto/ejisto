@@ -105,8 +105,6 @@ public class Header extends JXPanel implements ComponentListener {
         setMinimumSize(new Dimension(300, 80));
         setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.gray));
-        //add(logo, BorderLayout.WEST);
-//        add(gradient, BorderLayout.EAST);
         add(getHeader(), BorderLayout.CENTER);
         addComponentListener(this);
     }

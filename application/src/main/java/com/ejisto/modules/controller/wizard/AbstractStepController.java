@@ -95,17 +95,6 @@ public abstract class AbstractStepController<K> implements StepController<K>, Pr
         } else {
             handlePropertyChange(evt);
         }
-//        if (evt.getPropertyName().equalsIgnoreCase("state") &&
-//                evt.getNewValue() == DONE) {
-//            try {
-//                done.compareAndSet(false, true);
-//                //we should exit as soon as possible, since we are on EDT
-//                barrier.await(100, MILLISECONDS);
-//            } catch (Exception e) {
-//                //should never happens, since this thread should be the second one waiting on barrier.
-//                throw new AssertionError(String.format("unexpected %s", e.toString()));
-//            }
-//        }
     }
 
     @Override

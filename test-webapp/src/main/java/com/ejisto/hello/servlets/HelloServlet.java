@@ -44,25 +44,9 @@ public class HelloServlet extends HttpServlet {
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html");
         HelloWorldBean bean = new HelloWorldBean();
-        //TestDao dao = new TestDao();
         request.setAttribute("bean", bean);
-        //request.setAttribute("dao", dao);
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/index.jsp");
         dispatcher.forward(request, response);
-//        PrintWriter pw = response.getWriter();
-//        pw.write("<html><head><title>Ejisto Test servlet</title></head><body><b>Title: </b>");
-//        pw.write(bean.getTitle());
-//        pw.write("<br><b>Description: </b>");
-//        pw.write(bean.getDescription());
-//        pw.write("<br><b>Hit count: </b>");
-//        pw.write(String.valueOf(bean.getHits()));
-//        pw.write("<br><b>Time stamp: </b>");
-//        pw.write(String.valueOf(bean.getTimestamp()));
-//        pw.write("<br><b>what time is it?:</b>");
-//        pw.write(String.valueOf(dao.whatTimeIsIt()));
-//        pw.write("</body><html>");
-//        pw.flush();
-
     }
 
 }

@@ -54,9 +54,4 @@ public class Container implements Entity<String> {
     public boolean isStandalone() {
         return standalone;
     }
-
-    @Override
-    public Container clone() throws CloneNotSupportedException {
-        return (Container) super.clone();
-    }
 }

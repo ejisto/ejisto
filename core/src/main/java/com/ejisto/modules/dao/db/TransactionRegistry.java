@@ -81,11 +81,11 @@ public final class TransactionRegistry {
         return INACTIVE;
     }
 
-    static Transaction create(DB db) {//TxMaker txMaker) {
+    static Transaction create(DB db) {
         if (ACTIVE_TRANSACTION_ID.get() != null) {
             throw new IllegalStateException("There is another running transaction");
         }
-        Transaction transaction = new DefaultTransaction(db);//txMaker);
+        Transaction transaction = new DefaultTransaction(db);
         String id = transaction.getId();
         REGISTERED_TRANSACTIONS.put(id, new WeakReference<>(transaction));
         ACTIVE_TRANSACTION_ID.set(id);

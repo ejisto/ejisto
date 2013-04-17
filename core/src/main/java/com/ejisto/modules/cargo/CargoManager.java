@@ -190,7 +190,6 @@ public class CargoManager implements ContainerManager {
                     new ChangeServerStatus(this, container.getId(), ChangeServerStatus.Command.SHUTDOWN));
         }
         eventManager.publishEventAndWait(new ApplicationScanRequired(this, webApplicationDescriptor));
-        //Deployable deployable = defaultServerStarted.get() ? hotDeploy(descriptor, container) : staticDeploy(descriptor, container);
         Deployable deployable = staticDeploy(webApplicationDescriptor, localContainer);
         if (deployable == null) {
             return false;
@@ -278,9 +277,8 @@ public class CargoManager implements ContainerManager {
         if (StringUtils.isNotBlank(existingJvmArgs)) {
             args.append(existingJvmArgs);
         }
-        for (String propertyName : additionalJavaSystemProperties.keySet()) {
-            args.append(" -D").append(propertyName).append("=").append(
-                    additionalJavaSystemProperties.get(propertyName));
+        for (Map.Entry<String, String> property : additionalJavaSystemProperties.entrySet()) {
+            args.append(" -D").append(property.getKey()).append("=").append(property.getValue());
         }
         configuration.setProperty(GeneralPropertySet.JVMARGS, args.toString());
         AbstractInstalledLocalContainer instance = createContainer(container.getHomeDir(), container.getCargoId(),

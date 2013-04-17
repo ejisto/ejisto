@@ -216,10 +216,8 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
 
     private WebApplicationDescriptor createTempWebApplicationDescriptor(WebApplicationDescriptor original) throws IOException, JDOMException {
         Path path = Files.createTempDirectory(original.getContextPath().replaceAll("/", "_"));
-        //copyDirContentExcludingMatchingFiles(new File(original.getDeployablePath()), new File(path.toString()), new String[] {COPIED_FILES_PREFIX});
         unzipFile(original.getWarFile(), path.toString());
         File targetDir = new File(FilenameUtils.normalize(path.toString() + "/WEB-INF/lib/"));
-        //copyFile(System.getProperty("ejisto.agent.jar.path"), targetDir);
         copyEjistoLibs(new String[]{"ejisto-embeddable", "jackson", "commons-lang"}, targetDir);
         WebApplicationDescriptor temp = WebApplicationDescriptor.copyOf(original);
         temp.setDeployablePath(path.toString());

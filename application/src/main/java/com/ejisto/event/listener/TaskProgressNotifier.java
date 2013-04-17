@@ -73,7 +73,7 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
                             !currentController.compareAndSet(null, controller)) {
                         Thread.sleep(100L);
                     }
-                    //controller.showUndecorated(true);
+                    controller.showUndecorated(true);
                     return null;
                 }
             }));
@@ -100,7 +100,7 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
             currentController.compareAndSet(controller, null);
             activeControllers.remove(event.getId());
             log.debug("hiding controller");
-            //controller.hide();
+            controller.hide();
             log.debug("hidden");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

@@ -55,21 +55,16 @@ public class EmbeddedDatabaseManager {
     private static final String STARTUP_COUNTER = "startupCounter";
     private static final ReentrantLock MAINTENANCE_LOCK = new ReentrantLock();
     private static final int NODE_SIZE = 32;
-    //private volatile TxMaker tx;
     private volatile DB db;
     private final CopyOnWriteArrayList<String> contextPaths = new CopyOnWriteArrayList<>();
 
     public void initDb(String databaseFilePath) throws Exception {
         boolean owned = false;
         try {
-            if (!MAINTENANCE_LOCK.tryLock() || db != null) {//tx != null) {
+            if (!MAINTENANCE_LOCK.tryLock() || db != null) {
                 return;
             }
             owned = true;
-//            tx = DBMaker.newFileDB(new File(databaseFilePath))
-//                    .randomAccessFileEnableIfNeeded()
-//                    .cacheLRUEnable()
-//                    .makeTxMaker();
             db = DBMaker.newFileDB(new File(databaseFilePath))
                     .randomAccessFileEnableIfNeeded()
                     .cacheLRUEnable().make();
@@ -84,12 +79,10 @@ public class EmbeddedDatabaseManager {
     public void initMemoryDb() throws Exception {
         boolean owned = false;
         try {
-            if (!MAINTENANCE_LOCK.tryLock() || db != null) {//tx != null) {
+            if (!MAINTENANCE_LOCK.tryLock() || db != null) {
                 return;
             }
             owned = true;
-//            tx = DBMaker.newMemoryDB()
-//                    .makeTxMaker();
             db = DBMaker.newMemoryDB().make();
             createSchema();
         } finally {
@@ -101,7 +94,6 @@ public class EmbeddedDatabaseManager {
 
 
     private void createSchema() {
-        //DB db = tx.makeTx();
         if (Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) {
             db.createHashMap(SETTINGS, false, null, new SettingSerializer());
             db.createHashMap(CONTAINERS, false, null, new ContainerSerializer());
@@ -120,7 +112,7 @@ public class EmbeddedDatabaseManager {
                             }
                         }));
         Atomic.Integer count = Atomic.getInteger(db, STARTUP_COUNTER);
-        count.set(count.get() + 1);
+        count.incrementAndGet();
         db.commit();
     }
 
@@ -224,7 +216,6 @@ public class EmbeddedDatabaseManager {
 
     public void doMaintenance() throws InterruptedException {
         if (MAINTENANCE_LOCK.tryLock(5L, TimeUnit.SECONDS)) {
-            //tx.makeTx().compact();
             db.compact();
         } else {
             throw new IllegalStateException("Unable to lock the database");
@@ -233,7 +224,6 @@ public class EmbeddedDatabaseManager {
 
     public void shutdown() throws InterruptedException {
         if (MAINTENANCE_LOCK.tryLock(5L, TimeUnit.SECONDS)) {
-            //tx.close();
             db.close();
         } else {
             throw new IllegalStateException("Unable to lock the database");
@@ -249,7 +239,6 @@ public class EmbeddedDatabaseManager {
     }
 
     public Transaction createNewTransaction() {
-        //return TransactionRegistry.create(tx);
         return TransactionRegistry.create(db);
     }
 

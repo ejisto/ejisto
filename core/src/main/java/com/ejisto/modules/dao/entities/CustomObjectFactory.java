@@ -58,9 +58,4 @@ public class CustomObjectFactory implements Entity<String> {
     public String getKey() {
         return fileName;
     }
-
-    @Override
-    public CustomObjectFactory clone() throws CloneNotSupportedException {
-        return (CustomObjectFactory) super.clone();
-    }
 }
