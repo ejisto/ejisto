@@ -22,11 +22,8 @@ package com.ejisto.core.classloading.proxy;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import net.sf.cglib.proxy.Enhancer;
-import ognl.ObjectNullHandler;
 
-import java.util.Map;
-
-public final class EjistoProxyFactory extends ObjectNullHandler {
+public final class EjistoProxyFactory {
     private static final EjistoProxyFactory INSTANCE = new EjistoProxyFactory();
     private final MockedFieldsRepository mockedFieldsRepository;
 
@@ -53,10 +50,5 @@ public final class EjistoProxyFactory extends ObjectNullHandler {
 
     public <T> T proxyClass(Class<T> target, MockedField mockedField) {
         return proxyClass(target, mockedField.getContextPath());
-    }
-
-    @Override
-    public Object nullPropertyValue(Map context, Object target, Object property) {
-        return super.nullPropertyValue(context, target, property);
     }
 }

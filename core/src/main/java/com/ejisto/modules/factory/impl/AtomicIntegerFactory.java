@@ -33,6 +33,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class AtomicIntegerFactory implements ObjectFactory<AtomicInteger> {
 
     @Override
+    public Class<?> getTargetClass() {
+        return AtomicInteger.class;
+    }
+
+    @Override
     public String getTargetClassName() {
         return "java.util.concurrent.AtomicInteger";
     }

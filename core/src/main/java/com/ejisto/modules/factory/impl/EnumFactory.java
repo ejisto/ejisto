@@ -34,6 +34,11 @@ import org.apache.commons.lang3.StringUtils;
 public class EnumFactory<T extends Enum<T>> implements ObjectFactory<Enum<T>> {
 
     @Override
+    public Class<?> getTargetClass() {
+        return Enum.class;
+    }
+
+    @Override
     public String getTargetClassName() {
         return "java.lang.Enum";
     }

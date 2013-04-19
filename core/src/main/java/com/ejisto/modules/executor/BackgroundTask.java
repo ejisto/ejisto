@@ -19,6 +19,10 @@
 
 package com.ejisto.modules.executor;
 
+import com.ejisto.event.ApplicationEventDispatcher;
+import com.ejisto.event.def.ApplicationError;
+import lombok.extern.log4j.Log4j;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
@@ -28,6 +32,7 @@ import java.util.concurrent.FutureTask;
  * Date: 11/22/11
  * Time: 7:18 PM
  */
+@Log4j
 public class BackgroundTask<T> extends FutureTask<T> implements Task<T> {
 
     private static final ProgressDescriptor NO_PROGRESS = new ProgressDescriptor(0, "");
@@ -58,6 +63,12 @@ public class BackgroundTask<T> extends FutureTask<T> implements Task<T> {
     @Override
     public ProgressDescriptor getCurrentProgressDescriptor() {
         return NO_PROGRESS;
+    }
+
+    @Override
+    protected void setException(Throwable t) {
+        super.setException(t);
+        ApplicationEventDispatcher.publish(new ApplicationError(this, ApplicationError.Priority.HIGH, t));
     }
 
     @Override

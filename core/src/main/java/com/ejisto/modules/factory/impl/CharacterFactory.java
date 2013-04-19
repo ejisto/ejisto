@@ -36,6 +36,11 @@ public class CharacterFactory implements ObjectFactory<Character> {
     private static final Random random = new Random();
 
     @Override
+    public Class<?> getTargetClass() {
+        return Character.class;
+    }
+
+    @Override
     public String getTargetClassName() {
         return "java.lang.Character";
     }

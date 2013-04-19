@@ -35,6 +35,11 @@ import java.util.Locale;
 public class LocaleFactory implements ObjectFactory<Locale> {
 
     @Override
+    public Class<?> getTargetClass() {
+        return Locale.class;
+    }
+
+    @Override
     public String getTargetClassName() {
         return Locale.class.getName();
     }

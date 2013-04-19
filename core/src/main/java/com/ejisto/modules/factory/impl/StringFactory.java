@@ -35,6 +35,11 @@ public class StringFactory implements ObjectFactory<String> {
     private static final Random random = new Random();
 
     @Override
+    public Class<?> getTargetClass() {
+        return String.class;
+    }
+
+    @Override
     public String getTargetClassName() {
         return "java.lang.String";
     }

@@ -33,6 +33,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class AtomicLongFactory implements ObjectFactory<AtomicLong> {
 
     @Override
+    public Class<?> getTargetClass() {
+        return AtomicLong.class;
+    }
+
+    @Override
     public String getTargetClassName() {
         return "java.util.concurrent.atomic.AtomicLong";
     }

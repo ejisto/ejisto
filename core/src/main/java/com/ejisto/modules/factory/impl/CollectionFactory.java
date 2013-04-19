@@ -20,15 +20,19 @@
 package com.ejisto.modules.factory.impl;
 
 import com.ejisto.core.ApplicationException;
+import com.ejisto.core.classloading.util.AutoGrowingList;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.factory.AbstractContainerFactory;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import ognl.Ognl;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
@@ -41,11 +45,17 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
  */
 public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>, Y> {
 
+    private static final int MAX_SIZE = 10;
     private final MockedFieldsRepository mockedFieldsRepository;
 
     public CollectionFactory() {
         super();
         this.mockedFieldsRepository = new MockedFieldsRepository(null);
+    }
+
+    @Override
+    public Class<Collection> getTargetClass() {
+        return Collection.class;
     }
 
     @Override
@@ -56,8 +66,9 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
     @Override
     public Collection<Y> create(MockedField m, Collection<Y> actualValue) {
         ObjectFactory<Y> elementObjectFactory = loadElementObjectFactory(m.getFieldElementType(), m.getContextPath());
-        Collection<Y> value = new ArrayList<>();
+        Collection<Y> value = newInstance(m);
         applyExpressions(value, m.getExpression(), elementObjectFactory, m, actualValue);
+        fillCollection(value, elementObjectFactory, m, actualValue);
         return value;
     }
 
@@ -71,28 +82,34 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
         return null;
     }
 
-    private void applyExpressions(Collection<Y> in, String expression, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Collection<Y> actualValue) {
+    @SuppressWarnings("unchecked")
+    private Collection<Y> newInstance(MockedField m) {
         try {
-            int size = 10;
-            if (expression != null) {
-                String[] expressions = expression.split(";");
-                String[] keyValue;
-                for (String exp : expressions) {
-                    keyValue = exp.split("=");
-                    if (keyValue[0].equals("size")) {
-                        size = Integer.parseInt(keyValue[1]);
-                    } else {
-                        Ognl.setValue(keyValue[0], in, keyValue[1]);
-                    }
-                }
+            return (Collection<Y>) CollectionType.findByType(Class.forName(m.getFieldType())).newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private void applyExpressions(Collection<Y> in, String expression, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Collection<Y> actualValue) {
+        if (StringUtils.isBlank(expression)) {
+            return;
+        }
+        try {
+            final ObjectMapper mapper = new ObjectMapper();
+            final JsonNode root = mapper.readTree(expression.getBytes());
+            for (JsonNode child : root) {
+                @SuppressWarnings("unchecked")
+                Y element = (Y) mapper.readValue(child.asText(), elementObjectFactory.getTargetClass());
+                in.add(element);
             }
-            fillCollection(in, size, elementObjectFactory, mockedField, actualValue);
         } catch (Exception e) {
             throw new ApplicationException(e);
         }
     }
 
-    private void fillCollection(Collection<Y> in, int size, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Collection<Y> actualValue) {
+    private void fillCollection(Collection<Y> in, ObjectFactory<Y> elementObjectFactory, MockedField mockedField, Collection<Y> actualValue) {
         List<MockedField> fields = mockedFieldsRepository.loadActiveFields(mockedField.getContextPath(),
                                                                            mockedField.getFieldElementType());
         boolean emptyFields = isEmpty(fields);
@@ -109,12 +126,49 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
             return;
         }
         Y firstValue = isEmpty(actualValue) ? null : actualValue.iterator().next();
-        for (int i = in.size(); i < size; i++) {
+        for (int i = in.size(); i < (MAX_SIZE - (int) (MAX_SIZE * Math.random())); i++) {
             if (emptyFields) {
                 in.add(elementObjectFactory.createRandomValue());
             } else {
                 in.add(elementObjectFactory.create(target, firstValue));
             }
+        }
+    }
+
+    private enum CollectionType {
+        LIST(java.util.List.class) {
+            @Override
+            public Collection<?> newInstance() {
+                return new AutoGrowingList<>();
+            }
+        },
+        QUEUE(java.util.Queue.class) {
+            @Override
+            public Collection<?> newInstance() {
+                return new LinkedList<>();
+            }
+        },
+        SET(java.util.Set.class) {
+            @Override
+            public Collection<?> newInstance() {
+                return new HashSet<>();
+            }
+        };
+        private final Class<?> type;
+
+        CollectionType(Class<?> type) {
+            this.type = type;
+        }
+
+        abstract Collection<?> newInstance();
+
+        static CollectionType findByType(Class<?> type) {
+            for (CollectionType collectionType : values()) {
+                if (collectionType.type.isAssignableFrom(type)) {
+                    return collectionType;
+                }
+            }
+            return LIST;
         }
     }
 

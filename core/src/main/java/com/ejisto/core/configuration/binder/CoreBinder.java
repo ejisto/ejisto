@@ -32,7 +32,6 @@ import com.ejisto.modules.repository.*;
 import com.ejisto.modules.web.HTTPServer;
 import com.ejisto.modules.web.RemoteRequestHandler;
 import com.ejisto.modules.web.handler.*;
-import ognl.OgnlContext;
 import se.jbee.inject.bind.BinderModule;
 
 /**
@@ -47,7 +46,6 @@ public class CoreBinder extends BinderModule {
     protected void declare() {
         bind(ContainerManager.class).to(CargoManager.class);
         construct(ApplicationEventDispatcher.class);
-        construct(OgnlContext.class);
         construct(SharedClassLoader.class);
         multibind(RemoteRequestHandler.class).to(DefaultHandler.class);
         multibind(RemoteRequestHandler.class).to(ObjectFactoryHandler.class);

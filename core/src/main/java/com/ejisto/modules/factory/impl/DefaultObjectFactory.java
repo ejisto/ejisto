@@ -31,6 +31,11 @@ import lombok.extern.log4j.Log4j;
 public class DefaultObjectFactory implements ObjectFactory<Object> {
 
     @Override
+    public Class<?> getTargetClass() {
+        return Object.class;
+    }
+
+    @Override
     public String getTargetClassName() {
         return "java.lang.Object";
     }

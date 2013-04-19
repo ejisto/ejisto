@@ -37,6 +37,11 @@ public class SimplePropertyValueFactory implements ObjectFactory<SimplePropertyV
     private static final SecureRandom random = new SecureRandom();
 
     @Override
+    public Class<?> getTargetClass() {
+        return SimplePropertyValue.class;
+    }
+
+    @Override
     public String getTargetClassName() {
         return "com.ejisto.hello.beans.SimplePropertyValue";
     }

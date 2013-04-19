@@ -35,6 +35,11 @@ import static java.util.concurrent.TimeUnit.DAYS;
  */
 public class DateFactory implements ObjectFactory<Date> {
 
+    @Override
+    public Class<?> getTargetClass() {
+        return Date.class;
+    }
+
     public String getTargetClassName() {
         return "java.util.Date";
     }
@@ -57,6 +62,6 @@ public class DateFactory implements ObjectFactory<Date> {
     }
 
     public long getRandomInterval() {
-        return (long) Math.random() * 365 * 3;
+        return (long) (Math.random() * 365 * 3);
     }
 }

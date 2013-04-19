@@ -47,6 +47,11 @@ public class NumberFactory implements ObjectFactory<Number> {
     }
 
     @Override
+    public Class<?> getTargetClass() {
+        return Number.class;
+    }
+
+    @Override
     public String getTargetClassName() {
         return "java.lang.Number";
     }

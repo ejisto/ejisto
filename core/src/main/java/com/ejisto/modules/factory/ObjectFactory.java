@@ -32,6 +32,12 @@ import com.ejisto.modules.dao.entities.MockedField;
  * @author Celestino Bellone
  */
 public interface ObjectFactory<T> {
+
+    /**
+     * Returns the target class
+     */
+    Class<?> getTargetClass();
+
     /**
      * Returns the target class name for caching purposes.<br>
      * <b>Please note that cache manager won't allow existing mappings</b>
@@ -62,4 +68,5 @@ public interface ObjectFactory<T> {
      * @return random value (if supported)
      */
     T createRandomValue();
+
 }

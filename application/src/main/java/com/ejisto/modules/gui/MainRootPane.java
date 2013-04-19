@@ -167,7 +167,7 @@ public class MainRootPane extends JXRootPane {
         JMenuItem record = new JMenuItem(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                GuiUtils.publishEvent(new SessionRecorderStart(this, "/petclinic"));
+                GuiUtils.publishEvent(new SessionRecorderStart(this, null));
             }
         });
         record.setText("-TEST- Record");

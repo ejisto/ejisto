@@ -60,12 +60,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static ch.lambdaj.Lambda.extractProperty;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_HEIGHT;
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
 import static com.ejisto.util.GuiUtils.getIcon;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.IOUtils.*;
+import static javax.swing.JOptionPane.showInputDialog;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Created by IntelliJ IDEA.
@@ -103,7 +106,17 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
 
     @Override
     public void onApplicationEvent(SessionRecorderStart event) {
-        WebApplicationDescriptor descriptor = webApplicationDescriptorDao.load(event.getWebApplicationContextPath());
+        String contextPath = event.getWebApplicationContextPath();
+        if (isEmpty(contextPath)) {
+            List<String> contextPaths = extractProperty(webApplicationDescriptorDao.loadAll(), "contextPath");
+            contextPath = (String) showInputDialog(application, getMessage("session.record.select.application"),
+                                                   getMessage("session.record.select.application.title"),
+                                                   JOptionPane.QUESTION_MESSAGE, null, contextPaths.toArray(), null);
+            if (isEmpty(contextPath)) {
+                return;
+            }
+        }
+        WebApplicationDescriptor descriptor = webApplicationDescriptorDao.load(contextPath);
         if (descriptor.getWarFile() == null) {
             File war = GuiUtils.selectFile(application, settingsRepository.getSettingValue(LAST_FILESELECTION_PATH),
                                            false, settingsRepository, "war");
@@ -130,10 +143,10 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
             zipDirectory(new File(descriptor.getDeployablePath()),
                          FilenameUtils.normalize(outputDir.getAbsolutePath() + descriptor.getContextPath() + ".war"));
             if (!httpServer.createContext(descriptor.getContextPath(), new DataCollectorHandler(eventManager))) {
-                log.warn("attempt to create httpHandler failed. A Handler has already been defined.");
+                log.warn("attempt to create httpHandler failed. An Handler has already been defined.");
             }
             log.debug("done.");
-            final MockedFieldsEditor editor = new MockedFieldsEditor(FieldsEditorContext.ADD_FIELD, new ActionMap());
+            final MockedFieldsEditor editor = new MockedFieldsEditor(FieldsEditorContext.RECORD_FIELD, new ActionMap());
             DialogController controller = DialogController.Builder.newInstance()
                     .resizable(true)
                     .withActions(new AbstractActionExt(getMessage("session.record.stop"), getIcon(
@@ -149,30 +162,31 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                     .withParentFrame(application)
                     .build();
             if (dialogController.compareAndSet(null, controller)) {
-                applicationEventDispatcher.registerApplicationEventListener(new ApplicationListener<CollectedDataReceived>() {
-                                          @Override
-                                          public void onApplicationEvent(CollectedDataReceived event) {
-                                              try {
-                                                  CollectedData collectedData = event.getData();
-                                                  String contextPath = collectedData.getContextPath();
-                                                  Set<MockedField> fields = putIfAbsent(contextPath, RECORDED_FIELDS);
-                                                  Set<CollectedData> data = putIfAbsent(contextPath, RECORDED_DATA);
-                                                  fields.addAll(flattenAttributes(collectedData.getRequestAttributes()));
-                                                  fields.addAll(flattenAttributes(collectedData.getSessionAttributes()));
-                                                  replace(contextPath, RECORDED_FIELDS, fields);
-                                                  data.add(collectedData);
-                                                  replace(contextPath, RECORDED_DATA, data);
-                                                  editor.setFields(new ArrayList<>(RECORDED_FIELDS.get(contextPath)));
-                                              } catch (Exception e) {
-                                                  SessionRecorderManager.log.error("got exception while collecting fields", e);
-                                              }
-                                          }
+                applicationEventDispatcher.registerApplicationEventListener(
+                        new ApplicationListener<CollectedDataReceived>() {
+                            @Override
+                            public void onApplicationEvent(CollectedDataReceived event) {
+                                try {
+                                    CollectedData collectedData = event.getData();
+                                    String contextPath = collectedData.getContextPath();
+                                    Set<MockedField> fields = putIfAbsent(contextPath, RECORDED_FIELDS);
+                                    Set<CollectedData> data = putIfAbsent(contextPath, RECORDED_DATA);
+                                    fields.addAll(flattenAttributes(collectedData.getRequestAttributes()));
+                                    fields.addAll(flattenAttributes(collectedData.getSessionAttributes()));
+                                    replace(contextPath, RECORDED_FIELDS, fields);
+                                    data.add(collectedData);
+                                    replace(contextPath, RECORDED_DATA, data);
+                                    editor.setFields(new ArrayList<>(RECORDED_FIELDS.get(contextPath)));
+                                } catch (Exception e) {
+                                    SessionRecorderManager.log.error("got exception while collecting fields", e);
+                                }
+                            }
 
-                                          @Override
-                                          public Class<CollectedDataReceived> getTargetEventType() {
-                                              return CollectedDataReceived.class;
-                                          }
-                                      });
+                            @Override
+                            public Class<CollectedDataReceived> getTargetEventType() {
+                                return CollectedDataReceived.class;
+                            }
+                        });
                 controller.show(true, new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
             }
         } catch (IOException | JDOMException e) {
@@ -186,11 +200,11 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
 
     private <K, V> boolean replace(K key, ConcurrentMap<K, Set<V>> container, Set<V> newValue) {
         int counter = 10;
-        while(counter-- > 0){
+        while (counter-- > 0) {
             Set<V> currentValue = container.get(key);
             Set<V> copy = new HashSet<>(currentValue);
             copy.addAll(newValue);
-            if(container.replace(key, currentValue, copy)) {
+            if (container.replace(key, currentValue, copy)) {
                 return true;
             }
         }
@@ -229,7 +243,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         String path = FilenameUtils.normalizeNoEndSeparator(descriptor.getDeployablePath()) + File.separator +
                 "WEB-INF" + File.separator + "web.xml";
         File webXml = new File(path);
-        if(!webXml.exists()) {
+        if (!webXml.exists()) {
             throw new IllegalStateException("web.xml doesn't exist");
         }
         WebXml xml = WebXmlIo.parseWebXmlFromFile(webXml, null);

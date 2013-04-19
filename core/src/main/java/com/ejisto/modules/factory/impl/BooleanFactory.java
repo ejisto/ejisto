@@ -30,6 +30,11 @@ import com.ejisto.modules.factory.ObjectFactory;
  */
 public class BooleanFactory implements ObjectFactory<Boolean> {
     @Override
+    public Class<?> getTargetClass() {
+        return Boolean.class;
+    }
+
+    @Override
     public String getTargetClassName() {
         return "java.lang.Boolean";
     }

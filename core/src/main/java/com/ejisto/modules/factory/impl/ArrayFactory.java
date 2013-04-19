@@ -41,6 +41,11 @@ public class ArrayFactory<T> implements ObjectFactory<T[]> {
     }
 
     @Override
+    public Class<?> getTargetClass() {
+        return Array.class;
+    }
+
+    @Override
     public String getTargetClassName() {
         return String.format("Array [L%s;", elementFactory.getTargetClassName());
     }

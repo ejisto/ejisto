@@ -81,7 +81,7 @@ public class PropertyManagerTest {
         field.setContextPath(CTX);
         field.setFieldName("collectionOfObjects");
         field.setFieldType(List.class.getName());
-        field.setExpression("size=10");
+        //field.setExpression("");
         field.setFieldElementType(AnotherSimpleBean.class.getName());
         MOCKED_FIELDS_REPOSITORY.insert(field);
 
@@ -96,7 +96,7 @@ public class PropertyManagerTest {
 
         List<?> res = PROPERTY_MANAGER.mockField(CTX, "collectionOfObjects", CLASS_NAME, List.class, null);
         assertNotNull(res);
-        assertEquals(10, res.size());
+        assertTrue(res.size() > 0);
         for (Object re : res) {
             assertTrue(re instanceof AnotherSimpleBean);
             assertEquals("test", ((AnotherSimpleBean) re).getTestMethod());
@@ -203,6 +203,11 @@ public class PropertyManagerTest {
     }
 
     public static class SimpleBeanObjectFactory implements ObjectFactory<SimpleBean> {
+
+        @Override
+        public Class<?> getTargetClass() {
+            return SimpleBean.class;
+        }
 
         @Override
         public String getTargetClassName() {

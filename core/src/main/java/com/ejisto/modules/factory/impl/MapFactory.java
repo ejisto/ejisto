@@ -41,6 +41,11 @@ import java.util.*;
 public class MapFactory<K, V> extends AbstractContainerFactory<Map<K, V>, V> {
 
     @Override
+    public Class<?> getTargetClass() {
+        return Map.class;
+    }
+
+    @Override
     public String getTargetClassName() {
         return "java.util.Map";
     }
