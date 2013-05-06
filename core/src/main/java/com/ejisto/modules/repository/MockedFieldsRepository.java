@@ -52,17 +52,17 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     }
 
     public List<MockedField> loadAll(Matcher<MockedField> matcher) {
-        List<MockedField> allFields = select(getMockedFieldsDao().loadAll(), matcher);
+        List<MockedField> allFields = select(getDao().loadAll(), matcher);
         return convert(allFields, mockedFieldConverter);
     }
 
     public List<MockedField> loadAll(String contextPath, Matcher<MockedField> matcher) {
-        List<MockedField> allFields = select(getMockedFieldsDao().loadContextPathFields(contextPath), matcher);
+        List<MockedField> allFields = select(getDao().loadContextPathFields(contextPath), matcher);
         return convert(allFields, mockedFieldConverter);
     }
 
     public List<MockedField> loadAll() {
-        return convert(getMockedFieldsDao().loadAll(), mockedFieldConverter);
+        return convert(getDao().loadAll(), mockedFieldConverter);
     }
 
     public List<MockedField> loadActiveFields(String contextPath, Matcher<MockedField> matcher) {
@@ -70,44 +70,40 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     }
 
     public MockedField load(String contextPath, String className, String fieldName) {
-        return mockedFieldConverter.convert(getMockedFieldsDao().getMockedField(contextPath, className, fieldName));
+        return mockedFieldConverter.convert(getDao().getMockedField(contextPath, className, fieldName));
     }
 
     public boolean exists(String contextPath, String className, String fieldName) {
-        return getMockedFieldsDao().exists(contextPath, className, fieldName);
+        return getDao().exists(contextPath, className, fieldName);
     }
 
     public List<MockedField> load(String contextPath, String className) {
-        return convert(getMockedFieldsDao().loadByContextPathAndClassName(contextPath, className),
+        return convert(getDao().loadByContextPathAndClassName(contextPath, className),
                        mockedFieldConverter);
     }
 
     public boolean update(MockedField mockedField) {
-        return getMockedFieldsDao().update(mockedField);
+        return getDao().update(mockedField);
     }
 
     public MockedField insert(MockedField mockedField) {
-        return getMockedFieldsDao().insert(mockedField);
+        return getDao().insert(mockedField);
     }
 
     public boolean isMockableClass(String contextPath, String className) {
-        return getMockedFieldsDao().countByContextPathAndClassName(contextPath, className) > 0;
+        return getDao().countByContextPathAndClassName(contextPath, className) > 0;
     }
 
     public boolean createContext(String contextPath) {
-        return getMockedFieldsDao().createContext(contextPath);
+        return getDao().createContext(contextPath);
     }
 
     public boolean deleteContext(String contextPath) {
-        return getMockedFieldsDao().deleteContext(contextPath);
+        return getDao().deleteContext(contextPath);
     }
 
     public void insert(Collection<MockedField> fields) {
-        getMockedFieldsDao().insert(fields);
-    }
-
-    private MockedFieldsDao getMockedFieldsDao() {
-        return getDao();
+        getDao().insert(fields);
     }
 
     @Override
@@ -122,7 +118,7 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
 
     public Collection<MockedField> load(MockedFieldRequest request) {
         if (request.areAllContextPathFieldsRequested()) {
-            return getMockedFieldsDao().loadContextPathFields(request.getContextPath());
+            return getDao().loadContextPathFields(request.getContextPath());
         } else if (request.areAllFieldsRequested()) {
             return loadAll();
         } else if (request.areAllClassPropertiesRequested()) {

@@ -225,10 +225,10 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     }
 
     @Override
-    public void fillWithCustomMenuItems(JPopupMenu menu, Point sourcePosition) {
+    public boolean fillWithCustomMenuItems(JPopupMenu menu, Point sourcePosition) {
         final MockedFieldNode node = getNodeAt(sourcePosition.x, sourcePosition.y);
         if (node == null || node.isLeaf() || node.isEmpty()) {
-            return;
+            return false;
         }
         Action customAction = new AbstractAction() {
             @Override
@@ -245,7 +245,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
                               getMessage(expanded ? "collapse.node.text" : "expand.node.text"));
         customAction.putValue(Action.ACTION_COMMAND_KEY, expanded ? "collapse" : "expand");
         menu.add(customAction);
-        menu.add(new JPopupMenu.Separator());
+        return true;
     }
 
     @Override

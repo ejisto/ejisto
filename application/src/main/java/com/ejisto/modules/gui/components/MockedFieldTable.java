@@ -146,7 +146,8 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
     }
 
     @Override
-    public void fillWithCustomMenuItems(JPopupMenu menu, Point sourcePosition) {
+    public boolean fillWithCustomMenuItems(JPopupMenu menu, Point sourcePosition) {
+        return false;
     }
 
     @Override

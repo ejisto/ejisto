@@ -22,18 +22,23 @@ package com.ejisto.modules.gui;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ContainerInstalled;
+import com.ejisto.event.def.SessionRecorded;
 import com.ejisto.event.def.SessionRecorderStart;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.gui.components.ContainerTab;
 import com.ejisto.modules.gui.components.MainPanel;
+import com.ejisto.modules.recorder.CollectedData;
+import com.ejisto.modules.repository.CollectedDataRepository;
 import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import com.ejisto.util.GuiUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXRootPane;
 import org.jdesktop.swingx.JXStatusBar;
+import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdesktop.swingx.plaf.basic.BasicStatusBarUI;
 
 import javax.swing.*;
@@ -41,26 +46,35 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.ejisto.util.GuiUtils.*;
 
 public class MainRootPane extends JXRootPane {
     private static final long serialVersionUID = -3265545519465961578L;
+    private final MockedFieldsRepository mockedFieldsRepository;
+    private final CollectedDataRepository collectedDataRepository;
+    private final ContainersRepository containersRepository;
+    private final WebApplicationRepository webApplicationRepository;
     private JMenu containersMenu;
+    private JMenu recordedSessionsMenu;
     private JXLabel statusLog;
     private JTabbedPane containersTabPane;
     private List<ContainerTab> containerTabs;
-    private final ContainersRepository containersRepository;
-    private final WebApplicationRepository webApplicationRepository;
     private final MainPanel mainPanel;
 
     public MainRootPane(MockedFieldsRepository mockedFieldsRepository,
+                        CollectedDataRepository collectedDataRepository,
                         ContainersRepository containersRepository,
                         WebApplicationRepository webApplicationRepository) {
         super();
+        this.collectedDataRepository = collectedDataRepository;
         this.containersRepository = containersRepository;
         this.webApplicationRepository = webApplicationRepository;
+        this.mockedFieldsRepository = mockedFieldsRepository;
         this.mainPanel = new MainPanel(mockedFieldsRepository);
         init();
         registerApplicationEventListener(new ApplicationListener<ContainerInstalled>() {
@@ -96,6 +110,17 @@ public class MainRootPane extends JXRootPane {
             @Override
             public Class<ContainerInstalled> getTargetEventType() {
                 return ContainerInstalled.class;
+            }
+        });
+        registerApplicationEventListener(new ApplicationListener<SessionRecorded>() {
+            @Override
+            public void onApplicationEvent(SessionRecorded event) {
+                buildRecordedSessionMenu(recordedSessionsMenu);
+            }
+
+            @Override
+            public Class<SessionRecorded> getTargetEventType() {
+                return SessionRecorded.class;
             }
         });
     }
@@ -134,8 +159,13 @@ public class MainRootPane extends JXRootPane {
 
     private void refreshContainerTabs(JTabbedPane mainTabbedPane) {
         containerTabs = getRegisteredContainers(containersRepository, webApplicationRepository);
+        mainTabbedPane.removeAll();
         for (ContainerTab containerTab : getContainerTabs()) {
             mainTabbedPane.addTab(containerTab.getName(), containerTab.getIcon(), containerTab);
+        }
+        if (CollectionUtils.isEmpty(getContainerTabs())) {
+            mainTabbedPane.addTab(getMessage("container.installation.required"),
+                                  new JXLabel(getMessage("container.installation.required.message"), JXLabel.CENTER));
         }
     }
 
@@ -158,22 +188,12 @@ public class MainRootPane extends JXRootPane {
         JMenuBar jMenuBar = new JMenuBar();
         JMenu jMenuFile = new JMenu("File");
         containersMenu = new JMenu("Containers");
+        recordedSessionsMenu = new JMenu("Recorded Sessions");
         JMenuItem open = new JMenuItem(getAction(StringConstants.LOAD_WEB_APP.getValue()));
         open.setText("Open");
         open.setAccelerator(
                 javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
         jMenuFile.add(open);
-
-        JMenuItem record = new JMenuItem(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                GuiUtils.publishEvent(new SessionRecorderStart(this, null));
-            }
-        });
-        record.setText("-TEST- Record");
-        record.setAccelerator(
-                javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK));
-        jMenuFile.add(record);
 
         JMenuItem jMenuItemExit = new JMenuItem(getAction(StringConstants.SHUTDOWN.getValue()));
         jMenuItemExit.setAccelerator(
@@ -183,12 +203,74 @@ public class MainRootPane extends JXRootPane {
         createContainerMenus(containersMenu);
         jMenuBar.add(jMenuFile);
         jMenuBar.add(containersMenu);
+        //RecordedSessions
+        buildRecordedSessionMenu(recordedSessionsMenu);
+        jMenuBar.add(recordedSessionsMenu);
         //About menu
         JMenu jMenuHelp = new JMenu("?");
         jMenuHelp.add(getAction(StringConstants.SHOW_ABOUT_PANEL.getValue()));
         jMenuBar.add(jMenuHelp);
         setJMenuBar(jMenuBar);
     }
+
+    private void buildRecordedSessionMenu(JMenu root) {
+        if (root.getMenuComponentCount() > 0) {
+            root.removeAll();
+        }
+        final Map<String, CollectedData> sessions = collectedDataRepository.getAllRecordedSessions();
+        buildSessionMenus(root, sessions);
+        if (sessions.isEmpty()) {
+            JMenuItem placeHolder = new JMenuItem("<none>");
+            placeHolder.setEnabled(false);
+            root.add(placeHolder);
+        }
+        root.addSeparator();
+        JMenuItem record = new JMenuItem(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                GuiUtils.publishEvent(new SessionRecorderStart(this, null));
+            }
+        });
+        record.setText("New...");
+        record.setAccelerator(
+                javax.swing.KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK));
+        root.add(record);
+    }
+
+    private void buildSessionMenus(JMenu root, Map<String, CollectedData> sessions) {
+        if (sessions.isEmpty()) {
+            return;
+        }
+        final Map<String, List<JMenuItem>> items = new LinkedHashMap<>();
+        for (Map.Entry<String, CollectedData> entry : sessions.entrySet()) {
+            CollectedData collectedData = entry.getValue();
+            JCheckBoxMenuItem item = new JCheckBoxMenuItem(new AbstractActionExt(entry.getKey()) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    boolean checked = ((JCheckBoxMenuItem) e.getSource()).getState();
+                    String name = e.getActionCommand();
+                    if (checked) {
+                        collectedDataRepository.enableRecordedSession(name);
+                    } else {
+                        collectedDataRepository.disableRecordedSession(name);
+                    }
+                }
+            });
+            item.setState(collectedData.isActive());
+            if (!items.containsKey(collectedData.getContextPath())) {
+                items.put(collectedData.getContextPath(), new ArrayList<JMenuItem>());
+            }
+            items.get(collectedData.getContextPath()).add(item);
+        }
+        for (Map.Entry<String, List<JMenuItem>> entry : items.entrySet()) {
+            JMenu itemMenu = new JMenu(entry.getKey());
+            for (JMenuItem jMenuItem : entry.getValue()) {
+                itemMenu.add(jMenuItem);
+            }
+            root.add(itemMenu);
+        }
+    }
+
 
     private void createContainerMenus(JMenu root) {
         List<Container> containers = getActiveContainers(containersRepository);

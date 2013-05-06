@@ -20,11 +20,13 @@
 package com.ejisto.event.listener;
 
 import ch.lambdaj.Lambda;
+import ch.lambdaj.function.aggregate.Aggregator;
 import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.CollectedDataReceived;
+import com.ejisto.event.def.SessionRecorded;
 import com.ejisto.event.def.SessionRecorderStart;
 import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -34,12 +36,15 @@ import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.recorder.CollectedData;
+import com.ejisto.modules.repository.CollectedDataRepository;
 import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.modules.web.HTTPServer;
 import com.ejisto.modules.web.handler.DataCollectorHandler;
 import com.ejisto.util.GuiUtils;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.cargo.module.DescriptorElement;
 import org.codehaus.cargo.module.webapp.*;
 import org.codehaus.cargo.module.webapp.elements.Filter;
@@ -54,12 +59,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static ch.lambdaj.Lambda.aggregate;
 import static ch.lambdaj.Lambda.extractProperty;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_HEIGHT;
@@ -87,6 +95,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     private final HTTPServer httpServer;
     private final SettingsRepository settingsRepository;
     private final ApplicationEventDispatcher applicationEventDispatcher;
+    private final CollectedDataRepository collectedDataRepository;
     private final AtomicReference<DialogController> dialogController = new AtomicReference<>();
 
     public SessionRecorderManager(EventManager eventManager,
@@ -94,13 +103,15 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                                   WebApplicationDescriptorDao webApplicationDescriptorDao,
                                   HTTPServer httpServer,
                                   SettingsRepository settingsRepository,
-                                  ApplicationEventDispatcher applicationEventDispatcher) {
+                                  ApplicationEventDispatcher applicationEventDispatcher,
+                                  CollectedDataRepository collectedDataRepository) {
         this.eventManager = eventManager;
         this.application = application;
         this.webApplicationDescriptorDao = webApplicationDescriptorDao;
         this.httpServer = httpServer;
         this.settingsRepository = settingsRepository;
         this.applicationEventDispatcher = applicationEventDispatcher;
+        this.collectedDataRepository = collectedDataRepository;
     }
 
 
@@ -118,7 +129,8 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         }
         WebApplicationDescriptor descriptor = webApplicationDescriptorDao.load(contextPath);
         if (descriptor.getWarFile() == null) {
-            File war = GuiUtils.selectFile(application, settingsRepository.getSettingValue(LAST_FILESELECTION_PATH),
+            File war = GuiUtils.selectFile(application, getMessage("session.record.open.target"),
+                                           settingsRepository.getSettingValue(LAST_FILESELECTION_PATH),
                                            false, settingsRepository, "war");
             if (war == null) {
                 GuiUtils.showErrorMessage(application, getMessage("wizard.file.selected.default.text"));
@@ -137,8 +149,11 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     public void startSessionRecording(WebApplicationDescriptor webApplicationDescriptor) {
         try {
             log.debug("start listening for collected data...");
-            File outputDir = GuiUtils.selectDirectory(application, settingsRepository.getSettingValue(LAST_OUTPUT_PATH),
-                                                      true, settingsRepository);
+            File outputDir = selectOutputDirectory(application, settingsRepository.getSettingValue(LAST_OUTPUT_PATH),
+                                                   true, settingsRepository);
+            if (outputDir == null) {
+                return;
+            }
             final WebApplicationDescriptor descriptor = createTempWebApplicationDescriptor(webApplicationDescriptor);
             zipDirectory(new File(descriptor.getDeployablePath()),
                          FilenameUtils.normalize(outputDir.getAbsolutePath() + descriptor.getContextPath() + ".war"));
@@ -221,12 +236,49 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     }
 
     private void stopRecording(String contextPath) {
+        tryToSave(contextPath);
         DialogController controller = dialogController.get();
         controller.hide();
         dialogController.compareAndSet(controller, null);
         httpServer.removeContext(contextPath);
-        //do some stuff with collected data
     }
+
+    private void tryToSave(final String contextPath) {
+        final Set<CollectedData> data = RECORDED_DATA.replace(contextPath, new HashSet<CollectedData>());
+        if (CollectionUtils.isEmpty(data)) {
+            log.debug("Nothing to save, exiting");
+            return;
+        }
+        String name;
+        do {
+            name = showInputDialog(null, getMessage("session.record.save.as"),
+                                   new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date()));
+
+        } while (StringUtils.isEmpty(name) && !GuiUtils.showWarning(null, getMessage("warning.message")));
+
+        if (StringUtils.isNotEmpty(name)) {
+            final CollectedData collectedData;
+            if (data.size() > 1) {
+                collectedData = aggregate(data, new Aggregator<CollectedData>() {
+                    @Override
+                    public CollectedData aggregate(Iterator<? extends CollectedData> iterator) {
+                        CollectedData aggregated = CollectedData.empty(contextPath);
+                        while (iterator.hasNext()) {
+                            CollectedData.join(iterator.next(), aggregated);
+                        }
+                        return aggregated;
+                    }
+                });
+            } else {
+                collectedData = data.iterator().next();
+            }
+            collectedDataRepository.saveRecordedSession(name, collectedData);
+
+            eventManager.publishEvent(
+                    new SessionRecorded(this, name, getMessage("session.recorded.status.message", name)));
+        }
+    }
+
 
     private WebApplicationDescriptor createTempWebApplicationDescriptor(WebApplicationDescriptor original) throws IOException, JDOMException {
         Path path = Files.createTempDirectory(original.getContextPath().replaceAll("/", "_"));
@@ -269,5 +321,28 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         mapping.setFilterName(SESSION_RECORDING_FILTER_NAME.getValue());
         mapping.setUrlPattern("/*");
         elements.add(1, mapping);
+    }
+
+    private File selectOutputDirectory(Component parent,
+                                       String directoryPath,
+                                       boolean saveLastSelectionPath,
+                                       SettingsRepository settingsRepository) {
+        String targetPath = null;
+        Path savedPath = null;
+        if (StringUtils.isNotBlank(directoryPath)) {
+            savedPath = Paths.get(directoryPath);
+            Path selectionPath = savedPath.getParent();
+            if (selectionPath != null) {
+                targetPath = selectionPath.toString();
+            }
+        }
+        JFileChooser fileChooser = new JFileChooser(targetPath);
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+        fileChooser.setSelectedFile(savedPath != null ? savedPath.toFile() : null);
+        fileChooser.setDialogTitle(getMessage("session.record.save.target"));
+
+        return GuiUtils.openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_OUTPUT_PATH,
+                                                settingsRepository);
     }
 }

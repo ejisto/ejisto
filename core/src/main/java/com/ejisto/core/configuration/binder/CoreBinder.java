@@ -60,6 +60,7 @@ public class CoreBinder extends BinderModule {
         construct(ObjectFactoryRepository.class);
         construct(SettingsRepository.class);
         construct(WebApplicationRepository.class);
+        construct(CollectedDataRepository.class);
         construct(TaskManager.class);
         construct(SettingsManager.class);
         construct(EventManager.class);

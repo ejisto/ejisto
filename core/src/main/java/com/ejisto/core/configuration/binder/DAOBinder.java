@@ -24,6 +24,7 @@ import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.ObjectFactoryDao;
 import com.ejisto.modules.dao.SettingsDao;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
+import com.ejisto.modules.dao.local.CollectedDataDao;
 import com.ejisto.modules.dao.local.ContainersDao;
 import com.ejisto.modules.dao.local.WebApplicationDescriptorDao;
 import se.jbee.inject.bind.BinderModule;
@@ -44,5 +45,6 @@ public class DAOBinder extends BinderModule {
         construct(ContainersDao.class);
         construct(WebApplicationDescriptorDao.class);
         construct(EmbeddedDatabaseManager.class);
+        construct(CollectedDataDao.class);
     }
 }

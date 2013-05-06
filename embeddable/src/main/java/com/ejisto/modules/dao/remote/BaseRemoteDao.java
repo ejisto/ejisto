@@ -47,6 +47,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Log
 public class BaseRemoteDao {
 
+    public static final String REMOTE_DAO_IS_READ_ONLY = "Remote dao is read-only";
     private static final Semaphore CONCURRENT_REQUEST_MANAGER = new Semaphore(50);
     private static final String SERVER_ADDRESS = "http://localhost:%s";
     private final String serverAddress;

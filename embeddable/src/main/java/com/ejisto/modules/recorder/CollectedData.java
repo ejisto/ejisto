@@ -44,6 +44,12 @@ public final class CollectedData {
     private final List<String> permanentRedirections;
     private final Set<ResponseHeader> headers;
     private final String contextPath;
+    private final boolean active;
+
+    private CollectedData(CollectedData src, boolean newState) {
+        this(src.requestParameters, src.requestAttributes, src.sessionAttributes, src.requestDispatcherRedirection,
+             src.permanentRedirections, src.headers, src.contextPath, newState);
+    }
 
     @JsonCreator
     public CollectedData(@JsonProperty("requestParameters") Map<String, String> requestParameters,
@@ -52,7 +58,8 @@ public final class CollectedData {
                          @JsonProperty("requestDispatcherRedirection") List<String> requestDispatcherRedirection,
                          @JsonProperty("permanentRedirections") List<String> permanentRedirections,
                          @JsonProperty("headers") Set<ResponseHeader> headers,
-                         @JsonProperty("contextPath") String contextPath) {
+                         @JsonProperty("contextPath") String contextPath,
+                         @JsonProperty("active") boolean active) {
         this.requestParameters = new TreeMap<String, String>(requestParameters);
         this.requestAttributes = new TreeMap<String, List<MockedField>>(requestAttributes);
         this.sessionAttributes = new TreeMap<String, List<MockedField>>(sessionAttributes);
@@ -61,6 +68,7 @@ public final class CollectedData {
         this.contextPath = contextPath;
         this.headers = new TreeSet<ResponseHeader>(ResponseHeader.COMPARATOR);
         this.headers.addAll(headers);
+        this.active = active;
     }
 
     public Map<String, String> getRequestParameters() {
@@ -101,6 +109,21 @@ public final class CollectedData {
         return buildKey(false);
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
+    public Collection<MockedField> getAllFields() {
+        List<MockedField> result = new ArrayList<MockedField>();
+        for (List<MockedField> fields : requestAttributes.values()) {
+            result.addAll(fields);
+        }
+        for (List<MockedField> fields : sessionAttributes.values()) {
+            result.addAll(fields);
+        }
+        return result;
+    }
+
     private String buildKey(boolean full) {
         StringBuilder clearText = new StringBuilder();
         for (String key : requestParameters.keySet()) {
@@ -115,5 +138,27 @@ public final class CollectedData {
             return sha256Digest(clearText.toString());
         }
         return null;
+    }
+
+    public static CollectedData changeActivationState(CollectedData collectedData, boolean active) {
+        if (collectedData.active == active) {
+            return collectedData;
+        }
+        return new CollectedData(collectedData, active);
+    }
+
+    public static CollectedData empty(String contextPath) {
+        return new CollectedData(new HashMap<String, String>(), new HashMap<String, List<MockedField>>(),
+                                 new HashMap<String, List<MockedField>>(), new ArrayList<String>(),
+                                 new ArrayList<String>(), new HashSet<ResponseHeader>(), contextPath, false);
+    }
+
+    public static void join(CollectedData src, CollectedData target) {
+        target.requestParameters.putAll(src.requestParameters);
+        target.requestAttributes.putAll(src.requestAttributes);
+        target.sessionAttributes.putAll(src.sessionAttributes);
+        target.requestDispatcherRedirection.addAll(src.requestDispatcherRedirection);
+        target.permanentRedirections.addAll(src.permanentRedirections);
+        target.headers.addAll(src.headers);
     }
 }

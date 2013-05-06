@@ -75,27 +75,27 @@ public class MockedFieldsDao extends BaseRemoteDao implements com.ejisto.modules
 
     @Override
     public boolean update(MockedField field) {
-        throw new UnsupportedOperationException("Remote dao is read-only");
+        throw new UnsupportedOperationException(REMOTE_DAO_IS_READ_ONLY);
     }
 
     @Override
     public MockedField insert(MockedField field) {
-        throw new UnsupportedOperationException("Remote dao is read-only");
+        throw new UnsupportedOperationException(REMOTE_DAO_IS_READ_ONLY);
     }
 
     @Override
     public void insert(Collection<MockedField> mockedFields) {
-        throw new UnsupportedOperationException("Remote dao is read-only");
+        throw new UnsupportedOperationException(REMOTE_DAO_IS_READ_ONLY);
     }
 
     @Override
     public boolean createContext(String contextPath) {
-        throw new UnsupportedOperationException("Remote dao is read-only");
+        throw new UnsupportedOperationException(REMOTE_DAO_IS_READ_ONLY);
     }
 
     @Override
     public boolean deleteContext(String contextPath) {
-        throw new UnsupportedOperationException("Remote dao is read-only");
+        throw new UnsupportedOperationException(REMOTE_DAO_IS_READ_ONLY);
     }
 
     private List<MockedField> decodeResponse(String responseBody) {

@@ -93,7 +93,7 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
     }
 
     private File openFileSelectionDialog() {
-        return selectFile(getDialog(), settingsRepository.getSettingValue(LAST_FILESELECTION_PATH), true,
+        return selectFile(getDialog(), null, settingsRepository.getSettingValue(LAST_FILESELECTION_PATH), true,
                           settingsRepository, "war");
     }
 

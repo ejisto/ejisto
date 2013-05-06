@@ -26,10 +26,14 @@ import com.ejisto.modules.dao.db.util.MockedFieldContainer;
 import com.ejisto.modules.dao.db.util.MockedFieldExtractor;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
+import com.ejisto.modules.dao.local.helper.RecursiveMockedFieldLoader;
+import com.ejisto.modules.recorder.CollectedData;
+import com.ejisto.modules.web.MockedFieldRequest;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ForkJoinPool;
 
 import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -37,16 +41,25 @@ import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 
 public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.dao.MockedFieldsDao {
 
-    public MockedFieldsDao(EmbeddedDatabaseManager database) {
+    private final ForkJoinPool forkJoinPool = new ForkJoinPool();
+    private final CollectedDataDao collectedDataDao;
+
+    public MockedFieldsDao(EmbeddedDatabaseManager database, CollectedDataDao collectedDataDao) {
         super(database);
+        this.collectedDataDao = collectedDataDao;
     }
 
     @Override
     public List<MockedField> loadAll() {
         List<MockedField> out = new LinkedList<>();
+        List<CollectedData> activeSessions = new ArrayList<>(getDatabase().getActiveRecordedSessions());
+        RecursiveMockedFieldLoader forked = new RecursiveMockedFieldLoader(activeSessions, collectedDataDao,
+                                                                           MockedFieldRequest.requestAllFields());
+        forkJoinPool.execute(forked);
         for (String contextPath : getDatabase().getRegisteredContextPaths()) {
             out.addAll(Lambda.<MockedField>flatten(loadContextPathFields(contextPath)));
         }
+        out.addAll(forked.join());
         return out;
     }
 

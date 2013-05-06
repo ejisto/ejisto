@@ -26,6 +26,8 @@ import lombok.extern.java.Log;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpSession;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -47,10 +49,7 @@ import static java.util.Collections.emptyList;
 public class FieldSerializationUtil {
 
     private static final ConcurrentMap<Integer, String> CACHED_IDS = new ConcurrentHashMap<Integer, String>();
-    private static final List<Class<?>> BLACKLIST = new ArrayList<Class<?>>();
-    static {
-        BLACKLIST.add(ClassLoader.class);
-    }
+    private static final Class<?>[] BLACKLISTED_CLASSES = {ServletRequest.class, ServletResponse.class, HttpSession.class, ClassLoader.class};
 
     public static List<MockedField> translateObject(Object object, String containerClassName, String fieldName, String contextPath) {
         if (object == null) {
@@ -70,7 +69,7 @@ public class FieldSerializationUtil {
         Class<?> objectClass = object.getClass();
         String className = objectClass.getName();
         for (Field field : objectClass.getDeclaredFields()) {
-            if (!Modifier.isTransient(field.getModifiers())) {
+            if (!Modifier.isTransient(field.getModifiers()) && !isBlackListed(field.getType())) {
                 out.add(translateField(field, object, className, contextPath));
             }
         }
@@ -78,7 +77,7 @@ public class FieldSerializationUtil {
     }
 
     private static boolean isBlackListed(Class<?> clazz) {
-        for (Class<?> blackListedClass : BLACKLIST) {
+        for (Class<?> blackListedClass : BLACKLISTED_CLASSES) {
             if (blackListedClass.isAssignableFrom(clazz)) {
                 return true;
             }
@@ -110,7 +109,7 @@ public class FieldSerializationUtil {
 
     private static String translateValue(Object value) {
         try {
-            return JSONUtil.encode(value, ClassLoader.class, ServletRequest.class);
+            return JSONUtil.encode(value, BLACKLISTED_CLASSES);
         } catch (IllegalStateException ex) {
             log.log(Level.SEVERE, "exception during object serialization", ex);
             return null;

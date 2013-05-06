@@ -51,7 +51,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
-import static com.ejisto.constants.StringConstants.LAST_OUTPUT_PATH;
 import static org.hamcrest.Matchers.equalTo;
 
 @Log4j
@@ -263,31 +262,24 @@ public abstract class GuiUtils {
         disableFocusPainting(button);
     }
 
-    public static File selectDirectory(Component parent,
-                                       String directoryPath,
-                                       boolean saveLastSelectionPath,
-                                       SettingsRepository settingsRepository) {
-        JFileChooser fileChooser = new JFileChooser(directoryPath);
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_OUTPUT_PATH, settingsRepository);
-    }
-
     public static File selectFile(Component parent,
+                                  String title,
                                   String directoryPath,
                                   boolean saveLastSelectionPath,
                                   SettingsRepository settingsRepository,
                                   String... extensions) {
         JFileChooser fileChooser = new JFileChooser(directoryPath);
         fileChooser.setFileFilter(new FileNameExtensionFilter("*." + join(extensions, ", *."), extensions));
-        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_FILESELECTION_PATH, settingsRepository);
+        fileChooser.setDialogTitle(title);
+        return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_FILESELECTION_PATH,
+                                       settingsRepository);
     }
 
-    private static File openFileSelectionDialog(Component parent,
-                                                boolean saveLastSelectionPath,
-                                                JFileChooser fileChooser,
-                                                StringConstants settingKey,
-                                                SettingsRepository settingsRepository) {
+    public static File openFileSelectionDialog(Component parent,
+                                               boolean saveLastSelectionPath,
+                                               JFileChooser fileChooser,
+                                               StringConstants settingKey,
+                                               SettingsRepository settingsRepository) {
         if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
             File selected = fileChooser.getSelectedFile();
             if (saveLastSelectionPath) {

@@ -62,7 +62,7 @@ public interface MockedFieldsEditorComponent {
 
     void addMouseListener(MouseListener mouseListener);
 
-    void fillWithCustomMenuItems(JPopupMenu menu, Point sourcePosition);
+    boolean fillWithCustomMenuItems(JPopupMenu menu, Point sourcePosition);
 
     Component toComponent();
 

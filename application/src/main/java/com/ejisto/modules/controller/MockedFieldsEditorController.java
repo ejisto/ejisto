@@ -216,7 +216,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     }
 
     private String buildExpression() {
-        return "size=" + getView().getFieldSize();
+        return null;
     }
 
     void editingCanceled() {

@@ -24,6 +24,7 @@ import com.ejisto.modules.dao.db.util.MockedFieldContainer;
 import com.ejisto.modules.dao.db.util.MockedFieldContainerSorter;
 import com.ejisto.modules.dao.db.util.serializer.*;
 import com.ejisto.modules.dao.entities.*;
+import com.ejisto.modules.recorder.CollectedData;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.mapdb.Atomic;
@@ -39,14 +40,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static ch.lambdaj.Lambda.convert;
-import static ch.lambdaj.Lambda.select;
+import static ch.lambdaj.Lambda.*;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 
 @Log4j
 public class EmbeddedDatabaseManager {
 
     private static final String CONTEXT_PATH_PREFIX = "__CTX__";
+    private static final String RECORDED_SESSIONS = "recordedSessions";
     private static final String SETTINGS = "settings";
     private static final String CONTAINERS = "containers";
     private static final String CUSTOM_OBJECT_FACTORIES = "customObjectFactories";
@@ -96,10 +98,11 @@ public class EmbeddedDatabaseManager {
     private void createSchema() {
         if (Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) {
             db.createHashMap(SETTINGS, false, null, new SettingSerializer());
-            db.createHashMap(CONTAINERS, false, null, new ContainerSerializer());
-            db.createHashMap(CUSTOM_OBJECT_FACTORIES, false, null, new CustomObjectFactorySerializer());
-            db.createHashMap(REGISTERED_OBJECT_FACTORIES, false, null, new RegisteredObjectFactorySerializer());
-            db.createHashMap(WEB_APPLICATION_DESCRIPTORS, false, null, new WebApplicationDescriptorSerializer());
+            db.createHashMap(CONTAINERS, true, null, new ContainerSerializer());
+            db.createHashMap(CUSTOM_OBJECT_FACTORIES, true, null, new CustomObjectFactorySerializer());
+            db.createHashMap(REGISTERED_OBJECT_FACTORIES, true, null, new RegisteredObjectFactorySerializer());
+            db.createHashMap(WEB_APPLICATION_DESCRIPTORS, true, null, new WebApplicationDescriptorSerializer());
+            db.createHashMap(RECORDED_SESSIONS, true, null, new CollectedDataSerializer());
             Atomic.createInteger(db, STARTUP_COUNTER, 1);
         }
         contextPaths.addAll(
@@ -163,9 +166,20 @@ public class EmbeddedDatabaseManager {
             @Override
             public Void execute(DatabaseAccessor accessor) {
                 DB db = accessor.getDb();
-                db.createTreeSet(encodeContextPath(contextPath), NODE_SIZE, false, new MockedFieldContainerSerializer(),
+                db.createTreeSet(encodeContextPath(contextPath), NODE_SIZE, true, new MockedFieldContainerSerializer(),
                                  new MockedFieldContainerSorter());
                 contextPaths.add(contextPath);
+                return null;
+            }
+        });
+    }
+
+    public void createNewRecordingSession(final String name, final CollectedData collectedData) {
+        doInTransaction(new Executor<Void>() {
+            @Override
+            public Void execute(DatabaseAccessor databaseAccessor) {
+                DB db = databaseAccessor.getDb();
+                db.getHashMap(RECORDED_SESSIONS).put(name, collectedData);
                 return null;
             }
         });
@@ -192,9 +206,40 @@ public class EmbeddedDatabaseManager {
         });
     }
 
+    public CollectedData getRecordedSession(final String name) {
+        return doInTransaction(new Executor<CollectedData>() {
+            @Override
+            public CollectedData execute(DatabaseAccessor databaseAccessor) {
+                Map<String, CollectedData> map = databaseAccessor.getHashMap(RECORDED_SESSIONS);
+                return map.get(name);
+            }
+        });
+    }
+
+    public Collection<CollectedData> getActiveRecordedSessions() {
+        return doInTransaction(new Executor<Collection<CollectedData>>() {
+            @Override
+            public Collection<CollectedData> execute(DatabaseAccessor databaseAccessor) {
+                Map<String, CollectedData> map = databaseAccessor.getDb().getHashMap(RECORDED_SESSIONS);
+                return select(map, having(on(CollectedData.class).isActive(), equalTo(true)));
+            }
+        });
+    }
+
     public Collection<String> getRegisteredContextPaths() {
         return Collections.unmodifiableList(contextPaths);
     }
+
+    public Map<String, CollectedData> getRecordedSessions() {
+        return doInTransaction(new Executor<Map<String, CollectedData>>() {
+            @Override
+            public Map<String, CollectedData> execute(DatabaseAccessor databaseAccessor) {
+                return Collections.unmodifiableMap(
+                        databaseAccessor.<String, CollectedData>getHashMap(RECORDED_SESSIONS));
+            }
+        });
+    }
+
 
     public Map<String, WebApplicationDescriptor> getWebApplicationDescriptors() {
         return doInTransaction(new Executor<Map<String, WebApplicationDescriptor>>() {

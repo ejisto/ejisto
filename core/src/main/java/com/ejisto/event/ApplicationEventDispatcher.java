@@ -104,6 +104,11 @@ public class ApplicationEventDispatcher {
     private void notifyListeners(final BaseApplicationEvent applicationEvent) {
         final Class<BaseApplicationEvent> eventClass = (Class<BaseApplicationEvent>) applicationEvent.getClass();
         log.trace("got event of type: " + eventClass.getName());
+        notifyListenersFor(eventClass, applicationEvent);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void notifyListenersFor(Class<BaseApplicationEvent> eventClass, final BaseApplicationEvent applicationEvent) {
         List<ApplicationListener<? extends BaseApplicationEvent>> listeners = registeredListeners.get(eventClass);
         if (CollectionUtils.isEmpty(listeners)) {
             return;
@@ -123,6 +128,10 @@ public class ApplicationEventDispatcher {
                 //event that could be handled in a multi threaded context
                 listener.onApplicationEvent(applicationEvent);
             }
+        }
+        Class<?> superClass = eventClass.getSuperclass();
+        if(superClass != null && BaseApplicationEvent.class.isAssignableFrom(superClass)) {
+            notifyListenersFor((Class<BaseApplicationEvent>)eventClass.getSuperclass(), applicationEvent);
         }
     }
 }

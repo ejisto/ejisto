@@ -21,10 +21,12 @@ package com.ejisto.modules.gui.components.helper;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.util.IteratorEnumeration;
+import lombok.extern.log4j.Log4j;
 
 import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
@@ -38,6 +40,7 @@ import static com.ejisto.util.GuiUtils.getMessage;
  * Date: 1/23/12
  * Time: 8:26 AM
  */
+@Log4j
 public class MockedFieldNode extends DefaultMutableTreeNode {
     private static final long serialVersionUID = 1L;
     private MockedField field;
@@ -97,8 +100,13 @@ public class MockedFieldNode extends DefaultMutableTreeNode {
             throw new IllegalArgumentException();
         }
         MockedFieldNode node = (MockedFieldNode) newChild;
-        if(containsChild(node) || !isParentOf(node)) {
-            throw new IllegalArgumentException("This node allows only leaf or direct subpackages.");
+        if(containsChild(node)) {
+            log.debug("node already contains child named "+node);
+            return;
+        }
+        if(!isParentOf(node)) {
+            throw new IllegalArgumentException(String.format("This node (%s) allows only leaf or direct subpackages. No room for %s",
+                                                             Arrays.toString(getNodePath()), Arrays.toString(node.getNodePath())));
         }
         children.put(getPathFor(node), node);
         super.add(node);

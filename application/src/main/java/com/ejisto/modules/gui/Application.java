@@ -27,6 +27,7 @@ import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.executor.BackgroundTask;
 import com.ejisto.modules.executor.TaskManager;
+import com.ejisto.modules.repository.CollectedDataRepository;
 import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
@@ -51,25 +52,31 @@ public class Application extends javax.swing.JFrame {
     private final MockedFieldsRepository mockedFieldsRepository;
     private final ContainersRepository containersRepository;
     private final WebApplicationRepository webApplicationRepository;
+    private final CollectedDataRepository collectedDataRepository;
 
     public Application(EventManager eventManager,
                        SettingsManager settingsManager,
                        TaskManager taskManager,
                        MockedFieldsRepository mockedFieldsRepository,
                        ContainersRepository containersRepository,
-                       WebApplicationRepository webApplicationRepository) {
+                       WebApplicationRepository webApplicationRepository,
+                       CollectedDataRepository collectedDataRepository) {
         this.eventManager = eventManager;
         this.settingsManager = settingsManager;
         this.taskManager = taskManager;
         this.mockedFieldsRepository = mockedFieldsRepository;
         this.containersRepository = containersRepository;
         this.webApplicationRepository = webApplicationRepository;
+        this.collectedDataRepository = collectedDataRepository;
     }
 
     public void init() {
         setIconImage(getIcon("application.icon").getImage());
         setTitle(settingsManager.getValue(MAIN_TITLE));
-        setRootPane(new MainRootPane(mockedFieldsRepository, containersRepository, webApplicationRepository));
+        setRootPane(new MainRootPane(mockedFieldsRepository,
+                                     collectedDataRepository,
+                                     containersRepository,
+                                     webApplicationRepository));
         setMinimumSize(new Dimension(700, 500));
         Dimension size = new Dimension(settingsManager.getIntValue(APPLICATION_WIDTH),
                                        settingsManager.getIntValue(APPLICATION_HEIGHT));

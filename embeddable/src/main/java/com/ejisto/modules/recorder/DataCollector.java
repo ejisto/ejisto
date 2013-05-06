@@ -23,8 +23,10 @@ import com.ejisto.modules.dao.entities.MockedField;
 import lombok.extern.java.Log;
 
 import java.util.*;
+import java.util.logging.Level;
 
 import static com.ejisto.constants.StringConstants.REQUEST_ATTRIBUTE;
+import static com.ejisto.constants.StringConstants.SESSION_ATTRIBUTE;
 import static com.ejisto.modules.web.util.FieldSerializationUtil.translateObject;
 
 /**
@@ -55,22 +57,27 @@ public class DataCollector {
     }
 
     public void putRequestParameter(String name, String value) {
+        log.log(Level.INFO, "putting requestParameter {0}", name);
         requestParameters.put(name, value);
     }
 
     public void putRequestAttribute(String name, Object value) {
+        log.log(Level.INFO, "putting requestAttribute {0}", name);
         requestAttributes.put(name, value);
     }
 
     public void putSessionAttribute(String name, Object value) {
+        log.log(Level.INFO, "putting sessionAttribute {0}", name);
         sessionAttributes.put(name, value);
     }
 
     public void addResourcePath(String resourcePath) {
+        log.log(Level.INFO, "adding ResourcePath {0}", resourcePath);
         requestDispatcherRedirection.add(resourcePath);
     }
 
     public void addPermanentRedirection(String path) {
+        log.log(Level.INFO, "adding permanent redirection {0}", path);
         permanentRedirections.add(path);
     }
 
@@ -79,20 +86,30 @@ public class DataCollector {
     }
 
     public CollectedData getResult() {
-        return new CollectedData(requestParameters, translateAttributes(requestAttributes, contextPath),
-                                 translateAttributes(sessionAttributes, contextPath),
+        return new CollectedData(requestParameters, translateRequestAttributes(requestAttributes, contextPath),
+                                 translateSessionAttributes(sessionAttributes, contextPath),
                                  requestDispatcherRedirection,
-                                 permanentRedirections, headers, contextPath);
+                                 permanentRedirections, headers, contextPath,false);
     }
 
-    private static Map<String, List<MockedField>> translateAttributes(Map<String, Object> requestAttributes, String contextPath) {
+    private static Map<String, List<MockedField>> translateRequestAttributes(Map<String, Object> requestAttributes, String contextPath) {
+        return translateAttributes(requestAttributes, contextPath, REQUEST_ATTRIBUTE.getValue());
+    }
+
+    private static Map<String, List<MockedField>> translateSessionAttributes(Map<String, Object> requestAttributes, String contextPath) {
+        return translateAttributes(requestAttributes, contextPath, SESSION_ATTRIBUTE.getValue());
+    }
+
+    private static Map<String, List<MockedField>> translateAttributes(Map<String, Object> requestAttributes, String contextPath, String key) {
         Map<String, List<MockedField>> out = new HashMap<String, List<MockedField>>(requestAttributes.size());
         for (Map.Entry<String, Object> entry : requestAttributes.entrySet()) {
             out.put(entry.getKey(),
-                    translateObject(entry.getValue(), REQUEST_ATTRIBUTE.getValue(), entry.getKey(), contextPath));
+                    translateObject(entry.getValue(), key, entry.getKey(), contextPath));
         }
         return out;
     }
+
+
 
 
 }
