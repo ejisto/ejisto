@@ -42,6 +42,7 @@ import static java.lang.String.format;
  */
 public class ContainerTab extends JSplitPane {
 
+    static final int MINIMUM_HEIGHT = 150;
     private String containerId;
     private LogViewer logViewer;
     private JScrollPane scrollableContextList;
@@ -126,8 +127,8 @@ public class ContainerTab extends JSplitPane {
         JXPanel leftComponent = new JXPanel(new BorderLayout());
         leftComponent.add(getServerSummaryPane(), BorderLayout.NORTH);
         leftComponent.add(getLogViewer(), BorderLayout.CENTER);
-        leftComponent.setPreferredSize(new Dimension(DEFAULT_WIDTH, 150));
-        leftComponent.setMinimumSize(new Dimension(DEFAULT_WIDTH, 150));
+        leftComponent.setPreferredSize(new Dimension(DEFAULT_WIDTH, MINIMUM_HEIGHT));
+        leftComponent.setMinimumSize(new Dimension(DEFAULT_WIDTH, MINIMUM_HEIGHT));
         leftComponent.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
         setLeftComponent(leftComponent);
     }
@@ -159,7 +160,7 @@ public class ContainerTab extends JSplitPane {
         scrollableContextList = new JScrollPane(getContextList(), ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                                                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollableContextList.setMinimumSize(new Dimension(250, 100));
-        scrollableContextList.setPreferredSize(new Dimension(250, 150));
+        scrollableContextList.setPreferredSize(new Dimension(250, MINIMUM_HEIGHT));
         scrollableContextList.setMaximumSize(new Dimension(250, Short.MAX_VALUE));
         scrollableContextList.setName(getContextList().getName());
 

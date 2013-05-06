@@ -35,7 +35,7 @@ import static java.util.Collections.*;
  * Date: 10/23/12
  * Time: 8:11 AM
  */
-public final class CollectedData {
+public class CollectedData {
 
     private final Map<String, String> requestParameters;
     private final Map<String, List<MockedField>> requestAttributes;

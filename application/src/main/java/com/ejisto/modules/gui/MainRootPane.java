@@ -28,6 +28,7 @@ import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.gui.components.ContainerTab;
 import com.ejisto.modules.gui.components.MainPanel;
+import com.ejisto.modules.gui.components.NoContainerInstalled;
 import com.ejisto.modules.recorder.CollectedData;
 import com.ejisto.modules.repository.CollectedDataRepository;
 import com.ejisto.modules.repository.ContainersRepository;
@@ -55,7 +56,6 @@ import static com.ejisto.util.GuiUtils.*;
 
 public class MainRootPane extends JXRootPane {
     private static final long serialVersionUID = -3265545519465961578L;
-    private final MockedFieldsRepository mockedFieldsRepository;
     private final CollectedDataRepository collectedDataRepository;
     private final ContainersRepository containersRepository;
     private final WebApplicationRepository webApplicationRepository;
@@ -74,7 +74,6 @@ public class MainRootPane extends JXRootPane {
         this.collectedDataRepository = collectedDataRepository;
         this.containersRepository = containersRepository;
         this.webApplicationRepository = webApplicationRepository;
-        this.mockedFieldsRepository = mockedFieldsRepository;
         this.mainPanel = new MainPanel(mockedFieldsRepository);
         init();
         registerApplicationEventListener(new ApplicationListener<ContainerInstalled>() {
@@ -160,12 +159,13 @@ public class MainRootPane extends JXRootPane {
     private void refreshContainerTabs(JTabbedPane mainTabbedPane) {
         containerTabs = getRegisteredContainers(containersRepository, webApplicationRepository);
         mainTabbedPane.removeAll();
-        for (ContainerTab containerTab : getContainerTabs()) {
+        final List<ContainerTab> tabs = getContainerTabs();
+        for (ContainerTab containerTab : tabs) {
             mainTabbedPane.addTab(containerTab.getName(), containerTab.getIcon(), containerTab);
         }
-        if (CollectionUtils.isEmpty(getContainerTabs())) {
+        if (CollectionUtils.isEmpty(tabs)) {
             mainTabbedPane.addTab(getMessage("container.installation.required"),
-                                  new JXLabel(getMessage("container.installation.required.message"), JXLabel.CENTER));
+                                  new NoContainerInstalled());
         }
     }
 
