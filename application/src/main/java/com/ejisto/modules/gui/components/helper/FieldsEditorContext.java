@@ -99,7 +99,7 @@ public enum FieldsEditorContext {
                             row.getFieldValue(),
                             row.getContextPath()));
         }
-    }, false, true, of(EditorType.FLATTEN), 3) {
+    }, false, true, of(EditorType.HIERARCHICAL), 3) {
         @Override
         public boolean isAdmitted(MockedField mockedField) {
             return true;

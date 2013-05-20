@@ -17,9 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.gui.components.helper;
+package com.ejisto.modules.gui.components.tree;
 
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.tree.node.ClassNode;
+import com.ejisto.modules.gui.components.tree.node.FieldNode;
 
 /**
  * Created by IntelliJ IDEA.
@@ -34,27 +36,27 @@ public interface NodeFillStrategy {
      *
      * @param parent The parent node
      * @param field  child field
-     * @return the parent node of the inserted node. Target node will be created if does not exists.
+     * @return the inserted node. Target node will be created if does not exists.
      */
-    MockedFieldNode insertField(MockedFieldNode parent, MockedField field);
+    FieldNode insertField(ClassNode parent, MockedField field);
 
     /**
      * Removes a child from parent.<br/>
      *
      * @param parent The parent node
      * @param field  child field
-     * @return the parent node of the removed node.
+     * @return {@code null}.
      */
-    MockedFieldNode removeField(MockedFieldNode parent, MockedField field);
+    FieldNode removeField(ClassNode parent, MockedField field);
 
     /**
      * Checks if given node contains a child identified by childPath
      *
      * @param parent The parent node
      * @param child  the child to insertField
-     * @return @{code true} if found, @{false} otherwise.
+     * @return {@code true} if found, {@code false} otherwise.
      */
-    boolean containsChild(MockedFieldNode parent, MockedField child);
+    boolean containsChild(ClassNode parent, MockedField child);
 
 
 }

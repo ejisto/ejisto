@@ -39,7 +39,9 @@ public class CollectedDataDao extends BaseRemoteDao {
     }
 
     public void sendCollectedData(CollectedData data, String contextPath) {
-        remoteCall(encodeRequest(data), contextPath + "/record", "POST");
+        if(!data.isEmpty()) {
+            remoteCall(encodeRequest(data), contextPath + "/record", "POST");
+        }
     }
 
     public void registerSession(String id, String contextPath) {

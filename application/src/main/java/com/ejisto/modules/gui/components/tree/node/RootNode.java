@@ -17,18 +17,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.gui.components.helper;
+package com.ejisto.modules.gui.components.tree.node;
+
+import static com.ejisto.util.GuiUtils.getMessage;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 4/17/12
- * Time: 8:17 AM
+ * Date: 5/13/13
+ * Time: 8:02 AM
  */
-public final class EmptyTreeNode extends MockedFieldNode {
-    private static final long serialVersionUID = 1L;
+public class RootNode extends ClassNode {
 
-    public EmptyTreeNode() {
-        super(true);
+    public RootNode() {
+        super(null);
+    }
+
+    @Override
+    public boolean isRoot() {
+        return true;
+    }
+
+    @Override
+    public boolean isLeaf() {
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        if (isEmpty()) {
+            return getMessage("main.propertieseditor.tree.novalues.text");
+        }
+        return getMessage("wizard.properties.editor.tab.hierarchical.rootnode");
     }
 }

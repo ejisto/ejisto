@@ -31,7 +31,7 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.gui.EjistoAction;
 import com.ejisto.modules.gui.components.ContainerTab;
-import com.ejisto.modules.gui.components.helper.MockedFieldNode;
+import com.ejisto.modules.gui.components.tree.node.FieldNode;
 import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.SettingsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
@@ -292,10 +292,10 @@ public abstract class GuiUtils {
         }
     }
 
-    public static TreePath getNodePath(MockedFieldNode node) {
-        Deque<MockedFieldNode> path = new ArrayDeque<>();
+    public static TreePath getNodePath(FieldNode node) {
+        Deque<FieldNode> path = new ArrayDeque<>();
         path.add(node);
-        while ((node = (MockedFieldNode) node.getParent()) != null) {
+        while ((node = (FieldNode) node.getParent()) != null) {
             path.addFirst(node);
         }
         return new TreePath(path.toArray());

@@ -41,14 +41,14 @@ public class CollectedData {
     private final Map<String, List<MockedField>> requestAttributes;
     private final Map<String, List<MockedField>> sessionAttributes;
     private final List<String> requestDispatcherRedirection;
-    private final List<String> permanentRedirections;
+    private final List<String> permanentRedirection;
     private final Set<ResponseHeader> headers;
     private final String contextPath;
     private final boolean active;
 
     private CollectedData(CollectedData src, boolean newState) {
         this(src.requestParameters, src.requestAttributes, src.sessionAttributes, src.requestDispatcherRedirection,
-             src.permanentRedirections, src.headers, src.contextPath, newState);
+             src.permanentRedirection, src.headers, src.contextPath, newState);
     }
 
     @JsonCreator
@@ -56,7 +56,7 @@ public class CollectedData {
                          @JsonProperty("requestAttributes") Map<String, List<MockedField>> requestAttributes,
                          @JsonProperty("sessionAttributes") Map<String, List<MockedField>> sessionAttributes,
                          @JsonProperty("requestDispatcherRedirection") List<String> requestDispatcherRedirection,
-                         @JsonProperty("permanentRedirections") List<String> permanentRedirections,
+                         @JsonProperty("permanentRedirection") List<String> permanentRedirection,
                          @JsonProperty("headers") Set<ResponseHeader> headers,
                          @JsonProperty("contextPath") String contextPath,
                          @JsonProperty("active") boolean active) {
@@ -64,7 +64,7 @@ public class CollectedData {
         this.requestAttributes = new TreeMap<String, List<MockedField>>(requestAttributes);
         this.sessionAttributes = new TreeMap<String, List<MockedField>>(sessionAttributes);
         this.requestDispatcherRedirection = new ArrayList<String>(requestDispatcherRedirection);
-        this.permanentRedirections = new ArrayList<String>(permanentRedirections);
+        this.permanentRedirection = new ArrayList<String>(permanentRedirection);
         this.contextPath = contextPath;
         this.headers = new TreeSet<ResponseHeader>(ResponseHeader.COMPARATOR);
         this.headers.addAll(headers);
@@ -83,8 +83,8 @@ public class CollectedData {
         return unmodifiableList(requestDispatcherRedirection);
     }
 
-    public List<String> getPermanentRedirections() {
-        return unmodifiableList(permanentRedirections);
+    public List<String> getPermanentRedirection() {
+        return unmodifiableList(permanentRedirection);
     }
 
     public Set<ResponseHeader> getHeaders() {
@@ -97,6 +97,16 @@ public class CollectedData {
 
     public String getContextPath() {
         return contextPath;
+    }
+
+    @JsonIgnore
+    public boolean isEmpty() {
+        return requestParameters.isEmpty() &&
+               requestAttributes.isEmpty() &&
+               sessionAttributes.isEmpty() &&
+               requestDispatcherRedirection.isEmpty() &&
+               permanentRedirection.isEmpty() &&
+               headers.isEmpty();
     }
 
     @JsonIgnore
@@ -158,7 +168,7 @@ public class CollectedData {
         target.requestAttributes.putAll(src.requestAttributes);
         target.sessionAttributes.putAll(src.sessionAttributes);
         target.requestDispatcherRedirection.addAll(src.requestDispatcherRedirection);
-        target.permanentRedirections.addAll(src.permanentRedirections);
+        target.permanentRedirection.addAll(src.permanentRedirection);
         target.headers.addAll(src.headers);
     }
 }

@@ -17,9 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.gui.components.helper;
+package com.ejisto.modules.gui.components.tree;
 
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.tree.node.ClassNode;
+import com.ejisto.modules.gui.components.tree.node.FieldNode;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -34,62 +36,58 @@ import static com.ejisto.util.GuiUtils.encodeTreePath;
  */
 public class EmptyRootNodeFillStrategy implements NodeFillStrategy {
 
-    private final Map<String, MockedFieldNode> map;
+    private final Map<String, ClassNode> map;
 
     public EmptyRootNodeFillStrategy() {
         this.map = new TreeMap<>();
     }
 
     @Override
-    public MockedFieldNode insertField(MockedFieldNode parent, MockedField field) {
-        return createParents(field, parent, map);
+    public FieldNode insertField(ClassNode parent, MockedField field) {
+        ClassNode parentNode = createParents(field, parent, map);
+        FieldNode childNode = new FieldNode(field);
+        parentNode.add(childNode);
+        return childNode;
     }
 
     @Override
-    public MockedFieldNode removeField(MockedFieldNode parent, MockedField field) {
+    public FieldNode removeField(ClassNode parent, MockedField field) {
         throw new UnsupportedOperationException("not supported");
     }
 
     @Override
-    public boolean containsChild(MockedFieldNode parent, MockedField child) {
+    public boolean containsChild(ClassNode parent, MockedField child) {
         return map.containsKey(child.getParentClassPathAsString());
     }
 
-    private MockedFieldNode createParents(MockedField field, MockedFieldNode root, Map<String, MockedFieldNode> mapping) {
+    private ClassNode createParents(MockedField field, ClassNode parent, Map<String, ClassNode> mapping) {
         String firstPath = encodeTreePath(field.getParentClassPath(), 0, 1);
-        MockedFieldNode first = mapping.get(firstPath);
+        ClassNode first = mapping.get(firstPath);
         boolean firstExists = first != null;
         if (!firstExists) {
-            first = new MockedFieldNode(field, true);
-            first.setNodePath(new String[]{firstPath});
+            first = new ClassNode(field, new String[]{firstPath});
             mapping.put(firstPath, first);
-            root.add(first);
+            parent.add(first);
         }
-        MockedFieldNode last = createParents(field, first, 0, mapping);
-        return firstExists ? last : root;
+        return createAncestors(field, first, 0, mapping);
     }
 
-    private MockedFieldNode createParents(MockedField field, MockedFieldNode parent, int depth, Map<String, MockedFieldNode> mapping) {
+    private ClassNode createAncestors(MockedField field, ClassNode parent, int depth, Map<String, ClassNode> mapping) {
         String[] originalPath = field.getPath();
-        String[] childPath = getParentPath(depth + 1, originalPath);
+        int currentDepth = depth + 1;
+        String[] childPath = getParentPath(currentDepth, originalPath);
         String childPathAsString = encodeTreePath(childPath);
-        if (depth == originalPath.length - 2) {
-            MockedFieldNode node = new MockedFieldNode(field);
-            node.setNodePath(field.getPath());
-            parent.add(node);
-            mapping.put(childPathAsString, node);
-            return parent;
-        }
-        MockedFieldNode child = mapping.get(childPathAsString);
+        ClassNode child = mapping.get(childPathAsString);
         boolean childExists = child != null;
         if (!childExists) {
-            child = new MockedFieldNode(field, true);
+            child = new ClassNode(field, childPath);
             mapping.put(childPathAsString, child);
-            child.setNodePath(childPath);
             parent.add(child);
         }
-        MockedFieldNode last = createParents(field, child, depth + 1, mapping);
-        return childExists ? last : parent;
+        if ((currentDepth + 2) < originalPath.length) {
+            return createAncestors(field, child, currentDepth, mapping);
+        }
+        return child;
     }
 
     private String[] getParentPath(int depth, String[] originalPath) {

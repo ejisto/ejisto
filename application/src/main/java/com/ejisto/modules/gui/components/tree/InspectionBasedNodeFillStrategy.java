@@ -17,9 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.gui.components.helper;
+package com.ejisto.modules.gui.components.tree;
 
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.tree.node.ClassNode;
+import com.ejisto.modules.gui.components.tree.node.FieldNode;
 
 import java.util.Enumeration;
 import java.util.Objects;
@@ -38,36 +40,36 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
     }
 
     @Override
-    public MockedFieldNode insertField(MockedFieldNode parent, MockedField child) {
+    public FieldNode insertField(ClassNode parent, MockedField child) {
         NodeOperationHelper operationHelper = new NodeOperationHelper();
         operationHelper.whenFound = new WhenFoundAction() {
             @Override
-            void doAction(MockedFieldNode parent, MockedField child) {
-                insertNode(parent, child);
+            FieldNode doAction(ClassNode parent, MockedField child) {
+                return insertNode(parent, child);
             }
         };
         operationHelper.whenNotFound = new WhenNotFoundAction() {
             @Override
-            void doAction(MockedFieldNode parent, MockedField child, int depthDifference) {
-                createParent(parent, child, depthDifference);
+            FieldNode doAction(ClassNode parent, MockedField child, int depthDifference) {
+                return createParent(parent, child, depthDifference);
             }
         };
         return handleNodeModification(parent, child, operationHelper);
     }
 
     @Override
-    public MockedFieldNode removeField(MockedFieldNode parent, MockedField child) {
+    public FieldNode removeField(ClassNode parent, MockedField child) {
         NodeOperationHelper operationHelper = new NodeOperationHelper();
         operationHelper.whenFound = new WhenFoundAction() {
             @Override
-            void doAction(MockedFieldNode parent, MockedField child) {
-                deleteNode(parent, child);
+            FieldNode doAction(ClassNode parent, MockedField child) {
+                return deleteNode(parent, child);
             }
         };
         return handleNodeModification(parent, child, operationHelper);
     }
 
-    private MockedFieldNode handleNodeModification(MockedFieldNode parent, MockedField child, NodeOperationHelper operationHelper) {
+    private FieldNode handleNodeModification(ClassNode parent, MockedField child, NodeOperationHelper operationHelper) {
         if (!containsChild(parent, child)) {
             throw new IllegalArgumentException("child not compatible.");
         }
@@ -76,59 +78,59 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
             throw new IllegalArgumentException("child not compatible.");
         }
         if (depthDifference == 0) {
-            operationHelper.whenFound.doAction(parent, child);
-            return parent;
+            return operationHelper.whenFound.doAction(parent, child);
         }
-        Enumeration<MockedFieldNode> en = parent.children();
+        Enumeration<FieldNode> en = parent.children();
         while (en.hasMoreElements()) {
-            MockedFieldNode candidate = en.nextElement();
-            if (containsChild(candidate, child)) {
-                return handleNodeModification(candidate, child, operationHelper);
+            FieldNode candidate = en.nextElement();
+            if(candidate instanceof ClassNode) {
+                if (containsChild((ClassNode)candidate, child)) {
+                    return handleNodeModification((ClassNode)candidate, child, operationHelper);
+                }
             }
         }
         if (operationHelper.whenNotFound != null) {
-            operationHelper.whenNotFound.doAction(parent, child, depthDifference);
+            return operationHelper.whenNotFound.doAction(parent, child, depthDifference);
         }
         return parent;
     }
 
-    void insertNode(MockedFieldNode parent, MockedField child) {
-        MockedFieldNode node = new MockedFieldNode(child);
-        node.setNodePath(child.getPath());
+    FieldNode insertNode(ClassNode parent, MockedField child) {
+        FieldNode node = new FieldNode(child);
         if (!parent.containsChild(node)) {
             parent.add(node);
         }
+        return node;
     }
 
-    void deleteNode(MockedFieldNode parent, MockedField child) {
+    FieldNode deleteNode(ClassNode parent, MockedField child) {
         parent.remove(child);
+        return null;
     }
 
-    private int calcDepthDifference(MockedFieldNode parent, MockedField child) {
+    private int calcDepthDifference(FieldNode parent, MockedField child) {
         if (parent.isRoot()) {
             return -(child.getParentClassPath().length);
         }
         return parent.getNodePath().length - child.getParentClassPath().length;
     }
 
-    private void createParent(MockedFieldNode root, MockedField child, int depthDifference) {
+    private FieldNode createParent(ClassNode root, MockedField child, int depthDifference) {
         if (depthDifference < 0) {
-            MockedFieldNode parent = new MockedFieldNode(child, true);
             String[] childPath = child.getParentClassPath();
             String[] nodePath = new String[depthDifference + childPath.length + 1];
             System.arraycopy(childPath, 0, nodePath, 0, nodePath.length);
-            parent.setNodePath(nodePath);
+            ClassNode parent = new ClassNode(child, nodePath);
             root.add(parent);
-            createParent(parent, child, ++depthDifference);
-        } else {
-            MockedFieldNode node = new MockedFieldNode(child);
-            node.setNodePath(child.getPath());
-            root.add(node);
+            return createParent(parent, child, ++depthDifference);
         }
+        FieldNode node = new FieldNode(child);
+        root.add(node);
+        return node;
     }
 
     @Override
-    public boolean containsChild(MockedFieldNode parent, MockedField child) {
+    public boolean containsChild(ClassNode parent, MockedField child) {
         Objects.requireNonNull(parent, "parent can't be null");
         Objects.requireNonNull(child, "child can't be null");
         if (!parent.isRoot()) {
@@ -137,17 +139,16 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
         return parent.isRoot() || child.getParentClassPathAsString().startsWith(encodeTreePath(parent.getNodePath()));
     }
 
-
     private class NodeOperationHelper {
         private WhenFoundAction whenFound;
         private WhenNotFoundAction whenNotFound;
     }
 
     private abstract class WhenFoundAction {
-        abstract void doAction(MockedFieldNode parent, MockedField child);
+        abstract FieldNode doAction(ClassNode parent, MockedField child);
     }
 
     private abstract class WhenNotFoundAction {
-        abstract void doAction(MockedFieldNode parent, MockedField child, int depthDifference);
+        abstract FieldNode doAction(ClassNode parent, MockedField child, int depthDifference);
     }
 }

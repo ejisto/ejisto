@@ -20,6 +20,10 @@
 package com.ejisto.modules.gui.components.helper;
 
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.tree.EmptyRootNodeFillStrategy;
+import com.ejisto.modules.gui.components.tree.node.ClassNode;
+import com.ejisto.modules.gui.components.tree.node.FieldNode;
+import com.ejisto.modules.gui.components.tree.NodeFillStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -37,7 +41,7 @@ import static org.mockito.Mockito.*;
  */
 public class EmptyRootNodeFillStrategyTest {
 
-    @Mock private MockedFieldNode root;
+    @Mock private ClassNode root;
     @Mock private MockedField field1;
     @Mock private MockedField field2;
     @Mock private MockedField field3;
@@ -57,10 +61,10 @@ public class EmptyRootNodeFillStrategyTest {
                 new String[]{"/ejisto-test", "this", "is", "a", "test", "TestClass", "testProperty"});
         when(field1.getParentClassPathAsString()).thenReturn("/ejisto-test>this>is>a>test>TestClass");
         NodeFillStrategy strategy = new EmptyRootNodeFillStrategy();
-        MockedFieldNode node = strategy.insertField(root, field1);
-        verify(root, times(1)).add(any(MockedFieldNode.class));
+        FieldNode node = strategy.insertField(root, field1);
+        verify(root, times(1)).add(any(FieldNode.class));
         assertNotNull(node);
-        assertSame(root, node);
+        assertNotSame(root, node);
         assertTrue(strategy.containsChild(root, field1));
     }
 

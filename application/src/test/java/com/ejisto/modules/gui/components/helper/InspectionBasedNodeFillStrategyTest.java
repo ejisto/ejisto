@@ -20,6 +20,11 @@
 package com.ejisto.modules.gui.components.helper;
 
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.tree.node.ClassNode;
+import com.ejisto.modules.gui.components.tree.node.FieldNode;
+import com.ejisto.modules.gui.components.tree.InspectionBasedNodeFillStrategy;
+import com.ejisto.modules.gui.components.tree.NodeFillStrategy;
+import com.ejisto.modules.gui.components.tree.node.RootNode;
 import com.ejisto.util.GuiUtils;
 import com.ejisto.util.IteratorEnumeration;
 import org.junit.Before;
@@ -43,7 +48,7 @@ import static org.mockito.Mockito.*;
  * Time: 7:22 PM
  */
 public class InspectionBasedNodeFillStrategyTest {
-    @Mock private MockedFieldNode root;
+    @Mock private ClassNode root;
     @Mock private MockedField field1;
     @Mock private MockedField field2;
     @Mock private MockedField field3;
@@ -79,19 +84,14 @@ public class InspectionBasedNodeFillStrategyTest {
 
 
         when(root.getUserObject()).thenReturn(field2);
-        when(root.children()).thenReturn(new IteratorEnumeration<>(asList(createNode(field3, true,
-                                                                                     new String[]{"/ejisto-test", "this"})).iterator()));
+        final IteratorEnumeration<FieldNode> enumeration = new IteratorEnumeration<>(
+                asList((FieldNode) new ClassNode(field3, new String[]{"/ejisto-test", "this"})).iterator());
+        when(root.children()).thenReturn(enumeration);
         NodeFillStrategy strategy = new InspectionBasedNodeFillStrategy();
-        MockedFieldNode node = strategy.insertField(root, field1);
-        verify(root, never()).add(any(MockedFieldNode.class));
+        FieldNode node = strategy.insertField(root, field1);
+        verify(root, never()).add(any(FieldNode.class));
         assertNotNull(node);
-
-        //here our expectation is "/ejisto-test>this>is>another>test>TestClass" because the last common ancestor of the two nodes:
-        //field1 - /ejisto-test>this>is>a>test>TestClass
-        //field3 - /ejisto-test>this>was>another>test>TestClass
-        //is /ejisto-test>this
-
-        assertEquals("/ejisto-test>this", GuiUtils.encodeTreePath(node.getNodePath()));
+        assertEquals(GuiUtils.encodeTreePath(field1.getPath()), GuiUtils.encodeTreePath(node.getNodePath()));
         assertTrue(strategy.containsChild(root, field1));
     }
 
@@ -110,8 +110,7 @@ public class InspectionBasedNodeFillStrategyTest {
         when(field2.getParentClassPathAsString()).thenReturn("/ejisto-test2>this>is>another>test>TestClass");
         when(root.getUserObject()).thenReturn(field2);
         assertTrue(strategy.containsChild(root, field1));
-        MockedFieldNode node2 = new MockedFieldNode(field2, true);
-        node2.setNodePath(field2.getParentClassPath());
+        ClassNode node2 = new ClassNode(field2, field2.getParentClassPath());
         assertFalse(strategy.containsChild(node2, field1));
     }
 
@@ -123,9 +122,9 @@ public class InspectionBasedNodeFillStrategyTest {
         when(field1.getPath()).thenReturn(
                 new String[]{"/ejisto-test", "this", "is", "a", "test", "TestClass", "testProperty"});
         when(root.children()).thenReturn(
-                new IteratorEnumeration<>(Collections.<MockedFieldNode>emptyList().iterator()));
+                new IteratorEnumeration<>(Collections.<FieldNode>emptyList().iterator()));
         final AtomicInteger counter = new AtomicInteger();
-        MockedFieldNode root1 = new MockedFieldNode(true) {
+        RootNode root1 = new RootNode() {
             @Override
             public void add(MutableTreeNode newChild) {
                 if (counter.incrementAndGet() == 2) {
@@ -155,7 +154,7 @@ public class InspectionBasedNodeFillStrategyTest {
         when(field2.getParentClassPathAsString()).thenReturn("/ejisto-test>this>is>a>test>TestClass2");
         NodeFillStrategy strategy = new InspectionBasedNodeFillStrategy();
         final AtomicInteger counter = new AtomicInteger();
-        MockedFieldNode root1 = new MockedFieldNode(true) {
+        RootNode root1 = new RootNode() {
             @Override
             public void add(MutableTreeNode newChild) {
                 if (counter.incrementAndGet() == 2) {
@@ -190,7 +189,7 @@ public class InspectionBasedNodeFillStrategyTest {
         when(field3.getParentClassPathAsString()).thenReturn("/ejisto-test-1>this>is>a>test>TestClass3");
         NodeFillStrategy strategy = new InspectionBasedNodeFillStrategy();
         final AtomicInteger counter = new AtomicInteger();
-        MockedFieldNode root1 = new MockedFieldNode(true) {
+        RootNode root1 = new RootNode() {
             @Override
             public void add(MutableTreeNode newChild) {
                 if (counter.incrementAndGet() == 3) {
@@ -202,11 +201,5 @@ public class InspectionBasedNodeFillStrategyTest {
         strategy.insertField(root1, field1);
         strategy.insertField(root1, field2);
         strategy.insertField(root1, field3);
-    }
-
-    private MockedFieldNode createNode(MockedField field, boolean head, String[] path) {
-        MockedFieldNode node = new MockedFieldNode(field, head);
-        node.setNodePath(path);
-        return node;
     }
 }
