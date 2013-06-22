@@ -69,7 +69,7 @@ public class RequestPreprocessor implements Filter {
 
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        final DataCollector dataCollector = new DataCollector(((HttpServletRequest) request).getContextPath());
+        final DataCollector dataCollector = new DataCollector((HttpServletRequest) request);
         chain.doFilter(new RequestWrapper((HttpServletRequest) request, dataCollector),
                        new ResponseWrapper((HttpServletResponse) response, dataCollector));
         EXECUTOR_SERVICE.submit(new Runnable() {

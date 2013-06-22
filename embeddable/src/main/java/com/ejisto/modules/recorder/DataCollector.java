@@ -22,6 +22,7 @@ package com.ejisto.modules.recorder;
 import com.ejisto.modules.dao.entities.MockedField;
 import lombok.extern.java.Log;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -38,27 +39,32 @@ import static com.ejisto.modules.web.util.FieldSerializationUtil.translateObject
 @Log
 public class DataCollector {
 
-    private final Map<String, String> requestParameters;
+    private final String requestURI;
+    private final Map<String, List<String>> requestParameters;
     private final Map<String, Object> requestAttributes;
     private final Map<String, Object> sessionAttributes;
     private final List<String> requestDispatcherRedirection;
-    private final List<String> permanentRedirections;
+    private final List<String> permanentRedirection;
     private final Set<ResponseHeader> headers;
     private final String contextPath;
 
-    public DataCollector(String contextPath) {
-        requestParameters = new TreeMap<String, String>();
+    public DataCollector(HttpServletRequest request) {
+        requestURI = extractRequestURI(request);
+        requestParameters = new TreeMap<String, List<String>>();
         requestAttributes = new TreeMap<String, Object>();
         sessionAttributes = new TreeMap<String, Object>();
         requestDispatcherRedirection = new ArrayList<String>();
-        permanentRedirections = new ArrayList<String>();
+        permanentRedirection = new ArrayList<String>();
         headers = new TreeSet<ResponseHeader>(ResponseHeader.COMPARATOR);
-        this.contextPath = contextPath;
+        this.contextPath = request.getContextPath();
     }
 
     public void putRequestParameter(String name, String value) {
         log.log(Level.INFO, "putting requestParameter {0}", name);
-        requestParameters.put(name, value);
+        if (!requestParameters.containsKey(name)) {
+            requestParameters.put(name, new ArrayList<String>());
+        }
+        requestParameters.get(name).add(value);
     }
 
     public void putRequestAttribute(String name, Object value) {
@@ -78,7 +84,7 @@ public class DataCollector {
 
     public void addPermanentRedirection(String path) {
         log.log(Level.INFO, "adding permanent redirection {0}", path);
-        permanentRedirections.add(path);
+        permanentRedirection.add(path);
     }
 
     public void addResponseHeader(ResponseHeader header) {
@@ -86,10 +92,20 @@ public class DataCollector {
     }
 
     public CollectedData getResult() {
-        return new CollectedData(requestParameters, translateRequestAttributes(requestAttributes, contextPath),
+        return new CollectedData(requestURI, translateRequestParameters(requestParameters),
+                                 translateRequestAttributes(requestAttributes, contextPath),
                                  translateSessionAttributes(sessionAttributes, contextPath),
                                  requestDispatcherRedirection,
-                                 permanentRedirections, headers, contextPath,false);
+                                 permanentRedirection, headers, contextPath, false);
+    }
+
+    private static Map<String, String[]> translateRequestParameters(Map<String, List<String>> requestParameters) {
+        Map<String, String[]> result = new TreeMap<String, String[]>();
+        for (Map.Entry<String, List<String>> entry : requestParameters.entrySet()) {
+            List<String> value = entry.getValue();
+            result.put(entry.getKey(), entry.getValue().toArray(new String[value.size()]));
+        }
+        return result;
     }
 
     private static Map<String, List<MockedField>> translateRequestAttributes(Map<String, Object> requestAttributes, String contextPath) {
@@ -109,7 +125,7 @@ public class DataCollector {
         return out;
     }
 
-
-
-
+    private static String extractRequestURI(HttpServletRequest request) {
+        return request.getRequestURI();
+    }
 }

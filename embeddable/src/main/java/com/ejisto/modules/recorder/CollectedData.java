@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static com.ejisto.modules.web.util.DigestUtil.sha256Digest;
@@ -37,7 +38,8 @@ import static java.util.Collections.*;
  */
 public class CollectedData {
 
-    private final Map<String, String> requestParameters;
+    private final String requestURI;
+    private final Map<String, String[]> requestParameters;
     private final Map<String, List<MockedField>> requestAttributes;
     private final Map<String, List<MockedField>> sessionAttributes;
     private final List<String> requestDispatcherRedirection;
@@ -47,12 +49,14 @@ public class CollectedData {
     private final boolean active;
 
     private CollectedData(CollectedData src, boolean newState) {
-        this(src.requestParameters, src.requestAttributes, src.sessionAttributes, src.requestDispatcherRedirection,
+        this(src.requestURI, src.requestParameters, src.requestAttributes, src.sessionAttributes,
+             src.requestDispatcherRedirection,
              src.permanentRedirection, src.headers, src.contextPath, newState);
     }
 
     @JsonCreator
-    public CollectedData(@JsonProperty("requestParameters") Map<String, String> requestParameters,
+    public CollectedData(@JsonProperty("requestURI") String requestURI,
+                         @JsonProperty("requestParameters") Map<String, String[]> requestParameters,
                          @JsonProperty("requestAttributes") Map<String, List<MockedField>> requestAttributes,
                          @JsonProperty("sessionAttributes") Map<String, List<MockedField>> sessionAttributes,
                          @JsonProperty("requestDispatcherRedirection") List<String> requestDispatcherRedirection,
@@ -60,7 +64,8 @@ public class CollectedData {
                          @JsonProperty("headers") Set<ResponseHeader> headers,
                          @JsonProperty("contextPath") String contextPath,
                          @JsonProperty("active") boolean active) {
-        this.requestParameters = new TreeMap<String, String>(requestParameters);
+        this.requestURI = requestURI;
+        this.requestParameters = new TreeMap<String, String[]>(requestParameters);
         this.requestAttributes = new TreeMap<String, List<MockedField>>(requestAttributes);
         this.sessionAttributes = new TreeMap<String, List<MockedField>>(sessionAttributes);
         this.requestDispatcherRedirection = new ArrayList<String>(requestDispatcherRedirection);
@@ -71,7 +76,7 @@ public class CollectedData {
         this.active = active;
     }
 
-    public Map<String, String> getRequestParameters() {
+    public Map<String, String[]> getRequestParameters() {
         return unmodifiableMap(requestParameters);
     }
 
@@ -102,21 +107,25 @@ public class CollectedData {
     @JsonIgnore
     public boolean isEmpty() {
         return requestParameters.isEmpty() &&
-               requestAttributes.isEmpty() &&
-               sessionAttributes.isEmpty() &&
-               requestDispatcherRedirection.isEmpty() &&
-               permanentRedirection.isEmpty() &&
-               headers.isEmpty();
+                requestAttributes.isEmpty() &&
+                sessionAttributes.isEmpty() &&
+                requestDispatcherRedirection.isEmpty() &&
+                permanentRedirection.isEmpty() &&
+                headers.isEmpty();
     }
 
     @JsonIgnore
     public String getFullKey() {
-        return buildKey(true);
+        return buildKey(requestParameters, true);
     }
 
     @JsonIgnore
     public String getSmallKey() {
-        return buildKey(false);
+        return buildKey(requestParameters, false);
+    }
+
+    public String getRequestURI() {
+        return requestURI;
     }
 
     public boolean isActive() {
@@ -134,12 +143,12 @@ public class CollectedData {
         return result;
     }
 
-    private String buildKey(boolean full) {
+    public static String buildKey(Map<String, String[]> requestParameters, boolean full) {
         StringBuilder clearText = new StringBuilder();
         for (String key : requestParameters.keySet()) {
             clearText.append(key);
             if (full) {
-                clearText.append("=").append(requestParameters.get(key));
+                clearText.append("=").append(Arrays.toString(requestParameters.get(key)));
             }
             clearText.append(";");
         }
@@ -157,8 +166,8 @@ public class CollectedData {
         return new CollectedData(collectedData, active);
     }
 
-    public static CollectedData empty(String contextPath) {
-        return new CollectedData(new HashMap<String, String>(), new HashMap<String, List<MockedField>>(),
+    public static CollectedData empty(String requestURI, String contextPath) {
+        return new CollectedData(requestURI, new HashMap<String, String[]>(), new HashMap<String, List<MockedField>>(),
                                  new HashMap<String, List<MockedField>>(), new ArrayList<String>(),
                                  new ArrayList<String>(), new HashSet<ResponseHeader>(), contextPath, false);
     }

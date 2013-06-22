@@ -262,9 +262,13 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                 collectedData = aggregate(data, new Aggregator<CollectedData>() {
                     @Override
                     public CollectedData aggregate(Iterator<? extends CollectedData> iterator) {
-                        CollectedData aggregated = CollectedData.empty(contextPath);
+                        CollectedData aggregated = null;
                         while (iterator.hasNext()) {
-                            CollectedData.join(iterator.next(), aggregated);
+                            final CollectedData current = iterator.next();
+                            if(aggregated == null) {
+                                aggregated = CollectedData.empty(current.getRequestURI(), contextPath);
+                            }
+                            CollectedData.join(current, aggregated);
                         }
                         return aggregated;
                     }

@@ -22,7 +22,13 @@ package com.ejisto.modules.dao.remote;
 import com.ejisto.modules.recorder.CollectedData;
 import lombok.extern.java.Log;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
+
+import static com.ejisto.modules.recorder.CollectedData.buildKey;
+import static com.ejisto.modules.web.util.JSONUtil.decode;
 
 /**
  * Created by IntelliJ IDEA.
@@ -39,9 +45,15 @@ public class CollectedDataDao extends BaseRemoteDao {
     }
 
     public void sendCollectedData(CollectedData data, String contextPath) {
-        if(!data.isEmpty()) {
+        if (!data.isEmpty()) {
             remoteCall(encodeRequest(data), contextPath + "/record", "POST");
         }
+    }
+
+    public CollectedData getCollectedDataFor(HttpServletRequest request) {
+        Map<String, String[]> parameters = new TreeMap<String, String[]>(request.getParameterMap());
+        return decode(remoteCall(encodeRequest(buildKey(parameters, false)), request.getContextPath() + "/load",
+                                 "GET"), CollectedData.class);
     }
 
     public void registerSession(String id, String contextPath) {

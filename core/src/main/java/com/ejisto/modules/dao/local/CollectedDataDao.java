@@ -19,14 +19,23 @@
 
 package com.ejisto.modules.dao.local;
 
+import ch.lambdaj.Lambda;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.recorder.CollectedData;
+import org.apache.commons.lang3.StringUtils;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.beans.HasPropertyWithValue;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+
+import static ch.lambdaj.Lambda.extractProperty;
+import static ch.lambdaj.Lambda.select;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
  * Created by IntelliJ IDEA.
@@ -60,6 +69,12 @@ public class CollectedDataDao extends BaseLocalDao {
 
     public Collection<MockedField> loadFromRecordedSession(String sessionName) {
         return new ArrayList<>(getDatabase().getRecordedSession(sessionName).getAllFields());
+    }
+
+    public Collection<MockedField> loadFromRecordedSessionByRequestURI(String requestURI) {
+        List<CollectedData> selected = select(getDatabase().getActiveRecordedSessions(),
+                                                       new HasPropertyWithValue<>("requestURI", equalTo(requestURI)));
+        return extractProperty(selected, "allFields");
     }
 
     public void enableRecordedSession(final String name) {

@@ -32,10 +32,7 @@ import javassist.ClassPool;
 import javassist.LoaderClassPath;
 import lombok.extern.log4j.Log4j;
 import org.codehaus.cargo.module.DescriptorElement;
-import org.codehaus.cargo.module.webapp.WebXml;
-import org.codehaus.cargo.module.webapp.WebXmlIo;
-import org.codehaus.cargo.module.webapp.WebXmlType;
-import org.codehaus.cargo.module.webapp.WebXmlUtils;
+import org.codehaus.cargo.module.webapp.*;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
@@ -45,6 +42,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -75,17 +75,20 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
     private final MockedFieldsRepository mockedFieldsRepository;
     private final CustomObjectFactoryRepository customObjectFactoryRepository;
     private final WebApplicationDescriptor session;
+    private final boolean hybrid;
     private String containerHome;
 
     public ApplicationScanningWorker(ApplicationScanningController controller,
                                      MockedFieldsRepository mockedFieldsRepository,
                                      CustomObjectFactoryRepository customObjectFactoryRepository,
-                                     String containerHome) {
+                                     String containerHome,
+                                     boolean hybrid) {
         super();
         this.mockedFieldsRepository = mockedFieldsRepository;
         this.customObjectFactoryRepository = customObjectFactoryRepository;
         this.session = controller.getSession();
         this.containerHome = containerHome;
+        this.hybrid = hybrid;
         addPropertyChangeListener(controller);
     }
 
@@ -137,18 +140,25 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
         notifyJobCompleted(INDETERMINATE, getMessage("wizard.resource.web.xml.processing"));
         StringBuilder webXmlPath = new StringBuilder(descriptor.getInstallationPath()).append(File.separator);
         webXmlPath.append("WEB-INF").append(File.separator).append("web.xml");
-        File webXml = new File(webXmlPath.toString());
-        if (!webXml.exists()) {
-            return;
+        Path path = Paths.get(webXmlPath.toString());
+        WebXml xml;
+        if(hybrid) {
+            if (!Files.exists(path)) {
+                return;
+            }
+            xml = WebXmlIo.parseWebXmlFromFile(path.toFile(), null);
+            DescriptorElement param = (DescriptorElement) WebXmlUtils.getContextParam(xml, TARGET_CONTEXT_PATH.getValue());
+            if (param != null) {
+                return;
+            }
+        } else {
+            Files.deleteIfExists(path);
+            xml = WebXmlIo.newWebXml(WebXmlVersion.V3_0);
+            buildDefaultServlet(xml);
         }
-        WebXml xml = WebXmlIo.parseWebXmlFromFile(webXml, null);
-        DescriptorElement param = (DescriptorElement) WebXmlUtils.getContextParam(xml, TARGET_CONTEXT_PATH.getValue());
-        if (param != null) {
-            return;
-        }
-        WebXmlUtils.addContextParam(xml, TARGET_CONTEXT_PATH.getValue(), descriptor.getContextPath());
         xml.getRootElement().getChildren().add(0, buildListener(xml.getRootElement().getNamespace().getURI()));
-        WebXmlIo.writeDescriptor(xml, webXml);
+        WebXmlUtils.addContextParam(xml, TARGET_CONTEXT_PATH.getValue(), descriptor.getContextPath());
+        WebXmlIo.writeDescriptor(xml, path.toFile());
     }
 
     private Element buildListener(String namespaceURI) {
@@ -157,6 +167,11 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
         listenerClass.setText("com.ejisto.modules.web.ContextListener");
         listener.addContent(listenerClass);
         return listener;
+    }
+
+    private void buildDefaultServlet(WebXml xml) {
+        WebXmlUtils.addServlet(xml, DEFAULT_SERVLET_NAME.getValue(), "com.ejisto.modules.web.servlet.DefaultServlet");
+        WebXmlUtils.addServletMapping(xml, DEFAULT_SERVLET_NAME.getValue(), "/*");
     }
 
     private void createDeployable(WebApplicationDescriptor session) {
