@@ -78,7 +78,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
         registerObjectFactory(objectFactoryClassName, targetClassName, true);
     }
 
-    public void registerObjectFactory(String objectFactoryClassName, String targetClassName, boolean notify) {
+    public final void registerObjectFactory(String objectFactoryClassName, String targetClassName, boolean notify) {
         String message;
         boolean error = factories.containsKey(targetClassName);
         if (!error) {

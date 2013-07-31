@@ -52,7 +52,7 @@ public abstract class BaseLocalDao {
 
     private Transaction openTransaction() {
         Transaction transaction = database.getActiveTransaction();
-        if(transaction.isActive()) {
+        if (transaction.isActive()) {
             return transaction;
         }
         return database.createNewTransaction();

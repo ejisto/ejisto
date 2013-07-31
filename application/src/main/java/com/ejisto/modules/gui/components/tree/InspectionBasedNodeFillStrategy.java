@@ -74,7 +74,7 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
             throw new IllegalArgumentException("child not compatible.");
         }
         int depthDifference = calcDepthDifference(parent, child);
-        if(depthDifference > 0) {
+        if (depthDifference > 0) {
             throw new IllegalArgumentException("child not compatible.");
         }
         if (depthDifference == 0) {
@@ -83,9 +83,9 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
         Enumeration<FieldNode> en = parent.children();
         while (en.hasMoreElements()) {
             FieldNode candidate = en.nextElement();
-            if(candidate instanceof ClassNode) {
-                if (containsChild((ClassNode)candidate, child)) {
-                    return handleNodeModification((ClassNode)candidate, child, operationHelper);
+            if (candidate instanceof ClassNode) {
+                if (containsChild((ClassNode) candidate, child)) {
+                    return handleNodeModification((ClassNode) candidate, child, operationHelper);
                 }
             }
         }

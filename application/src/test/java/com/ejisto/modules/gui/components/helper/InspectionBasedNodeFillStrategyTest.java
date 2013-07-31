@@ -20,10 +20,10 @@
 package com.ejisto.modules.gui.components.helper;
 
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.gui.components.tree.node.ClassNode;
-import com.ejisto.modules.gui.components.tree.node.FieldNode;
 import com.ejisto.modules.gui.components.tree.InspectionBasedNodeFillStrategy;
 import com.ejisto.modules.gui.components.tree.NodeFillStrategy;
+import com.ejisto.modules.gui.components.tree.node.ClassNode;
+import com.ejisto.modules.gui.components.tree.node.FieldNode;
 import com.ejisto.modules.gui.components.tree.node.RootNode;
 import com.ejisto.util.GuiUtils;
 import com.ejisto.util.IteratorEnumeration;

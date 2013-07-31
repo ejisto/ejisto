@@ -45,7 +45,8 @@ public class ObjectFactoryDaoTest {
     private final ObjectFactoryDao dao;
 
     public ObjectFactoryDaoTest() {
-        this.db = INJECTOR.resolve(dependency(EmbeddedDatabaseManager.class));;
+        this.db = INJECTOR.resolve(dependency(EmbeddedDatabaseManager.class));
+        ;
         this.dao = INJECTOR.resolve(dependency(ObjectFactoryDao.class));
     }
 

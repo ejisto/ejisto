@@ -68,7 +68,7 @@ public class EjistoDialog extends JDialog {
         return freelyCloseable;
     }
 
-    public void setActions(Action... actions) {
+    public final void setActions(Action... actions) {
         if (actions != null && actions.length > 0) {
             setActions(Arrays.asList(actions));
         }
@@ -80,7 +80,7 @@ public class EjistoDialog extends JDialog {
         this.actions.add(action);
     }
 
-    public void setActions(Collection<Action> actions) {
+    public final void setActions(Collection<Action> actions) {
         if (CollectionUtils.isEmpty(actions)) {
             return;
         }

@@ -55,7 +55,7 @@ public class PopupMenuManager extends MouseAdapter {
             editor.selectFieldAt(e.getPoint());
             JPopupMenu menu = new JPopupMenu();
             menu.setInvoker(editor.toComponent());
-            if(editor.fillWithCustomMenuItems(menu, e.getPoint())) {
+            if (editor.fillWithCustomMenuItems(menu, e.getPoint())) {
                 menu.addSeparator();
             }
             fillWithAddActions(menu, editor);

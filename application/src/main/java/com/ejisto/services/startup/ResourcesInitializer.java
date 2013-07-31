@@ -135,7 +135,7 @@ public class ResourcesInitializer extends BaseStartupService {
         }
 
         String a = JXHeader.uiClassID;//initialize JXHeader.class
-        log.debug("initializing JXHeader ["+a+"]");
+        log.debug("initializing JXHeader [" + a + "]");
         LookAndFeelAddons.getAddon().loadDefaults(
                 new Object[]{"JXHeader.descriptionFont", defaultFont, "JXHeader.titleFont", bold, "JXTitledPanel.titleFont", bold, "JXHeader.background", Color.white});
         GuiUtils.setDefaultFont(defaultFont);

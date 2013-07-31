@@ -20,6 +20,7 @@
 package com.ejisto.modules.web.util;
 
 import javax.servlet.ServletContext;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 
 /**
@@ -29,6 +30,8 @@ import java.util.Enumeration;
  * Time: 8:28 AM
  */
 public abstract class ConfigurationManager {
+
+    public static final Charset UTF_8 = Charset.forName("UTF_8");
 
     public static void initConfiguration(ServletContext context) {
         context.log("*************** init params: ***********************");
@@ -40,4 +43,5 @@ public abstract class ConfigurationManager {
         }
         context.log("****************************************************");
     }
+
 }

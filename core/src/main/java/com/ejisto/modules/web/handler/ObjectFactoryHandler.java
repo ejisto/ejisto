@@ -22,6 +22,7 @@ package com.ejisto.modules.web.handler;
 import com.ejisto.modules.dao.ObjectFactoryDao;
 import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
 import com.ejisto.modules.web.RemoteRequestHandler;
+import com.ejisto.modules.web.util.ConfigurationManager;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.sun.net.httpserver.HttpExchange;
 import lombok.extern.log4j.Log4j;
@@ -53,7 +54,7 @@ public class ObjectFactoryHandler implements RemoteRequestHandler {
             List<RegisteredObjectFactory> factories = objectFactoryDao.loadAll();
             String response = JSONUtil.encode(factories);
             httpExchange.sendResponseHeaders(200, response.length());
-            os.write(response.getBytes());
+            os.write(response.getBytes(ConfigurationManager.UTF_8));
         } catch (Exception e) {
             log.error("error during objectFactory handling", e);
         }

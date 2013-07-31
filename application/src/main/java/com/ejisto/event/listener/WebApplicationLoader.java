@@ -189,7 +189,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     void notifyCommand(ActionEvent event) {
         try {
             String[] command = SPLIT_PATTERN.split(event.getActionCommand());
-            if(command.length != 3) {
+            if (command.length != 3) {
                 throw new IllegalArgumentException(event.getActionCommand());
             }
             WebAppContextStatusCommand statusCommand = WebAppContextStatusCommand.fromString(command[1]);

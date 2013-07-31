@@ -46,7 +46,8 @@ public class Launcher {
             Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                 @Override
                 public void uncaughtException(Thread t, Throwable e) {
-                    showErrorDialog("Unexpected error", "Thread ["+t.getName()+"] failed with the following Exception", e);
+                    showErrorDialog("Unexpected error",
+                                    "Thread [" + t.getName() + "] failed with the following Exception", e);
                     Launcher.log.error("Unexpected exception", e);
                 }
             });

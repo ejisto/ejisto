@@ -47,12 +47,12 @@ public class EnumFactory<T extends Enum<T>> implements ObjectFactory<Enum<T>> {
     public Enum<T> create(MockedField m, Enum<T> actualValue) {
         try {
             String name = m.getFieldValue();
-            if(StringUtils.isEmpty(name)) {
+            if (StringUtils.isEmpty(name)) {
                 return actualValue;
             }
             @SuppressWarnings("unchecked")
             Class<Enum<T>> clazz = (Class<Enum<T>>) Class.forName(m.getFieldType());
-            if(!clazz.isEnum()) {
+            if (!clazz.isEnum()) {
                 return actualValue;
             }
             Enum<T>[] enums = clazz.getEnumConstants();

@@ -80,7 +80,7 @@ public class MultipurposeFileVisitor<T> extends SimpleFileVisitor<T> {
     }
 
     private static void validateAdditionalVisitorResult(FileVisitResult result) {
-        if(!Objects.equals(FileVisitResult.CONTINUE, result)) {
+        if (!Objects.equals(FileVisitResult.CONTINUE, result)) {
             throw new IllegalStateException("An optional visitor cannot return a result other than CONTINUE");
         }
     }

@@ -126,9 +126,9 @@ public class LoadClassAction extends RecursiveTask<List<MockedField>> {
             for (CtField field : clazz.getDeclaredFields()) {
                 MockedField mockedField;
                 if (mockedFieldsRepository.exists(descriptor.getContextPath(), clazz.getName(),
-                                      field.getName())) {
+                                                  field.getName())) {
                     MockedField existing = mockedFieldsRepository.load(descriptor.getContextPath(), clazz.getName(),
-                                                           field.getName());
+                                                                       field.getName());
                     mockedField = MockedFieldDecorator.copyOf(existing);
                 } else {
                     mockedField = new MockedFieldDecorator();

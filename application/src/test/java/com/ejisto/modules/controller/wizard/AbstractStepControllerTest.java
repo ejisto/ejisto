@@ -44,7 +44,6 @@ public class AbstractStepControllerTest {
     private static final int TASKS = 10;
 
 
-
     public AbstractStepControllerTest() {
         this.threadSynchronizer = new CyclicBarrier(TASKS + 1);
     }

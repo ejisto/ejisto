@@ -31,7 +31,7 @@ public class SessionRecorded extends StatusBarMessage {
 
     public SessionRecorded(Object source, String name, String message) {
         super(source, message, false);
-        this.name=name;
+        this.name = name;
     }
 
     public String getName() {

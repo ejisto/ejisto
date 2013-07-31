@@ -88,7 +88,8 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
 
     @Override
     protected Task<?> createNewTask() {
-        return new ApplicationScanningWorker(this, mockedFieldsRepository, customObjectFactoryRepository, containerHome, true);
+        return new ApplicationScanningWorker(this, mockedFieldsRepository, customObjectFactoryRepository, containerHome,
+                                             true);
     }
 
     private void notifyStart(final int numJobs) {

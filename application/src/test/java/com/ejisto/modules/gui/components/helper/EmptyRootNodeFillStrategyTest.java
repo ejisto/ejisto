@@ -21,9 +21,9 @@ package com.ejisto.modules.gui.components.helper;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.tree.EmptyRootNodeFillStrategy;
+import com.ejisto.modules.gui.components.tree.NodeFillStrategy;
 import com.ejisto.modules.gui.components.tree.node.ClassNode;
 import com.ejisto.modules.gui.components.tree.node.FieldNode;
-import com.ejisto.modules.gui.components.tree.NodeFillStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

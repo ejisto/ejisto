@@ -52,7 +52,7 @@ abstract class JSONSerializer<T> extends BTreeKeySerializer<T> implements Serial
     @Override
     public void serialize(DataOutput out, int start, int end, Object[] keys) throws IOException {
         Class<T> targetClass = getTargetClass();
-        for(int i = start; i < end; i++) {
+        for (int i = start; i < end; i++) {
             serialize(out, targetClass.cast(keys[i]));
         }
     }

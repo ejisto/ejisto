@@ -62,7 +62,8 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
     public void onApplicationEvent(ApplicationScanRequired event) {
         WebApplicationDescriptor descriptor = event.getWebApplicationDescriptor();
         List<MockedField> fields = mockedFieldsRepository.loadAll(descriptor.getContextPath(),
-                new FieldsEditorContextMatcher(FieldsEditorContext.CREATE_FIELD));
+                                                                  new FieldsEditorContextMatcher(
+                                                                          FieldsEditorContext.CREATE_FIELD));
         if (isEmpty(fields)) {
             return;
         }

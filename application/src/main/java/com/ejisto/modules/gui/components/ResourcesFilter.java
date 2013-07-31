@@ -125,7 +125,7 @@ public class ResourcesFilter extends JXPanel {
         return buttonsPanel;
     }
 
-    public void select(boolean all) {
+    public final void select(boolean all) {
         if (all) {
             getResourcesList().addSelectionInterval(0, resourcesSize - 1);
         } else {

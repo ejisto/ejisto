@@ -30,6 +30,7 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import java.util.logging.Level;
 
 import static com.ejisto.util.GuiUtils.getMessage;
+
 @Log4j
 public class ErrorListener implements ApplicationListener<ApplicationError> {
 

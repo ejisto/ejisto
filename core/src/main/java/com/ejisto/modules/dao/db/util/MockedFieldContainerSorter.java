@@ -32,7 +32,7 @@ public class MockedFieldContainerSorter implements Comparator<MockedFieldContain
     @Override
     public int compare(MockedFieldContainer o1, MockedFieldContainer o2) {
         int result = o1.getClassName().compareTo(o2.getClassName());
-        if(result != 0) {
+        if (result != 0) {
             return result;
         }
         return o1.getFieldName().compareTo(o2.getFieldName());

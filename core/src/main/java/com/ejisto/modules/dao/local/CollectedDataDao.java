@@ -19,12 +19,9 @@
 
 package com.ejisto.modules.dao.local;
 
-import ch.lambdaj.Lambda;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.recorder.CollectedData;
-import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.CoreMatchers;
 import org.hamcrest.beans.HasPropertyWithValue;
 
 import java.util.ArrayList;
@@ -73,7 +70,7 @@ public class CollectedDataDao extends BaseLocalDao {
 
     public Collection<MockedField> loadFromRecordedSessionByRequestURI(String requestURI) {
         List<CollectedData> selected = select(getDatabase().getActiveRecordedSessions(),
-                                                       new HasPropertyWithValue<>("requestURI", equalTo(requestURI)));
+                                              new HasPropertyWithValue<>("requestURI", equalTo(requestURI)));
         return extractProperty(selected, "allFields");
     }
 

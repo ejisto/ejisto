@@ -134,12 +134,14 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
 
     private void notifyContextInstalled(String contextPath) {
         view.contextInstalled(contextPath, mockedFieldsRepository.loadActiveFields(contextPath,
-                new FieldsEditorContextMatcher(fieldsEditorContext)));
+                                                                                   new FieldsEditorContextMatcher(
+                                                                                           fieldsEditorContext)));
     }
 
     private void notifyContextDeleted(String contextPath) {
         view.contextRemoved(contextPath, mockedFieldsRepository.loadAll(contextPath,
-                new FieldsEditorContextMatcher(fieldsEditorContext)));
+                                                                        new FieldsEditorContextMatcher(
+                                                                                fieldsEditorContext)));
     }
 
     private void startEdit(MockedFieldEditingEvent event, Point editingPoint) {
@@ -161,7 +163,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         view.showCard(EditorType.fromIndex(selectedIndex));
     }
 
-    public ActionMap getActionMap() {
+    public final ActionMap getActionMap() {
         return actionMap;
     }
 

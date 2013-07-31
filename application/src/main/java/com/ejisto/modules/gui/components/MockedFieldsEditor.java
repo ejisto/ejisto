@@ -85,7 +85,7 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         }
     }
 
-    public void initActionMap(ActionMap actionMap) {
+    public final void initActionMap(ActionMap actionMap) {
         GuiUtils.setActionMap(actionMap, getTree());
         GuiUtils.setActionMap(actionMap, getFlattenTable());
     }

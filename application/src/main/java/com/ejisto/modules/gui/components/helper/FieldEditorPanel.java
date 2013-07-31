@@ -50,7 +50,7 @@ import static com.ejisto.util.GuiUtils.getMessage;
  * Date: 6/6/12
  * Time: 6:28 PM
  */
-public class FieldEditorPanel extends JXCollapsiblePane implements ActionListener {
+public final class FieldEditorPanel extends JXCollapsiblePane implements ActionListener {
     protected static final String TYPE_SELECTION = "typeSelection";
 
     private JXLabel type;

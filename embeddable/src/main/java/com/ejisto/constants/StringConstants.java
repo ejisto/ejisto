@@ -77,9 +77,7 @@ public enum StringConstants {
     CTX_GET_CUSTOM_OBJECT_FACTORY("/getCustomObjectFactory"),
     CTX_GET_MOCKED_FIELD("/getField"),
     CTX_GET_SETTINGS("/getSettings"),
-    DEFAULT_SERVLET_NAME("ejistoDefaultServlet")
-
-    ;
+    DEFAULT_SERVLET_NAME("ejistoDefaultServlet");
 
     private final String value;
 

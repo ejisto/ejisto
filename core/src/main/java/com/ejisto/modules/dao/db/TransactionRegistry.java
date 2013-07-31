@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * Stores the current transaction
- *
+ * <p/>
  * User: celestino
  * Date: 3/15/13
  * Time: 4:47 PM

@@ -22,6 +22,7 @@ package com.ejisto.modules.web.handler;
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.web.RemoteRequestHandler;
+import com.ejisto.modules.web.util.ConfigurationManager;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.sun.net.httpserver.HttpExchange;
 import lombok.extern.log4j.Log4j;
@@ -53,7 +54,7 @@ public class CustomObjectFactoryHandler implements RemoteRequestHandler {
             List<CustomObjectFactory> factories = customObjectFactoryRepository.getCustomObjectFactories();
             String response = JSONUtil.encode(factories);
             httpExchange.sendResponseHeaders(200, response.length());
-            os.write(response.getBytes());
+            os.write(response.getBytes(ConfigurationManager.UTF_8));
             os.close();
         } catch (Exception e) {
             log.error("error during customObjectFactory handling", e);

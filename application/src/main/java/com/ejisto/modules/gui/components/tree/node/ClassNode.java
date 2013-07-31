@@ -24,10 +24,7 @@ import lombok.extern.log4j.Log4j;
 
 import javax.swing.text.Position;
 import javax.swing.tree.MutableTreeNode;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import static com.ejisto.util.GuiUtils.encodeTreePath;
 
@@ -49,16 +46,17 @@ public class ClassNode extends FieldNode {
 
     public ClassNode(MockedField userObject, String[] path) {
         super(userObject);
+        Objects.requireNonNull(path);
         this.children = new TreeMap<>();
-        this.path = path;
+        this.path = Arrays.copyOf(path, path.length);
     }
 
     @Override
     public String toString() {
-        if(path.length == 0) {
+        if (path.length == 0) {
             return "";
         }
-        return path[path.length -1];
+        return path[path.length - 1];
     }
 
     @Override

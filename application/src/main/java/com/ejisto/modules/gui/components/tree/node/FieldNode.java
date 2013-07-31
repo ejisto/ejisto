@@ -20,18 +20,10 @@
 package com.ejisto.modules.gui.components.tree.node;
 
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.util.IteratorEnumeration;
 import lombok.extern.log4j.Log4j;
 
-import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.MutableTreeNode;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.TreeMap;
-
-import static com.ejisto.util.GuiUtils.encodeTreePath;
 
 /**
  * Created by IntelliJ IDEA.

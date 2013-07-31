@@ -26,6 +26,7 @@ import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.factory.AbstractContainerFactory;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.modules.web.util.ConfigurationManager;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -98,7 +99,7 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
         }
         try {
             final ObjectMapper mapper = new ObjectMapper();
-            final JsonNode root = mapper.readTree(expression.getBytes());
+            final JsonNode root = mapper.readTree(expression.getBytes(ConfigurationManager.UTF_8));
             for (JsonNode child : root) {
                 @SuppressWarnings("unchecked")
                 Y element = (Y) mapper.readValue(child.asText(), elementObjectFactory.getTargetClass());

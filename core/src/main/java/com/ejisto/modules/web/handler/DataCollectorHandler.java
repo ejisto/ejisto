@@ -23,6 +23,7 @@ import com.ejisto.event.EventManager;
 import com.ejisto.event.def.CollectedDataReceived;
 import com.ejisto.modules.recorder.CollectedData;
 import com.ejisto.modules.web.RemoteRequestHandler;
+import com.ejisto.modules.web.util.ConfigurationManager;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.ejisto.util.IOUtils;
 import com.sun.net.httpserver.HttpExchange;
@@ -81,7 +82,7 @@ public class DataCollectorHandler implements RemoteRequestHandler {
 
     private void reply(HttpExchange exchange, String response) throws IOException {
         try (OutputStream out = exchange.getResponseBody()) {
-            out.write(response.getBytes());
+            out.write(response.getBytes(ConfigurationManager.UTF_8));
         }
     }
 

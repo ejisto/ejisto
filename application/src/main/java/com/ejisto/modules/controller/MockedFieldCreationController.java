@@ -95,8 +95,8 @@ public class MockedFieldCreationController extends AbstractDialogManager {
         mockedFieldsRepository.insert(mf);
         MockedFieldChanged event = new MockedFieldChanged(this,
                                                           mockedFieldsRepository.load(mf.getContextPath(),
-                                                                                                    mf.getClassName(),
-                                                                                                    mf.getFieldName()));
+                                                                                      mf.getClassName(),
+                                                                                      mf.getFieldName()));
         publishEvent(event);
         publishEvent(new ServerRestartRequired(DEFAULT_CONTAINER_ID.getValue(), this));
     }

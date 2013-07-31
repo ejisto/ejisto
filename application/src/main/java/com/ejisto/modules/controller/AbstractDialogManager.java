@@ -46,7 +46,6 @@ abstract class AbstractDialogManager {
 
     abstract void onConfirm();
 
-
     private void initActions() {
 
         closeAction = new AbstractActionExt(getMessage("ok")) {
@@ -73,12 +72,12 @@ abstract class AbstractDialogManager {
         dialogController.show(true, size);
     }
 
-    protected void close() {
+    protected final void close() {
         onAbort();
         dialogController.hide();
     }
 
-    protected void ok() {
+    protected final void ok() {
         onConfirm();
         dialogController.hide();
     }

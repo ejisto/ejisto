@@ -40,14 +40,14 @@ public final class PropertyManager {
     private final ObjectFactoryRepository objectFactoryRepository;
 
     public PropertyManager(MockedFieldsRepository mockedFieldsRepository,
-                            ObjectFactoryRepository objectFactoryRepository) {
+                           ObjectFactoryRepository objectFactoryRepository) {
         this.mockedFieldsRepository = mockedFieldsRepository;
         this.objectFactoryRepository = objectFactoryRepository;
     }
 
     public static PropertyManager newRemoteInstance() {
         PropertyManager remote = REMOTE_INSTANCE.get();
-        if(remote != null) {
+        if (remote != null) {
             return remote;
         }
         remote = new PropertyManager(new MockedFieldsRepository(null), new ObjectFactoryRepository(null, null));

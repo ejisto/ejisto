@@ -20,6 +20,7 @@
 package com.ejisto.modules.web.handler;
 
 import com.ejisto.modules.web.RemoteRequestHandler;
+import com.ejisto.modules.web.util.ConfigurationManager;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
@@ -33,7 +34,8 @@ import java.io.OutputStream;
  */
 public class DefaultHandler implements RemoteRequestHandler {
 
-    private static final byte[] GREETINGS = "Hi, I'm ejisto. How can I help you? :)".getBytes();
+    private static final byte[] GREETINGS = "Hi, I'm ejisto. How can I help you? :)".getBytes(
+            ConfigurationManager.UTF_8);
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {

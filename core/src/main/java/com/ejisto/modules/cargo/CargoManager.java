@@ -399,7 +399,8 @@ public class CargoManager implements ContainerManager {
 
     private boolean undeploy(String containerId, String contextPath, Deployable deployable, LocalContainer container) {
         try {
-            URLDeployableMonitor monitor = new URLDeployableMonitor(new URL(guessWebApplicationUri(contextPath, settingsRepository)));
+            URLDeployableMonitor monitor = new URLDeployableMonitor(
+                    new URL(guessWebApplicationUri(contextPath, settingsRepository)));
             getDeployerFor(container).undeploy(deployable, monitor);
             webApplicationRepository.unregisterWebApplication(containerId, contextPath);
             return true;

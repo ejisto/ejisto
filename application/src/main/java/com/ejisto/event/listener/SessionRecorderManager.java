@@ -265,7 +265,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                         CollectedData aggregated = null;
                         while (iterator.hasNext()) {
                             final CollectedData current = iterator.next();
-                            if(aggregated == null) {
+                            if (aggregated == null) {
                                 aggregated = CollectedData.empty(current.getRequestURI(), contextPath);
                             }
                             CollectedData.join(current, aggregated);

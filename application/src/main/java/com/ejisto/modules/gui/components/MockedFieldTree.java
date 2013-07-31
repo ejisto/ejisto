@@ -108,8 +108,8 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     public TreePath getNextMatch(String prefix, int startingRow, Position.Bias bias) {
         ClassNode searchRoot;
         FieldNode node = (FieldNode) getPathForRow(startingRow).getLastPathComponent();
-        if(node instanceof ClassNode) {
-            searchRoot = (ClassNode)node;
+        if (node instanceof ClassNode) {
+            searchRoot = (ClassNode) node;
         } else {
             searchRoot = (ClassNode) node.getParent();
         }

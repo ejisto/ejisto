@@ -319,7 +319,7 @@ public final class IOUtils {
         if (!Files.exists(out)) {
             Files.createDirectories(out);
         }
-        if(!Files.isDirectory(out)) {
+        if (!Files.isDirectory(out)) {
             throw new IllegalStateException(out.toString() + " is not a directory");
         }
         try (FileSystem fileSystem = FileSystems.newFileSystem(URI.create("jar:file:" + src.getAbsolutePath()),

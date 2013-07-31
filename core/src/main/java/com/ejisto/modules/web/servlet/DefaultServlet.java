@@ -22,7 +22,9 @@ package com.ejisto.modules.web.servlet;
 import com.ejisto.modules.dao.remote.CollectedDataDao;
 import com.ejisto.modules.recorder.CollectedData;
 
-import javax.servlet.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -57,10 +59,11 @@ public class DefaultServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         CollectedData collectedData = collectedDataDao.getCollectedDataFor(request);
-        if(!collectedData.getRequestDispatcherRedirection().isEmpty()) {
-            request.getRequestDispatcher(collectedData.getRequestDispatcherRedirection().get(0)).forward(request, response);
+        if (!collectedData.getRequestDispatcherRedirection().isEmpty()) {
+            request.getRequestDispatcher(collectedData.getRequestDispatcherRedirection().get(0)).forward(request,
+                                                                                                         response);
         }
-        if(!collectedData.getPermanentRedirection().isEmpty()) {
+        if (!collectedData.getPermanentRedirection().isEmpty()) {
             response.sendRedirect(collectedData.getPermanentRedirection().get(0));
         }
         context.log("unable to redirect");
@@ -72,7 +75,8 @@ public class DefaultServlet extends HttpServlet {
         writer.append("<p>Here two useful tips:<p>");
         writer.append("<ul><li>start a recording session in order to collect some (more) data</li>");
         writer.append("<li>enable the server \"hybrid\" mode: go to Settings/Deploy/hybrid mode</li></ul>");
-        writer.append("<p>If you think that this error could be a bug, please create a new issue in the issue tracker. Thank you</p>");
+        writer.append(
+                "<p>If you think that this error could be a bug, please create a new issue in the issue tracker. Thank you</p>");
         writer.append("</body></html>");
         writer.flush();
     }

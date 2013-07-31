@@ -23,8 +23,6 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import static java.nio.charset.Charset.forName;
-
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -36,7 +34,7 @@ public abstract class DigestUtil {
     public static String sha256Digest(String in) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(in.getBytes(forName("UTF-8")));
+            md.update(in.getBytes(ConfigurationManager.UTF_8));
             return new BigInteger(1, md.digest()).toString(16);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("sha-256 not supported. Aborting", e);

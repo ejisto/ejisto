@@ -68,6 +68,11 @@ public class ContainerTab extends JSplitPane {
         }
     }
 
+    @Override
+    public final void setName(String name) {
+        super.setName(name);
+    }
+
     public String getContainerId() {
         return containerId;
     }

@@ -51,7 +51,7 @@ public class EjistoMethodHandler implements MethodHandler {
         if (!mockedField.isActive()) {
             return null;
         }
-        if(!isGetterForProperty(method.getName(), mockedField.getFieldName())) {
+        if (!isGetterForProperty(method.getName(), mockedField.getFieldName())) {
             throw new IllegalArgumentException("error: undefined method [" + method.getName() + "]");
         }
 

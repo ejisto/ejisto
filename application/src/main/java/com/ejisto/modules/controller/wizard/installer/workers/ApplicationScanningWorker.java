@@ -68,7 +68,7 @@ import static com.ejisto.util.IOUtils.*;
  */
 @Log4j
 public class ApplicationScanningWorker extends GuiTask<Void> implements ProgressListener {
-    private static final String[] entries = {"ejisto-core","ejisto-embeddable","ejisto-agent", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "cglib", "commons", "asm", "jackson"};
+    private static final String[] entries = {"ejisto-core", "ejisto-embeddable", "ejisto-agent", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "cglib", "commons", "asm", "jackson"};
     private static final Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
     private static final ForkJoinPool forkJoinPool = new ForkJoinPool();
     private final AtomicInteger counter = new AtomicInteger();
@@ -142,12 +142,13 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
         webXmlPath.append("WEB-INF").append(File.separator).append("web.xml");
         Path path = Paths.get(webXmlPath.toString());
         WebXml xml;
-        if(hybrid) {
+        if (hybrid) {
             if (!Files.exists(path)) {
                 return;
             }
             xml = WebXmlIo.parseWebXmlFromFile(path.toFile(), null);
-            DescriptorElement param = (DescriptorElement) WebXmlUtils.getContextParam(xml, TARGET_CONTEXT_PATH.getValue());
+            DescriptorElement param = (DescriptorElement) WebXmlUtils.getContextParam(xml,
+                                                                                      TARGET_CONTEXT_PATH.getValue());
             if (param != null) {
                 return;
             }

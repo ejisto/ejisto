@@ -27,7 +27,7 @@ import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
  * Date: 3/24/13
  * Time: 4:19 PM
  */
-public class RegisteredObjectFactorySerializer extends JSONSerializer<RegisteredObjectFactory>{
+public class RegisteredObjectFactorySerializer extends JSONSerializer<RegisteredObjectFactory> {
     @Override
     protected Class<RegisteredObjectFactory> getTargetClass() {
         return RegisteredObjectFactory.class;

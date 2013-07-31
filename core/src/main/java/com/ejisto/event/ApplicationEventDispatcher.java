@@ -130,8 +130,8 @@ public class ApplicationEventDispatcher {
             }
         }
         Class<?> superClass = eventClass.getSuperclass();
-        if(superClass != null && BaseApplicationEvent.class.isAssignableFrom(superClass)) {
-            notifyListenersFor((Class<BaseApplicationEvent>)eventClass.getSuperclass(), applicationEvent);
+        if (superClass != null && BaseApplicationEvent.class.isAssignableFrom(superClass)) {
+            notifyListenersFor((Class<BaseApplicationEvent>) eventClass.getSuperclass(), applicationEvent);
         }
     }
 }

@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
 import java.util.*;
 
 import static com.ejisto.modules.web.util.DigestUtil.sha256Digest;
@@ -145,10 +144,10 @@ public class CollectedData {
 
     public static String buildKey(Map<String, String[]> requestParameters, boolean full) {
         StringBuilder clearText = new StringBuilder();
-        for (String key : requestParameters.keySet()) {
-            clearText.append(key);
+        for (Map.Entry<String, String[]> entry : requestParameters.entrySet()) {
+            clearText.append(entry.getKey());
             if (full) {
-                clearText.append("=").append(Arrays.toString(requestParameters.get(key)));
+                clearText.append("=").append(Arrays.toString(entry.getValue()));
             }
             clearText.append(";");
         }

@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.dao.remote;
 
+import com.ejisto.modules.web.util.ConfigurationManager;
 import com.ejisto.modules.web.util.JSONUtil;
 import lombok.extern.java.Log;
 
@@ -82,7 +83,7 @@ public class BaseRemoteDao {
             acquired = true;
             HttpURLConnection connection = openConnection(requestPath, method);
             OutputStream out = connection.getOutputStream();
-            out.write(request.getBytes());
+            out.write(request.getBytes(ConfigurationManager.UTF_8));
             out.flush();
             out.close();
             return new String(readInputStream(connection.getInputStream()), Charset.forName("UTF-8"));

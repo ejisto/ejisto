@@ -24,7 +24,6 @@ import com.ejisto.event.def.InstallContainer;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.VerticalLayout;
 import org.jdesktop.swingx.action.AbstractActionExt;
 
 import java.awt.*;
