@@ -83,7 +83,7 @@ public class ObjectFactoryLoader implements Runnable {
 
     private void processFile(File file) throws IOException, NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException {
         CustomObjectFactory factory = customObjectFactoryDao.load(file.getName());
-        String checksum = DigestUtils.shaHex(new FileInputStream(file));
+        String checksum = DigestUtils.sha256Hex(new FileInputStream(file));
         if (factory != null && factory.getChecksum().equals(checksum)) {
             return;
         }

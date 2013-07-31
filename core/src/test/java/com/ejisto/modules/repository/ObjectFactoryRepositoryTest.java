@@ -43,11 +43,10 @@ public class ObjectFactoryRepositoryTest {
 
     private static final Injector INJECTOR = Bootstrap.injector(CoreBundle.class);
     private final ObjectFactoryRepository repository;
-    private final EmbeddedDatabaseManager db;
     private String context = "/myContext";
 
     public ObjectFactoryRepositoryTest() {
-        db = INJECTOR.resolve(dependency(EmbeddedDatabaseManager.class));
+        EmbeddedDatabaseManager db = INJECTOR.resolve(dependency(EmbeddedDatabaseManager.class));
         repository = new ObjectFactoryRepository(null, new LocalObjectFactoryDao(db) {
             @Override
             public List<RegisteredObjectFactory> loadAll() {

@@ -19,7 +19,6 @@
 
 package com.ejisto.core.classloading.proxy;
 
-import com.ejisto.core.classloading.javassist.EjistoMethodHandler;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
@@ -37,12 +36,10 @@ import static org.hamcrest.Matchers.equalTo;
 @Log4j
 public class EjistoProxy implements MethodInterceptor {
     private final List<MockedField> mockedFields;
-    private final EjistoMethodHandler methodHandler;
     private final ObjectFactoryRepository objectFactoryRepository;
 
     public EjistoProxy(List<MockedField> mockedFields) {
         this.mockedFields = mockedFields;
-        this.methodHandler = new EjistoMethodHandler(mockedFields);
         this.objectFactoryRepository = new ObjectFactoryRepository(null, null);
     }
 
@@ -57,17 +54,19 @@ public class EjistoProxy implements MethodInterceptor {
         return proxy.invokeSuper(obj, args);
     }
 
-    private Object handleGetter(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+    private <T> T handleGetter(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
         MockedField mockedField = getMockedFieldFor(method.getName());
+        @SuppressWarnings("unchecked")
+        T actualValue = (T)proxy.invokeSuper(obj, args);
         if (mockedField == null) {
-            return proxy.invokeSuper(obj, args);
+            return actualValue;
         }
         log.trace("mockedField is not null. Handling getter.");
-        ObjectFactory<?> factory = objectFactoryRepository.getObjectFactory(
+        ObjectFactory<T> factory = objectFactoryRepository.getObjectFactory(
                 method.getReturnType().getName(),
                 mockedField.getContextPath());
         log.trace(String.format("got %s for %s", factory, mockedField));
-        return factory.create(mockedField, null);
+        return factory.create(mockedField, actualValue);
     }
 
     private Object handleSetter(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
