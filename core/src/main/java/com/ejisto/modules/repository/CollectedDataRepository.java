@@ -20,7 +20,7 @@
 package com.ejisto.modules.repository;
 
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.dao.local.CollectedDataDao;
+import com.ejisto.modules.dao.local.LocalCollectedDataDao;
 import com.ejisto.modules.recorder.CollectedData;
 
 import java.util.*;
@@ -33,9 +33,9 @@ import java.util.*;
  */
 public class CollectedDataRepository {
 
-    private final CollectedDataDao collectedDataDao;
+    private final LocalCollectedDataDao collectedDataDao;
 
-    public CollectedDataRepository(CollectedDataDao collectedDataDao) {
+    public CollectedDataRepository(LocalCollectedDataDao collectedDataDao) {
         this.collectedDataDao = collectedDataDao;
     }
 
@@ -63,7 +63,7 @@ public class CollectedDataRepository {
         return Collections.unmodifiableMap(getDao().loadPersistedRecordedSessions());
     }
 
-    private CollectedDataDao getDao() {
+    private LocalCollectedDataDao getDao() {
         return collectedDataDao;
     }
 

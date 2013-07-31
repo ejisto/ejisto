@@ -23,6 +23,7 @@ import ch.lambdaj.function.convert.Converter;
 import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.dao.remote.RemoteMockedFieldsDao;
 import com.ejisto.modules.web.MockedFieldRequest;
 import com.ejisto.util.ExternalizableService;
 import lombok.extern.log4j.Log4j;
@@ -108,7 +109,7 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
 
     @Override
     protected MockedFieldsDao newRemoteDaoInstance() {
-        return new com.ejisto.modules.dao.remote.MockedFieldsDao();
+        return new RemoteMockedFieldsDao();
     }
 
     public List<MockedField> loadActiveFields(String contextPath, String className) {

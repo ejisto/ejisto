@@ -31,7 +31,7 @@ import com.ejisto.event.def.SessionRecorderStart;
 import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
-import com.ejisto.modules.dao.local.WebApplicationDescriptorDao;
+import com.ejisto.modules.dao.local.LocalWebApplicationDescriptorDao;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
@@ -91,7 +91,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     private static final ConcurrentMap<String, Set<CollectedData>> RECORDED_DATA = new ConcurrentHashMap<>();
     private final EventManager eventManager;
     private final Application application;
-    private final WebApplicationDescriptorDao webApplicationDescriptorDao;
+    private final LocalWebApplicationDescriptorDao webApplicationDescriptorDao;
     private final HTTPServer httpServer;
     private final SettingsRepository settingsRepository;
     private final ApplicationEventDispatcher applicationEventDispatcher;
@@ -100,7 +100,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
 
     public SessionRecorderManager(EventManager eventManager,
                                   Application application,
-                                  WebApplicationDescriptorDao webApplicationDescriptorDao,
+                                  LocalWebApplicationDescriptorDao webApplicationDescriptorDao,
                                   HTTPServer httpServer,
                                   SettingsRepository settingsRepository,
                                   ApplicationEventDispatcher applicationEventDispatcher,

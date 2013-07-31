@@ -19,7 +19,7 @@
 
 package com.ejisto.modules.web;
 
-import com.ejisto.modules.dao.remote.CollectedDataDao;
+import com.ejisto.modules.dao.remote.RemoteCollectedDataDao;
 import com.ejisto.modules.recorder.DataCollector;
 import com.ejisto.modules.recorder.RequestWrapper;
 import com.ejisto.modules.recorder.ResponseWrapper;
@@ -49,7 +49,7 @@ public class RequestPreprocessor implements Filter {
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(10);
     private ServletContext context;
     private String contextPath;
-    private CollectedDataDao collectedDataDao;
+    private RemoteCollectedDataDao collectedDataDao;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -57,7 +57,7 @@ public class RequestPreprocessor implements Filter {
         contextPath = context.getContextPath();
         try {
             ConfigurationManager.initConfiguration(context);
-            this.collectedDataDao = new CollectedDataDao(getProperty(HTTP_INTERFACE_ADDRESS.getValue()));
+            this.collectedDataDao = new RemoteCollectedDataDao(getProperty(HTTP_INTERFACE_ADDRESS.getValue()));
             context.log("trying to register the application:");
             collectedDataDao.registerSession(generateApplicationId(), context.getContextPath());
             context.log("done.");

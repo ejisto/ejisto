@@ -19,7 +19,7 @@
 
 package com.ejisto.modules.web.servlet;
 
-import com.ejisto.modules.dao.remote.CollectedDataDao;
+import com.ejisto.modules.dao.remote.RemoteCollectedDataDao;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -36,10 +36,10 @@ import static java.lang.System.getProperty;
  */
 public class DefaultFilter implements Filter {
 
-    private final CollectedDataDao collectedDataDao;
+    private final RemoteCollectedDataDao collectedDataDao;
 
     public DefaultFilter() {
-        collectedDataDao = new CollectedDataDao(getProperty(HTTP_INTERFACE_ADDRESS.getValue()));
+        collectedDataDao = new RemoteCollectedDataDao(getProperty(HTTP_INTERFACE_ADDRESS.getValue()));
     }
 
     @Override

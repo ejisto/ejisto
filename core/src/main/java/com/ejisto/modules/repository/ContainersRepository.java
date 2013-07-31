@@ -21,7 +21,7 @@ package com.ejisto.modules.repository;
 
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.dao.entities.Container;
-import com.ejisto.modules.dao.local.ContainersDao;
+import com.ejisto.modules.dao.local.LocalContainersDao;
 
 import java.util.List;
 import java.util.Objects;
@@ -38,10 +38,10 @@ import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
  */
 public final class ContainersRepository {
 
-    private final ContainersDao containersDao;
+    private final LocalContainersDao containersDao;
     private final ConcurrentMap<String, Container> temporaryContainers = new ConcurrentHashMap<>();
 
-    private ContainersRepository(ContainersDao containersDao) {
+    private ContainersRepository(LocalContainersDao containersDao) {
         this.containersDao = containersDao;
     }
 

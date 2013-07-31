@@ -19,47 +19,51 @@
 
 package com.ejisto.modules.dao.remote;
 
-import com.ejisto.modules.dao.entities.Setting;
+import com.ejisto.modules.dao.CustomObjectFactoryDao;
+import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import java.util.Collection;
 import java.util.List;
 
-import static com.ejisto.constants.StringConstants.CTX_GET_SETTINGS;
+import static com.ejisto.constants.StringConstants.CTX_GET_CUSTOM_OBJECT_FACTORY;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
  * Date: 7/4/12
- * Time: 12:27 PM
+ * Time: 10:54 AM
  */
-public class SettingsDao extends BaseRemoteDao implements com.ejisto.modules.dao.SettingsDao {
-
+public class RemoteCustomObjectFactoryDao extends BaseRemoteDao implements CustomObjectFactoryDao {
     @Override
-    public Collection<Setting> loadAll() {
-        return JSONUtil.decode(remoteCall(encodeRequest("loadAll"), CTX_GET_SETTINGS.getValue()),
-                               new TypeReference<List<Setting>>() {
+    public List<CustomObjectFactory> loadAll() {
+        return JSONUtil.decode(remoteCall(encodeRequest("loadAll"), CTX_GET_CUSTOM_OBJECT_FACTORY.getValue()),
+                               new TypeReference<List<CustomObjectFactory>>() {
                                });
     }
 
     @Override
-    public Setting getSetting(String key) {
+    public CustomObjectFactory load(String fileName) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public boolean insertSettings(Collection<Setting> settings) {
+    public boolean insert(CustomObjectFactory customObjectFactory) {
         throw new UnsupportedOperationException("Remote dao is read-only");
     }
 
     @Override
-    public boolean insertSetting(Setting setting) {
+    public boolean update(CustomObjectFactory customObjectFactory) {
         throw new UnsupportedOperationException("Remote dao is read-only");
     }
 
     @Override
-    public boolean clearSettings(Collection<Setting> settings) {
+    public boolean exists(CustomObjectFactory customObjectFactory) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public boolean save(CustomObjectFactory customObjectFactory) {
         throw new UnsupportedOperationException("Remote dao is read-only");
     }
 }

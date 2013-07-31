@@ -21,6 +21,7 @@ package com.ejisto.modules.repository;
 
 import com.ejisto.modules.dao.CustomObjectFactoryDao;
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
+import com.ejisto.modules.dao.remote.RemoteCustomObjectFactoryDao;
 import com.ejisto.util.ExternalizableService;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class CustomObjectFactoryRepository extends ExternalizableService<CustomO
 
     @Override
     protected CustomObjectFactoryDao newRemoteDaoInstance() {
-        return new com.ejisto.modules.dao.remote.CustomObjectFactoryDao();
+        return new RemoteCustomObjectFactoryDao();
     }
 
 }

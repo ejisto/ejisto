@@ -25,6 +25,7 @@ import com.ejisto.event.EventManager;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.ObjectFactoryDao;
 import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
+import com.ejisto.modules.dao.remote.RemoteObjectFactoryDao;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.factory.impl.ArrayFactory;
 import com.ejisto.util.ExternalizableService;
@@ -194,7 +195,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
 
     @Override
     protected ObjectFactoryDao newRemoteDaoInstance() {
-        return new com.ejisto.modules.dao.remote.ObjectFactoryDao();
+        return new RemoteObjectFactoryDao();
     }
 
 }

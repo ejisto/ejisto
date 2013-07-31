@@ -19,31 +19,48 @@
 
 package com.ejisto.modules.dao.remote;
 
-import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
+import com.ejisto.modules.dao.SettingsDao;
+import com.ejisto.modules.dao.entities.Setting;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import java.util.Collection;
 import java.util.List;
 
-import static com.ejisto.constants.StringConstants.CTX_GET_OBJECT_FACTORY;
+import static com.ejisto.constants.StringConstants.CTX_GET_SETTINGS;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
  * Date: 7/4/12
- * Time: 11:38 AM
+ * Time: 12:27 PM
  */
-public class ObjectFactoryDao extends BaseRemoteDao implements com.ejisto.modules.dao.ObjectFactoryDao {
+public class RemoteSettingsDao extends BaseRemoteDao implements SettingsDao {
 
     @Override
-    public List<RegisteredObjectFactory> loadAll() {
-        return JSONUtil.decode(remoteCall(encodeRequest("loadAll"), CTX_GET_OBJECT_FACTORY.getValue()),
-                               new TypeReference<List<RegisteredObjectFactory>>() {
+    public Collection<Setting> loadAll() {
+        return JSONUtil.decode(remoteCall(encodeRequest("loadAll"), CTX_GET_SETTINGS.getValue()),
+                               new TypeReference<List<Setting>>() {
                                });
     }
 
     @Override
-    public void insert(RegisteredObjectFactory registeredObjectFactory) {
+    public Setting getSetting(String key) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public boolean insertSettings(Collection<Setting> settings) {
+        throw new UnsupportedOperationException("Remote dao is read-only");
+    }
+
+    @Override
+    public boolean insertSetting(Setting setting) {
+        throw new UnsupportedOperationException("Remote dao is read-only");
+    }
+
+    @Override
+    public boolean clearSettings(Collection<Setting> settings) {
         throw new UnsupportedOperationException("Remote dao is read-only");
     }
 }

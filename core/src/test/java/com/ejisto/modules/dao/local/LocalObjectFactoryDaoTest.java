@@ -38,16 +38,16 @@ import static se.jbee.inject.Dependency.dependency;
  * Date: 3/23/13
  * Time: 10:08 PM
  */
-public class ObjectFactoryDaoTest {
+public class LocalObjectFactoryDaoTest {
 
     private static final Injector INJECTOR = Bootstrap.injector(CoreBundle.class);
     private final EmbeddedDatabaseManager db;
-    private final ObjectFactoryDao dao;
+    private final LocalObjectFactoryDao dao;
 
-    public ObjectFactoryDaoTest() {
+    public LocalObjectFactoryDaoTest() {
         this.db = INJECTOR.resolve(dependency(EmbeddedDatabaseManager.class));
         ;
-        this.dao = INJECTOR.resolve(dependency(ObjectFactoryDao.class));
+        this.dao = INJECTOR.resolve(dependency(LocalObjectFactoryDao.class));
     }
 
     @BeforeClass

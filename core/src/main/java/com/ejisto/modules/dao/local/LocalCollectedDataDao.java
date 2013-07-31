@@ -40,9 +40,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
  * Date: 4/30/13
  * Time: 8:33 AM
  */
-public class CollectedDataDao extends BaseLocalDao {
+public class LocalCollectedDataDao extends BaseLocalDao {
 
-    public CollectedDataDao(EmbeddedDatabaseManager database) {
+    public LocalCollectedDataDao(EmbeddedDatabaseManager database) {
         super(database);
     }
 

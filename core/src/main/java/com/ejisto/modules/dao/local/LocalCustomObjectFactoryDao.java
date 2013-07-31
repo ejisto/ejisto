@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.dao.local;
 
+import com.ejisto.modules.dao.CustomObjectFactoryDao;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.CustomObjectFactory;
 import com.ejisto.modules.dao.exception.UniqueConstraintViolated;
@@ -33,9 +34,9 @@ import java.util.concurrent.Callable;
  * Date: 1/22/11
  * Time: 9:39 AM
  */
-public class CustomObjectFactoryDao extends BaseLocalDao implements com.ejisto.modules.dao.CustomObjectFactoryDao {
+public class LocalCustomObjectFactoryDao extends BaseLocalDao implements CustomObjectFactoryDao {
 
-    public CustomObjectFactoryDao(EmbeddedDatabaseManager database) {
+    public LocalCustomObjectFactoryDao(EmbeddedDatabaseManager database) {
         super(database);
     }
 

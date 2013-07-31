@@ -22,7 +22,7 @@ package com.ejisto.modules.repository;
 import com.ejisto.core.configuration.CoreBundle;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
-import com.ejisto.modules.dao.local.ObjectFactoryDao;
+import com.ejisto.modules.dao.local.LocalObjectFactoryDao;
 import org.junit.Test;
 import se.jbee.inject.Injector;
 import se.jbee.inject.bootstrap.Bootstrap;
@@ -48,7 +48,7 @@ public class ObjectFactoryRepositoryTest {
 
     public ObjectFactoryRepositoryTest() {
         db = INJECTOR.resolve(dependency(EmbeddedDatabaseManager.class));
-        repository = new ObjectFactoryRepository(null, new ObjectFactoryDao(db) {
+        repository = new ObjectFactoryRepository(null, new LocalObjectFactoryDao(db) {
             @Override
             public List<RegisteredObjectFactory> loadAll() {
                 return Collections.emptyList();

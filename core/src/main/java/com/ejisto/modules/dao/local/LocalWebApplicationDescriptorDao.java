@@ -20,56 +20,50 @@
 package com.ejisto.modules.dao.local;
 
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
-import com.ejisto.modules.dao.entities.Container;
-import com.ejisto.modules.dao.exception.UniqueConstraintViolated;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
-/**
- * Created by IntelliJ IDEA.
- * User: celestino
- * Date: 3/6/11
- * Time: 8:54 AM
- */
-public class ContainersDao extends BaseLocalDao {
+public class LocalWebApplicationDescriptorDao extends BaseLocalDao {
 
-    public ContainersDao(EmbeddedDatabaseManager database) {
+    public LocalWebApplicationDescriptorDao(EmbeddedDatabaseManager database) {
         super(database);
     }
 
-    public List<Container> loadAll() {
-        return new ArrayList<>(getDatabase().getContainers().values());
+    public WebApplicationDescriptor load(String contextPath) {
+        return getDatabase().getWebApplicationDescriptors().get(contextPath);
     }
 
-    public Container load(String id) {
-        return getDatabase().getContainers().get(id);
+    public List<WebApplicationDescriptor> loadAll() {
+        return new ArrayList<>(getDatabase().getWebApplicationDescriptors().values());
     }
 
-    public boolean insert(final Container container) {
+    public void insert(final WebApplicationDescriptor descriptor) {
         transactionalOperation(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                if (load(container.getId()) != null) {
-                    throw new UniqueConstraintViolated("Container.id cannot be '" + container.getId() + "'");
-                }
-                getDatabase().getContainers().put(container.getKey(), container);
+                Map<String, WebApplicationDescriptor> descriptors = getDatabase().getWebApplicationDescriptors();
+                internalDelete(descriptor, descriptors);
+                descriptors.put(descriptor.getContextPath(), WebApplicationDescriptor.copyOf(descriptor));
                 return null;
             }
         });
-        return true;
     }
 
-    public boolean delete(final Container container) {
+    public void delete(final WebApplicationDescriptor descriptor) {
         transactionalOperation(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                getDatabase().getContainers().remove(container.getKey());
+                internalDelete(descriptor, getDatabase().getWebApplicationDescriptors());
                 return null;
             }
         });
-        return true;
     }
 
+    private void internalDelete(WebApplicationDescriptor descriptor, Map<String, WebApplicationDescriptor> descriptors) {
+        descriptors.remove(descriptor.getContextPath());
+    }
 }

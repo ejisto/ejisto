@@ -21,7 +21,7 @@ package com.ejisto.modules.dao.local.helper;
 
 import ch.lambdaj.Lambda;
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.dao.local.CollectedDataDao;
+import com.ejisto.modules.dao.local.LocalCollectedDataDao;
 import com.ejisto.modules.recorder.CollectedData;
 import com.ejisto.modules.web.MockedFieldRequest;
 import org.hamcrest.Matcher;
@@ -46,18 +46,18 @@ import static org.hamcrest.core.AllOf.allOf;
 public class RecursiveMockedFieldLoader extends ForkJoinTask<List<MockedField>> {
 
     private final List<CollectedData> activeSessions;
-    private final CollectedDataDao dao;
+    private final LocalCollectedDataDao dao;
     private final Matcher<MockedField> matcher;
     private List<MockedField> result;
 
     public RecursiveMockedFieldLoader(List<CollectedData> activeSessions,
-                                      CollectedDataDao dao,
+                                      LocalCollectedDataDao dao,
                                       MockedFieldRequest request) {
         this(activeSessions, dao, buildMatcher(request));
     }
 
     public RecursiveMockedFieldLoader(List<CollectedData> activeSessions,
-                                      CollectedDataDao dao,
+                                      LocalCollectedDataDao dao,
                                       Matcher<MockedField> matcher) {
         this.activeSessions = activeSessions;
         this.dao = dao;

@@ -29,7 +29,7 @@ import com.ejisto.event.def.ChangeWebAppContextStatus.WebAppContextStatusCommand
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.controller.ApplicationInstallerWizardController;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
-import com.ejisto.modules.dao.local.WebApplicationDescriptorDao;
+import com.ejisto.modules.dao.local.LocalWebApplicationDescriptorDao;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
@@ -64,7 +64,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     private final Application application;
     private final EventManager eventManager;
     private final MockedFieldsRepository mockedFieldsRepository;
-    private final WebApplicationDescriptorDao webApplicationDescriptorDao;
+    private final LocalWebApplicationDescriptorDao webApplicationDescriptorDao;
     private final ContainerManager containerManager;
     private final CustomObjectFactoryRepository customObjectFactoryRepository;
     private final SettingsRepository settingsRepository;
@@ -76,7 +76,7 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     public WebApplicationLoader(Application application,
                                 EventManager eventManager,
                                 MockedFieldsRepository mockedFieldsRepository,
-                                WebApplicationDescriptorDao webApplicationDescriptorDao,
+                                LocalWebApplicationDescriptorDao webApplicationDescriptorDao,
                                 ContainerManager containerManager,
                                 CustomObjectFactoryRepository customObjectFactoryRepository,
                                 SettingsRepository settingsRepository,

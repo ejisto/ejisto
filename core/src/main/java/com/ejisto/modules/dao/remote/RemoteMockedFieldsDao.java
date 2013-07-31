@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.dao.remote;
 
+import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.web.MockedFieldRequest;
 import com.ejisto.modules.web.util.MockedFieldsJSONUtil;
@@ -35,7 +36,7 @@ import static com.ejisto.modules.web.MockedFieldRequest.*;
  * Date: 7/2/12
  * Time: 7:32 PM
  */
-public class MockedFieldsDao extends BaseRemoteDao implements com.ejisto.modules.dao.MockedFieldsDao {
+public class RemoteMockedFieldsDao extends BaseRemoteDao implements MockedFieldsDao {
 
     private static final String REQUEST_PATH = CTX_GET_MOCKED_FIELD.getValue();
 

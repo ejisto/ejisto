@@ -19,7 +19,7 @@
 
 package com.ejisto.modules.web.servlet;
 
-import com.ejisto.modules.dao.remote.CollectedDataDao;
+import com.ejisto.modules.dao.remote.RemoteCollectedDataDao;
 import com.ejisto.modules.recorder.CollectedData;
 
 import javax.servlet.ServletConfig;
@@ -43,11 +43,11 @@ import static java.lang.System.getProperty;
 public class DefaultServlet extends HttpServlet {
 
     private ServletContext context;
-    private final CollectedDataDao collectedDataDao;
+    private final RemoteCollectedDataDao collectedDataDao;
 
     public DefaultServlet() {
         super();
-        this.collectedDataDao = new CollectedDataDao(getProperty(HTTP_INTERFACE_ADDRESS.getValue()));
+        this.collectedDataDao = new RemoteCollectedDataDao(getProperty(HTTP_INTERFACE_ADDRESS.getValue()));
     }
 
     @Override

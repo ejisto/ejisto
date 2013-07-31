@@ -24,9 +24,7 @@ import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.ObjectFactoryDao;
 import com.ejisto.modules.dao.SettingsDao;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
-import com.ejisto.modules.dao.local.CollectedDataDao;
-import com.ejisto.modules.dao.local.ContainersDao;
-import com.ejisto.modules.dao.local.WebApplicationDescriptorDao;
+import com.ejisto.modules.dao.local.*;
 import se.jbee.inject.bind.BinderModule;
 
 /**
@@ -38,13 +36,13 @@ import se.jbee.inject.bind.BinderModule;
 public class DAOBinder extends BinderModule {
     @Override
     protected void declare() {
-        bind(MockedFieldsDao.class).to(com.ejisto.modules.dao.local.MockedFieldsDao.class);
-        bind(SettingsDao.class).to(com.ejisto.modules.dao.local.SettingsDao.class);
-        bind(ObjectFactoryDao.class).to(com.ejisto.modules.dao.local.ObjectFactoryDao.class);
-        bind(CustomObjectFactoryDao.class).to(com.ejisto.modules.dao.local.CustomObjectFactoryDao.class);
-        construct(ContainersDao.class);
-        construct(WebApplicationDescriptorDao.class);
+        bind(MockedFieldsDao.class).to(LocalMockedFieldsDao.class);
+        bind(SettingsDao.class).to(LocalSettingsDao.class);
+        bind(ObjectFactoryDao.class).to(LocalObjectFactoryDao.class);
+        bind(CustomObjectFactoryDao.class).to(LocalCustomObjectFactoryDao.class);
+        construct(LocalContainersDao.class);
+        construct(LocalWebApplicationDescriptorDao.class);
         construct(EmbeddedDatabaseManager.class);
-        construct(CollectedDataDao.class);
+        construct(LocalCollectedDataDao.class);
     }
 }

@@ -22,6 +22,7 @@ package com.ejisto.modules.conf;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.dao.SettingsDao;
 import com.ejisto.modules.dao.entities.Setting;
+import com.ejisto.modules.dao.remote.RemoteSettingsDao;
 import com.ejisto.util.ExternalizableService;
 import com.ejisto.util.StaticData;
 
@@ -76,6 +77,6 @@ public class SettingsManager extends ExternalizableService<SettingsDao> {
 
     @Override
     protected SettingsDao newRemoteDaoInstance() {
-        return new com.ejisto.modules.dao.remote.SettingsDao();
+        return new RemoteSettingsDao();
     }
 }

@@ -21,6 +21,7 @@ package com.ejisto.modules.dao.local;
 
 import ch.lambdaj.Lambda;
 import com.ejisto.core.ApplicationException;
+import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.db.util.MockedFieldContainer;
 import com.ejisto.modules.dao.db.util.MockedFieldExtractor;
@@ -39,12 +40,12 @@ import static ch.lambdaj.Lambda.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 
-public class MockedFieldsDao extends BaseLocalDao implements com.ejisto.modules.dao.MockedFieldsDao {
+public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDao {
 
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
-    private final CollectedDataDao collectedDataDao;
+    private final LocalCollectedDataDao collectedDataDao;
 
-    public MockedFieldsDao(EmbeddedDatabaseManager database, CollectedDataDao collectedDataDao) {
+    public LocalMockedFieldsDao(EmbeddedDatabaseManager database, LocalCollectedDataDao collectedDataDao) {
         super(database);
         this.collectedDataDao = collectedDataDao;
     }

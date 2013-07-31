@@ -37,9 +37,9 @@ import static com.ejisto.modules.web.util.JSONUtil.decode;
  * Time: 6:49 PM
  */
 @Log
-public class CollectedDataDao extends BaseRemoteDao {
+public class RemoteCollectedDataDao extends BaseRemoteDao {
 
-    public CollectedDataDao(String serverAddress) {
+    public RemoteCollectedDataDao(String serverAddress) {
         super(serverAddress);
         log.log(Level.INFO, "dao initialized with remote address: " + serverAddress);
     }
