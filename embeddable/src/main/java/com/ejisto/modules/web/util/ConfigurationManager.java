@@ -31,7 +31,7 @@ import java.util.Enumeration;
  */
 public abstract class ConfigurationManager {
 
-    public static final Charset UTF_8 = Charset.forName("UTF_8");
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
 
     public static void initConfiguration(ServletContext context) {
         context.log("*************** init params: ***********************");

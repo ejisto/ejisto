@@ -23,8 +23,8 @@ import org.junit.Test;
 
 import static com.ejisto.core.classloading.util.ReflectionUtils.cleanGenericSignature;
 import static com.ejisto.core.classloading.util.ReflectionUtils.getFieldName;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ReflectionUtilsTest {
     @Test

@@ -97,24 +97,25 @@ public class EmbeddedDatabaseManager {
 
     private void createSchema() {
         if (Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) {
-            db.createHashMap(SETTINGS, false, null, new SettingSerializer());
-            db.createHashMap(CONTAINERS, true, null, new ContainerSerializer());
-            db.createHashMap(CUSTOM_OBJECT_FACTORIES, true, null, new CustomObjectFactorySerializer());
-            db.createHashMap(REGISTERED_OBJECT_FACTORIES, true, null, new RegisteredObjectFactorySerializer());
-            db.createHashMap(WEB_APPLICATION_DESCRIPTORS, true, null, new WebApplicationDescriptorSerializer());
-            db.createHashMap(RECORDED_SESSIONS, true, null, new CollectedDataSerializer());
-            Atomic.createInteger(db, STARTUP_COUNTER, 1);
+            //String name, boolean keepCounter, Serializer<K> keySerializer, Serializer<V> valueSerializer
+            db.createHashMap(SETTINGS).valueSerializer(new SettingSerializer()).make();
+            db.createHashMap(CONTAINERS).keepCounter(true).valueSerializer(new ContainerSerializer()).make();
+            db.createHashMap(CUSTOM_OBJECT_FACTORIES).keepCounter(true).valueSerializer(new CustomObjectFactorySerializer()).make();
+            db.createHashMap(REGISTERED_OBJECT_FACTORIES).keepCounter(true).valueSerializer(new RegisteredObjectFactorySerializer()).make();
+            db.createHashMap(WEB_APPLICATION_DESCRIPTORS).keepCounter(true).valueSerializer(new WebApplicationDescriptorSerializer()).make();
+            db.createHashMap(RECORDED_SESSIONS).keepCounter(true).valueSerializer(new CollectedDataSerializer()).make();
+            db.createAtomicInteger(STARTUP_COUNTER, 1);
         }
         contextPaths.addAll(
                 convert(
-                        select(db.getNameDir().keySet(), startsWith(CONTEXT_PATH_PREFIX)),
+                        select(db.getAll().keySet(), startsWith(CONTEXT_PATH_PREFIX)),
                         new Converter<String, String>() {
                             @Override
                             public String convert(String from) {
                                 return decodeContextPath(from);
                             }
                         }));
-        Atomic.Integer count = Atomic.getInteger(db, STARTUP_COUNTER);
+        Atomic.Integer count = db.getAtomicInteger(STARTUP_COUNTER);
         count.incrementAndGet();
         db.commit();
     }
@@ -152,9 +153,8 @@ public class EmbeddedDatabaseManager {
             public NavigableSet<MockedFieldContainer> execute(DatabaseAccessor accessor) {
                 DB db = accessor.getDb();
                 String key = encodeContextPath(contextPath);
-                Long id = db.getNameDir().get(key);
-                if (id != null) {
-                    return db.getTreeSet(key);
+                if(db.exists(key)) {
+                    return db.get(key);
                 }
                 return null;
             }
@@ -166,8 +166,11 @@ public class EmbeddedDatabaseManager {
             @Override
             public Void execute(DatabaseAccessor accessor) {
                 DB db = accessor.getDb();
-                db.createTreeSet(encodeContextPath(contextPath), NODE_SIZE, true, new MockedFieldContainerSerializer(),
-                                 new MockedFieldContainerSorter());
+                db.createTreeSet(encodeContextPath(contextPath))
+                        .nodeSize(NODE_SIZE)
+                        .keepCounter(true)
+                        .serializer(new MockedFieldContainerSerializer())
+                        .comparator(new MockedFieldContainerSorter()).make();
                 contextPaths.add(contextPath);
                 return null;
             }
@@ -254,7 +257,7 @@ public class EmbeddedDatabaseManager {
         return doInTransaction(new Executor<Integer>() {
             @Override
             public Integer execute(DatabaseAccessor db) {
-                return Atomic.getInteger(db.getDb(), STARTUP_COUNTER).get();
+                return db.getDb().getAtomicInteger(STARTUP_COUNTER).get();
             }
         });
     }

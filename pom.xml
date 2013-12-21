@@ -42,7 +42,7 @@
     <distributionManagement>
         <repository>
             <id>release</id>
-            <url>file:///var/repository/</url>
+            <url>file:///data/repository/</url>
         </repository>
     </distributionManagement>
     <scm>
@@ -66,6 +66,10 @@
         <repository>
             <id>sonatype-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <id>spring-snapshots</id>
+            <url>http://maven.springframework.org/snapshot</url>
         </repository>
     </repositories>
 
@@ -147,12 +151,17 @@
             <dependency>
                 <groupId>org.mapdb</groupId>
                 <artifactId>mapdb</artifactId>
-                <version>0.9.1-SNAPSHOT</version>
+                <version>0.9.7</version>
             </dependency>
             <dependency>
                 <groupId>se.jbee</groupId>
                 <artifactId>silk-di</artifactId>
-                <version>0.5</version>
+                <version>0.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sprigsource</groupId>
+                <artifactId>springloaded</artifactId>
+                <version>1.1.4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -170,7 +179,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>0.11.6</version>
+            <version>1.12.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -195,15 +204,6 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.0</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
@@ -214,5 +214,18 @@
                 </configuration>
             </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                    <configuration>
+                        <source>1.7</source>
+                        <target>1.7</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>
