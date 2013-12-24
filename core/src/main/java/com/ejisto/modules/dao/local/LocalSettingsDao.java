@@ -27,6 +27,7 @@ import com.ejisto.util.converter.EntityToKey;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static ch.lambdaj.Lambda.map;
@@ -41,12 +42,12 @@ public class LocalSettingsDao extends BaseLocalDao implements SettingsDao {
 
     @Override
     public Collection<Setting> loadAll() {
-        return new HashSet<>(getDatabase().getSettings().values());
+        return new HashSet<>(loadAllSettings().values());
     }
 
     @Override
     public Setting getSetting(String key) {
-        return getDatabase().getSettings().get(key);
+        return loadAllSettings().get(key);
     }
 
     @Override
@@ -54,7 +55,7 @@ public class LocalSettingsDao extends BaseLocalDao implements SettingsDao {
         transactionalOperation(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                getDatabase().getSettings().putAll(map(settings, KEY_EXTRACTOR));
+                loadAllSettings().putAll(map(settings, KEY_EXTRACTOR));
                 return null;
             }
         });
@@ -66,7 +67,7 @@ public class LocalSettingsDao extends BaseLocalDao implements SettingsDao {
         return transactionalOperation(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                getDatabase().getSettings().put(setting.getKey(), setting);
+                loadAllSettings().put(setting.getKey(), setting);
                 return Boolean.TRUE;
             }
         });
@@ -78,11 +79,15 @@ public class LocalSettingsDao extends BaseLocalDao implements SettingsDao {
             @Override
             public Void call() throws Exception {
                 for (Setting setting : settings) {
-                    getDatabase().getSettings().remove(setting.getKey());
+                    loadAllSettings().remove(setting.getKey());
                 }
                 return null;
             }
         });
         return true;
+    }
+
+    private Map<String, Setting> loadAllSettings() {
+        return getDatabase().getSettings().orElseThrow(IllegalStateException::new);
     }
 }

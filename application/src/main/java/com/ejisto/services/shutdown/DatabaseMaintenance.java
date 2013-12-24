@@ -34,7 +34,7 @@ public class DatabaseMaintenance extends BaseShutdownService {
     @Override
     public void execute() {
         try {
-            if (databaseManager.getStartupCount() % 20 == 0) {
+            if (databaseManager.getStartupCount().orElse(0) % 20 == 0) {
                 databaseManager.doMaintenance();
             }
             databaseManager.shutdown();

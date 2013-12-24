@@ -32,10 +32,7 @@ import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.NavigableSet;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -120,7 +117,7 @@ public class EmbeddedDatabaseManager {
         db.commit();
     }
 
-    public Map<String, Setting> getSettings() {
+    public Optional<Map<String, Setting>> getSettings() {
         return doInTransaction(new Executor<Map<String, Setting>>() {
             @Override
             public Map<String, Setting> execute(DatabaseAccessor db) {
@@ -129,7 +126,7 @@ public class EmbeddedDatabaseManager {
         });
     }
 
-    public Map<String, Container> getContainers() {
+    public Optional<Map<String, Container>> getContainers() {
         return doInTransaction(new Executor<Map<String, Container>>() {
             @Override
             public Map<String, Container> execute(DatabaseAccessor db) {
@@ -138,7 +135,7 @@ public class EmbeddedDatabaseManager {
         });
     }
 
-    public Map<String, CustomObjectFactory> getCustomObjectFactories() {
+    public Optional<Map<String, CustomObjectFactory>> getCustomObjectFactories() {
         return doInTransaction(new Executor<Map<String, CustomObjectFactory>>() {
             @Override
             public Map<String, CustomObjectFactory> execute(DatabaseAccessor db) {
@@ -147,7 +144,7 @@ public class EmbeddedDatabaseManager {
         });
     }
 
-    public NavigableSet<MockedFieldContainer> getMockedFields(final String contextPath) {
+    public Optional<NavigableSet<MockedFieldContainer>> getMockedFields(final String contextPath) {
         return doInTransaction(new Executor<NavigableSet<MockedFieldContainer>>() {
             @Override
             public NavigableSet<MockedFieldContainer> execute(DatabaseAccessor accessor) {
@@ -188,7 +185,7 @@ public class EmbeddedDatabaseManager {
         });
     }
 
-    public Map<String, RegisteredObjectFactory> getRegisteredObjectFactories() {
+    public Optional<Map<String, RegisteredObjectFactory>> getRegisteredObjectFactories() {
         return doInTransaction(new Executor<Map<String, RegisteredObjectFactory>>() {
             @Override
             public Map<String, RegisteredObjectFactory> execute(DatabaseAccessor db) {
@@ -197,7 +194,7 @@ public class EmbeddedDatabaseManager {
         });
     }
 
-    public boolean deleteAllMockedFields(final String contextPath) {
+    public Boolean deleteAllMockedFields(final String contextPath) {
         return doInTransaction(new Executor<Boolean>() {
             @Override
             public Boolean execute(DatabaseAccessor accessor) {
@@ -206,10 +203,10 @@ public class EmbeddedDatabaseManager {
                 db.getTreeSet(key).clear();
                 return Boolean.TRUE;
             }
-        });
+        }).orElse(Boolean.FALSE);
     }
 
-    public CollectedData getRecordedSession(final String name) {
+    public Optional<CollectedData> getRecordedSession(final String name) {
         return doInTransaction(new Executor<CollectedData>() {
             @Override
             public CollectedData execute(DatabaseAccessor databaseAccessor) {
@@ -219,7 +216,7 @@ public class EmbeddedDatabaseManager {
         });
     }
 
-    public Collection<CollectedData> getActiveRecordedSessions() {
+    public Optional<Collection<CollectedData>> getActiveRecordedSessions() {
         return doInTransaction(new Executor<Collection<CollectedData>>() {
             @Override
             public Collection<CollectedData> execute(DatabaseAccessor databaseAccessor) {
@@ -233,18 +230,18 @@ public class EmbeddedDatabaseManager {
         return Collections.unmodifiableList(contextPaths);
     }
 
-    public Map<String, CollectedData> getRecordedSessions() {
+    public Optional<Map<String, CollectedData>> getRecordedSessions() {
         return doInTransaction(new Executor<Map<String, CollectedData>>() {
             @Override
             public Map<String, CollectedData> execute(DatabaseAccessor databaseAccessor) {
                 return Collections.unmodifiableMap(
-                        databaseAccessor.<String, CollectedData>getHashMap(RECORDED_SESSIONS));
+                        databaseAccessor.getHashMap(RECORDED_SESSIONS));
             }
         });
     }
 
 
-    public Map<String, WebApplicationDescriptor> getWebApplicationDescriptors() {
+    public Optional<Map<String, WebApplicationDescriptor>> getWebApplicationDescriptors() {
         return doInTransaction(new Executor<Map<String, WebApplicationDescriptor>>() {
             @Override
             public Map<String, WebApplicationDescriptor> execute(DatabaseAccessor db) {
@@ -253,7 +250,7 @@ public class EmbeddedDatabaseManager {
         });
     }
 
-    public int getStartupCount() {
+    public Optional<Integer> getStartupCount() {
         return doInTransaction(new Executor<Integer>() {
             @Override
             public Integer execute(DatabaseAccessor db) {
@@ -302,7 +299,7 @@ public class EmbeddedDatabaseManager {
         return StringUtils.substring(encoded, CONTEXT_PATH_PREFIX.length());
     }
 
-    private <T> T doInTransaction(Executor<T> executor) {
+    private <T> Optional<T> doInTransaction(Executor<T> executor) {
         Transaction transaction = getActiveTransaction();
         if (!transaction.isActive()) {
             transaction = createNewTransaction();
@@ -314,7 +311,7 @@ public class EmbeddedDatabaseManager {
         } catch (Exception e) {
             transaction.rollback();
         }
-        return result;
+        return Optional.ofNullable(result);
     }
 
     private interface Executor<T> {

@@ -35,8 +35,10 @@ import org.apache.commons.collections.CollectionUtils;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
 
 import static ch.lambdaj.Lambda.*;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 
@@ -53,7 +55,7 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
     @Override
     public List<MockedField> loadAll() {
         List<MockedField> out = new LinkedList<>();
-        List<CollectedData> activeSessions = new ArrayList<>(getDatabase().getActiveRecordedSessions());
+        List<CollectedData> activeSessions = new ArrayList<>(getActiveRecordedSessions());
         RecursiveMockedFieldLoader forked = new RecursiveMockedFieldLoader(activeSessions, collectedDataDao,
                                                                            MockedFieldRequest.requestAllFields());
         forkJoinPool.execute(forked);
@@ -177,21 +179,30 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
 
     private MockedField internalInsert(MockedField field) {
         MockedField newField = cloneField(field);
-        NavigableSet<MockedFieldContainer> container = getDatabase().getMockedFields(field.getContextPath());
-        if (container == null) {
+        NavigableSet<MockedFieldContainer> container;
+        Optional<NavigableSet<MockedFieldContainer>> result = getDatabase().getMockedFields(field.getContextPath());
+        if (!result.isPresent()) {
             getDatabase().registerContextPath(field.getContextPath());
-            container = getDatabase().getMockedFields(field.getContextPath());
+            container = getDatabase().getMockedFields(field.getContextPath()).orElse(Collections.emptyNavigableSet());
+        } else {
+            container = result.get();
         }
         container.add(MockedFieldContainer.from(field));
         return newField;
     }
 
     private NavigableSet<MockedFieldContainer> getMockedFieldsByContextPath(String contextPath) {
-        return getDatabase().getMockedFields(contextPath);
+        return getDatabase().getMockedFields(contextPath).orElse(Collections.emptyNavigableSet());
     }
 
     private Collection<MockedFieldContainer> getMockedFieldsByClassName(String contextPath, String className) {
-        return select(getMockedFieldsByContextPath(contextPath),
-                      hasProperty("className", equalTo(className)));
+        return getMockedFieldsByContextPath(contextPath)
+                .stream()
+                .filter(field -> field.getClassName().equals(className))
+                .collect(toList());
+    }
+
+    private Collection<CollectedData> getActiveRecordedSessions() {
+        return getDatabase().getActiveRecordedSessions().orElse(Collections.emptyList());
     }
 }

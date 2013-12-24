@@ -34,18 +34,18 @@ public class LocalWebApplicationDescriptorDao extends BaseLocalDao {
     }
 
     public WebApplicationDescriptor load(String contextPath) {
-        return getDatabase().getWebApplicationDescriptors().get(contextPath);
+        return loadAllDescriptors().get(contextPath);
     }
 
     public List<WebApplicationDescriptor> loadAll() {
-        return new ArrayList<>(getDatabase().getWebApplicationDescriptors().values());
+        return new ArrayList<>(loadAllDescriptors().values());
     }
 
     public void insert(final WebApplicationDescriptor descriptor) {
         transactionalOperation(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Map<String, WebApplicationDescriptor> descriptors = getDatabase().getWebApplicationDescriptors();
+                Map<String, WebApplicationDescriptor> descriptors = loadAllDescriptors();
                 internalDelete(descriptor, descriptors);
                 descriptors.put(descriptor.getContextPath(), WebApplicationDescriptor.copyOf(descriptor));
                 return null;
@@ -57,7 +57,7 @@ public class LocalWebApplicationDescriptorDao extends BaseLocalDao {
         transactionalOperation(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                internalDelete(descriptor, getDatabase().getWebApplicationDescriptors());
+                internalDelete(descriptor, loadAllDescriptors());
                 return null;
             }
         });
@@ -65,5 +65,9 @@ public class LocalWebApplicationDescriptorDao extends BaseLocalDao {
 
     private void internalDelete(WebApplicationDescriptor descriptor, Map<String, WebApplicationDescriptor> descriptors) {
         descriptors.remove(descriptor.getContextPath());
+    }
+
+    private Map<String, WebApplicationDescriptor> loadAllDescriptors() {
+        return getDatabase().getWebApplicationDescriptors().orElseThrow(IllegalStateException::new);
     }
 }

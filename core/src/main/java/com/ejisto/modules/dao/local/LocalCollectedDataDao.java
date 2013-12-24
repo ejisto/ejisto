@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 import static ch.lambdaj.Lambda.extractProperty;
 import static ch.lambdaj.Lambda.select;
@@ -57,21 +58,23 @@ public class LocalCollectedDataDao extends BaseLocalDao {
     }
 
     public Map<String, CollectedData> loadPersistedRecordedSessions() {
-        return getDatabase().getRecordedSessions();
+        return getDatabase().getRecordedSessions().orElseThrow(IllegalStateException::new);
     }
 
     public Collection<CollectedData> loadActiveRecordedSessions() {
-        return getDatabase().getActiveRecordedSessions();
+        return getDatabase().getActiveRecordedSessions().orElseThrow(IllegalStateException::new);
     }
 
     public Collection<MockedField> loadFromRecordedSession(String sessionName) {
-        return new ArrayList<>(getDatabase().getRecordedSession(sessionName).getAllFields());
+        return new ArrayList<>(getDatabase().getRecordedSession(sessionName).orElseThrow(
+                IllegalStateException::new).getAllFields());
     }
 
     public Collection<MockedField> loadFromRecordedSessionByRequestURI(String requestURI) {
-        List<CollectedData> selected = select(getDatabase().getActiveRecordedSessions(),
-                                              new HasPropertyWithValue<>("requestURI", equalTo(requestURI)));
-        return extractProperty(selected, "allFields");
+        return loadActiveRecordedSessions().stream()
+                .filter(data -> data.getRequestURI().equals(requestURI))
+                .flatMap(data -> data.getAllFields().stream())
+                .collect(Collectors.toList());
     }
 
     public void enableRecordedSession(final String name) {
@@ -87,7 +90,7 @@ public class LocalCollectedDataDao extends BaseLocalDao {
             @Override
             public Void call() throws Exception {
                 final EmbeddedDatabaseManager database = getDatabase();
-                CollectedData current = database.getRecordedSession(name);
+                CollectedData current = database.getRecordedSession(name).orElseThrow(IllegalStateException::new);
                 database.createNewRecordingSession(name, CollectedData.changeActivationState(current, active));
                 return null;
             }

@@ -23,8 +23,7 @@ import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.exception.UniqueConstraintViolated;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
@@ -40,11 +39,11 @@ public class LocalContainersDao extends BaseLocalDao {
     }
 
     public List<Container> loadAll() {
-        return new ArrayList<>(getDatabase().getContainers().values());
+        return new ArrayList<>(loadAllRegisteredContainers().values());
     }
 
     public Container load(String id) {
-        return getDatabase().getContainers().get(id);
+        return loadAllRegisteredContainers().get(id);
     }
 
     public boolean insert(final Container container) {
@@ -54,7 +53,7 @@ public class LocalContainersDao extends BaseLocalDao {
                 if (load(container.getId()) != null) {
                     throw new UniqueConstraintViolated("Container.id cannot be '" + container.getId() + "'");
                 }
-                getDatabase().getContainers().put(container.getKey(), container);
+                loadAllRegisteredContainers().put(container.getKey(), container);
                 return null;
             }
         });
@@ -65,11 +64,15 @@ public class LocalContainersDao extends BaseLocalDao {
         transactionalOperation(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                getDatabase().getContainers().remove(container.getKey());
+                loadAllRegisteredContainers().remove(container.getKey());
                 return null;
             }
         });
         return true;
+    }
+
+    private Map<String, Container> loadAllRegisteredContainers() {
+        return getDatabase().getContainers().orElseThrow(IllegalStateException::new);
     }
 
 }

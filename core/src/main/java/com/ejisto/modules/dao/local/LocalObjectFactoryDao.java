@@ -25,6 +25,7 @@ import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -44,7 +45,7 @@ public class LocalObjectFactoryDao extends BaseLocalDao implements ObjectFactory
         return transactionalOperation(new Callable<List<RegisteredObjectFactory>>() {
             @Override
             public List<RegisteredObjectFactory> call() throws Exception {
-                return new ArrayList<>(getDatabase().getRegisteredObjectFactories().values());
+                return new ArrayList<>(loadAllRegisteredFactories().values());
             }
         });
     }
@@ -54,10 +55,14 @@ public class LocalObjectFactoryDao extends BaseLocalDao implements ObjectFactory
         transactionalOperation(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                getDatabase().getRegisteredObjectFactories().put(registeredObjectFactory.getKey(),
-                                                                 registeredObjectFactory);
+                loadAllRegisteredFactories().put(registeredObjectFactory.getKey(),
+                                                 registeredObjectFactory);
                 return null;
             }
         });
+    }
+    
+    private Map<String, RegisteredObjectFactory> loadAllRegisteredFactories() {
+        return getDatabase().getRegisteredObjectFactories().orElseThrow(IllegalStateException::new);
     }
 }

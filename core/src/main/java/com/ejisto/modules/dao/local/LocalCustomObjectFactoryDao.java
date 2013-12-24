@@ -26,6 +26,7 @@ import com.ejisto.modules.dao.exception.UniqueConstraintViolated;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -42,12 +43,12 @@ public class LocalCustomObjectFactoryDao extends BaseLocalDao implements CustomO
 
     @Override
     public List<CustomObjectFactory> loadAll() {
-        return new ArrayList<>(getDatabase().getCustomObjectFactories().values());
+        return new ArrayList<>(loadRegisteredFactories().values());
     }
 
     @Override
     public CustomObjectFactory load(String fileName) {
-        return getDatabase().getCustomObjectFactories().get(fileName);
+        return loadRegisteredFactories().get(fileName);
     }
 
     @Override
@@ -71,7 +72,7 @@ public class LocalCustomObjectFactoryDao extends BaseLocalDao implements CustomO
         transactionalOperation(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                getDatabase().getCustomObjectFactories().put(customObjectFactory.getKey(), customObjectFactory);
+                loadRegisteredFactories().put(customObjectFactory.getKey(), customObjectFactory);
                 return null;
             }
         });
@@ -80,11 +81,15 @@ public class LocalCustomObjectFactoryDao extends BaseLocalDao implements CustomO
 
     @Override
     public boolean exists(CustomObjectFactory customObjectFactory) {
-        return getDatabase().getCustomObjectFactories().containsKey(customObjectFactory.getKey());
+        return loadRegisteredFactories().containsKey(customObjectFactory.getKey());
     }
 
     @Override
     public boolean save(CustomObjectFactory customObjectFactory) {
         return update(customObjectFactory);
+    }
+
+    private Map<String, CustomObjectFactory> loadRegisteredFactories() {
+        return getDatabase().getCustomObjectFactories().orElseThrow(IllegalStateException::new);
     }
 }
