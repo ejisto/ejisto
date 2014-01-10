@@ -47,7 +47,7 @@ public class SummaryController extends AbstractApplicationInstallerController {
     }
 
     @Override
-    public boolean isExecutionSucceeded() throws WizardException {
+    public boolean isExecutionSucceeded() {
         return true;
     }
 

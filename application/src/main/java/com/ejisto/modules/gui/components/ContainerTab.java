@@ -77,7 +77,7 @@ public class ContainerTab extends JSplitPane {
         return containerId;
     }
 
-    public void reloadApplications() {
+    void reloadApplications() {
         getContextList().reloadAllContexts();
     }
 

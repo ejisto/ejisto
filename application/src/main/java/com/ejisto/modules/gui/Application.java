@@ -38,7 +38,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Date;
-import java.util.concurrent.Callable;
 
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.*;
@@ -88,13 +87,10 @@ public class Application extends javax.swing.JFrame {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                taskManager.addNewTask(new BackgroundTask<>(new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        settingsManager.putValue(APPLICATION_WIDTH, Application.this.getWidth());
-                        settingsManager.putValue(APPLICATION_HEIGHT, Application.this.getHeight());
-                        return null;
-                    }
+                taskManager.addNewTask(new BackgroundTask<>(() -> {
+                    settingsManager.putValue(APPLICATION_WIDTH, Application.this.getWidth());
+                    settingsManager.putValue(APPLICATION_HEIGHT, Application.this.getHeight());
+                    return null;
                 }));
 
             }

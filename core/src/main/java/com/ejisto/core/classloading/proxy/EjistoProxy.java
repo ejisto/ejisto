@@ -34,7 +34,7 @@ import java.util.Optional;
 import static com.ejisto.core.classloading.util.ReflectionUtils.*;
 
 @Log4j
-public class EjistoProxy implements MethodInterceptor {
+class EjistoProxy implements MethodInterceptor {
     private final List<MockedField> mockedFields;
     private final ObjectFactoryRepository objectFactoryRepository;
 

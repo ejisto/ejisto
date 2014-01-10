@@ -41,6 +41,7 @@ public class ApplicationException extends RuntimeException {
         super(message);
     }
 
+    @SuppressWarnings("ThrowableInstanceNeverThrown")
     public static Supplier<ApplicationException> supplier(String message) {
         return () -> new ApplicationException(message);
     }

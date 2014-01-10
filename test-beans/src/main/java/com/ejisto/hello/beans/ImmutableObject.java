@@ -27,7 +27,7 @@ package com.ejisto.hello.beans;
  * Date: 8/24/12
  * Time: 8:21 AM
  */
-public class ImmutableObject {
+class ImmutableObject {
 
     private final String finalString;
     private final boolean finalBoolean;

@@ -51,15 +51,12 @@ public class ApplicationEventDispatcher {
         this.registeredListeners = new ConcurrentHashMap<>();
         this.taskManager = taskManager;
         this.running = true;
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    processPendingEvents();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new IllegalStateException(e);
-                }
+        Thread t = new Thread(() -> {
+            try {
+                processPendingEvents();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException(e);
             }
         }, "applicationEventDispatcher");
         t.setDaemon(true);
@@ -69,7 +66,7 @@ public class ApplicationEventDispatcher {
     public <T extends BaseApplicationEvent> void registerApplicationEventListener(ApplicationListener<T> applicationListener) {
         Class<T> eventClass = applicationListener.getTargetEventType();
         registeredListeners.putIfAbsent(eventClass,
-                                        new ArrayList<ApplicationListener<? extends BaseApplicationEvent>>());
+                                        new ArrayList<>());
         registeredListeners.get(eventClass).add(applicationListener);
     }
 
@@ -78,12 +75,7 @@ public class ApplicationEventDispatcher {
             return;
         }
         log.trace("got event of type [" + event.getClass().getName() + "]");
-        taskManager.addNewTask(new BackgroundTask<Void>(new Runnable() {
-            @Override
-            public void run() {
-                notifyListeners(event);
-            }
-        }, null));
+        taskManager.addNewTask(new BackgroundTask<Void>(() -> notifyListeners(event), null));
         if (ShutdownRequest.class.isInstance(event)) {//poison pill
             running = false;
         }
@@ -116,14 +108,7 @@ public class ApplicationEventDispatcher {
         for (final ApplicationListener listener : listeners) {
             log.trace("forwarding event to listener " + listener);
             if (applicationEvent.shouldRunOnEDT()) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        //since registered listener are GUI classes, it is better to
-                        //notify them on the Event Dispatch Thread
-                        listener.onApplicationEvent(applicationEvent);
-                    }
-                });
+                SwingUtilities.invokeLater(() -> listener.onApplicationEvent(applicationEvent));
             } else {
                 //event that could be handled in a multi threaded context
                 listener.onApplicationEvent(applicationEvent);

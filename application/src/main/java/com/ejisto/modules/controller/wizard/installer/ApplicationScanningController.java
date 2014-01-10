@@ -72,7 +72,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
     }
 
     @Override
-    public boolean isExecutionSucceeded() throws WizardException {
+    public boolean isExecutionSucceeded() {
         return super.isDone();
     }
 
@@ -139,12 +139,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
 
                 break;
             case "error":
-                runOnEDT(new Runnable() {
-                    @Override
-                    public void run() {
-                        getView().addError((ErrorDescriptor) event.getNewValue());
-                    }
-                });
+                runOnEDT(() -> getView().addError((ErrorDescriptor) event.getNewValue()));
                 break;
         }
     }

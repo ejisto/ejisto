@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentMap;
  * Date: 3/15/13
  * Time: 4:47 PM
  */
-public final class TransactionRegistry {
+final class TransactionRegistry {
 
     static final Transaction INACTIVE = new Transaction() {
         @Override

@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 
 public class ApplicationScanningWorkerTest {
 
-    ApplicationScanningController controller;
+    private ApplicationScanningController controller;
 
     @Before
     public void init() {

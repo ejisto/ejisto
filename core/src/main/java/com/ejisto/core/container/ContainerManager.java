@@ -36,7 +36,7 @@ import java.util.Map;
 public interface ContainerManager {
     String downloadAndInstall(String urlToString, String folder) throws IOException;
 
-    boolean isServerRunning() throws NotInstalledException;
+    boolean isServerRunning();
 
     boolean startDefault() throws NotInstalledException;
 
@@ -44,21 +44,21 @@ public interface ContainerManager {
 
     void stopAllRunningContainers() throws NotInstalledException;
 
-    boolean start(Container container) throws NotInstalledException;
+    boolean start(Container container);
 
-    boolean stop(Container container) throws NotInstalledException;
+    boolean stop(Container container);
 
     boolean deployToDefaultContainer(WebApplicationDescriptor webApplicationDescriptor) throws NotInstalledException;
 
-    boolean deploy(WebApplicationDescriptor webApplicationDescriptor, Container container) throws NotInstalledException;
+    boolean deploy(WebApplicationDescriptor webApplicationDescriptor, Container container);
 
-    boolean undeploy(String containerId, String contextPath) throws NotInstalledException;
+    boolean undeploy(String containerId, String contextPath);
 
     boolean undeployFromDefaultContainer(String contextPath) throws NotInstalledException;
 
-    boolean startWebApplication(String containerId, String contextPath) throws NotInstalledException;
+    boolean startWebApplication(String containerId, String contextPath);
 
-    boolean stopWebApplication(String containerId, String contextPath) throws NotInstalledException;
+    boolean stopWebApplication(String containerId, String contextPath);
 
     boolean startWebApplicationOnDefaultServer(String contextPath) throws NotInstalledException;
 

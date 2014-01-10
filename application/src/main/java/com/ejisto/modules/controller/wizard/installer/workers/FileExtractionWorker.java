@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -66,16 +67,14 @@ public class FileExtractionWorker extends GuiTask<Void> {
         return null;
     }
 
-    private String openWar(File file) throws IOException, InvocationTargetException, InterruptedException {
+    private String openWar(File file) throws IOException {
         String newPath = System.getProperty("java.io.tmpdir") + File.separator + getFilenameWithoutExt(
                 file) + File.separator;
         File baseDir = new File(newPath);
         if (!overwriteDir(baseDir)) {
             return null;
         }
-        if (!initTempDir(baseDir)) {
-            throw new IOException("Path " + baseDir.getAbsolutePath() + " is not writable. Cannot continue.");
-        }
+        initTempDir(baseDir);
         getSession().clearElements();
         IOUtils.unzipFile(file, newPath, new SimpleFileVisitor<Path>() {
             @Override
@@ -102,15 +101,8 @@ public class FileExtractionWorker extends GuiTask<Void> {
         return !dir.exists();
     }
 
-    private boolean initTempDir(File dir) {
-        if (dir.exists()) {
-            return true;
-        }
-        boolean success = dir.mkdir();
-        if (!success) {
-            return success;
-        }
-        return success;
+    private void initTempDir(File dir) throws IOException {
+        Files.createDirectory(dir.toPath());
     }
 
     private WebApplicationDescriptor getSession() {

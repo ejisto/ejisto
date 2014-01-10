@@ -26,7 +26,6 @@ import com.ejisto.modules.dao.entities.RegisteredObjectFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 /**
  * Created by IntelliJ IDEA.
@@ -42,23 +41,15 @@ public class LocalObjectFactoryDao extends BaseLocalDao implements ObjectFactory
 
     @Override
     public List<RegisteredObjectFactory> loadAll() {
-        return transactionalOperation(new Callable<List<RegisteredObjectFactory>>() {
-            @Override
-            public List<RegisteredObjectFactory> call() throws Exception {
-                return new ArrayList<>(loadAllRegisteredFactories().values());
-            }
-        });
+        return transactionalOperation(() -> new ArrayList<>(loadAllRegisteredFactories().values()));
     }
 
     @Override
     public void insert(final RegisteredObjectFactory registeredObjectFactory) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                loadAllRegisteredFactories().put(registeredObjectFactory.getKey(),
-                                                 registeredObjectFactory);
-                return null;
-            }
+        transactionalOperation(() -> {
+            loadAllRegisteredFactories().put(registeredObjectFactory.getKey(),
+                                             registeredObjectFactory);
+            return null;
         });
     }
     

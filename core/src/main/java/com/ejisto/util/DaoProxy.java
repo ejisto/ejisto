@@ -29,7 +29,7 @@ import java.lang.reflect.Proxy;
  * Date: 6/30/12
  * Time: 11:39 AM
  */
-public class DaoProxy implements InvocationHandler {
+class DaoProxy implements InvocationHandler {
 
 
     @SuppressWarnings("unchecked")

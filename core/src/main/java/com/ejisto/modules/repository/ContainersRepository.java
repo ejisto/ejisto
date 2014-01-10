@@ -64,7 +64,7 @@ public final class ContainersRepository {
         }
     }
 
-    public Container registerContainer(String id, String cargoId, String homeDir, String description) {
+    Container registerContainer(String id, String cargoId, String homeDir, String description) {
         Container container = new Container();
         container.setId(id);
         container.setCargoId(cargoId);

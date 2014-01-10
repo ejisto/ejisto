@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.*;
 
-public class RegisteredContextList extends JXPanel {
+class RegisteredContextList extends JXPanel {
 
     private static final long serialVersionUID = -157871898009911909L;
     private final WebApplicationRepository webApplicationRepository;

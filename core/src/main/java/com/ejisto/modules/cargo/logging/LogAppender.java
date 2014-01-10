@@ -22,7 +22,7 @@ package com.ejisto.modules.cargo.logging;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
 
-public class LogAppender extends WriterAppender {
+class LogAppender extends WriterAppender {
     public LogAppender() {
         super(new PatternLayout("%m%n"), new EventOutputStream());
     }

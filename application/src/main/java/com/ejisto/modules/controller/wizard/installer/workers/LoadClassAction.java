@@ -46,7 +46,7 @@ import static java.util.Collections.emptyList;
  * Time: 6:21 PM
  */
 @Log4j
-public class LoadClassAction extends RecursiveTask<List<MockedField>> {
+class LoadClassAction extends RecursiveTask<List<MockedField>> {
     private static final int THRESHOLD = 500;
     private final List<String> classes;
     private final ClassLoader classLoader;
@@ -120,7 +120,7 @@ public class LoadClassAction extends RecursiveTask<List<MockedField>> {
         return emptyList();
     }
 
-    private List<MockedField> getMockedFields(CtClass clazz, WebApplicationDescriptor descriptor) throws NotFoundException {
+    private List<MockedField> getMockedFields(CtClass clazz, WebApplicationDescriptor descriptor) {
         List<MockedField> results = new ArrayList<>();
         try {
             for (CtField field : clazz.getDeclaredFields()) {

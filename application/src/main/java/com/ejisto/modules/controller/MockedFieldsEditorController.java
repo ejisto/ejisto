@@ -64,7 +64,6 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     private ActionMap actionMap;
     private Collection<MockedField> wizardFields = Collections.emptyList();
     private volatile int selectedIndex = 0;
-    private final FieldsEditorContext fieldsEditorContext;
 
     public MockedFieldsEditorController(MockedFieldsRepository mockedFieldsRepository) {
         this(mockedFieldsRepository, APPLICATION_INSTALLER_WIZARD);
@@ -90,18 +89,12 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         if (fieldsEditorContext != APPLICATION_INSTALLER_WIZARD) {
             view.setFields(mockedFieldsRepository.loadAll(fieldsEditorContext::isAdmitted));
         }
-        this.fieldsEditorContext = fieldsEditorContext;
         view.registerFieldEditingListener(this);
         lock = new ReentrantLock();
         registerApplicationEventListener(new ApplicationListener<ApplicationDeployed>() {
             @Override
             public void onApplicationEvent(final ApplicationDeployed event) {
-                runOnEDT(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyContextInstalled(event.getContext());
-                    }
-                });
+                runOnEDT(() -> notifyContextInstalled(event.getContext()));
             }
 
             @Override
@@ -113,13 +106,10 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         registerApplicationEventListener(new ApplicationListener<ChangeWebAppContextStatus>() {
             @Override
             public void onApplicationEvent(final ChangeWebAppContextStatus event) {
-                runOnEDT(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (event.getCommand() == ChangeWebAppContextStatus.WebAppContextStatusCommand.DELETE) {
-                            notifyContextDeleted(
-                                    event.getContextPath());
-                        }
+                runOnEDT(() -> {
+                    if (event.getCommand() == ChangeWebAppContextStatus.WebAppContextStatusCommand.DELETE) {
+                        notifyContextDeleted(
+                                event.getContextPath());
                     }
                 });
             }
@@ -158,7 +148,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         view.showCard(EditorType.fromIndex(selectedIndex));
     }
 
-    public final ActionMap getActionMap() {
+    final ActionMap getActionMap() {
         return actionMap;
     }
 
@@ -251,11 +241,11 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
     public void editingCanceled(MockedFieldEditingEvent event) {
     }
 
-    public Point getCurrentEditingLocation() {
+    Point getCurrentEditingLocation() {
         return currentEditingLocation;
     }
 
-    public void setCurrentEditingLocation(Point currentEditingLocation) {
+    void setCurrentEditingLocation(Point currentEditingLocation) {
         this.currentEditingLocation = currentEditingLocation;
     }
 

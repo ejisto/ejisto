@@ -25,7 +25,7 @@ import javax.swing.*;
 import java.io.File;
 
 
-public class Main {
+class Main {
 
     static {
         File baseDir = new File(System.getProperty("user.home"), ".ejisto");

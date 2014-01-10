@@ -352,7 +352,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     }
 
 
-    public MockedField getSelectedField() {
+    MockedField getSelectedField() {
         TreePath path = getSelectionPath();
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
         return (MockedField) node.getUserObject();

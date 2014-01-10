@@ -34,7 +34,7 @@ import static java.lang.System.getProperty;
  * Date: 5/21/13
  * Time: 7:33 PM
  */
-public class DefaultFilter implements Filter {
+class DefaultFilter implements Filter {
 
     private final RemoteCollectedDataDao collectedDataDao;
 

@@ -112,31 +112,16 @@ public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
     }
 
     protected final void notifyJobCompleted(final ProgressDescriptor.ProgressState progressState, final String message) throws InterruptedException, InvocationTargetException {
-        SwingUtilities.invokeAndWait(new Runnable() {
-            @Override
-            public void run() {
-                firePropertyChange("progressDescriptor", null, new ProgressDescriptor(0, message, progressState));
-            }
-        });
+        SwingUtilities.invokeAndWait(() -> firePropertyChange("progressDescriptor", null, new ProgressDescriptor(0, message, progressState)));
     }
 
     protected final void notifyJobCompleted(final int progress, final String message) throws InterruptedException, InvocationTargetException {
-        SwingUtilities.invokeAndWait(new Runnable() {
-            @Override
-            public void run() {
-                firePropertyChange("progressDescriptor", null, new ProgressDescriptor(progress, message));
-            }
-        });
+        SwingUtilities.invokeAndWait(() -> firePropertyChange("progressDescriptor", null, new ProgressDescriptor(progress, message)));
     }
 
     protected final void addErrorDescriptor(final ErrorDescriptor errorDescriptor) {
         try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    firePropertyChange("error", null, errorDescriptor);
-                }
-            });
+            SwingUtilities.invokeAndWait(() -> firePropertyChange("error", null, errorDescriptor));
         } catch (Exception e) {
             log.error("error during addErrorDescriptor", e);
         }

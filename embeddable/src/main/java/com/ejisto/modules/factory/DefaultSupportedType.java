@@ -47,7 +47,7 @@ public enum DefaultSupportedType {
         this.primitiveOrSimpleValue = primitiveOrSimpleValue;
     }
 
-    public Class<?> getType() {
+    Class<?> getType() {
         return type;
     }
 

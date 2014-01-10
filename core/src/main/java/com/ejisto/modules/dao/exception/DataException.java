@@ -25,9 +25,9 @@ package com.ejisto.modules.dao.exception;
  * Date: 2/17/13
  * Time: 6:38 PM
  */
-public class DataException extends RuntimeException {
+class DataException extends RuntimeException {
 
-    public DataException(String message) {
+    DataException(String message) {
         super(message);
     }
 

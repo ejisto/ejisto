@@ -62,7 +62,7 @@ abstract class AbstractDialogManager {
         };
     }
 
-    protected void openDialog(JPanel content, String title, String description, String iconKey, Dimension size) {
+    void openDialog(JPanel content, String title, String description, String iconKey, Dimension size) {
         dialogController = DialogController.Builder.newInstance()
                 .withActions(okAction, closeAction)
                 .withContent(content)
@@ -72,12 +72,12 @@ abstract class AbstractDialogManager {
         dialogController.show(true, size);
     }
 
-    protected final void close() {
+    final void close() {
         onAbort();
         dialogController.hide();
     }
 
-    protected final void ok() {
+    final void ok() {
         onConfirm();
         dialogController.hide();
     }

@@ -61,7 +61,7 @@ public class DateFactory implements ObjectFactory<Date> {
         return new Date(currentTimeMillis() - DAYS.toMillis(getRandomInterval()) + DAYS.toMillis(getRandomInterval()));
     }
 
-    public long getRandomInterval() {
+    long getRandomInterval() {
         return (long) (Math.random() * 365 * 3);
     }
 }

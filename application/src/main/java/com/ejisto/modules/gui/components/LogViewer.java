@@ -32,36 +32,30 @@ import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.registerApplicationEventListener;
 
 @Log4j
-public class LogViewer extends JXPanel {
+class LogViewer extends JXPanel {
     private static final long serialVersionUID = 2849704565034218976L;
     private JTextArea logText;
     private JScrollPane logPanel;
-    private final transient ApplicationListener<ChangeServerStatus> listener = new ApplicationListener<ChangeServerStatus>() {
-        @Override
-        public void onApplicationEvent(ChangeServerStatus event) {
-            if (event.getCommand() == ChangeServerStatus.Command.STARTUP) {
-                try {
-                    SwingUtilities.invokeAndWait(new Runnable() {
-                        @Override
-                        public void run() {
-                            reset();
-                        }
-                    });
-                } catch (Exception e) {
-                    log.error("exception during log reset", e);
-                }
-            }
-        }
-
-        @Override
-        public Class<ChangeServerStatus> getTargetEventType() {
-            return ChangeServerStatus.class;
-        }
-    };
 
     public LogViewer() {
         super();
-        registerApplicationEventListener(listener);
+        registerApplicationEventListener(new ApplicationListener<ChangeServerStatus>() {
+            @Override
+            public void onApplicationEvent(ChangeServerStatus event) {
+                if (event.getCommand() == ChangeServerStatus.Command.STARTUP) {
+                    try {
+                        SwingUtilities.invokeAndWait(LogViewer.this::reset);
+                    } catch (Exception e) {
+                        log.error("exception during log reset", e);
+                    }
+                }
+            }
+
+            @Override
+            public Class<ChangeServerStatus> getTargetEventType() {
+                return ChangeServerStatus.class;
+            }
+        });
         init();
     }
 
@@ -88,7 +82,7 @@ public class LogViewer extends JXPanel {
         logText.append(message);
     }
 
-    public void reset() {
+    void reset() {
         logText.setText("");
     }
 

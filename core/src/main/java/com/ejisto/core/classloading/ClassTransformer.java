@@ -32,7 +32,6 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -200,7 +199,7 @@ public class ClassTransformer implements ClassFileTransformer {
         return path.replaceAll("/", ".");
     }
 
-    public boolean isInstrumentableClass(String name) {
+    boolean isInstrumentableClass(String name) {
         return registeredClassNames.contains(getCanonicalClassName(name));
     }
 

@@ -39,7 +39,7 @@ public abstract class AbstractContainerFactory<C, E> implements ObjectFactory<C>
 
     private final ObjectFactoryRepository objectFactoryRepository;
 
-    public AbstractContainerFactory() {
+    protected AbstractContainerFactory() {
         this.objectFactoryRepository = new ObjectFactoryRepository(null, null);
     }
 

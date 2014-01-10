@@ -132,12 +132,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
     }
 
     private void notifyToPanel(final ProgressWithHeader panel, final String message) {
-        runOnEDT(new Runnable() {
-            @Override
-            public void run() {
-                panel.notifyJobCompleted(message);
-            }
-        });
+        runOnEDT(() -> panel.notifyJobCompleted(message));
     }
 
     private boolean tryDownload(String containerDescription) {
@@ -184,14 +179,11 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
     }
 
     void showHideProgressPanel(final boolean show, final DialogController controller) {
-        GuiUtils.runOnEDT(new Runnable() {
-            @Override
-            public void run() {
-                if (show) {
-                    controller.showUndecorated(true);
-                } else {
-                    controller.hide();
-                }
+        GuiUtils.runOnEDT(() -> {
+            if (show) {
+                controller.showUndecorated(true);
+            } else {
+                controller.hide();
             }
         });
 

@@ -55,7 +55,7 @@ public class EmbeddedDatabaseManager {
     private volatile DB db;
     private final CopyOnWriteArrayList<String> contextPaths = new CopyOnWriteArrayList<>();
 
-    public void initDb(String databaseFilePath) throws Exception {
+    public void initDb(String databaseFilePath) {
         boolean owned = false;
         try {
             if (!MAINTENANCE_LOCK.tryLock() || db != null) {
@@ -73,7 +73,7 @@ public class EmbeddedDatabaseManager {
         }
     }
 
-    public void initMemoryDb() throws Exception {
+    public void initMemoryDb() {
         boolean owned = false;
         try {
             if (!MAINTENANCE_LOCK.tryLock() || db != null) {

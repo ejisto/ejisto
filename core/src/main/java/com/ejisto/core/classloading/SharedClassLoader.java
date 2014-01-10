@@ -45,7 +45,7 @@ public final class SharedClassLoader extends URLClassLoader {
         entries = new CopyOnWriteArraySet<>();
     }
 
-    public void addEntry(String entry) {
+    void addEntry(String entry) {
         if (!entries.contains(entry)) {
             try {
                 super.addURL(new File(entry).toURI().toURL());

@@ -46,7 +46,7 @@ import static com.ejisto.util.IOUtils.findAllClassesInJarFile;
  * Time: 4:57 PM
  */
 @Log4j
-public class ObjectFactoryLoader implements Runnable {
+class ObjectFactoryLoader implements Runnable {
     private boolean initialized = false;
     private final ObjectFactoryRepository objectFactoryRepository;
     private final CustomObjectFactoryDao customObjectFactoryDao;
@@ -54,8 +54,8 @@ public class ObjectFactoryLoader implements Runnable {
     private ClassPool cp;
     private CtClass bazeClazz;
 
-    public ObjectFactoryLoader(ObjectFactoryRepository objectFactoryRepository,
-                               CustomObjectFactoryDao customObjectFactoryDao) {
+    private ObjectFactoryLoader(ObjectFactoryRepository objectFactoryRepository,
+                                CustomObjectFactoryDao customObjectFactoryDao) {
         this.objectFactoryRepository = objectFactoryRepository;
         this.customObjectFactoryDao = customObjectFactoryDao;
     }
@@ -113,7 +113,7 @@ public class ObjectFactoryLoader implements Runnable {
         customObjectFactoryDao.save(factory);
     }
 
-    public void init() {
+    void init() {
         try {
             if (System.getProperty(StringConstants.EXTENSIONS_DIR.getValue()) == null) {
                 return;

@@ -46,21 +46,21 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * Time: 11:43 AM
  */
 @Log
-public class BaseRemoteDao {
+class BaseRemoteDao {
 
-    public static final String REMOTE_DAO_IS_READ_ONLY = "Remote dao is read-only";
+    static final String REMOTE_DAO_IS_READ_ONLY = "Remote dao is read-only";
     private static final Semaphore CONCURRENT_REQUEST_MANAGER = new Semaphore(50);
     private static final String SERVER_ADDRESS = "http://localhost:%s";
     private final String serverAddress;
 
-    public BaseRemoteDao() {
+    BaseRemoteDao() {
         String address = getProperty(HTTP_INTERFACE_ADDRESS.getValue());
         log.log(Level.FINEST, "address is: " + address);
         serverAddress = evaluateServerAddress(address);
         log.log(Level.FINEST, "server address set to: " + this.serverAddress);
     }
 
-    protected BaseRemoteDao(String serverAddress) {
+    BaseRemoteDao(String serverAddress) {
         this.serverAddress = evaluateServerAddress(serverAddress);
         log.log(Level.FINEST, "server address set to: " + this.serverAddress);
     }
@@ -72,11 +72,11 @@ public class BaseRemoteDao {
         return in;
     }
 
-    protected String remoteCall(String request, String requestPath) {
+    String remoteCall(String request, String requestPath) {
         return remoteCall(request, requestPath, null);
     }
 
-    protected String remoteCall(String request, String requestPath, String method) {
+    String remoteCall(String request, String requestPath, String method) {
         boolean acquired = false;
         try {
             CONCURRENT_REQUEST_MANAGER.acquire();
@@ -109,7 +109,7 @@ public class BaseRemoteDao {
         return out.toByteArray();
     }
 
-    protected <R> String encodeRequest(R request) {
+    <R> String encodeRequest(R request) {
         return JSONUtil.encode(request);
     }
 

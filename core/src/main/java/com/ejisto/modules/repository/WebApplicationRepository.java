@@ -40,7 +40,7 @@ public class WebApplicationRepository {
 
     public void registerWebApplication(String containerId, WebApplication<?> webApplication) {
         if (!webApplications.containsKey(containerId)) {
-            webApplications.putIfAbsent(containerId, new HashMap<String, WebApplication<?>>());
+            webApplications.putIfAbsent(containerId, new HashMap<>());
         }
         webApplications.get(containerId).put(webApplication.getWebApplicationContextPath(), webApplication);
     }

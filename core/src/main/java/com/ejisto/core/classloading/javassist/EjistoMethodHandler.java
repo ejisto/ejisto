@@ -30,7 +30,7 @@ import static com.ejisto.core.classloading.util.ReflectionUtils.getFieldName;
 import static com.ejisto.core.classloading.util.ReflectionUtils.isGetterForProperty;
 import static com.ejisto.util.LambdaUtil.findFieldByName;
 
-public class EjistoMethodHandler implements MethodHandler {
+class EjistoMethodHandler implements MethodHandler {
 
     private Collection<MockedField> fields;
 

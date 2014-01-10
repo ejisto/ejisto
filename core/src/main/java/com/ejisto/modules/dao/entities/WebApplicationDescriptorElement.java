@@ -52,7 +52,7 @@ public class WebApplicationDescriptorElement implements Serializable {
         return kind == Kind.BLACKLISTED;
     }
 
-    public void setKind(Kind kind) {
+    void setKind(Kind kind) {
         this.kind = kind;
     }
 

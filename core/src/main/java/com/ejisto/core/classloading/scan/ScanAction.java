@@ -29,17 +29,13 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.RecursiveAction;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.io.FilenameUtils.normalize;

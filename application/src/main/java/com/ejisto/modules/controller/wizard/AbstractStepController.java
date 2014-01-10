@@ -41,12 +41,7 @@ public abstract class AbstractStepController<K> implements StepController<K>, Pr
     private final TaskManager taskManager;
     private final AtomicBoolean done = new AtomicBoolean(false);
     private final Semaphore insertPermit = new Semaphore(1);
-    private final CyclicBarrier barrier = new CyclicBarrier(2, new Runnable() {
-        @Override
-        public void run() {
-            insertPermit.release();
-        }
-    });
+    private final CyclicBarrier barrier = new CyclicBarrier(2, insertPermit::release);
     private volatile String currentTaskUUID;
 
     protected AbstractStepController(EjistoDialog dialog, TaskManager taskManager) {
@@ -66,7 +61,7 @@ public abstract class AbstractStepController<K> implements StepController<K>, Pr
         return dialog;
     }
 
-    protected <T> String addJob(Task<T> task) {
+    <T> String addJob(Task<T> task) {
         if (!insertPermit.tryAcquire()) {
             throw new IllegalStateException("no available permits");
         }

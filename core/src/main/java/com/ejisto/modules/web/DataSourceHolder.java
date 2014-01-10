@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Date: 3/26/11
  * Time: 8:51 AM
  */
-public class DataSourceHolder {
+class DataSourceHolder {
     private static final AtomicReference<DataSource> dataSource = new AtomicReference<>();
 
     public static DataSource getDataSource() {

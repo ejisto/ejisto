@@ -72,7 +72,7 @@ public final class DialogController {
      * @param dimension window size
      * @see #showUndecorated(boolean)
      */
-    public void showUndecorated(boolean modal, Dimension dimension) {
+    void showUndecorated(boolean modal, Dimension dimension) {
         dialog.setUndecorated(true);
         show(modal, dimension);
     }

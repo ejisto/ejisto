@@ -23,7 +23,6 @@ import com.ejisto.modules.dao.entities.MockedField;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -41,11 +40,11 @@ public final class LambdaUtil {
         return (f -> f.getFieldName().equals(fieldName));
     }
 
-    public static Predicate<MockedField> findFieldByContextPath(String contextPath) {
+    private static Predicate<MockedField> findFieldByContextPath(String contextPath) {
         return (f -> f.getContextPath().equals(contextPath));
     }
 
-    public static Predicate<MockedField> findFieldByClassName(String className) {
+    private static Predicate<MockedField> findFieldByClassName(String className) {
         return (f -> f.getClassName().equals(className));
     }
 

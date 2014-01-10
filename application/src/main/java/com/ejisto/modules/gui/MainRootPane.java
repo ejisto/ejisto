@@ -54,7 +54,7 @@ import java.util.Map;
 
 import static com.ejisto.util.GuiUtils.*;
 
-public class MainRootPane extends JXRootPane {
+class MainRootPane extends JXRootPane {
     private static final long serialVersionUID = -3265545519465961578L;
     private final CollectedDataRepository collectedDataRepository;
     private final ContainersRepository containersRepository;
@@ -258,7 +258,7 @@ public class MainRootPane extends JXRootPane {
             });
             item.setState(collectedData.isActive());
             if (!items.containsKey(collectedData.getContextPath())) {
-                items.put(collectedData.getContextPath(), new ArrayList<JMenuItem>());
+                items.put(collectedData.getContextPath(), new ArrayList<>());
             }
             items.get(collectedData.getContextPath()).add(item);
         }

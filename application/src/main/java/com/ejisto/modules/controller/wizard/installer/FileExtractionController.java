@@ -65,7 +65,7 @@ public class FileExtractionController extends AbstractApplicationInstallerContro
     }
 
     @Override
-    public boolean isExecutionSucceeded() throws WizardException {
+    public boolean isExecutionSucceeded() {
         return isDone();
     }
 

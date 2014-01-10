@@ -26,7 +26,7 @@ import com.ejisto.modules.gui.components.EjistoDialog;
 
 public abstract class AbstractApplicationInstallerController extends AbstractStepController<WebApplicationDescriptor> {
 
-    public AbstractApplicationInstallerController(EjistoDialog dialog, TaskManager taskManager) {
+    AbstractApplicationInstallerController(EjistoDialog dialog, TaskManager taskManager) {
         super(dialog, taskManager);
     }
 

@@ -40,16 +40,13 @@ import static se.jbee.inject.Dependency.dependency;
  * Time: 7:10 PM
  */
 @Log4j
-public class Launcher {
+class Launcher {
     int launch() {
         try {
-            Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                @Override
-                public void uncaughtException(Thread t, Throwable e) {
-                    showErrorDialog("Unexpected error",
-                                    "Thread [" + t.getName() + "] failed with the following Exception", e);
-                    Launcher.log.error("Unexpected exception", e);
-                }
+            Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+                showErrorDialog("Unexpected error",
+                                "Thread [" + t.getName() + "] failed with the following Exception", e);
+                Launcher.log.error("Unexpected exception", e);
             });
             System.getProperties().list(System.out);
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

@@ -41,7 +41,7 @@ import static com.ejisto.util.GuiUtils.*;
  * Date: 7/10/11
  * Time: 6:06 PM
  */
-public class ServerSummary extends JXPanel implements PropertyChangeListener {
+class ServerSummary extends JXPanel implements PropertyChangeListener {
 
     private JPanel header;
     private final String containerId;

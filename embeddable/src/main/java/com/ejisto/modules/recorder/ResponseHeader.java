@@ -72,7 +72,7 @@ public class ResponseHeader implements Serializable {
         throw new UnsupportedOperationException("type is not INT");
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 

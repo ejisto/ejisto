@@ -25,7 +25,7 @@ package com.ejisto.core.classloading.javassist;
  * Date: 10/17/12
  * Time: 8:30 AM
  */
-public class ModifiedClass {
+class ModifiedClass {
 
     private int intProperty;
     private String stringProperty;

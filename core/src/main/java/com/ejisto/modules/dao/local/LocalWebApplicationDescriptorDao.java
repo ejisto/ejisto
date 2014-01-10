@@ -25,7 +25,6 @@ import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 public class LocalWebApplicationDescriptorDao extends BaseLocalDao {
 
@@ -42,24 +41,18 @@ public class LocalWebApplicationDescriptorDao extends BaseLocalDao {
     }
 
     public void insert(final WebApplicationDescriptor descriptor) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Map<String, WebApplicationDescriptor> descriptors = loadAllDescriptors();
-                internalDelete(descriptor, descriptors);
-                descriptors.put(descriptor.getContextPath(), WebApplicationDescriptor.copyOf(descriptor));
-                return null;
-            }
+        transactionalOperation(() -> {
+            Map<String, WebApplicationDescriptor> descriptors = loadAllDescriptors();
+            internalDelete(descriptor, descriptors);
+            descriptors.put(descriptor.getContextPath(), WebApplicationDescriptor.copyOf(descriptor));
+            return null;
         });
     }
 
     public void delete(final WebApplicationDescriptor descriptor) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                internalDelete(descriptor, loadAllDescriptors());
-                return null;
-            }
+        transactionalOperation(() -> {
+            internalDelete(descriptor, loadAllDescriptors());
+            return null;
         });
     }
 

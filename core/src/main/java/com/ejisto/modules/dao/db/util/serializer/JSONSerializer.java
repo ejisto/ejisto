@@ -36,7 +36,7 @@ import java.io.Serializable;
  */
 abstract class JSONSerializer<T> extends BTreeKeySerializer<T> implements Serializer<T>, Serializable {
 
-    public JSONSerializer() {
+    JSONSerializer() {
     }
 
     @Override

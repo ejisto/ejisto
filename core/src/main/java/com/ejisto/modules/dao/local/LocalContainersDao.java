@@ -24,7 +24,6 @@ import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.exception.UniqueConstraintViolated;
 
 import java.util.*;
-import java.util.concurrent.Callable;
 
 /**
  * Created by IntelliJ IDEA.
@@ -47,26 +46,20 @@ public class LocalContainersDao extends BaseLocalDao {
     }
 
     public boolean insert(final Container container) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                if (load(container.getId()) != null) {
-                    throw new UniqueConstraintViolated("Container.id cannot be '" + container.getId() + "'");
-                }
-                loadAllRegisteredContainers().put(container.getKey(), container);
-                return null;
+        transactionalOperation(() -> {
+            if (load(container.getId()) != null) {
+                throw new UniqueConstraintViolated("Container.id cannot be '" + container.getId() + "'");
             }
+            loadAllRegisteredContainers().put(container.getKey(), container);
+            return null;
         });
         return true;
     }
 
     public boolean delete(final Container container) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                loadAllRegisteredContainers().remove(container.getKey());
-                return null;
-            }
+        transactionalOperation(() -> {
+            loadAllRegisteredContainers().remove(container.getKey());
+            return null;
         });
         return true;
     }

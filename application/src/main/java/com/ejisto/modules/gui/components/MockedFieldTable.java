@@ -84,12 +84,9 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
         if (!field.isSimpleValue()) {
             fireEditingStarted(field, point);
         } else {
-            GuiUtils.runOnEDT(new Runnable() {
-                @Override
-                public void run() {
-                    editCellAt(rowAtPoint(point), MockedFieldsTableModel.EDITABLE_COLUMN_INDEX);
-                    ((JTextField) getEditorComponent()).grabFocus();
-                }
+            GuiUtils.runOnEDT(() -> {
+                editCellAt(rowAtPoint(point), MockedFieldsTableModel.EDITABLE_COLUMN_INDEX);
+                ((JTextField) getEditorComponent()).grabFocus();
             });
         }
     }

@@ -38,12 +38,12 @@ import java.util.function.Consumer;
  * Time: 7:34 PM
  */
 @Log4j
-public class ClosurePropertyChangeListener implements PropertyChangeListener, DocumentListener {
+class ClosurePropertyChangeListener implements PropertyChangeListener, DocumentListener {
 
     private final String propertyName;
     private final Map<String, Consumer<String>> actionMap;
 
-    public ClosurePropertyChangeListener(String propertyName, Map<String, Consumer<String>> actionMap) {
+    private ClosurePropertyChangeListener(String propertyName, Map<String, Consumer<String>> actionMap) {
         this.propertyName = propertyName;
         this.actionMap = actionMap;
     }

@@ -46,7 +46,7 @@ import static com.ejisto.util.GuiUtils.getMessage;
  * Time: 6:28 PM
  */
 public final class FieldEditorPanel extends JXCollapsiblePane implements ActionListener {
-    protected static final String TYPE_SELECTION = "typeSelection";
+    private static final String TYPE_SELECTION = "typeSelection";
 
     private JXLabel type;
     private JComboBox<TypeEntry> typeSelector;
@@ -89,7 +89,7 @@ public final class FieldEditorPanel extends JXCollapsiblePane implements ActionL
         getEditor().setBorder(BorderFactory.createTitledBorder(title));
     }
 
-    public JPanel getEditor() {
+    JPanel getEditor() {
         return editor;
     }
 
@@ -128,7 +128,7 @@ public final class FieldEditorPanel extends JXCollapsiblePane implements ActionL
         return fieldType.getText();
     }
 
-    public void onTypeSelected() {
+    void onTypeSelected() {
         fieldClass = getSelectedType();
         if (fieldClass != null) {
             typeSelector.setToolTipText(fieldClass);
@@ -293,7 +293,7 @@ public final class FieldEditorPanel extends JXCollapsiblePane implements ActionL
         return rowGroups;
     }
 
-    protected static final class TypeEntry {
+    static final class TypeEntry {
 
         final String description;
         final String type;

@@ -29,7 +29,7 @@ import javax.servlet.http.HttpSession;
  * Date: 8/27/12
  * Time: 6:41 PM
  */
-public class SessionWrapper implements HttpSession {
+class SessionWrapper implements HttpSession {
 
     @Delegate(excludes = SessionRecorder.class) private final HttpSession source;
     private final DataCollector collector;

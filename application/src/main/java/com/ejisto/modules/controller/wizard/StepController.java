@@ -70,7 +70,7 @@ public interface StepController<K> {
      *
      * @return
      */
-    boolean isExecutionSucceeded() throws WizardException;
+    boolean isExecutionSucceeded();
 
     /**
      * Returns the Step owned by this controller

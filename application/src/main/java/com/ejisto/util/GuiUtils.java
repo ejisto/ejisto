@@ -146,7 +146,7 @@ public abstract class GuiUtils {
         return containerId + commandPrefix.getValue() + contextPath;
     }
 
-    public static void synchronousRunInEDT(Runnable action) throws InvocationTargetException {
+    private static void synchronousRunInEDT(Runnable action) throws InvocationTargetException {
         try {
             SwingUtilities.invokeAndWait(action);
         } catch (InterruptedException e) {

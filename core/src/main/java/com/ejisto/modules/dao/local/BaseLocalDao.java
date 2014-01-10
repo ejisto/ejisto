@@ -24,19 +24,19 @@ import com.ejisto.modules.dao.db.Transaction;
 
 import java.util.concurrent.Callable;
 
-public abstract class BaseLocalDao {
+abstract class BaseLocalDao {
 
     private final EmbeddedDatabaseManager database;
 
-    public BaseLocalDao(EmbeddedDatabaseManager database) {
+    BaseLocalDao(EmbeddedDatabaseManager database) {
         this.database = database;
     }
 
-    protected final EmbeddedDatabaseManager getDatabase() {
+    final EmbeddedDatabaseManager getDatabase() {
         return database;
     }
 
-    protected <T> T transactionalOperation(Callable<T> block) {
+    <T> T transactionalOperation(Callable<T> block) {
         Transaction tx = openTransaction();
         T result = null;
         try {

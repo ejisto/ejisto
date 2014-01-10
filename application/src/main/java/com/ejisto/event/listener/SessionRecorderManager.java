@@ -145,7 +145,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         return SessionRecorderStart.class;
     }
 
-    public void startSessionRecording(WebApplicationDescriptor webApplicationDescriptor) {
+    void startSessionRecording(WebApplicationDescriptor webApplicationDescriptor) {
         try {
             log.debug("start listening for collected data...");
             File outputDir = selectOutputDirectory(application, settingsRepository.getSettingValue(LAST_OUTPUT_PATH),

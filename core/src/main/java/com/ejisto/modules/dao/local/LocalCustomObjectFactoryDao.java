@@ -27,7 +27,6 @@ import com.ejisto.modules.dao.exception.UniqueConstraintViolated;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 /**
  * Created by IntelliJ IDEA.
@@ -53,28 +52,22 @@ public class LocalCustomObjectFactoryDao extends BaseLocalDao implements CustomO
 
     @Override
     public boolean insert(final CustomObjectFactory customObjectFactory) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                if (load(customObjectFactory.getKey()) != null) {
-                    throw new UniqueConstraintViolated(
-                            "CustomObjectFactory.fileName cannot be '" + customObjectFactory.getFileName() + "'");
-                }
-                update(customObjectFactory);
-                return null;
+        transactionalOperation(() -> {
+            if (load(customObjectFactory.getKey()) != null) {
+                throw new UniqueConstraintViolated(
+                        "CustomObjectFactory.fileName cannot be '" + customObjectFactory.getFileName() + "'");
             }
+            update(customObjectFactory);
+            return null;
         });
         return true;
     }
 
     @Override
     public boolean update(final CustomObjectFactory customObjectFactory) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                loadRegisteredFactories().put(customObjectFactory.getKey(), customObjectFactory);
-                return null;
-            }
+        transactionalOperation(() -> {
+            loadRegisteredFactories().put(customObjectFactory.getKey(), customObjectFactory);
+            return null;
         });
         return true;
     }

@@ -51,9 +51,9 @@ public class RecursiveMockedFieldLoader extends ForkJoinTask<List<MockedField>> 
         this(activeSessions, dao, buildMatcher(request));
     }
 
-    public RecursiveMockedFieldLoader(List<CollectedData> activeSessions,
-                                      LocalCollectedDataDao dao,
-                                      Predicate<MockedField> matcher) {
+    private RecursiveMockedFieldLoader(List<CollectedData> activeSessions,
+                                       LocalCollectedDataDao dao,
+                                       Predicate<MockedField> matcher) {
         this.activeSessions = activeSessions;
         this.dao = dao;
         this.matcher = matcher;

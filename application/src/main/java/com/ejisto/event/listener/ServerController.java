@@ -33,8 +33,6 @@ import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import lombok.extern.log4j.Log4j;
 
-import java.util.concurrent.Callable;
-
 import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
 import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 import static com.ejisto.util.GuiUtils.runOnEDT;
@@ -67,12 +65,9 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
     @Override
     public void onApplicationEvent(final ChangeServerStatus event) {
         log.info("handling event: " + event);
-        taskManager.addNewTask(createNewGuiTask(new Callable<Void>() {
-            @Override
-            public Void call() {
-                handleEvent(event);
-                return null;
-            }
+        taskManager.addNewTask(createNewGuiTask(() -> {
+            handleEvent(event);
+            return null;
         }, event.getDescription()));
     }
 
@@ -97,12 +92,7 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
                 log.info("done");
             }
             handleInstalledWebApplicationsStatus(started);
-            runOnEDT(new Runnable() {
-                @Override
-                public void run() {
-                    application.onServerStatusChange(event);
-                }
-            });
+            runOnEDT(() -> application.onServerStatusChange(event));
 
         } catch (NotInstalledException e) {
             log.error("server " + e.getId() + " is not installed.", e);

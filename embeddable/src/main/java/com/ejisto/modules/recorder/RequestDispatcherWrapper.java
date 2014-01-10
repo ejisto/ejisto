@@ -34,7 +34,7 @@ import java.util.Enumeration;
  * Date: 8/27/12
  * Time: 6:38 PM
  */
-public class RequestDispatcherWrapper implements RequestDispatcher {
+class RequestDispatcherWrapper implements RequestDispatcher {
 
     private final RequestDispatcher source;
     private final String path;

@@ -34,21 +34,16 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * Date: 4/10/11
  * Time: 4:15 PM
  */
-public class TaskController {
+class TaskController {
     private TaskView view;
     private final TaskManager taskManager;
 
     public TaskController(TaskManager taskManager) {
         this.taskManager = taskManager;
-        taskManager.scheduleTaskAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                updateTasks();
-            }
-        }, 500, 500, SECONDS);
+        taskManager.scheduleTaskAtFixedRate(this::updateTasks, 500, 500, SECONDS);
     }
 
-    public TaskView getView() {
+    TaskView getView() {
         if (view == null) {
             view = new TaskView();
         }

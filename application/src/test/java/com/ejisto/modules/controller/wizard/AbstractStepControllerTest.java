@@ -39,8 +39,8 @@ import static org.junit.Assert.assertEquals;
  * Time: 8:54 AM
  */
 public class AbstractStepControllerTest {
-    protected ApplicationScanningController applicationScanningController;
-    protected final CyclicBarrier threadSynchronizer;
+    private ApplicationScanningController applicationScanningController;
+    private final CyclicBarrier threadSynchronizer;
     private static final int TASKS = 10;
 
 
@@ -54,12 +54,9 @@ public class AbstractStepControllerTest {
         applicationScanningController = new ApplicationScanningController(null, null, null, null, new TaskManager()) {
             @Override
             protected Task<?> createNewTask() {
-                return new GuiTask<>(new Callable<Object>() {
-                    @Override
-                    public Object call() throws Exception {
-                        threadSynchronizer.await();
-                        return null;
-                    }
+                return new GuiTask<>(() -> {
+                    threadSynchronizer.await();
+                    return null;
                 }, "test");
             }
         };
@@ -70,17 +67,14 @@ public class AbstractStepControllerTest {
         final ExecutorService executorService = Executors.newFixedThreadPool(TASKS);
         final AtomicInteger counter = new AtomicInteger();
         for (int i = 0; i < TASKS; i++) {
-            executorService.submit(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    try {
-                        applicationScanningController.executionCompleted();
-                    } catch (Exception ex) {
-                        counter.incrementAndGet();
-                    }
-                    threadSynchronizer.await();
-                    return null;
+            executorService.submit(() -> {
+                try {
+                    applicationScanningController.executionCompleted();
+                } catch (Exception ex) {
+                    counter.incrementAndGet();
                 }
+                threadSynchronizer.await();
+                return null;
             });
         }
         threadSynchronizer.await();

@@ -47,7 +47,7 @@ public class EjistoDialog extends JDialog {
     private boolean freelyCloseable;
     private String iconKey;
 
-    public EjistoDialog(Frame owner, String title, String iconKey) {
+    private EjistoDialog(Frame owner, String title, String iconKey) {
         this(owner, title, null, true, iconKey);
     }
 
@@ -64,11 +64,11 @@ public class EjistoDialog extends JDialog {
         this.freelyCloseable = freelyCloseable;
     }
 
-    public boolean isFreelyCloseable() {
+    boolean isFreelyCloseable() {
         return freelyCloseable;
     }
 
-    public final void setActions(Action... actions) {
+    final void setActions(Action... actions) {
         if (actions != null && actions.length > 0) {
             setActions(Arrays.asList(actions));
         }
@@ -80,7 +80,7 @@ public class EjistoDialog extends JDialog {
         this.actions.add(action);
     }
 
-    public final void setActions(Collection<Action> actions) {
+    final void setActions(Collection<Action> actions) {
         if (CollectionUtils.isEmpty(actions)) {
             return;
         }
@@ -151,7 +151,7 @@ public class EjistoDialog extends JDialog {
         getHeader().setDescription(headerDescription);
     }
 
-    protected JPanel getButtonsBar() {
+    JPanel getButtonsBar() {
         if (this.buttonsBar != null) {
             return this.buttonsBar;
         }
@@ -168,7 +168,7 @@ public class EjistoDialog extends JDialog {
         return buttonsBar;
     }
 
-    protected JPanel getContent() {
+    JPanel getContent() {
         Objects.requireNonNull(content);
         return content;
     }
@@ -179,7 +179,7 @@ public class EjistoDialog extends JDialog {
         ((JPanel) getContentPane()).setBorder(BorderFactory.createLineBorder(Color.BLACK, 1, true));
     }
 
-    protected Header getHeader() {
+    Header getHeader() {
         if (this.header != null) {
             return this.header;
         }

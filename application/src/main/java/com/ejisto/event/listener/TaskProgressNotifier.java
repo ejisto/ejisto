@@ -29,7 +29,6 @@ import com.ejisto.modules.gui.components.ProgressPanel;
 import lombok.extern.log4j.Log4j;
 
 import javax.swing.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -58,24 +57,21 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
     @Override
     public void onApplicationEvent(final BlockingTaskProgress event) {
         if (event.isRunning()) {
-            taskManager.addNewTask(new BackgroundTask<>(new Callable<Void>() {
-                @Override
-                public Void call() throws InterruptedException {
-                    DialogController controller = DialogController.Builder.newInstance().
-                            withContent(buildPanel()).
-                            withParentFrame(application).
-                            withDecorations(false).
-                            withIconKey(event.getIconKey()).
-                            withHeader(getMessage(event.getPanelTitle()), getMessage(event.getPanelDescription())).
-                            build();
-                    activeControllers.put(event.getId(), controller);
-                    while (activeControllers.containsKey(event.getId()) &&
-                            !currentController.compareAndSet(null, controller)) {
-                        Thread.sleep(100L);
-                    }
-                    controller.showUndecorated(true);
-                    return null;
+            taskManager.addNewTask(new BackgroundTask<>(() -> {
+                DialogController controller = DialogController.Builder.newInstance().
+                        withContent(buildPanel()).
+                        withParentFrame(application).
+                        withDecorations(false).
+                        withIconKey(event.getIconKey()).
+                        withHeader(getMessage(event.getPanelTitle()), getMessage(event.getPanelDescription())).
+                        build();
+                activeControllers.put(event.getId(), controller);
+                while (activeControllers.containsKey(event.getId()) &&
+                        !currentController.compareAndSet(null, controller)) {
+                    Thread.sleep(100L);
                 }
+                controller.showUndecorated(true);
+                return null;
             }));
         } else {
             closeActiveProgress(event);

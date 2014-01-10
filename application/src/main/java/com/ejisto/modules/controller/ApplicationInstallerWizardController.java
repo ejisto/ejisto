@@ -32,7 +32,6 @@ import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.SettingsRepository;
-import com.ejisto.util.LambdaUtil;
 import lombok.extern.log4j.Log4j;
 
 import javax.swing.*;
@@ -43,7 +42,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.ejisto.constants.StringConstants.*;
@@ -66,7 +64,6 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
     private final CustomObjectFactoryRepository customObjectFactoryRepository;
     private final SettingsRepository settingsRepository;
     private final TaskManager taskManager;
-    private final ApplicationEventDispatcher eventDispatcher;
 
     public ApplicationInstallerWizardController(Application application,
                                                 String containerHome,
@@ -81,7 +78,6 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
         this.customObjectFactoryRepository = customObjectFactoryRepository;
         this.settingsRepository = settingsRepository;
         this.taskManager = taskManager;
-        this.eventDispatcher = eventDispatcher;
     }
 
     private void initAndSortControllers(EjistoDialog dialog) {
@@ -141,12 +137,9 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
 
     @Override
     public synchronized void actionPerformed(final ActionEvent e) {
-        taskManager.addNewTask(createNewGuiTask(new Callable<Void>() {
-            @Override
-            public Void call() {
-                navigate(e.getActionCommand().equals(NEXT_STEP_COMMAND.getValue()));
-                return null;
-            }
+        taskManager.addNewTask(createNewGuiTask(() -> {
+            navigate(e.getActionCommand().equals(NEXT_STEP_COMMAND.getValue()));
+            return null;
         }, "navigate", this));
     }
 
@@ -196,12 +189,8 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
     }
 
     private void executeStep(boolean fwd) {
-        try {
-            if (currentController.executionCompleted() && currentController.isExecutionSucceeded() && fwd && currentController.automaticallyProceedToNextStep()) {
-                navigate(true);
-            }
-        } catch (WizardException e) {
-            log.error(e.getMessage(), e);
+        if (currentController.executionCompleted() && currentController.isExecutionSucceeded() && fwd && currentController.automaticallyProceedToNextStep()) {
+            navigate(true);
         }
     }
 

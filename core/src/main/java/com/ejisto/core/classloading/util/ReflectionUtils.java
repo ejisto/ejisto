@@ -80,7 +80,7 @@ public abstract class ReflectionUtils {
         }
     }
 
-    public static void detachClass(CtClass clazz) {
+    private static void detachClass(CtClass clazz) {
         try {
             clazz.detach();
         } catch (Exception ignore) {

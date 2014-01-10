@@ -32,7 +32,6 @@ import com.ejisto.modules.web.MockedFieldRequest;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 

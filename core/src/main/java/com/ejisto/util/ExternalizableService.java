@@ -32,7 +32,7 @@ public abstract class ExternalizableService<T extends Dao> {
 
     private final T dao;
 
-    public ExternalizableService(T dao) {
+    protected ExternalizableService(T dao) {
         this.dao = dao;
     }
 

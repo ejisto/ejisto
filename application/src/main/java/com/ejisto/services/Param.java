@@ -19,5 +19,5 @@
 
 package com.ejisto.services;
 
-public class Param {
+class Param {
 }

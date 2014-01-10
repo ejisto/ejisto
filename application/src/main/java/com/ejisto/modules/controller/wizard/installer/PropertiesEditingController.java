@@ -50,7 +50,7 @@ public class PropertiesEditingController extends AbstractApplicationInstallerCon
     }
 
     @Override
-    public boolean isExecutionSucceeded() throws WizardException {
+    public boolean isExecutionSucceeded() {
         return true;
     }
 

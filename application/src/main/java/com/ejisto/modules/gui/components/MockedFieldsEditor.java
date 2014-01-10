@@ -85,7 +85,7 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         }
     }
 
-    public final void initActionMap(ActionMap actionMap) {
+    final void initActionMap(ActionMap actionMap) {
         GuiUtils.setActionMap(actionMap, getTree());
         GuiUtils.setActionMap(actionMap, getFlattenTable());
     }
@@ -147,12 +147,7 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
         registerApplicationEventListener(new ApplicationListener<MockedFieldChanged>() {
             @Override
             public void onApplicationEvent(final MockedFieldChanged event) {
-                runOnEDT(new Runnable() {
-                    @Override
-                    public void run() {
-                        fieldsChanged(event.getMockedFields());
-                    }
-                });
+                runOnEDT(() -> fieldsChanged(event.getMockedFields()));
             }
 
             @Override

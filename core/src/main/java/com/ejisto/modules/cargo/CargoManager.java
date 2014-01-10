@@ -113,7 +113,7 @@ public class CargoManager implements ContainerManager {
     }
 
     @Override
-    public boolean isServerRunning() throws NotInstalledException {
+    public boolean isServerRunning() {
         return runningContainers.contains(DEFAULT_CONTAINER_ID.getValue());
     }
 
@@ -136,12 +136,12 @@ public class CargoManager implements ContainerManager {
     }
 
     @Override
-    public boolean start(Container container) throws NotInstalledException {
+    public boolean start(Container container) {
         return start(loadContainer(container, true), container);
     }
 
     @Override
-    public boolean stop(Container container) throws NotInstalledException {
+    public boolean stop(Container container) {
         if (!runningContainers.contains(container.getId())) {
             return true;
         }
@@ -180,7 +180,7 @@ public class CargoManager implements ContainerManager {
     }
 
     @Override
-    public boolean deploy(WebApplicationDescriptor webApplicationDescriptor, Container container) throws NotInstalledException {
+    public boolean deploy(WebApplicationDescriptor webApplicationDescriptor, Container container) {
         LocalContainer localContainer = loadContainer(container, false);
         boolean started = runningContainers.contains(container.getId());
         if (started) {
@@ -204,7 +204,7 @@ public class CargoManager implements ContainerManager {
     }
 
     @Override
-    public boolean undeploy(String containerId, String contextPath) throws NotInstalledException {
+    public boolean undeploy(String containerId, String contextPath) {
         return false;
     }
 
@@ -218,12 +218,12 @@ public class CargoManager implements ContainerManager {
     }
 
     @Override
-    public boolean startWebApplication(String containerId, String contextPath) throws NotInstalledException {
+    public boolean startWebApplication(String containerId, String contextPath) {
         return false;
     }
 
     @Override
-    public boolean stopWebApplication(String containerId, String contextPath) throws NotInstalledException {
+    public boolean stopWebApplication(String containerId, String contextPath) {
         return false;
     }
 
@@ -249,7 +249,7 @@ public class CargoManager implements ContainerManager {
         return loadContainer(container, false).getHome();
     }
 
-    private Container buildNewStandaloneContainer() throws NotInstalledException, IOException {
+    private Container buildNewStandaloneContainer() throws NotInstalledException {
         Container defaultContainer = containersRepository.loadDefault();
         Container container = new Container(true);
         container.setId(UUID.randomUUID().toString());

@@ -43,13 +43,10 @@ public class MockedFieldOperationListener implements ApplicationListener<MockedF
 
     @Override
     public void onApplicationEvent(final MockedFieldOperation event) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                Window window = SwingUtilities.windowForComponent((Component) event.getSource());
-                new MockedFieldOperationController(window, event.getMockedField(),
-                                                   event.getOperationType(), mockedFieldsRepository).showDialog();
-            }
+        SwingUtilities.invokeLater(() -> {
+            Window window = SwingUtilities.windowForComponent((Component) event.getSource());
+            new MockedFieldOperationController(window, event.getMockedField(),
+                                               event.getOperationType(), mockedFieldsRepository).showDialog();
         });
     }
 

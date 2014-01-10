@@ -38,7 +38,7 @@ import static java.util.Collections.emptyList;
  * Date: 11/8/11
  * Time: 5:48 PM
  */
-public class MockedFieldSelectionController extends AbstractDialogManager {
+class MockedFieldSelectionController extends AbstractDialogManager {
 
     private final MockedFieldsEditorController controller;
     private List<MockedField> selectedFields;

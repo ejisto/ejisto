@@ -40,7 +40,7 @@ public class ClassNode extends FieldNode {
     private final Map<String, FieldNode> children;
     private final String[] path;
 
-    public ClassNode(MockedField userObject) {
+    ClassNode(MockedField userObject) {
         this(userObject, userObject != null ? userObject.getPath() : new String[0]);
     }
 
@@ -111,7 +111,7 @@ public class ClassNode extends FieldNode {
         return children.containsKey(getPathFor(child));
     }
 
-    public boolean isParentOf(FieldNode node) {
+    boolean isParentOf(FieldNode node) {
         int depthDifference = 0;
         if (!isRoot()) {
             depthDifference = getNodePath().length - node.getNodePath().length;

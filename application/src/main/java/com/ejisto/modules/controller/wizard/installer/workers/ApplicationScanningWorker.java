@@ -138,9 +138,8 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
     @SuppressWarnings("unchecked")
     private void processWebXmlDescriptor(WebApplicationDescriptor descriptor) throws InvocationTargetException, InterruptedException, JDOMException, IOException {
         notifyJobCompleted(INDETERMINATE, getMessage("wizard.resource.web.xml.processing"));
-        StringBuilder webXmlPath = new StringBuilder(descriptor.getInstallationPath()).append(File.separator);
-        webXmlPath.append("WEB-INF").append(File.separator).append("web.xml");
-        Path path = Paths.get(webXmlPath.toString());
+        Path path = Paths.get(
+                descriptor.getInstallationPath() + File.separator + "WEB-INF" + File.separator + "web.xml");
         WebXml xml;
         if (hybrid) {
             if (!Files.exists(path)) {

@@ -53,12 +53,7 @@ public class EjistoAction<T extends BaseApplicationEvent> extends AbstractAction
     @Override
     public void actionPerformed(ActionEvent e) {
 
-        Runnable action = new Runnable() {
-            @Override
-            public void run() {
-                publishEvent(applicationEvent);
-            }
-        };
+        Runnable action = () -> publishEvent(applicationEvent);
 
         if (!async) {
             runOnEDT(action);

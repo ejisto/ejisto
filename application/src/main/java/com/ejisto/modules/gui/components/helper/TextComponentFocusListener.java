@@ -30,16 +30,13 @@ import java.awt.event.FocusEvent;
  * Date: 2/12/11
  * Time: 7:22 PM
  */
-public class TextComponentFocusListener extends FocusAdapter {
+class TextComponentFocusListener extends FocusAdapter {
     @Override
     public void focusGained(final FocusEvent e) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                Object o = e.getSource();
-                if (o != null && JTextComponent.class.isAssignableFrom(o.getClass())) {
-                    ((JTextComponent) e.getSource()).selectAll();
-                }
+        SwingUtilities.invokeLater(() -> {
+            Object o = e.getSource();
+            if (o != null && JTextComponent.class.isAssignableFrom(o.getClass())) {
+                ((JTextComponent) e.getSource()).selectAll();
             }
         });
     }

@@ -53,7 +53,7 @@ import static org.apache.commons.io.FilenameUtils.getName;
 @Log4j
 public final class IOUtils {
 
-    public static final String COPIED_FILES_PREFIX = "ejisto__";
+    private static final String COPIED_FILES_PREFIX = "ejisto__";
     private static final FileExtensionFilter jarFilter = new FileExtensionFilter(FileExtensionFilter.ALL_JARS, true);
     private static final String[] jarExtension = new String[]{"jar"};
     private static final String[] classExtension = new String[]{"class"};
@@ -77,7 +77,7 @@ public final class IOUtils {
         copyDirContent(new File(srcPath), new File(targetPath), null, null, INCLUDE_ALL);
     }
 
-    public static void copyFilteredDirContent(File srcDir, File targetDir, String[] prefixes, String copiedFilesPrefix) {
+    private static void copyFilteredDirContent(File srcDir, File targetDir, String[] prefixes, String copiedFilesPrefix) {
         copyDirContent(srcDir, targetDir, prefixes, copiedFilesPrefix, INCLUDE_ONLY_MATCHING_RESOURCES);
     }
 
@@ -119,7 +119,7 @@ public final class IOUtils {
         return getBaseName(file.getName());
     }
 
-    public static List<WebApplicationDescriptorElement> getClasspathEntries(String basePath, URL[] baseUrls) throws MalformedURLException {
+    private static List<WebApplicationDescriptorElement> getClasspathEntries(String basePath, URL[] baseUrls) {
         File base = new File(basePath);
         List<WebApplicationDescriptorElement> elements = new ArrayList<>();
         for (URL url : baseUrls) {
@@ -133,7 +133,7 @@ public final class IOUtils {
         return getClasspathEntries(basePath, getSystemClasspathEntries());
     }
 
-    public static URL[] getSystemClasspathEntries() throws MalformedURLException {
+    private static URL[] getSystemClasspathEntries() throws MalformedURLException {
         String[] paths = System.getProperty("java.class.path").split(File.pathSeparator);
         URL[] urls = new URL[paths.length];
         for (int i = 0; i < paths.length; i++) {
@@ -182,7 +182,7 @@ public final class IOUtils {
         return urls.toArray(new URL[urls.size()]);
     }
 
-    public static List<WebApplicationDescriptorElement> toWebApplicationDescriptorElement(Collection<File> in) {
+    private static List<WebApplicationDescriptorElement> toWebApplicationDescriptorElement(Collection<File> in) {
         if (in.isEmpty()) {
             return emptyList();
         }
@@ -201,7 +201,7 @@ public final class IOUtils {
         return ret;
     }
 
-    public static Collection<String> findAllClassNamesInDirectory(File directory) {
+    private static Collection<String> findAllClassNamesInDirectory(File directory) {
         int index = directory.getAbsolutePath().length();
         return getAllFiles(directory, classExtension).stream()
                  .filter(LambdaUtil.isDirectory().negate())
@@ -210,7 +210,7 @@ public final class IOUtils {
                  .collect(Collectors.toSet());
     }
 
-    public static Collection<String> findAllClassNamesInJarDirectory(File directory, WebApplicationDescriptor descriptor) throws IOException {
+    private static Collection<String> findAllClassNamesInJarDirectory(File directory, WebApplicationDescriptor descriptor) throws IOException {
         HashSet<String> ret = new HashSet<>();
         for (File file : getAllFiles(directory, jarExtension)) {
             if (!descriptor.isBlacklistedEntry(file.getName())) {
@@ -242,11 +242,11 @@ public final class IOUtils {
         return ret;
     }
 
-    public static String translatePath(String in, String separator) {
+    private static String translatePath(String in, String separator) {
         return in.replaceAll(Pattern.quote(separator), ".");
     }
 
-    public static String translatePath(String in) {
+    private static String translatePath(String in) {
         return translatePath(in, File.separator);
     }
 
@@ -254,7 +254,7 @@ public final class IOUtils {
         return deleteFile(new File(path));
     }
 
-    public static boolean deleteFile(File file) {
+    private static boolean deleteFile(File file) {
         if (!file.isDirectory()) {
             return FileUtils.deleteQuietly(file);
         }
@@ -349,7 +349,7 @@ public final class IOUtils {
         throw new RuntimeException("Unable to find a port");
     }
 
-    public static boolean isPortAvailable(int port) {
+    private static boolean isPortAvailable(int port) {
         try (DatagramSocket udp = new DatagramSocket(port);
              ServerSocket tcp = new ServerSocket(port)) {
             tcp.setReuseAddress(true);
@@ -378,7 +378,7 @@ public final class IOUtils {
         }
     }
 
-    public static String getLocalAddress() throws UnknownHostException {
+    private static String getLocalAddress() throws UnknownHostException {
         return InetAddress.getLocalHost().getHostAddress();
     }
 

@@ -28,7 +28,7 @@ import java.io.FileFilter;
  * Date: 3/22/11
  * Time: 9:58 PM
  */
-public class FilePrefixFilter implements FileFilter {
+class FilePrefixFilter implements FileFilter {
 
     private String[] prefixes;
 

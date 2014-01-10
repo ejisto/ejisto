@@ -30,7 +30,7 @@ import java.util.function.Function;
  * Date: 3/1/13
  * Time: 11:17 PM
  */
-public class EntityToKey<E extends Entity<T>, T extends Serializable> implements Function<E, T> {
+class EntityToKey<E extends Entity<T>, T extends Serializable> implements Function<E, T> {
 
     @Override
     public T apply(E from) {
