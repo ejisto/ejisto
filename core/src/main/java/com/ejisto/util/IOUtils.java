@@ -39,8 +39,8 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.visitor.PrefixBasedCopyFileVisitor.CopyType.INCLUDE_ALL;
 import static com.ejisto.util.visitor.PrefixBasedCopyFileVisitor.CopyType.INCLUDE_ONLY_MATCHING_RESOURCES;
@@ -49,7 +49,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.io.FilenameUtils.getName;
-import static org.hamcrest.Matchers.equalTo;
 
 @Log4j
 public final class IOUtils {
@@ -203,15 +202,12 @@ public final class IOUtils {
     }
 
     public static Collection<String> findAllClassNamesInDirectory(File directory) {
-        List<String> pathNames = extractProperty(
-                select(getAllFiles(directory, classExtension), having(on(File.class).isDirectory(), equalTo(false))),
-                "path");
-        HashSet<String> ret = new HashSet<>();
         int index = directory.getAbsolutePath().length();
-        for (String path : pathNames) {
-            ret.add(translatePath(path.substring(index + 1, path.length() - 6)));
-        }
-        return ret;
+        return getAllFiles(directory, classExtension).stream()
+                 .filter(LambdaUtil.isDirectory().negate())
+                 .map(File::getPath)
+                 .map(p -> translatePath(p.substring(index + 1, p.length() - 6)))
+                 .collect(Collectors.toSet());
     }
 
     public static Collection<String> findAllClassNamesInJarDirectory(File directory, WebApplicationDescriptor descriptor) throws IOException {
@@ -365,21 +361,13 @@ public final class IOUtils {
     }
 
     public static void copyEjistoLibs(String[] prefixes, File targetDir) {
-        StringBuilder path = new StringBuilder(System.getProperty("user.dir"));
-        path.append(File.separator);
-        path.append("lib");
-        copyFilteredDirContent(new File(path.toString()), targetDir, prefixes, COPIED_FILES_PREFIX);
+        copyFilteredDirContent(new File(System.getProperty("user.dir") + File.separator + "lib"), targetDir, prefixes, COPIED_FILES_PREFIX);
     }
 
     public static String getEjistoCoreClasspathEntry(SettingsRepository settingsRepository) {
-        StringBuilder path = new StringBuilder(System.getProperty("user.dir"));
-        path.append(File.separator);
-        path.append("lib");
-        path.append(File.separator);
-        path.append("ejisto-core-");
-        path.append(settingsRepository.getSettingValue(EJISTO_VERSION));
-        path.append(".jar");
-        return path.toString();
+        return System.getProperty("user.dir")
+                + File.separator + "lib" + File.separator + "ejisto-core-"
+                + settingsRepository.getSettingValue(EJISTO_VERSION) + ".jar";
     }
 
     public static URL fileToUrl(File f) {
@@ -397,5 +385,4 @@ public final class IOUtils {
     public static String getHttpInterfaceAddress() throws IOException {
         return format("http://%s:%s", getLocalAddress(), System.getProperty(HTTP_LISTEN_PORT.getValue()));
     }
-
 }

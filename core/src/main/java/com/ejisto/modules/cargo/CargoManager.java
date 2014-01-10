@@ -69,11 +69,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.core.container.WebApplication.Status.STARTED;
 import static com.ejisto.util.IOUtils.guessWebApplicationUri;
-import static org.hamcrest.Matchers.equalTo;
 
 /**
  * Created by IntelliJ IDEA.
@@ -91,7 +89,7 @@ public class CargoManager implements ContainerManager {
 
     private final ConcurrentMap<String, AbstractInstalledLocalContainer> installedContainers = new ConcurrentHashMap<>();
     private final ReentrantLock lifeCycleOperationLock = new ReentrantLock();
-    private final Set<String> runningContainers = Collections.synchronizedSet(new HashSet<String>());
+    private final Set<String> runningContainers = Collections.synchronizedSet(new HashSet<>());
 
     public CargoManager(ContainersRepository containersRepository,
                         SettingsRepository settingsRepository,
@@ -449,15 +447,15 @@ public class CargoManager implements ContainerManager {
 
     private void replaceDeployable(Deployable replacement, LocalContainer container) {
         LocalConfiguration configuration = container.getConfiguration();
-        Deployable old = findDeployable(replacement.getFile(), configuration);
-        if (old != null) {
-            configuration.getDeployables().remove(old);
+        Optional<Deployable> old = findDeployable(replacement.getFile(), configuration);
+        if (old.isPresent()) {
+            configuration.getDeployables().remove(old.get());
         }
         configuration.addDeployable(replacement);
     }
 
-    private Deployable findDeployable(String fileName, LocalConfiguration configuration) {
-        return selectFirst(configuration.getDeployables(), having(on(Deployable.class).getFile(), equalTo(fileName)));
+    private Optional<Deployable> findDeployable(String fileName, LocalConfiguration configuration) {
+        return configuration.getDeployables().stream().filter(d -> d.getFile().equals(fileName)).findFirst();
     }
 
     private Deployable getDeployableFromRepository(String containerId, String contextPath) {

@@ -22,16 +22,16 @@ package com.ejisto.core.classloading.proxy;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.ObjectFactoryRepository;
+import com.ejisto.util.LambdaUtil;
 import lombok.extern.log4j.Log4j;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 
-import static ch.lambdaj.Lambda.*;
 import static com.ejisto.core.classloading.util.ReflectionUtils.*;
-import static org.hamcrest.Matchers.equalTo;
 
 @Log4j
 public class EjistoProxy implements MethodInterceptor {
@@ -55,13 +55,14 @@ public class EjistoProxy implements MethodInterceptor {
     }
 
     private <T> T handleGetter(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-        MockedField mockedField = getMockedFieldFor(method.getName());
+        Optional<MockedField> optional = getMockedFieldFor(method.getName());
         @SuppressWarnings("unchecked")
         T actualValue = (T)proxy.invokeSuper(obj, args);
-        if (mockedField == null) {
+        if (!optional.isPresent()) {
             return actualValue;
         }
         log.trace("mockedField is not null. Handling getter.");
+        MockedField mockedField = optional.get();
         ObjectFactory<T> factory = objectFactoryRepository.getObjectFactory(
                 method.getReturnType().getName(),
                 mockedField.getContextPath());
@@ -73,9 +74,8 @@ public class EjistoProxy implements MethodInterceptor {
         return proxy.invokeSuper(obj, args);
     }
 
-    private MockedField getMockedFieldFor(String methodName) {
-        return selectFirst(mockedFields,
-                           having(on(MockedField.class).getFieldName(), equalTo(getFieldName(methodName))));
+    private Optional<MockedField> getMockedFieldFor(String methodName) {
+        return mockedFields.stream().filter(LambdaUtil.findFieldByName(getFieldName(methodName))).findFirst();
     }
 
 }

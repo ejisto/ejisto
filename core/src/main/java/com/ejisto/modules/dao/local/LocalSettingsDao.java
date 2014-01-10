@@ -19,22 +19,16 @@
 
 package com.ejisto.modules.dao.local;
 
-import ch.lambdaj.function.convert.Converter;
 import com.ejisto.modules.dao.SettingsDao;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.Setting;
-import com.ejisto.util.converter.EntityToKey;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.concurrent.Callable;
-
-import static ch.lambdaj.Lambda.map;
 
 public class LocalSettingsDao extends BaseLocalDao implements SettingsDao {
-
-    private static final Converter<Setting, String> KEY_EXTRACTOR = new EntityToKey<>();
 
     public LocalSettingsDao(EmbeddedDatabaseManager database) {
         super(database);
@@ -52,37 +46,27 @@ public class LocalSettingsDao extends BaseLocalDao implements SettingsDao {
 
     @Override
     public boolean insertSettings(final Collection<Setting> settings) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                loadAllSettings().putAll(map(settings, KEY_EXTRACTOR));
-                return null;
-            }
+        transactionalOperation(() -> {
+            loadAllSettings().putAll(settings.stream().collect(HashMap::new, (acc, x) -> acc.put(x.getKey(), x), Map::putAll));
+            return null;
         });
         return true;
     }
 
     @Override
     public boolean insertSetting(final Setting setting) {
-        return transactionalOperation(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                loadAllSettings().put(setting.getKey(), setting);
-                return Boolean.TRUE;
-            }
+        return transactionalOperation(() -> {
+            loadAllSettings().put(setting.getKey(), setting);
+            return Boolean.TRUE;
         });
     }
 
     @Override
     public boolean clearSettings(final Collection<Setting> settings) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                for (Setting setting : settings) {
-                    loadAllSettings().remove(setting.getKey());
-                }
-                return null;
-            }
+        transactionalOperation(() -> {
+            final Map<String, Setting> existing = loadAllSettings();
+            settings.stream().forEach(s -> existing.remove(s.getKey()));
+            return null;
         });
         return true;
     }

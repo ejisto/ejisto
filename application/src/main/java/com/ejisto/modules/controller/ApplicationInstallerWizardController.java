@@ -19,8 +19,6 @@
 
 package com.ejisto.modules.controller;
 
-import ch.lambdaj.function.closure.Closure0;
-import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.modules.controller.wizard.StepController;
 import com.ejisto.modules.controller.wizard.StepControllerComparator;
@@ -34,11 +32,13 @@ import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.SettingsRepository;
+import com.ejisto.util.LambdaUtil;
 import lombok.extern.log4j.Log4j;
 
 import javax.swing.*;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -46,20 +46,16 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static ch.lambdaj.Lambda.forEach;
-import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
 import static com.ejisto.util.GuiUtils.*;
+import static com.ejisto.util.LambdaUtil.callActionPerformed;
 import static java.util.Collections.sort;
 
 @Log4j
-public class ApplicationInstallerWizardController implements PropertyChangeListener {
+public class ApplicationInstallerWizardController implements PropertyChangeListener, ActionListener {
     private List<StepController<WebApplicationDescriptor>> controllers;
     private ApplicationInstallerWizard wizard;
-    private Closure1<ActionEvent> callActionPerformed;
-    private Closure0 closeDialog;
-    private Closure0 confirm;
     private final Application application;
     private EjistoDialog dialog;
     private AtomicInteger currentIndex = new AtomicInteger(-1);
@@ -101,7 +97,7 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
         //setTypes session object
         WebApplicationDescriptor session = new WebApplicationDescriptor();
         session.setContainerId(DEFAULT_CONTAINER_ID.getValue());
-        forEach(controllers).setSession(session);
+        controllers.forEach(c -> c.setSession(session));
     }
 
     private void initContainer() {
@@ -111,20 +107,19 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
     }
 
     public boolean showWizard() {
-        initClosures();
         dialog = new EjistoDialog(application, getMessage("wizard.title"), createWizard(), false,
                                   "application.installer.icon");
         initAndSortControllers(dialog);
         initContainer();
         dialog.registerAction(new CallbackAction(getMessage("buttons.previous.text"), PREVIOUS_STEP_COMMAND.getValue(),
-                                                 callActionPerformed));
+                                                 callActionPerformed(this), null));
         dialog.registerAction(
-                new CallbackAction(getMessage("buttons.next.text"), NEXT_STEP_COMMAND.getValue(), callActionPerformed));
-        Action act = new CallbackAction(getMessage("wizard.ok.text"), CONFIRM.getValue(), confirm);
+                new CallbackAction(getMessage("buttons.next.text"), NEXT_STEP_COMMAND.getValue(), callActionPerformed(this), null));
+        Action act = new CallbackAction(getMessage("wizard.ok.text"), CONFIRM.getValue(), e -> confirm(), null);
         act.setEnabled(isSummaryStep());
         dialog.registerAction(act);
         dialog.registerAction(
-                new CallbackAction(getMessage("wizard.close.text"), EjistoDialog.CLOSE_ACTION_COMMAND, closeDialog));
+                new CallbackAction(getMessage("wizard.close.text"), EjistoDialog.CLOSE_ACTION_COMMAND, e -> closeDialog(), null));
         dialog.setModalityType(ModalityType.APPLICATION_MODAL);
         dialog.setSize(600, 500);
         centerOnScreen(dialog);
@@ -137,21 +132,6 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
         return currentController.getSession();
     }
 
-    private void initClosures() {
-        if (callActionPerformed != null) {
-            return;
-        }
-        callActionPerformed = new Closure1<ActionEvent>() {{
-            of(ApplicationInstallerWizardController.this).actionPerformed(var(ActionEvent.class));
-        }};
-        closeDialog = new Closure0() {{
-            of(ApplicationInstallerWizardController.this).closeDialog();
-        }};
-        confirm = new Closure0() {{
-            of(ApplicationInstallerWizardController.this).confirm();
-        }};
-    }
-
     void closeDialog() {
         if (showExitWarning()) {
             success = false;
@@ -159,7 +139,8 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
         }
     }
 
-    synchronized void actionPerformed(final ActionEvent e) {
+    @Override
+    public synchronized void actionPerformed(final ActionEvent e) {
         taskManager.addNewTask(createNewGuiTask(new Callable<Void>() {
             @Override
             public Void call() {

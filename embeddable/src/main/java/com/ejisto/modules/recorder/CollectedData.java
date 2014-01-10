@@ -83,6 +83,10 @@ public class CollectedData {
         return unmodifiableMap(requestAttributes);
     }
 
+    public Collection<List<MockedField>> getAllRequestAttributes() {
+        return getRequestAttributes().values();
+    }
+
     public List<String> getRequestDispatcherRedirection() {
         return unmodifiableList(requestDispatcherRedirection);
     }
@@ -97,6 +101,10 @@ public class CollectedData {
 
     public Map<String, List<MockedField>> getSessionAttributes() {
         return sessionAttributes;
+    }
+
+    public Collection<List<MockedField>> getAllSessionAttributes() {
+        return getSessionAttributes().values();
     }
 
     public String getContextPath() {
@@ -171,12 +179,13 @@ public class CollectedData {
                                  new ArrayList<String>(), new HashSet<ResponseHeader>(), contextPath, false);
     }
 
-    public static void join(CollectedData src, CollectedData target) {
+    public static CollectedData join(CollectedData target, CollectedData src) {
         target.requestParameters.putAll(src.requestParameters);
         target.requestAttributes.putAll(src.requestAttributes);
         target.sessionAttributes.putAll(src.sessionAttributes);
         target.requestDispatcherRedirection.addAll(src.requestDispatcherRedirection);
         target.permanentRedirection.addAll(src.permanentRedirection);
         target.headers.addAll(src.headers);
+        return target;
     }
 }

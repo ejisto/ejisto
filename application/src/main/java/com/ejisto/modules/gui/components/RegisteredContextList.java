@@ -33,8 +33,8 @@ import org.jdesktop.swingx.JXPanel;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static ch.lambdaj.Lambda.flatten;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.*;
 
@@ -97,7 +97,11 @@ public class RegisteredContextList extends JXPanel {
     }
 
     private List<WebApplication<?>> getAllRegisteredWebApplications() {
-        return flatten(webApplicationRepository.getInstalledWebApplications());
+        return webApplicationRepository.getInstalledWebApplications()
+                .values()
+                .stream()
+                .flatMap(l -> l.stream())
+                .collect(Collectors.toList());
     }
 
     private void internalReloadAllContexts(boolean removeAll) {

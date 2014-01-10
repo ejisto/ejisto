@@ -63,4 +63,8 @@ public class WebApplicationDescriptorElement implements Serializable {
     public void whitelist() {
         setKind(Kind.CLASSPATH);
     }
+
+    public boolean isOfKind(Kind kind) {
+        return this.kind == kind;
+    }
 }

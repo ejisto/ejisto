@@ -19,23 +19,18 @@
 
 package com.ejisto.modules.dao.local.helper;
 
-import ch.lambdaj.Lambda;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.local.LocalCollectedDataDao;
 import com.ejisto.modules.recorder.CollectedData;
 import com.ejisto.modules.web.MockedFieldRequest;
-import org.hamcrest.Matcher;
-import org.hamcrest.beans.HasPropertyWithValue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ForkJoinTask;
+import java.util.function.Predicate;
 
-import static ch.lambdaj.Lambda.select;
-import static org.hamcrest.CoreMatchers.anything;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.core.AllOf.allOf;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -47,7 +42,7 @@ public class RecursiveMockedFieldLoader extends ForkJoinTask<List<MockedField>> 
 
     private final List<CollectedData> activeSessions;
     private final LocalCollectedDataDao dao;
-    private final Matcher<MockedField> matcher;
+    private final Predicate<MockedField> matcher;
     private List<MockedField> result;
 
     public RecursiveMockedFieldLoader(List<CollectedData> activeSessions,
@@ -58,7 +53,7 @@ public class RecursiveMockedFieldLoader extends ForkJoinTask<List<MockedField>> 
 
     public RecursiveMockedFieldLoader(List<CollectedData> activeSessions,
                                       LocalCollectedDataDao dao,
-                                      Matcher<MockedField> matcher) {
+                                      Predicate<MockedField> matcher) {
         this.activeSessions = activeSessions;
         this.dao = dao;
         this.matcher = matcher;
@@ -89,9 +84,9 @@ public class RecursiveMockedFieldLoader extends ForkJoinTask<List<MockedField>> 
         CollectedData current = activeSessions.get(0);
         List<MockedField> result = new ArrayList<>();
         List<MockedField> allFields = new ArrayList<>();
-        allFields.addAll(Lambda.<MockedField>flatten(current.getRequestAttributes()));
-        allFields.addAll(Lambda.<MockedField>flatten(current.getSessionAttributes()));
-        result.addAll(select(allFields, matcher));
+        allFields.addAll(current.getAllRequestAttributes().stream().flatMap(l -> l.stream()).collect(toList()));
+        allFields.addAll(current.getAllSessionAttributes().stream().flatMap(l -> l.stream()).collect(toList()));
+        result.addAll(allFields.stream().filter(matcher).collect(toList()));
         if (forked != null) {
             result.addAll(forked.join());
         }
@@ -99,22 +94,18 @@ public class RecursiveMockedFieldLoader extends ForkJoinTask<List<MockedField>> 
         return true;
     }
 
-    private static Matcher<MockedField> buildMatcher(MockedFieldRequest request) {
+    private static Predicate<MockedField> buildMatcher(MockedFieldRequest request) {
         if (request.areAllFieldsRequested()) {
-            return anything();
+            return (l -> true);
         }
-        List<Matcher<? extends MockedField>> matcherList = new ArrayList<>();
-        matcherList.add(
-                HasPropertyWithValue.<MockedField>hasProperty("contextPath", equalTo(request.getContextPath())));
+        Predicate<MockedField> result = (l -> request.getContextPath().equals(l.getContextPath()));
         if (request.getClassName() != null) {
-            matcherList.add(
-                    HasPropertyWithValue.<MockedField>hasProperty("className", equalTo(request.getClassName())));
+            result = result.and(l -> request.getClassName() == null || request.getClassName().equals(l.getClassName()));
         }
         if (request.getFieldName() != null) {
-            matcherList.add(
-                    HasPropertyWithValue.<MockedField>hasProperty("fieldName", equalTo(request.getFieldName())));
+            result = result.and(l -> request.getFieldName() == null || request.getFieldName().equals(l.getFieldName()));
         }
-        return allOf(matcherList);
+        return result;
     }
 
 }

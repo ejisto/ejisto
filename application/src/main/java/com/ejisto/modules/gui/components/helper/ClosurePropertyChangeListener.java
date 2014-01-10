@@ -19,8 +19,6 @@
 
 package com.ejisto.modules.gui.components.helper;
 
-import ch.lambdaj.function.closure.Closure0;
-import ch.lambdaj.function.closure.Closure1;
 import lombok.extern.log4j.Log4j;
 
 import javax.swing.event.DocumentEvent;
@@ -30,6 +28,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,20 +41,16 @@ import java.util.Map;
 public class ClosurePropertyChangeListener implements PropertyChangeListener, DocumentListener {
 
     private final String propertyName;
-    private final Map<String, Closure1<String>> actionMap;
-    private final Closure0 callBackAction;
+    private final Map<String, Consumer<String>> actionMap;
 
-    public ClosurePropertyChangeListener(String propertyName, Map<String, Closure1<String>> actionMap, Closure0 callBackAction) {
+    public ClosurePropertyChangeListener(String propertyName, Map<String, Consumer<String>> actionMap) {
         this.propertyName = propertyName;
         this.actionMap = actionMap;
-        this.callBackAction = callBackAction;
     }
 
-    public ClosurePropertyChangeListener(String propertyName, Closure1<String> action, Closure0 callBackAction) {
-        this.propertyName = propertyName;
-        this.actionMap = new HashMap<>();
+    public ClosurePropertyChangeListener(String propertyName, Consumer<String> action) {
+        this(propertyName, new HashMap<>());
         this.actionMap.put(propertyName, action);
-        this.callBackAction = callBackAction;
     }
 
     @Override
@@ -90,9 +86,9 @@ public class ClosurePropertyChangeListener implements PropertyChangeListener, Do
     }
 
     private void firePropertyChange(String newValue) {
-        actionMap.get(propertyName).apply(newValue);
-        if (callBackAction != null) {
-            callBackAction.apply();
+        final Optional<Consumer<String>> consumer = Optional.ofNullable(actionMap.get(propertyName));
+        if(consumer.isPresent()) {
+            consumer.get().accept(newValue);
         }
     }
 }

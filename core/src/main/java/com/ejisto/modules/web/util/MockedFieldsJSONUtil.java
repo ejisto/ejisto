@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.web.util;
 
-import ch.lambdaj.function.convert.Converter;
 import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
@@ -31,9 +30,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import static ch.lambdaj.Lambda.*;
 import static java.nio.charset.Charset.forName;
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -49,7 +48,7 @@ public abstract class MockedFieldsJSONUtil {
             if (mockedFields == null || mockedFields.isEmpty()) {
                 unwrapped = emptyList();
             } else {
-                unwrapped = collect(forEach(mockedFields).unwrap());
+                unwrapped = mockedFields.stream().map(MockedField::unwrap).collect(toList());
             }
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ObjectMapper mapper = new ObjectMapper();
@@ -66,12 +65,7 @@ public abstract class MockedFieldsJSONUtil {
             List<MockedFieldImpl> fields = mapper.readValue(httpRequestBody,
                                                             new TypeReference<List<MockedFieldImpl>>() {
                                                             });
-            return convert(fields, new Converter<Object, MockedField>() {
-                @Override
-                public MockedField convert(Object from) {
-                    return new MockedFieldDecorator((MockedFieldImpl) from);
-                }
-            });
+            return fields.stream().map(f -> new MockedFieldDecorator((MockedFieldImpl)f)).collect(toList());
         } catch (IOException e) {
             throw new IllegalArgumentException("invalid input", e);
         }

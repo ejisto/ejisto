@@ -25,8 +25,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static ch.lambdaj.Lambda.forEach;
-
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -78,7 +76,6 @@ public class WebApplicationRepository {
         if (map == null) {
             return;
         }
-        Collection<WebApplication<?>> containerApplications = map.values();
-        forEach(containerApplications).setStatus(status);
+        map.values().stream().forEach(w -> w.setStatus(status));
     }
 }

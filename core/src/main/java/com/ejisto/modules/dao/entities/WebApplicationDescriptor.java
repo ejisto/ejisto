@@ -27,9 +27,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 
-import static ch.lambdaj.Lambda.*;
 import static com.ejisto.modules.dao.entities.WebApplicationDescriptorElement.Kind.CLASSPATH;
-import static org.hamcrest.Matchers.equalTo;
+import static java.util.stream.Collectors.toList;
 
 @Log4j
 public class WebApplicationDescriptor implements Serializable, Entity<String> {
@@ -45,12 +44,7 @@ public class WebApplicationDescriptor implements Serializable, Entity<String> {
     private transient List<WebApplicationDescriptorElement> classpathEntries;
 
     public WebApplicationDescriptor() {
-        this.fields = new TreeSet<>(new Comparator<MockedField>() {
-            @Override
-            public int compare(MockedField o1, MockedField o2) {
-                return o1.getComparisonKey().compareTo(o2.getComparisonKey());
-            }
-        });
+        this.fields = new TreeSet<>((o1, o2) -> o1.getComparisonKey().compareTo(o2.getComparisonKey()));
         this.helper = new WebApplicationDescriptorHelper(this);
     }
 
@@ -129,7 +123,7 @@ public class WebApplicationDescriptor implements Serializable, Entity<String> {
         if (classpathEntries != null) {
             return classpathEntries;
         }
-        return select(elements, having(on(WebApplicationDescriptorElement.class).getKind(), equalTo(CLASSPATH)));
+        return elements.stream().filter(x -> x.isOfKind(CLASSPATH)).collect(toList());
     }
 
     public String getDeployablePath() {

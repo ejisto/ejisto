@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.repository;
 
-import ch.lambdaj.function.convert.Converter;
 import com.ejisto.core.classloading.decorator.MockedFieldDecorator;
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -27,14 +26,14 @@ import com.ejisto.modules.dao.remote.RemoteMockedFieldsDao;
 import com.ejisto.modules.web.MockedFieldRequest;
 import com.ejisto.util.ExternalizableService;
 import lombok.extern.log4j.Log4j;
-import org.hamcrest.Matcher;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
-import static ch.lambdaj.Lambda.*;
-import static org.hamcrest.Matchers.equalTo;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -45,33 +44,36 @@ import static org.hamcrest.Matchers.equalTo;
 @Log4j
 public final class MockedFieldsRepository extends ExternalizableService<MockedFieldsDao> {
 
-    private final MockedFieldConverter mockedFieldConverter;
+    private static final Function<MockedField, MockedField> CONVERTER = (MockedFieldDecorator::from);
 
     public MockedFieldsRepository(MockedFieldsDao dao) {
         super(dao);
-        this.mockedFieldConverter = new MockedFieldConverter();
     }
 
-    public List<MockedField> loadAll(Matcher<MockedField> matcher) {
-        List<MockedField> allFields = select(getDao().loadAll(), matcher);
-        return convert(allFields, mockedFieldConverter);
+    public List<MockedField> loadAll(Predicate<MockedField> matcher) {
+        return getDao().loadAll().stream()
+                .filter(matcher)
+                .map(CONVERTER)
+                .collect(toList());
     }
 
-    public List<MockedField> loadAll(String contextPath, Matcher<MockedField> matcher) {
-        List<MockedField> allFields = select(getDao().loadContextPathFields(contextPath), matcher);
-        return convert(allFields, mockedFieldConverter);
+    public List<MockedField> loadAll(String contextPath, Predicate<MockedField> matcher) {
+        return getDao().loadContextPathFields(contextPath).stream()
+                .filter(matcher)
+                .map(CONVERTER)
+                .collect(toList());
     }
 
     public List<MockedField> loadAll() {
-        return convert(getDao().loadAll(), mockedFieldConverter);
+        return getDao().loadAll().stream().map(CONVERTER).collect(toList());
     }
 
-    public List<MockedField> loadActiveFields(String contextPath, Matcher<MockedField> matcher) {
-        return select(loadAll(contextPath, matcher), having(on(MockedField.class).isActive(), equalTo(true)));
+    public List<MockedField> loadActiveFields(String contextPath, Predicate<MockedField> matcher) {
+        return loadAll(contextPath, matcher).stream().filter(MockedField::isActive).collect(toList());
     }
 
     public MockedField load(String contextPath, String className, String fieldName) {
-        return mockedFieldConverter.convert(getDao().getMockedField(contextPath, className, fieldName));
+        return CONVERTER.apply(getDao().getMockedField(contextPath, className, fieldName));
     }
 
     public boolean exists(String contextPath, String className, String fieldName) {
@@ -79,8 +81,9 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     }
 
     public List<MockedField> load(String contextPath, String className) {
-        return convert(getDao().loadByContextPathAndClassName(contextPath, className),
-                       mockedFieldConverter);
+        return getDao().loadByContextPathAndClassName(contextPath, className).stream()
+                .map(CONVERTER)
+                .collect(toList());
     }
 
     public boolean update(MockedField mockedField) {
@@ -112,11 +115,23 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
         return new RemoteMockedFieldsDao();
     }
 
+    /**
+     * Even if public, this is an internal method.
+     *
+     * @param contextPath requested Context Path
+     * @param className requested Class Name
+     * @return active fields matching selection criteria
+     */
     public List<MockedField> loadActiveFields(String contextPath, String className) {
-        return select(getDao().loadByContextPathAndClassName(contextPath, className),
-                      having(on(MockedField.class).isActive(), equalTo(true)));
+        return getDao().loadByContextPathAndClassName(contextPath, className).stream().filter(MockedField::isActive).collect(toList());
     }
 
+    /**
+     * Even if public, this is an internal method.
+     *
+     * @param request the selection criteria
+     * @return all fields matching selection criteria
+     */
     public Collection<MockedField> load(MockedFieldRequest request) {
         if (request.areAllContextPathFieldsRequested()) {
             return getDao().loadContextPathFields(request.getContextPath());
@@ -126,12 +141,5 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
             return loadActiveFields(request.getContextPath(), request.getClassName());
         }
         return Arrays.asList(load(request.getContextPath(), request.getClassName(), request.getFieldName()));
-    }
-
-    private static final class MockedFieldConverter implements Converter<MockedField, MockedField> {
-        @Override
-        public MockedField convert(MockedField from) {
-            return MockedFieldDecorator.from(from);
-        }
     }
 }

@@ -25,12 +25,10 @@ import javassist.util.proxy.MethodHandler;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Objects;
 
-import static ch.lambdaj.Lambda.*;
 import static com.ejisto.core.classloading.util.ReflectionUtils.getFieldName;
 import static com.ejisto.core.classloading.util.ReflectionUtils.isGetterForProperty;
-import static org.hamcrest.Matchers.equalTo;
+import static com.ejisto.util.LambdaUtil.findFieldByName;
 
 public class EjistoMethodHandler implements MethodHandler {
 
@@ -47,7 +45,6 @@ public class EjistoMethodHandler implements MethodHandler {
 
     private Object getFieldValue(Method method) throws Exception {
         MockedField mockedField = retrieveFieldToMock(method.getName());
-        Objects.requireNonNull(mockedField);
         if (!mockedField.isActive()) {
             return null;
         }
@@ -61,7 +58,8 @@ public class EjistoMethodHandler implements MethodHandler {
     }
 
     private MockedField retrieveFieldToMock(String methodName) {
-        return selectFirst(fields, having(on(MockedField.class).getFieldName(), equalTo(getFieldName(methodName))));
+        String fieldName = getFieldName(methodName);
+        return fields.stream().filter(findFieldByName(fieldName)).findFirst().orElseThrow(NullPointerException::new);
     }
 
 }

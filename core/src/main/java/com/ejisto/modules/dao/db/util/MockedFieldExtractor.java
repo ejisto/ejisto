@@ -19,8 +19,9 @@
 
 package com.ejisto.modules.dao.db.util;
 
-import ch.lambdaj.function.convert.Converter;
 import com.ejisto.modules.dao.entities.MockedField;
+
+import java.util.function.Function;
 
 /**
  * Created by IntelliJ IDEA.
@@ -28,9 +29,10 @@ import com.ejisto.modules.dao.entities.MockedField;
  * Date: 3/6/13
  * Time: 8:17 AM
  */
-public class MockedFieldExtractor implements Converter<MockedFieldContainer, MockedField> {
+public class MockedFieldExtractor implements Function<MockedFieldContainer, MockedField> {
+
     @Override
-    public MockedField convert(MockedFieldContainer from) {
-        return from.getMockedField();
+    public MockedField apply(MockedFieldContainer mockedFieldContainer) {
+        return mockedFieldContainer.getMockedField();
     }
 }

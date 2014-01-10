@@ -19,10 +19,10 @@
 
 package com.ejisto.util.converter;
 
-import ch.lambdaj.function.convert.Converter;
 import com.ejisto.modules.dao.entities.Entity;
 
 import java.io.Serializable;
+import java.util.function.Function;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,10 +30,10 @@ import java.io.Serializable;
  * Date: 3/1/13
  * Time: 11:17 PM
  */
-public class EntityToKey<E extends Entity<T>, T extends Serializable> implements Converter<E, T> {
+public class EntityToKey<E extends Entity<T>, T extends Serializable> implements Function<E, T> {
 
     @Override
-    public T convert(E from) {
+    public T apply(E from) {
         return from.getKey();
     }
 }

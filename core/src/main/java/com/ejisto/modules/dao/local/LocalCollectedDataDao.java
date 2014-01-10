@@ -22,18 +22,11 @@ package com.ejisto.modules.dao.local;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.recorder.CollectedData;
-import org.hamcrest.beans.HasPropertyWithValue;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
-
-import static ch.lambdaj.Lambda.extractProperty;
-import static ch.lambdaj.Lambda.select;
-import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
  * Created by IntelliJ IDEA.
@@ -48,12 +41,9 @@ public class LocalCollectedDataDao extends BaseLocalDao {
     }
 
     public void persistRecordedSession(final String name, final CollectedData collectedData) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                getDatabase().createNewRecordingSession(name, collectedData);
-                return null;
-            }
+        transactionalOperation(() -> {
+            getDatabase().createNewRecordingSession(name, collectedData);
+            return null;
         });
     }
 
@@ -86,14 +76,11 @@ public class LocalCollectedDataDao extends BaseLocalDao {
     }
 
     private void changeActivationState(final String name, final boolean active) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
+        transactionalOperation(() -> {
                 final EmbeddedDatabaseManager database = getDatabase();
                 CollectedData current = database.getRecordedSession(name).orElseThrow(IllegalStateException::new);
                 database.createNewRecordingSession(name, CollectedData.changeActivationState(current, active));
                 return null;
-            }
         });
     }
 

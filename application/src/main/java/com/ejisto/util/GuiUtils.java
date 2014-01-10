@@ -19,7 +19,6 @@
 
 package com.ejisto.util;
 
-import ch.lambdaj.Lambda;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
@@ -49,9 +48,10 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static ch.lambdaj.Lambda.*;
 import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
-import static org.hamcrest.Matchers.equalTo;
+import static java.lang.String.format;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 
 @Log4j
 public abstract class GuiUtils {
@@ -99,12 +99,7 @@ public abstract class GuiUtils {
 
     public static void showErrorMessage(final Component owner, final String text) {
         try {
-            synchronousRunInEDT(new Runnable() {
-                @Override
-                public void run() {
-                    JOptionPane.showMessageDialog(owner, text, "error", JOptionPane.ERROR_MESSAGE);
-                }
-            });
+            synchronousRunInEDT(() -> JOptionPane.showMessageDialog(owner, text, "error", JOptionPane.ERROR_MESSAGE));
         } catch (InvocationTargetException e) {
             log.error("exception during error message notification", e);
         }
@@ -137,11 +132,6 @@ public abstract class GuiUtils {
 
     public static synchronized ActionMap getActionMap() {
         return actionMap;
-    }
-
-    public static synchronized Collection<Action> getActionsFor(String prefix) {
-        return select(actionMap,
-                      having(on(Action.class).getValue(Action.NAME).toString().startsWith(prefix), equalTo(true)));
     }
 
     public static void setDefaultFont(Font defaultFont) {
@@ -242,8 +232,8 @@ public abstract class GuiUtils {
         return getIcon(category.getIconKey());
     }
 
-    public static String encodeTreePath(Object treePath) {
-        return Lambda.join(treePath, ">");
+    public static String encodeTreePath(String[] treePath) {
+        return Arrays.stream(treePath).collect(joining(">"));
     }
 
     public static String encodeTreePath(String[] path, int from, int to) {
@@ -269,7 +259,7 @@ public abstract class GuiUtils {
                                   SettingsRepository settingsRepository,
                                   String... extensions) {
         JFileChooser fileChooser = new JFileChooser(directoryPath);
-        fileChooser.setFileFilter(new FileNameExtensionFilter("*." + join(extensions, ", *."), extensions));
+        fileChooser.setFileFilter(new FileNameExtensionFilter(format("*.%s", stream(extensions).collect(joining(", *.")))));
         fileChooser.setDialogTitle(title);
         return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_FILESELECTION_PATH,
                                        settingsRepository);

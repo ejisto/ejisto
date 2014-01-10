@@ -19,27 +19,27 @@
 
 package com.ejisto.modules.controller.wizard.installer;
 
-import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.gui.components.helper.Step;
 import com.ejisto.modules.repository.SettingsRepository;
+import com.ejisto.util.LambdaUtil;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
-import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
 import static com.ejisto.constants.StringConstants.SELECT_FILE_COMMAND;
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.selectFile;
 
-public class FileSelectionController extends AbstractApplicationInstallerController {
+public class FileSelectionController extends AbstractApplicationInstallerController implements ActionListener {
 
     private final SettingsRepository settingsRepository;
     private JXPanel fileSelectionTab;
@@ -47,7 +47,6 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
     private JXLabel selectedFilePath;
     private JButton fileSelection;
     private File selectedFile;
-    private Closure1<ActionEvent> callActionPerformed;
 
     public FileSelectionController(EjistoDialog dialog, SettingsRepository settingsRepository) {
         super(dialog, null);
@@ -56,9 +55,6 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
 
     @Override
     public JPanel getView() {
-        callActionPerformed = new Closure1<ActionEvent>() {{
-            of(FileSelectionController.this).actionPerformed(var(ActionEvent.class));
-        }};
         return getFileSelectionTab();
     }
 
@@ -77,6 +73,7 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
         return Step.FILE_SELECTION;
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (SELECT_FILE_COMMAND.getValue().equals(e.getActionCommand())) {
             selectedFile = openFileSelectionDialog();
@@ -140,7 +137,7 @@ public class FileSelectionController extends AbstractApplicationInstallerControl
 
     private JButton getFileSelection() {
         if (fileSelection == null) {
-            fileSelection = new JButton(new CallbackAction("...", SELECT_FILE_COMMAND.getValue(), callActionPerformed));
+            fileSelection = new JButton(new CallbackAction("...", SELECT_FILE_COMMAND.getValue(), LambdaUtil.callActionPerformed(this), null));
         }
         return fileSelection;
     }

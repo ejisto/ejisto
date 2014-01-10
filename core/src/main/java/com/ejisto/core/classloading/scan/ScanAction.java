@@ -19,7 +19,6 @@
 
 package com.ejisto.core.classloading.scan;
 
-import ch.lambdaj.group.Group;
 import com.ejisto.core.ApplicationException;
 import com.ejisto.core.classloading.ClassTransformer;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -37,8 +36,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.RecursiveAction;
+import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.io.FilenameUtils.normalize;
 
 /**
@@ -51,11 +54,11 @@ import static org.apache.commons.io.FilenameUtils.normalize;
 public final class ScanAction extends RecursiveAction {
     private static final int SIZE_THRESHOLD = 25;
     private final WebApplicationDescriptor descriptor;
-    private final List<Group<MockedField>> groupedFields;
+    private final Map<String, List<MockedField>> groupedFields;
     private final MockedFieldsRepository mockedFieldsRepository;
 
     public ScanAction(WebApplicationDescriptor descriptor,
-                      List<Group<MockedField>> groupedFields,
+                      Map<String, List<MockedField>> groupedFields,
                       MockedFieldsRepository mockedFieldsRepository) {
         this.descriptor = descriptor;
         this.groupedFields = groupedFields;
@@ -64,26 +67,30 @@ public final class ScanAction extends RecursiveAction {
 
     @Override
     protected void compute() {
-        if (CollectionUtils.isEmpty(groupedFields)) {
+        if (groupedFields.isEmpty()) {
             log.debug("done. Exiting");
             return;
         }
-
-        List<Group<MockedField>> toBeScanned;
-        List<Group<MockedField>> toBeForked;
-        if (groupedFields.size() > SIZE_THRESHOLD) {
+        int classesSize = groupedFields.size();
+        Map<String,List<MockedField>> toBeScanned;
+        Map<String,List<MockedField>> toBeForked;
+        if (classesSize > SIZE_THRESHOLD) {
             log.debug("forking...");
-            toBeScanned = groupedFields.subList(0, SIZE_THRESHOLD);
-            toBeForked = groupedFields.subList(SIZE_THRESHOLD, groupedFields.size());
+            toBeScanned = groupedFields.entrySet().stream()
+                    .limit(SIZE_THRESHOLD)
+                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+            toBeForked = groupedFields.entrySet().stream()
+                    .filter(e -> !toBeScanned.containsKey(e.getKey()))
+                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
         } else {
-            toBeScanned = new ArrayList<>(groupedFields);
+            toBeScanned = groupedFields;
             toBeForked = null;
         }
         invokeAll(new ScanAction(descriptor, toBeForked, mockedFieldsRepository));
         scanGroups(toBeScanned, descriptor);
     }
 
-    private void scanGroups(List<Group<MockedField>> groups, WebApplicationDescriptor descriptor) {
+    private void scanGroups(Map<String, List<MockedField>> groups, WebApplicationDescriptor descriptor) {
         try {
             ClassPool classPool = new ClassPool();
             String webInf = FilenameUtils.normalizeNoEndSeparator(
@@ -92,21 +99,25 @@ public final class ScanAction extends RecursiveAction {
             classPool.appendClassPath(webInf + File.separator + "lib/*");
             classPool.appendSystemPath();
             ClassTransformer transformer = new ClassTransformer(descriptor.getContextPath(), mockedFieldsRepository);
-            for (Group<MockedField> group : groups) {
-                scanClass(group, classPool, transformer, normalize(webInf + File.separator + "classes/", true));
-            }
+            groups.forEach((k, v) -> scanClass(v, classPool, transformer, normalize(webInf + File.separator + "classes/", true)));
         } catch (Exception e) {
             log.error("got exception: " + e.toString());
             throw new ApplicationException(e);
         }
     }
 
-    private static void scanClass(Group<MockedField> group, ClassPool classPool, ClassTransformer transformer, String destPath)
-            throws NotFoundException, CannotCompileException, IOException {
-        MockedField head = group.first();
-        log.debug("scanning " + head.getClassName());
-        CtClass clazz = classPool.get(head.getClassName());
-        transformer.addMissingProperties(clazz, group.findAll());
-        clazz.writeFile(destPath);
+    private static void scanClass(List<MockedField> group, ClassPool classPool, ClassTransformer transformer, String destPath) {
+        if(!group.isEmpty()) {
+            MockedField head = group.get(0);
+            log.debug("scanning " + head.getClassName());
+            try {
+                CtClass clazz = classPool.get(head.getClassName());
+                transformer.addMissingProperties(clazz, group);
+                clazz.writeFile(destPath);
+            } catch (NotFoundException | CannotCompileException | IOException e) {
+                log.error("got exception: " + e.toString());
+                throw new ApplicationException(e);
+            }
+        }
     }
 }

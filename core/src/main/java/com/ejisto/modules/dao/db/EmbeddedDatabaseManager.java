@@ -18,7 +18,6 @@
  */
 package com.ejisto.modules.dao.db;
 
-import ch.lambdaj.function.convert.Converter;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.dao.db.util.MockedFieldContainer;
 import com.ejisto.modules.dao.db.util.MockedFieldContainerSorter;
@@ -36,10 +35,9 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
-import static ch.lambdaj.Lambda.*;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.startsWith;
+import static java.util.stream.Collectors.toList;
 
 @Log4j
 public class EmbeddedDatabaseManager {
@@ -103,45 +101,24 @@ public class EmbeddedDatabaseManager {
             db.createHashMap(RECORDED_SESSIONS).keepCounter(true).valueSerializer(new CollectedDataSerializer()).make();
             db.createAtomicInteger(STARTUP_COUNTER, 1);
         }
-        contextPaths.addAll(
-                convert(
-                        select(db.getAll().keySet(), startsWith(CONTEXT_PATH_PREFIX)),
-                        new Converter<String, String>() {
-                            @Override
-                            public String convert(String from) {
-                                return decodeContextPath(from);
-                            }
-                        }));
+        contextPaths.addAll(db.getAll().keySet().stream()
+                                    .map(EmbeddedDatabaseManager::decodeContextPath)
+                                    .collect(toList()));
         Atomic.Integer count = db.getAtomicInteger(STARTUP_COUNTER);
         count.incrementAndGet();
         db.commit();
     }
 
     public Optional<Map<String, Setting>> getSettings() {
-        return doInTransaction(new Executor<Map<String, Setting>>() {
-            @Override
-            public Map<String, Setting> execute(DatabaseAccessor db) {
-                return db.getHashMap(SETTINGS);
-            }
-        });
+        return doInTransaction(accessor -> accessor.getHashMap(SETTINGS));
     }
 
     public Optional<Map<String, Container>> getContainers() {
-        return doInTransaction(new Executor<Map<String, Container>>() {
-            @Override
-            public Map<String, Container> execute(DatabaseAccessor db) {
-                return db.getHashMap(CONTAINERS);
-            }
-        });
+        return doInTransaction(db -> db.getHashMap(CONTAINERS));
     }
 
     public Optional<Map<String, CustomObjectFactory>> getCustomObjectFactories() {
-        return doInTransaction(new Executor<Map<String, CustomObjectFactory>>() {
-            @Override
-            public Map<String, CustomObjectFactory> execute(DatabaseAccessor db) {
-                return db.getHashMap(CUSTOM_OBJECT_FACTORIES);
-            }
-        });
+        return doInTransaction(db -> db.getHashMap(CUSTOM_OBJECT_FACTORIES));
     }
 
     public Optional<NavigableSet<MockedFieldContainer>> getMockedFields(final String contextPath) {
@@ -186,12 +163,7 @@ public class EmbeddedDatabaseManager {
     }
 
     public Optional<Map<String, RegisteredObjectFactory>> getRegisteredObjectFactories() {
-        return doInTransaction(new Executor<Map<String, RegisteredObjectFactory>>() {
-            @Override
-            public Map<String, RegisteredObjectFactory> execute(DatabaseAccessor db) {
-                return db.getHashMap(REGISTERED_OBJECT_FACTORIES);
-            }
-        });
+        return doInTransaction(accessor -> accessor.getHashMap(REGISTERED_OBJECT_FACTORIES));
     }
 
     public Boolean deleteAllMockedFields(final String contextPath) {
@@ -207,22 +179,16 @@ public class EmbeddedDatabaseManager {
     }
 
     public Optional<CollectedData> getRecordedSession(final String name) {
-        return doInTransaction(new Executor<CollectedData>() {
-            @Override
-            public CollectedData execute(DatabaseAccessor databaseAccessor) {
-                Map<String, CollectedData> map = databaseAccessor.getHashMap(RECORDED_SESSIONS);
-                return map.get(name);
-            }
+        return doInTransaction(databaseAccessor -> {
+            Map<String, CollectedData> map = databaseAccessor.getHashMap(RECORDED_SESSIONS);
+            return map.get(name);
         });
     }
 
     public Optional<Collection<CollectedData>> getActiveRecordedSessions() {
-        return doInTransaction(new Executor<Collection<CollectedData>>() {
-            @Override
-            public Collection<CollectedData> execute(DatabaseAccessor databaseAccessor) {
-                Map<String, CollectedData> map = databaseAccessor.getDb().getHashMap(RECORDED_SESSIONS);
-                return select(map, having(on(CollectedData.class).isActive(), equalTo(true)));
-            }
+        return doInTransaction(databaseAccessor -> {
+            Map<String, CollectedData> map = databaseAccessor.getHashMap(RECORDED_SESSIONS);
+            return map.values().stream().filter(CollectedData::isActive).collect(Collectors.toList());
         });
     }
 
@@ -231,32 +197,17 @@ public class EmbeddedDatabaseManager {
     }
 
     public Optional<Map<String, CollectedData>> getRecordedSessions() {
-        return doInTransaction(new Executor<Map<String, CollectedData>>() {
-            @Override
-            public Map<String, CollectedData> execute(DatabaseAccessor databaseAccessor) {
-                return Collections.unmodifiableMap(
-                        databaseAccessor.getHashMap(RECORDED_SESSIONS));
-            }
-        });
+        return doInTransaction(databaseAccessor -> Collections.unmodifiableMap(
+                databaseAccessor.getHashMap(RECORDED_SESSIONS)));
     }
 
 
     public Optional<Map<String, WebApplicationDescriptor>> getWebApplicationDescriptors() {
-        return doInTransaction(new Executor<Map<String, WebApplicationDescriptor>>() {
-            @Override
-            public Map<String, WebApplicationDescriptor> execute(DatabaseAccessor db) {
-                return db.getHashMap(WEB_APPLICATION_DESCRIPTORS);
-            }
-        });
+        return doInTransaction(db -> db.getHashMap(WEB_APPLICATION_DESCRIPTORS));
     }
 
     public Optional<Integer> getStartupCount() {
-        return doInTransaction(new Executor<Integer>() {
-            @Override
-            public Integer execute(DatabaseAccessor db) {
-                return db.getDb().getAtomicInteger(STARTUP_COUNTER).get();
-            }
-        });
+        return doInTransaction(accessor -> accessor.getDb().getAtomicInteger(STARTUP_COUNTER).get());
     }
 
     public void doMaintenance() throws InterruptedException {

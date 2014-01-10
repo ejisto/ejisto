@@ -19,8 +19,6 @@
 
 package com.ejisto.event.listener;
 
-import ch.lambdaj.Lambda;
-import ch.lambdaj.function.aggregate.Aggregator;
 import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
@@ -66,9 +64,9 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static ch.lambdaj.Lambda.aggregate;
-import static ch.lambdaj.Lambda.extractProperty;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_HEIGHT;
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
@@ -119,7 +117,8 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     public void onApplicationEvent(SessionRecorderStart event) {
         String contextPath = event.getWebApplicationContextPath();
         if (isEmpty(contextPath)) {
-            List<String> contextPaths = extractProperty(webApplicationDescriptorDao.loadAll(), "contextPath");
+            List<String> contextPaths = webApplicationDescriptorDao.loadAll()
+                    .stream().map(WebApplicationDescriptor::getContextPath).collect(Collectors.toList());
             contextPath = (String) showInputDialog(application, getMessage("session.record.select.application"),
                                                    getMessage("session.record.select.application.title"),
                                                    JOptionPane.QUESTION_MESSAGE, null, contextPaths.toArray(), null);
@@ -210,7 +209,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     }
 
     private List<MockedField> flattenAttributes(Map<String, List<MockedField>> requestAttributes) {
-        return Lambda.flatten(requestAttributes);
+        return requestAttributes.values().stream().flatMap(values -> values.stream()).collect(Collectors.toList());
     }
 
     private <K, V> boolean replace(K key, ConcurrentMap<K, Set<V>> container, Set<V> newValue) {
@@ -229,7 +228,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     private <K, V> Set<V> putIfAbsent(K key, ConcurrentMap<K, Set<V>> container) {
         Set<V> values = container.get(key);
         if (values == null) {
-            container.putIfAbsent(key, new HashSet<V>());
+            container.putIfAbsent(key, new HashSet<>());
             values = container.get(key);
         }
         return new HashSet<>(values);
@@ -244,7 +243,7 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     }
 
     private void tryToSave(final String contextPath) {
-        final Set<CollectedData> data = RECORDED_DATA.replace(contextPath, new HashSet<CollectedData>());
+        final Set<CollectedData> data = RECORDED_DATA.replace(contextPath, new HashSet<>());
         if (CollectionUtils.isEmpty(data)) {
             log.debug("Nothing to save, exiting");
             return;
@@ -259,20 +258,9 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         if (StringUtils.isNotEmpty(name)) {
             final CollectedData collectedData;
             if (data.size() > 1) {
-                collectedData = aggregate(data, new Aggregator<CollectedData>() {
-                    @Override
-                    public CollectedData aggregate(Iterator<? extends CollectedData> iterator) {
-                        CollectedData aggregated = null;
-                        while (iterator.hasNext()) {
-                            final CollectedData current = iterator.next();
-                            if (aggregated == null) {
-                                aggregated = CollectedData.empty(current.getRequestURI(), contextPath);
-                            }
-                            CollectedData.join(current, aggregated);
-                        }
-                        return aggregated;
-                    }
-                });
+                final Stream<CollectedData> stream = data.stream();
+                CollectedData aggregated = CollectedData.empty(stream.findFirst().get().getRequestURI(), contextPath);
+                collectedData = stream.reduce(aggregated, CollectedData::join);
             } else {
                 collectedData = data.iterator().next();
             }

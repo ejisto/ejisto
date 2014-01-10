@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.controller.wizard.installer;
 
-import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.EjistoDialog;
@@ -29,14 +28,16 @@ import com.ejisto.modules.gui.components.helper.Step;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.function.Consumer;
 
-import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.SELECT_ALL;
 import static com.ejisto.constants.StringConstants.SELECT_NONE;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.showWarning;
+import static com.ejisto.util.LambdaUtil.callActionPerformed;
 
-public class ClassesFilteringController extends AbstractApplicationInstallerController {
+public class ClassesFilteringController extends AbstractApplicationInstallerController implements ActionListener {
 
     private ResourcesFilter classesFilteringTab;
 
@@ -49,13 +50,11 @@ public class ClassesFilteringController extends AbstractApplicationInstallerCont
         if (classesFilteringTab != null) {
             return classesFilteringTab;
         }
-        Closure1<ActionEvent> selectAllOrNone = new Closure1<ActionEvent>() {{
-            of(ClassesFilteringController.this).actionPerformed(var(ActionEvent.class));
-        }};
+        Consumer<ActionEvent> selectAllOrNone = callActionPerformed(this);
         CallbackAction c1 = new CallbackAction(getMessage("wizard.jarfilter.selectall.text"), SELECT_ALL.getValue(),
-                                               selectAllOrNone);
+                                               selectAllOrNone, null);
         CallbackAction c2 = new CallbackAction(getMessage("wizard.jarfilter.selectnone.text"), SELECT_NONE.getValue(),
-                                               selectAllOrNone);
+                                               selectAllOrNone, null);
         classesFilteringTab = new ResourcesFilter(c1, c2);
         return classesFilteringTab;
     }
@@ -80,7 +79,8 @@ public class ClassesFilteringController extends AbstractApplicationInstallerCont
         getView().setResources(getSession().getIncludedJars());
     }
 
-    void actionPerformed(ActionEvent ev) {
+    @Override
+    public void actionPerformed(ActionEvent ev) {
         boolean selectAll = ev.getActionCommand().equals(SELECT_ALL.getValue());
         int libs = getSession().getIncludedJars().size();
         if (selectAll && libs > 10 && !showWarning(getView(), "wizard.classesfiltering.warning", libs)) {

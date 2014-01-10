@@ -19,6 +19,8 @@
 
 package com.ejisto.core;
 
+import java.util.function.Supplier;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -37,5 +39,9 @@ public class ApplicationException extends RuntimeException {
 
     public ApplicationException(String message) {
         super(message);
+    }
+
+    public static Supplier<ApplicationException> supplier(String message) {
+        return () -> new ApplicationException(message);
     }
 }

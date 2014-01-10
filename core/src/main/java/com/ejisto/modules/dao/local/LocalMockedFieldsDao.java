@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.dao.local;
 
-import ch.lambdaj.Lambda;
 import com.ejisto.core.ApplicationException;
 import com.ejisto.modules.dao.MockedFieldsDao;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
@@ -37,10 +36,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
-import static ch.lambdaj.Lambda.*;
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 
 public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDao {
 
@@ -60,7 +56,7 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
                                                                            MockedFieldRequest.requestAllFields());
         forkJoinPool.execute(forked);
         for (String contextPath : getDatabase().getRegisteredContextPaths()) {
-            out.addAll(Lambda.<MockedField>flatten(loadContextPathFields(contextPath)));
+            out.addAll(loadContextPathFields(contextPath));
         }
         out.addAll(forked.join());
         return out;
@@ -68,7 +64,8 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
 
     @Override
     public Collection<MockedField> loadContextPathFields(String contextPath) {
-        return flatten(convert(getDatabase().getMockedFields(contextPath), new MockedFieldExtractor()));
+        return getDatabase().getMockedFields(contextPath).orElse(Collections.emptyNavigableSet()).stream().map(
+                MockedFieldContainer::getMockedField).collect(Collectors.toList());
     }
 
     @Override
@@ -77,7 +74,7 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
         if (CollectionUtils.isEmpty(fields)) {
             return Collections.emptyList();
         }
-        return convert(fields, new MockedFieldExtractor());
+        return fields.stream().map(new MockedFieldExtractor()).collect(toList());
     }
 
     @Override
@@ -87,11 +84,9 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
 
     @Override
     public MockedField getMockedField(String contextPath, String className, String fieldName) {
-        MockedFieldContainer field = getSingleField(getMockedFieldsByClassName(contextPath, className), fieldName);
-        if (field == null) {
-            throw new ApplicationException("No mockedFields found.");
-        }
-        return field.getMockedField();
+        return getSingleField(getMockedFieldsByClassName(contextPath, className), fieldName)
+                .orElseThrow(ApplicationException.supplier("No mockedFields found."))
+                .getMockedField();
     }
 
     @Override
@@ -101,29 +96,22 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
 
     @Override
     public boolean update(final MockedField field) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Collection<MockedFieldContainer> fields = getMockedFieldsByClassName(field.getContextPath(),
-                                                                                     field.getClassName());
-                MockedFieldContainer existing = getSingleField(fields, field.getFieldName());
-                Objects.requireNonNull(existing);
-                fields.remove(existing);
-                fields.add(MockedFieldContainer.from(field.unwrap()));
-                return null;
-            }
+        transactionalOperation(() -> {
+            Collection<MockedFieldContainer> fields = getMockedFieldsByClassName(field.getContextPath(),
+                                                                                 field.getClassName());
+            MockedFieldContainer existing = getSingleField(fields, field.getFieldName()).orElseThrow(NullPointerException::new);
+            fields.remove(existing);
+            fields.add(MockedFieldContainer.from(field.unwrap()));
+            return null;
         });
         return true;
     }
 
     @Override
     public MockedField insert(final MockedField field) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                internalInsert(field);
-                return null;
-            }
+        transactionalOperation(() -> {
+            internalInsert(field);
+            return null;
         });
         return field;
     }
@@ -131,39 +119,28 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
 
     @Override
     public void insert(final Collection<MockedField> mockedFields) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                for (MockedField mockedField : mockedFields) {
-                    internalInsert(mockedField);
-                }
-                return null;
-            }
+        transactionalOperation(() -> {
+            mockedFields.stream().forEach(this::internalInsert);
+            return null;
         });
     }
 
     @Override
     public boolean createContext(final String contextPath) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                if (!getDatabase().getRegisteredContextPaths().contains(contextPath)) {
-                    getDatabase().registerContextPath(contextPath);
-                }
-                return null;
+        transactionalOperation(() -> {
+            if (!getDatabase().getRegisteredContextPaths().contains(contextPath)) {
+                getDatabase().registerContextPath(contextPath);
             }
+            return null;
         });
         return true;
     }
 
     @Override
     public boolean deleteContext(final String contextPath) {
-        transactionalOperation(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                getDatabase().deleteAllMockedFields(contextPath);
-                return null;
-            }
+        transactionalOperation(() -> {
+            getDatabase().deleteAllMockedFields(contextPath);
+            return null;
         });
         return true;
     }
@@ -173,8 +150,8 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
     }
 
 
-    private MockedFieldContainer getSingleField(Collection<MockedFieldContainer> fields, String fieldName) {
-        return selectFirst(fields, hasProperty("fieldName", equalTo(fieldName)));
+    private Optional<MockedFieldContainer> getSingleField(Collection<MockedFieldContainer> fields, String fieldName) {
+        return fields.stream().filter(f -> f.getFieldName().equals(fieldName)).findFirst();
     }
 
     private MockedField internalInsert(MockedField field) {

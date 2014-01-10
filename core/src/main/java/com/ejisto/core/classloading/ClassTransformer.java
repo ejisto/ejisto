@@ -19,7 +19,6 @@
 
 package com.ejisto.core.classloading;
 
-import ch.lambdaj.Lambda;
 import com.ejisto.core.classloading.javassist.EjistoMethodFilter;
 import com.ejisto.core.classloading.javassist.ObjectEditor;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -36,6 +35,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
 import static com.ejisto.modules.web.MockedFieldRequest.requestAllClasses;
@@ -213,7 +213,7 @@ public class ClassTransformer implements ClassFileTransformer {
     private static Collection<String> loadAllRegisteredClassNames(String contextPath,
                                                                   MockedFieldsRepository mockedFieldsRepository) {
         Collection<MockedField> fields = mockedFieldsRepository.load(requestAllClasses(contextPath));
-        Set<String> classes = new HashSet<>(Lambda.<MockedField, String>extractProperty(fields, "className"));
+        Set<String> classes = fields.stream().map(MockedField::getClassName).collect(Collectors.toSet());
         trace(format("filtered classes for %s: %s of %s", contextPath, classes, fields));
         return classes;
     }

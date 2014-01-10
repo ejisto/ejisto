@@ -19,7 +19,6 @@
 
 package com.ejisto.event.listener;
 
-import ch.lambdaj.group.Group;
 import com.ejisto.core.classloading.scan.ScanAction;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
@@ -30,14 +29,14 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import com.ejisto.util.FieldsEditorContextMatcher;
 import lombok.extern.log4j.Log4j;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
 
-import static ch.lambdaj.Lambda.group;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 
 /**
@@ -61,9 +60,7 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
     @Override
     public void onApplicationEvent(ApplicationScanRequired event) {
         WebApplicationDescriptor descriptor = event.getWebApplicationDescriptor();
-        List<MockedField> fields = mockedFieldsRepository.loadAll(descriptor.getContextPath(),
-                                                                  new FieldsEditorContextMatcher(
-                                                                          FieldsEditorContext.CREATE_FIELD));
+        List<MockedField> fields = mockedFieldsRepository.loadAll(descriptor.getContextPath(),FieldsEditorContext.CREATE_FIELD::isAdmitted);
         if (isEmpty(fields)) {
             return;
         }
@@ -71,8 +68,9 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
         eventManager.publishEvent(new BlockingTaskProgress(this, id, "application.deploy.preprocessing.title",
                                                            "application.deploy.preprocessing.description",
                                                            "icon.work.in.progress", true));
-        Group<MockedField> groupedByClassName = group(fields, "className");
-        ScanAction action = new ScanAction(descriptor, groupedByClassName.subgroups(), mockedFieldsRepository);
+        final Map<String,List<MockedField>> groups = fields.stream().collect(
+                Collectors.groupingBy(MockedField::getClassName));
+        ScanAction action = new ScanAction(descriptor, groups, mockedFieldsRepository);
         try {
             forkJoinPool.invoke(action);
             action.get();

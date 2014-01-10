@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.controller;
 
-import ch.lambdaj.function.convert.PropertyExtractor;
 import com.ejisto.event.def.MockedFieldChanged;
 import com.ejisto.event.def.ServerRestartRequired;
 import com.ejisto.modules.dao.entities.MockedField;
@@ -27,17 +26,16 @@ import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.gui.components.helper.FieldEditorPanel;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import com.ejisto.util.FieldsEditorContextMatcher;
 import org.jdesktop.swingx.action.AbstractActionExt;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static ch.lambdaj.Lambda.convert;
 import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.GuiUtils.publishEvent;
@@ -67,8 +65,10 @@ public class MockedFieldCreationController extends AbstractDialogManager {
             }
         });
         fieldEditorPanel = new FieldEditorPanel(map, FieldsEditorContext.CREATE_FIELD);
-        String firstContextPath = setAllAvailableContextPaths();
-        setTypes(firstContextPath);
+        final Optional<String> first = setAllAvailableContextPaths();
+        if(first.isPresent()) {
+            setTypes(first.get());
+        }
         view.add(fieldEditorPanel, BorderLayout.CENTER);
     }
 
@@ -102,16 +102,19 @@ public class MockedFieldCreationController extends AbstractDialogManager {
     }
 
     private void setTypes(String selectedContextPath) {
-        FieldsEditorContextMatcher matcher = new FieldsEditorContextMatcher(FieldsEditorContext.CREATE_FIELD);
-        Set<String> contexts = new HashSet<>(convert(mockedFieldsRepository.loadAll(selectedContextPath, matcher),
-                                                     new PropertyExtractor<Object, String>("className")));
+        Set<String> contexts = mockedFieldsRepository.loadAll(selectedContextPath, FieldsEditorContext.CREATE_FIELD::isAdmitted)
+                .stream()
+                .map(MockedField::getClassName)
+                .collect(Collectors.toSet());
         fieldEditorPanel.setTypes(contexts);
     }
 
-    private String setAllAvailableContextPaths() {
-        List<String> ctxPaths = convert(mockedFieldsRepository.loadAll(),
-                                        new PropertyExtractor<Object, String>("contextPath"));
-        fieldEditorPanel.setAvailableContextPaths(new HashSet<>(ctxPaths));
-        return ctxPaths.get(0);
+    private Optional<String> setAllAvailableContextPaths() {
+        final Stream<String> stream = mockedFieldsRepository.loadAll()
+                .stream()
+                .map(MockedField::getContextPath);
+        final Optional<String> first = stream.findFirst();
+        fieldEditorPanel.setAvailableContextPaths(stream.collect(Collectors.toSet()));
+        return first;
     }
 }

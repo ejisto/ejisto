@@ -29,7 +29,6 @@ import org.apache.commons.collections.CollectionUtils;
 import java.awt.*;
 import java.util.List;
 
-import static ch.lambdaj.Lambda.forEach;
 import static com.ejisto.util.GuiUtils.getMessage;
 
 /**
@@ -83,7 +82,7 @@ public class MockedFieldOperationController {
         selectionController.showSelectionDialog();
         List<MockedField> selectedFields = selectionController.getSelectedFields();
         if (!CollectionUtils.isEmpty(selectedFields)) {
-            forEach(selectedFields).setActive(true);
+            selectedFields.forEach(f -> f.setActive(true));
             GuiUtils.publishEvent(new MockedFieldChanged(container, selectedFields));
         }
     }

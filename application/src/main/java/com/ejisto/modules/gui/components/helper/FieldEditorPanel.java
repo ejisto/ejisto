@@ -19,8 +19,6 @@
 
 package com.ejisto.modules.gui.components.helper;
 
-import ch.lambdaj.function.closure.Closure0;
-import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.modules.controller.MockedFieldCreationController;
 import com.ejisto.modules.validation.NumberValidator;
 import com.ejisto.util.GuiUtils;
@@ -35,11 +33,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
 
-import static ch.lambdaj.Lambda.var;
 import static com.ejisto.modules.controller.MockedFieldsEditorController.CANCEL_EDITING;
 import static com.ejisto.modules.controller.MockedFieldsEditorController.STOP_EDITING;
 import static com.ejisto.util.GuiUtils.getMessage;
@@ -237,10 +232,7 @@ public final class FieldEditorPanel extends JXCollapsiblePane implements ActionL
         editor.setPreferredSize(new Dimension(200, 150));
         type = new JXLabel(getMessage(getComboBoxLabel()));
         typeSelector = new JComboBox<>();
-        typeSelector.setAction(new CallbackAction("type", new Closure0() {{
-            of(FieldEditorPanel.this).onTypeSelected();
-        }}));
-
+        typeSelector.setAction(new CallbackAction("type", e -> onTypeSelected()));
         typeSelector.setRenderer(new TypeEntryRenderer());
         typeSelector.setActionCommand(TYPE_SELECTION);
         additionalInfoTitle = new JXLabel(getMessage(getAdditionalInfoLabel()));
@@ -250,12 +242,9 @@ public final class FieldEditorPanel extends JXCollapsiblePane implements ActionL
         additionalInfo.setMaximumSize(new Dimension(getAdditionalInfoWidth(), 20));
         registerKeyboardAction(getActionMap().get(STOP_EDITING), STOP_EDITING,
                                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        addPropertyChangeListener("collapsed", new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (!((Boolean) evt.getNewValue())) {
-                    setFocusOnFirstField();
-                }
+        addPropertyChangeListener("collapsed", evt -> {
+            if (!((Boolean) evt.getNewValue())) {
+                setFocusOnFirstField();
             }
         });
         if (getActionMap().get(STOP_EDITING) != null) {
@@ -286,13 +275,9 @@ public final class FieldEditorPanel extends JXCollapsiblePane implements ActionL
     private void configureAdditionalInfoField(JFormattedTextField additionalInfo) {
 
         if (!isCreateFieldContext()) {
-            final Closure1<String> callback;
             additionalInfo.setInputVerifier(new NumberValidator(NumberValidator.ValidationType.SIGNED_INTEGER));
             additionalInfo.setValue("10");
-            callback = new Closure1<String>() {{
-                of(FieldEditorPanel.this).setSize(var(String.class));
-            }};
-            additionalInfo.addPropertyChangeListener("value", new ClosurePropertyChangeListener("", callback, null));
+            additionalInfo.addPropertyChangeListener("value", new ClosurePropertyChangeListener("", this::setSize));
         }
         additionalInfo.addFocusListener(new TextComponentFocusListener());
     }

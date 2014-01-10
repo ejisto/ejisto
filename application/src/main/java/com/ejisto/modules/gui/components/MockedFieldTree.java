@@ -326,11 +326,12 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
         if (!expand || getModel().getChildCount(parent) > EXPAND_ALL_LIMIT) {
             return;
         }
+        @SuppressWarnings("unchecked")
         Enumeration<FieldNode> e = parent.children();
         while (e.hasMoreElements()) {
             FieldNode node = e.nextElement();
-            changeNodeState(node, expand);
-            toggleExpandCollapse(node, expand);
+            changeNodeState(node, true);
+            toggleExpandCollapse(node, true);
         }
     }
 

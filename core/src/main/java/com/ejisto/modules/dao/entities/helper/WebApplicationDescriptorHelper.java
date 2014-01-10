@@ -23,11 +23,8 @@ import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 
-import java.util.Collection;
-import java.util.List;
-
-import static ch.lambdaj.Lambda.*;
-import static org.hamcrest.Matchers.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class WebApplicationDescriptorHelper {
     private WebApplicationDescriptor descriptor;
@@ -37,32 +34,26 @@ public class WebApplicationDescriptorHelper {
     }
 
     public boolean isBlacklistedEntry(String filename) {
-        WebApplicationDescriptorElement element = selectFirst(getElements(), having(on(
-                WebApplicationDescriptorElement.class).getPath(), equalTo(filename)));
-        return element == null || element.isBlacklisted();
+        return getElements().stream().anyMatch(x -> x.getPath().equals(filename) && x.isBlacklisted());
     }
 
     public void setBlacklist(List<String> blacklist) {
-        forEach(select(getElements(), having(on(WebApplicationDescriptorElement.class).getPath(), isIn(blacklist))),
-                WebApplicationDescriptorElement.class).blacklist();
-        forEach(select(getElements(),
-                       having(on(WebApplicationDescriptorElement.class).getPath(), not(isIn(blacklist)))),
-                WebApplicationDescriptorElement.class).whitelist();
+        getElements().stream().filter(x -> blacklist.contains(x.getPath()))
+                .forEach(WebApplicationDescriptorElement::blacklist);
+        getElements().stream().filter(x -> !blacklist.contains(x.getPath()))
+                .forEach(WebApplicationDescriptorElement::whitelist);
     }
 
     public List<String> getIncludedJars() {
-        return extractProperty(getElements(), "path");
+        return getElements().stream().map(WebApplicationDescriptorElement::getPath).collect(Collectors.toList());
     }
 
-    @SuppressWarnings("unchecked")
     public Collection<MockedField> getModifiedFields() {
-        List<MockedField> fields = select(descriptor.getFields(),
-                                          having(on(MockedField.class).getFieldValue(), notNullValue()));
-        fields.addAll(select(descriptor.getFields(),
-                             anyOf(having(on(MockedField.class).getFieldElementType(), notNullValue()),
-                                   having(on(MockedField.class).getFieldValue(), notNullValue()),
-                                   having(on(MockedField.class).getExpression(), notNullValue()))));
-        return selectDistinct(fields, "comparisonKey");
+        Set<MockedField> result = new TreeSet<>((x, y) -> x.getComparisonKey().compareTo(y.getComparisonKey()));
+        descriptor.getFields().stream()
+                .filter(f -> f.getFieldValue() != null || f.getFieldElementType() != null || f.getExpression() != null)
+                .forEach(result::add);
+        return result;
     }
 
     private List<WebApplicationDescriptorElement> getElements() {

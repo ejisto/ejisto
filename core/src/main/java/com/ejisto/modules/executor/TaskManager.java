@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.executor;
 
-import ch.lambdaj.Lambda;
 import com.ejisto.core.ApplicationException;
 
 import java.beans.PropertyChangeListener;
@@ -30,10 +29,10 @@ import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static ch.lambdaj.Lambda.forEach;
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections.MapUtils.isEmpty;
 
 /**
@@ -53,12 +52,7 @@ public final class TaskManager {
         this.registry = new ConcurrentHashMap<>();
         this.executorService = Executors.newCachedThreadPool();
         this.scheduler = Executors.newScheduledThreadPool(5);
-        this.scheduler.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                refreshTasksList();
-            }
-        }, 500L, 500L, MILLISECONDS);
+        this.scheduler.scheduleAtFixedRate(this::refreshTasksList, 500L, 500L, MILLISECONDS);
     }
 
     private void refreshTasksList() {
@@ -146,8 +140,7 @@ public final class TaskManager {
         if (isEmpty(registry)) {
             return emptyList();
         }
-        return new ArrayList<>(
-                Lambda.<TaskDescriptor>collect(forEach(registry.values()).getDescriptor()));
+        return registry.values().stream().map(TaskEntry::getDescriptor).collect(toList());
     }
 
     private TaskDescriptor buildTaskDescriptor(String uuid, Task task, Future<?> future) {
@@ -182,9 +175,9 @@ public final class TaskManager {
         private final SoftReference<Task<?>> task;
 
         private TaskEntry(Future<?> future, TaskDescriptor descriptor, Task<?> task) {
-            this.future = new SoftReference<Future<?>>(future);
+            this.future = new SoftReference<>(future);
             this.descriptor = descriptor;
-            this.task = new SoftReference<Task<?>>(task);
+            this.task = new SoftReference<>(task);
         }
 
         public Future<?> getFuture() {

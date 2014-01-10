@@ -26,9 +26,7 @@ import com.ejisto.modules.gui.components.TaskView;
 
 import java.util.List;
 
-import static ch.lambdaj.Lambda.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.hamcrest.Matchers.equalTo;
 
 /**
  * Created by IntelliJ IDEA.
@@ -63,8 +61,7 @@ public class TaskController {
         int completed = 0;
         int total = 0;
         if (tasks.size() > 0) {
-            completed = select(tasks, having(on(TaskDescriptor.class).getExecutionState(),
-                                             equalTo(ExecutionState.DONE))).size();
+            completed = (int) tasks.stream().filter(t -> ExecutionState.DONE.equals(t.getExecutionState())).count();
             total = tasks.size();
         }
         getView().setCurrentStatus(completed, total);

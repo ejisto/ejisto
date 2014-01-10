@@ -19,7 +19,6 @@
 
 package com.ejisto.event.listener;
 
-import ch.lambdaj.function.closure.Closure1;
 import com.ejisto.core.container.ContainerManager;
 import com.ejisto.event.ApplicationEventDispatcher;
 import com.ejisto.event.ApplicationListener;
@@ -49,10 +48,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URLClassLoader;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import static ch.lambdaj.Lambda.forEach;
-import static ch.lambdaj.Lambda.var;
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.*;
 import static com.ejisto.util.IOUtils.guessWebApplicationUri;
@@ -70,8 +68,6 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     private final SettingsRepository settingsRepository;
     private final TaskManager taskManager;
     private final ApplicationEventDispatcher eventDispatcher;
-
-    private Closure1<ActionEvent> callNotifyCommand;
 
     public WebApplicationLoader(Application application,
                                 EventManager eventManager,
@@ -127,8 +123,8 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             return;
         }
         WebApplicationDescriptor webApplicationDescriptor = controller.getWebApplicationDescriptor();
-        forEach(webApplicationDescriptor.getFields()).setContextPath(webApplicationDescriptor.getContextPath());
-        forEach(webApplicationDescriptor.getModifiedFields()).setActive(true);
+        webApplicationDescriptor.getFields().stream().forEach(descriptor -> descriptor.setContextPath(webApplicationDescriptor.getContextPath()));
+        webApplicationDescriptor.getModifiedFields().stream().forEach(descriptor -> descriptor.setActive(true));
         mockedFieldsRepository.deleteContext(webApplicationDescriptor.getContextPath());
         mockedFieldsRepository.insert(webApplicationDescriptor.getFields());
         deployWebApp(webApplicationDescriptor);
@@ -158,27 +154,22 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     }
 
     private void registerActions(WebApplicationDescriptor descriptor) {
-        if (callNotifyCommand == null) {
-            callNotifyCommand = new Closure1<ActionEvent>() {{
-                of(WebApplicationLoader.this).notifyCommand(var(ActionEvent.class));
-            }};
-        }
         putAction(createAction(
                 buildCommand(START_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()),
-                callNotifyCommand,
+                this::notifyCommand,
                 getMessage("webapp.context.start.icon"), true));
         putAction(createAction(
                 buildCommand(STOP_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()),
-                callNotifyCommand,
+                this::notifyCommand,
                 getMessage("webapp.context.stop.icon"), false));
         putAction(createAction(
                 buildCommand(DELETE_CONTEXT_PREFIX, descriptor.getContainerId(), descriptor.getContextPath()),
-                callNotifyCommand,
+                this::notifyCommand,
                 getMessage("webapp.context.delete.icon"), true));
     }
 
-    private CallbackAction createAction(String command, Closure1<ActionEvent> callback, String iconKey, boolean enabled) {
-        CallbackAction action = new CallbackAction(command, command, callback);
+    private CallbackAction createAction(String command, Consumer<ActionEvent> callback, String iconKey, boolean enabled) {
+        CallbackAction action = new CallbackAction(command, command, callback, null);
         if (iconKey != null) {
             action.setIcon(new ImageIcon(getClass().getResource(iconKey)));
         }

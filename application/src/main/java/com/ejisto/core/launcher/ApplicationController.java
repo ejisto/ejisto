@@ -27,9 +27,7 @@ import com.ejisto.services.ServiceType;
 import lombok.extern.log4j.Log4j;
 
 import java.util.List;
-
-import static ch.lambdaj.Lambda.*;
-import static org.hamcrest.Matchers.equalTo;
+import java.util.stream.Collectors;
 
 @Log4j
 public class ApplicationController implements ApplicationListener<ShutdownRequest> {
@@ -48,12 +46,12 @@ public class ApplicationController implements ApplicationListener<ShutdownReques
         log.debug("registering shutdown hook...");
         eventDispatcher.registerApplicationEventListener(this);
         log.debug("invoking startup services...");
-        forEach(startupServices, Service.class).execute();
+        startupServices.stream().forEach(Service::execute);
     }
 
     private void shutdown() {
         log.debug("invoking startup services...");
-        forEach(shutdownServices, Service.class).execute();
+        shutdownServices.stream().forEach(Service::execute);
         log.info("Application shutdown successfully completed. Invoking shutdown hooks via System.exit(0)");
         System.exit(0);
     }
@@ -69,10 +67,11 @@ public class ApplicationController implements ApplicationListener<ShutdownReques
     }
 
     private static List<Service> sortServices(List<Service> services) {
-        return sort(services, on(Service.class).getPriority());
+        return services.stream().sorted().collect(Collectors.toList());
     }
 
     private static List<Service> filterServices(List<Service> services, ServiceType serviceType) {
-        return select(services, having(on(Service.class).getServiceType(), equalTo(serviceType)));
+        return services.stream().filter(service -> service.getServiceType().equals(serviceType)).collect(
+                Collectors.toList());
     }
 }

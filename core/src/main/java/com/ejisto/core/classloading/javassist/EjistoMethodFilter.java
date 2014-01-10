@@ -25,10 +25,8 @@ import javassist.util.proxy.MethodFilter;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
-import static ch.lambdaj.Lambda.*;
 import static com.ejisto.core.classloading.util.ReflectionUtils.getFieldName;
 import static com.ejisto.core.classloading.util.ReflectionUtils.isGetter;
-import static org.hamcrest.Matchers.equalTo;
 
 public class EjistoMethodFilter implements MethodFilter {
 
@@ -47,7 +45,7 @@ public class EjistoMethodFilter implements MethodFilter {
     }
 
     public boolean isFieldHandled(String fieldName) {
-        return selectFirst(fields, having(on(MockedField.class).getFieldName(), equalTo(fieldName))) != null;
+        return fields.stream().anyMatch(f -> f.getFieldName().equals(fieldName));
     }
 
     public String getContextPath() {
