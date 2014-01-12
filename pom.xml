@@ -46,6 +46,7 @@
         </repository>
     </distributionManagement>
     <scm>
+        <connection>scm:git:https://github.com/ejisto/ejisto.git</connection>
         <developerConnection>
             scm:git:[fetch=]https://github.com/ejisto/ejisto.git[push=]ssh://git@github.com:ejisto/ejisto.git
         </developerConnection>
