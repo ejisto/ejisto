@@ -1,6 +1,8 @@
 ejisto
 ======
 
+[![Build Status](https://travis-ci.org/ejisto/ejisto.png?branch=master)](https://travis-ci.org/ejisto/ejisto)
+
 What is ejisto?
 ---------------
 
