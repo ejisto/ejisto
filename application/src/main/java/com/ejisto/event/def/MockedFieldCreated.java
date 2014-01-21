@@ -17,31 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.util;
+package com.ejisto.event.def;
 
-import org.apache.commons.lang3.StringUtils;
+import com.ejisto.modules.dao.entities.MockedField;
 
-import java.io.File;
 import java.util.Arrays;
-import java.util.regex.Pattern;
+import java.util.List;
 
-/**
- * Created by IntelliJ IDEA.
- * User: celestino
- * Date: 3/8/11
- * Time: 9:31 PM
- */
-public class ContainerUtils {
+public class MockedFieldCreated extends MockedFieldChanged {
+    private static final long serialVersionUID = -1695827582666783071L;
 
-    private static final Pattern AGENT_JAR = Pattern.compile("^.*?ejisto-agent.*?\\.jar$");
-
-    public static String extractAgentJar(String classPath) {
-        String systemProperty = System.getProperty("ejisto.agent.jar.path");
-        if (StringUtils.isNotBlank(systemProperty)) {
-            return systemProperty;
-        }
-        return Arrays.stream(classPath.split(Pattern.quote(File.pathSeparator)))
-                .filter(e -> AGENT_JAR.matcher(e).matches())
-                .findFirst().orElse("");
+    public MockedFieldCreated(Object source, MockedField mockedField) {
+        this(source, Arrays.asList(mockedField));
     }
+
+    public MockedFieldCreated(Object source, List<MockedField> mockedField) {
+        super(source, mockedField);
+    }
+
 }

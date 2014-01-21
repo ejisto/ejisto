@@ -24,6 +24,7 @@ import com.ejisto.core.container.WebApplication;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 /**
  * Created by IntelliJ IDEA.
@@ -61,14 +62,11 @@ public class WebApplicationRepository {
         changeWebApplicationsStatus(containerId, WebApplication.Status.STARTED);
     }
 
-    public Map<String, List<WebApplication<?>>> getInstalledWebApplications() {
-        Map<String, List<WebApplication<?>>> applications = new TreeMap<>();
-        List<WebApplication<?>> serverApplications;
-        for (String serverId : webApplications.keySet()) {
-            serverApplications = new ArrayList<>(webApplications.get(serverId).values());
-            applications.put(serverId, serverApplications);
-        }
-        return applications;
+    public List<WebApplication<?>> getInstalledWebApplications() {
+        return webApplications.entrySet()
+                .stream()
+                .flatMap(e -> e.getValue().values().stream())
+                .collect(Collectors.toList());
     }
 
     private void changeWebApplicationsStatus(String containerId, WebApplication.Status status) {

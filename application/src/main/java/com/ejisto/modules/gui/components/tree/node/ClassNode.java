@@ -25,6 +25,7 @@ import lombok.extern.log4j.Log4j;
 import javax.swing.text.Position;
 import javax.swing.tree.MutableTreeNode;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.ejisto.util.GuiUtils.encodeTreePath;
 
@@ -105,6 +106,11 @@ public class ClassNode extends FieldNode {
     @SuppressWarnings("unchecked")
     public Enumeration<FieldNode> children() {
         return super.children();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Stream<FieldNode> getChildrenAsStream() {
+        return Optional.ofNullable((Collection<FieldNode>)super.children).orElse(Collections.emptyList()).stream();
     }
 
     public boolean containsChild(FieldNode child) {

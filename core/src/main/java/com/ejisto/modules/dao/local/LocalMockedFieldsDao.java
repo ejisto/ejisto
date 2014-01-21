@@ -90,7 +90,7 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
 
     @Override
     public boolean exists(String contextPath, String className, String fieldName) {
-        return getSingleField(getMockedFieldsByClassName(contextPath, className), fieldName) != null;
+        return getSingleField(getMockedFieldsByClassName(contextPath, className), fieldName).isPresent();
     }
 
     @Override

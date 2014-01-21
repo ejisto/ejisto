@@ -161,11 +161,9 @@ public final class IOUtils {
     }
 
     public static List<String> listJarFiles(String dir) {
-        List<String> files = new ArrayList<>();
-        for (File file : getAllFiles(new File(dir), jarExtension)) {
-            files.add(file.getAbsolutePath());
-        }
-        return files;
+        return getAllFiles(new File(dir), jarExtension).stream()
+                .map(File::getAbsolutePath)
+                .collect(Collectors.toList());
     }
 
     public static URL[] toUrlArray(WebApplicationDescriptor descriptor) throws MalformedURLException {
@@ -183,14 +181,9 @@ public final class IOUtils {
     }
 
     private static List<WebApplicationDescriptorElement> toWebApplicationDescriptorElement(Collection<File> in) {
-        if (in.isEmpty()) {
-            return emptyList();
-        }
-        List<WebApplicationDescriptorElement> elements = new ArrayList<>(in.size());
-        for (File file : in) {
-            elements.add(new WebApplicationDescriptorElement(file.getName()));
-        }
-        return elements;
+        return in.stream()
+                .map(f -> new WebApplicationDescriptorElement(f.getName()))
+                .collect(Collectors.toList());
     }
 
     public static Collection<String> findAllWebApplicationClasses(String basePath, WebApplicationDescriptor descriptor) throws IOException {

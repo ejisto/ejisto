@@ -36,16 +36,11 @@ import static java.util.EnumSet.*;
  * Time: 8:52 AM
  */
 public enum FieldsEditorContext {
-    MAIN_WINDOW("fields.table.model.MAIN_WINDOW.columns", new GuiUtils.EditorColumnFillStrategy() {
-        @Override
-        public void fillRow(List<List<String>> rows, MockedField row) {
-            rows.add(asList(row.getContextPath(),
-                            row.getClassName(),
-                            row.getFieldName(),
-                            row.getFieldType(),
-                            row.getFieldValue()));
-        }
-    }, true, true, allOf(EditorType.class), 3) {
+    MAIN_WINDOW("fields.table.model.MAIN_WINDOW.columns", row -> asList(row.getContextPath(),
+                    row.getClassName(),
+                    row.getFieldName(),
+                    row.getFieldType(),
+                    row.getFieldValue()), true, true, allOf(EditorType.class), 3) {
         @Override
         public boolean isAdmitted(MockedField mockedField) {
             return mockedField.isActive();
@@ -53,30 +48,20 @@ public enum FieldsEditorContext {
     },
 
     APPLICATION_INSTALLER_WIZARD("fields.table.model.APPLICATION_INSTALLER_WIZARD.columns",
-                                 new GuiUtils.EditorColumnFillStrategy() {
-                                     @Override
-                                     public void fillRow(List<List<String>> rows, MockedField row) {
-                                         rows.add(asList(row.getClassName(),
-                                                         row.getFieldName(),
-                                                         row.getFieldType(),
-                                                         row.getFieldValue()));
-                                     }
-                                 }, false, true, allOf(EditorType.class), 3) {
+                                 row -> asList(row.getClassName(),
+                                                 row.getFieldName(),
+                                                 row.getFieldType(),
+                                                 row.getFieldValue()), false, true, allOf(EditorType.class), 3) {
         @Override
         public boolean isAdmitted(MockedField mockedField) {
             return true;
         }
     },
 
-    ADD_FIELD("fields.table.model.ADD_FIELD.columns", new GuiUtils.EditorColumnFillStrategy() {
-        @Override
-        public void fillRow(List<List<String>> rows, MockedField row) {
-            rows.add(asList(row.getClassName(),
-                            row.getFieldName(),
-                            row.getFieldType(),
-                            row.getFieldValue()));
-        }
-    }, false, false, of(EditorType.FLATTEN), 0) {
+    ADD_FIELD("fields.table.model.ADD_FIELD.columns", row -> asList(row.getClassName(),
+                    row.getFieldName(),
+                    row.getFieldType(),
+                    row.getFieldValue()), false, false, of(EditorType.FLATTEN), 0) {
         @Override
         public boolean isAdmitted(MockedField mockedField) {
             return !mockedField.isActive();
@@ -90,16 +75,11 @@ public enum FieldsEditorContext {
         }
     },
 
-    RECORD_FIELD("fields.table.model.RECORD_FIELD.columns", new GuiUtils.EditorColumnFillStrategy() {
-        @Override
-        public void fillRow(List<List<String>> rows, MockedField row) {
-            rows.add(asList(row.getClassName(),
-                            row.getFieldName(),
-                            row.getFieldType(),
-                            row.getFieldValue(),
-                            row.getContextPath()));
-        }
-    }, false, true, of(EditorType.HIERARCHICAL), 3) {
+    RECORD_FIELD("fields.table.model.RECORD_FIELD.columns", row -> asList(row.getClassName(),
+                    row.getFieldName(),
+                    row.getFieldType(),
+                    row.getFieldValue(),
+                    row.getContextPath()), false, true, of(EditorType.HIERARCHICAL), 3) {
         @Override
         public boolean isAdmitted(MockedField mockedField) {
             return true;
@@ -107,17 +87,17 @@ public enum FieldsEditorContext {
     };
 
     private final String tableColumnsKey;
-    private final transient GuiUtils.EditorColumnFillStrategy editorColumnFillStrategy;
+    private final transient GuiUtils.EditorColumnFormattingStrategy editorColumnFormattingStrategy;
     private final boolean notifyChangeNeeded;
     private final boolean editable;
     private final Set<EditorType> supportedEditors;
     private final int complexEditorRows;
 
-    private FieldsEditorContext(String tableColumnsKey, GuiUtils.EditorColumnFillStrategy editorColumnFillStrategy,
+    private FieldsEditorContext(String tableColumnsKey, GuiUtils.EditorColumnFormattingStrategy editorColumnFormattingStrategy,
                                 boolean notifyChangeNeeded, boolean editable, Set<EditorType> supportedEditors,
                                 int complexEditorRows) {
         this.tableColumnsKey = tableColumnsKey;
-        this.editorColumnFillStrategy = editorColumnFillStrategy;
+        this.editorColumnFormattingStrategy = editorColumnFormattingStrategy;
         this.notifyChangeNeeded = notifyChangeNeeded;
         this.editable = editable;
         this.supportedEditors = supportedEditors;
@@ -130,8 +110,8 @@ public enum FieldsEditorContext {
         return GuiUtils.getMessage(tableColumnsKey).split(",");
     }
 
-    public GuiUtils.EditorColumnFillStrategy getColumnFillStrategy() {
-        return editorColumnFillStrategy;
+    public GuiUtils.EditorColumnFormattingStrategy getColumnFillStrategy() {
+        return editorColumnFormattingStrategy;
     }
 
     public boolean isNotifyChangeNeeded() {

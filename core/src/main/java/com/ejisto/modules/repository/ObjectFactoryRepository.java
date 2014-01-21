@@ -143,9 +143,7 @@ public class ObjectFactoryRepository extends ExternalizableService<ObjectFactory
 
     private synchronized void syncObjectFactories() {
         if (!initialized.get()) {
-            for (RegisteredObjectFactory registeredObjectFactory : getDao().loadAll()) {
-                factories.put(registeredObjectFactory.getTargetClassName(), registeredObjectFactory.getClassName());
-            }
+            getDao().loadAll().forEach(f -> factories.put(f.getTargetClassName(), f.getClassName()));
             initialized.compareAndSet(false, true);
         }
     }

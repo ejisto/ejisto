@@ -19,8 +19,10 @@
 
 package com.ejisto.modules.controller;
 
-import com.ejisto.event.def.MockedFieldChanged;
+import com.ejisto.event.def.MockedFieldCreated;
+import com.ejisto.event.def.MockedFieldDeleted;
 import com.ejisto.event.def.MockedFieldOperation;
+import com.ejisto.event.def.MockedFieldUpdated;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.GuiUtils;
@@ -73,7 +75,7 @@ public class MockedFieldOperationController {
     private void deleteField() {
         if (GuiUtils.showWarning(container, getMessage("warning.message"))) {
             field.setActive(false);
-            GuiUtils.publishEvent(new MockedFieldChanged(container, field));
+            GuiUtils.publishEvent(new MockedFieldDeleted(container, field));
         }
     }
 
@@ -83,7 +85,7 @@ public class MockedFieldOperationController {
         List<MockedField> selectedFields = selectionController.getSelectedFields();
         if (!CollectionUtils.isEmpty(selectedFields)) {
             selectedFields.forEach(f -> f.setActive(true));
-            GuiUtils.publishEvent(new MockedFieldChanged(container, selectedFields));
+            GuiUtils.publishEvent(new MockedFieldUpdated(container, selectedFields));
         }
     }
 

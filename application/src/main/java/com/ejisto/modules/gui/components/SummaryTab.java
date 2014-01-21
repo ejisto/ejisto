@@ -26,6 +26,7 @@ import org.jdesktop.swingx.JXPanel;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
 
@@ -33,8 +34,8 @@ public class SummaryTab extends JXPanel {
     private static final long serialVersionUID = 3654712395222166373L;
     private static final String MOCKED_FIELD_TEMPLATE = "<li>%s=%s</li>";
     private static final String CLASS_START = "<div><b>%s</b>:<br/><ul>";
-    private static final String NEXT_CLASS = "</ul></div><div><b>%s</b>:<br/><ul>";
-    private static final String FIELDS_END = "</ul></div><br/></html>";
+    private static final String CLASS_END = "</ul></div>";
+    private static final String FIELDS_END = "<br/></html>";
     private JXLabel summaryTextArea;
     private JScrollPane scrollPane;
     private JPanel buttonsPanel;
@@ -74,15 +75,16 @@ public class SummaryTab extends JXPanel {
     }
 
     public void renderMockedFields(Collection<MockedField> fields) {
-        String classname = null;
         StringBuilder buffer = new StringBuilder("<html>");
-        for (MockedField mockedField : fields) {
-            if (classname == null || !classname.equals(mockedField.getClassName())) {
-                buffer.append(String.format(classname == null ? CLASS_START : NEXT_CLASS, mockedField.getClassName()));
-                classname = mockedField.getClassName();
-            }
-            renderMockedField(mockedField, buffer);
-        }
+        fields.stream()
+                .collect(Collectors.groupingBy(MockedField::getClassName))
+                .entrySet()
+                .stream()
+                .forEach(entry -> {
+                    buffer.append(String.format(CLASS_START, entry.getKey()));
+                    entry.getValue().forEach(field -> renderMockedField(field, buffer));
+                    buffer.append(CLASS_END);
+                });
         buffer.append(FIELDS_END);
         getSummaryTextArea().setText(buffer.toString());
     }

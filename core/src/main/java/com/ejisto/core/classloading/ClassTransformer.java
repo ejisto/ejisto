@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -163,12 +164,9 @@ public class ClassTransformer implements ClassFileTransformer {
     }
 
     private void removeFinalModifierFromFields(CtField[] fields) {
-        for (CtField field : fields) {
-            if (Modifier.isFinal(field.getModifiers())) {
-                int cleanModifiers = Modifier.clear(field.getModifiers(), Modifier.FINAL);
-                field.setModifiers(cleanModifiers);
-            }
-        }
+        Arrays.stream(fields)
+                .filter(field -> Modifier.isFinal(field.getModifiers()))
+                .forEach(field -> field.setModifiers(Modifier.clear(field.getModifiers(), Modifier.FINAL)));
     }
 
     private byte[] transform(String className, List<MockedField> mockedFields) throws IllegalClassFormatException {

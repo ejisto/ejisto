@@ -20,11 +20,11 @@
 package com.ejisto.event.listener;
 
 import com.ejisto.event.ApplicationListener;
-import com.ejisto.event.def.MockedFieldChanged;
+import com.ejisto.event.def.MockedFieldCreated;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 
-public class FieldsUpdateListener implements ApplicationListener<MockedFieldChanged> {
+public class FieldsUpdateListener implements ApplicationListener<MockedFieldCreated> {
 
     private final MockedFieldsRepository mockedFieldsRepository;
 
@@ -33,15 +33,13 @@ public class FieldsUpdateListener implements ApplicationListener<MockedFieldChan
     }
 
     @Override
-    public void onApplicationEvent(MockedFieldChanged event) {
-        for (MockedField field : event.getMockedFields()) {
-            handleFieldChange(field);
-        }
+    public void onApplicationEvent(MockedFieldCreated event) {
+        event.getMockedFields().forEach(this::handleFieldChange);
     }
 
     @Override
-    public Class<MockedFieldChanged> getTargetEventType() {
-        return MockedFieldChanged.class;
+    public Class<MockedFieldCreated> getTargetEventType() {
+        return MockedFieldCreated.class;
     }
 
     private void handleFieldChange(MockedField field) {

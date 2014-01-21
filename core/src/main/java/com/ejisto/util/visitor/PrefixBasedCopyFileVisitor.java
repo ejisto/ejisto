@@ -51,14 +51,11 @@ public class PrefixBasedCopyFileVisitor extends SimpleFileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        boolean matches = options.prefixesList.isEmpty();
         String fileName = file.getFileName().toString();
-        for (String prefix : options.prefixesList) {
-            if (fileName.startsWith(prefix)) {
-                matches = true;
-                break;
-            }
-        }
+        boolean matches = options.prefixesList.isEmpty()
+                || options.prefixesList.stream()
+                    .filter(fileName::startsWith)
+                    .findFirst().isPresent();
         copy(file, matches);
         return FileVisitResult.CONTINUE;
     }

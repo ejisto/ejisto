@@ -26,10 +26,10 @@ import org.jdesktop.swingx.action.AbstractActionExt;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Vector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.ejisto.util.GuiUtils.getMessage;
 import static java.util.Arrays.binarySearch;
@@ -141,14 +141,8 @@ public class ResourcesFilter extends JXPanel {
         if (indices.length == 0) {
             return resources;
         }
-        List<String> ret = new ArrayList<>();
-        int i = 0;
-        for (String jar : resources) {
-            if (binarySearch(indices, i++) < 0) {
-                ret.add(jar);
-            }
-        }
-        return ret;
+        Stream<String> stream = Arrays.stream(indices).mapToObj(resources::get);
+        return stream.collect(Collectors.toList());
     }
 
 }

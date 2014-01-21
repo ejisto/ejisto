@@ -69,13 +69,13 @@ class RegisteredContextList extends JXPanel {
     private final transient ApplicationListener<ContainerStatusChanged> serverStartListener = new ApplicationListener<ContainerStatusChanged>() {
         @Override
         public void onApplicationEvent(ContainerStatusChanged event) {
-            boolean started = event.isStarted();
-            for (WebApplication<?> application : getAllRegisteredWebApplications()) {
+            final boolean started = event.isStarted();
+            getAllRegisteredWebApplications().forEach(application -> {
                 getAction(buildCommand(START_CONTEXT_PREFIX, application.getContainerId(),
                                        application.getWebApplicationContextPath())).setEnabled(!started);
                 getAction(buildCommand(STOP_CONTEXT_PREFIX, application.getContainerId(),
                                        application.getWebApplicationContextPath())).setEnabled(started);
-            }
+            });
             reloadAllContexts();
         }
 
@@ -97,20 +97,14 @@ class RegisteredContextList extends JXPanel {
     }
 
     private List<WebApplication<?>> getAllRegisteredWebApplications() {
-        return webApplicationRepository.getInstalledWebApplications()
-                .values()
-                .stream()
-                .flatMap(l -> l.stream())
-                .collect(Collectors.toList());
+        return webApplicationRepository.getInstalledWebApplications();
     }
 
     private void internalReloadAllContexts(boolean removeAll) {
         if (removeAll) {
             removeAll();
         }
-        for (WebApplication<?> context : getAllRegisteredWebApplications()) {
-            add(buildContextControlPanel(context));
-        }
+        getAllRegisteredWebApplications().forEach(c -> add(buildContextControlPanel(c)));
         revalidate();
         repaint();
     }

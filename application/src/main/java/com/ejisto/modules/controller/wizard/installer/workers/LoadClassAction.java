@@ -31,9 +31,10 @@ import lombok.extern.log4j.Log4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.RecursiveTask;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.ejisto.modules.executor.ErrorDescriptor.Category.ERROR;
 import static com.ejisto.modules.executor.ErrorDescriptor.Category.WARN;
@@ -74,10 +75,10 @@ class LoadClassAction extends RecursiveTask<List<MockedField>> {
             List<MockedField> results = new ArrayList<>();
             ClassPool classPool = new ClassPool();
             classPool.appendClassPath(new LoaderClassPath(classLoader));
-            for (String className : classes) {
+            classes.forEach(className -> {
                 listener.progressChanged(1, className);
                 results.addAll(loadClassFields(className, classPool, webApplicationDescriptor));
-            }
+            });
             log.debug("returning results.");
             return results;
         }
@@ -98,9 +99,7 @@ class LoadClassAction extends RecursiveTask<List<MockedField>> {
             forkedTasks.add(task);
         }
         log.debug("collecting results");
-        for (LoadClassAction task : forkedTasks) {
-            results.addAll(task.join());
-        }
+        forkedTasks.forEach(task -> results.addAll(task.join()));
         log.debug("done");
         return results;
     }
@@ -121,43 +120,45 @@ class LoadClassAction extends RecursiveTask<List<MockedField>> {
     }
 
     private List<MockedField> getMockedFields(CtClass clazz, WebApplicationDescriptor descriptor) {
-        List<MockedField> results = new ArrayList<>();
+        List<MockedField> results;
         try {
-            for (CtField field : clazz.getDeclaredFields()) {
-                MockedField mockedField;
-                if (mockedFieldsRepository.exists(descriptor.getContextPath(), clazz.getName(),
-                                                  field.getName())) {
-                    MockedField existing = mockedFieldsRepository.load(descriptor.getContextPath(), clazz.getName(),
-                                                                       field.getName());
-                    mockedField = MockedFieldDecorator.copyOf(existing);
-                } else {
-                    mockedField = new MockedFieldDecorator();
-                }
-                mockedField.setContextPath(descriptor.getContextPath());
-                mockedField.setClassName(clazz.getName());
-                mockedField.setFieldName(field.getName());
-                mockedField.setFieldType(getFieldTypeAsString(field));
-                parseGenerics(field, mockedField);
-                results.add(mockedField);
-            }
+            results = Arrays.stream(clazz.getDeclaredFields())
+                    .map(declaredField -> {
+                        final MockedField existing = mockedFieldsRepository.loadOptional(
+                                descriptor.getContextPath(), clazz.getName(), declaredField.getName())
+                                .orElse(new MockedFieldDecorator());
+                        MockedField mockedField = MockedFieldDecorator.copyOf(existing);
+                        mockedField.setContextPath(descriptor.getContextPath());
+                        mockedField.setClassName(clazz.getName());
+                        mockedField.setFieldName(declaredField.getName());
+                        mockedField.setFieldType(getFieldTypeAsString(declaredField));
+                        parseGenerics(declaredField, mockedField);
+                        return mockedField;
+                    }).collect(Collectors.toList());
+
             CtClass zuperclazz = clazz.getSuperclass();
             if (!zuperclazz.getName().startsWith("java")) {
                 results.addAll(getMockedFields(zuperclazz, descriptor));
             }
         } catch (Exception e) {
             listener.errorOccurred(buildErrorDescriptor(e));
+            results = Collections.emptyList();
         }
         return results;
     }
 
-    private String getFieldTypeAsString(CtField field) throws NotFoundException {
-        CtClass type = field.getType();
-        if (type.isArray()) {
-            //using com.custom.Class[] notation instead of [Lcom.custom.Class; in order to improve
-            //readability; standard notation is also supported.
-            return type.getComponentType().getName() + "[]";
+    private String getFieldTypeAsString(CtField field) {
+        try {
+            CtClass type = field.getType();
+            if (type.isArray()) {
+                //using com.custom.Class[] notation instead of [Lcom.custom.Class; in order to improve
+                //readability; standard notation is also supported.
+                return type.getComponentType().getName() + "[]";
+            }
+            return type.getName();
+        } catch (NotFoundException e) {
+            throw new IllegalStateException(e);
         }
-        return type.getName();
     }
 
     private ErrorDescriptor buildErrorDescriptor(Throwable e) {

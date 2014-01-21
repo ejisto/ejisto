@@ -127,11 +127,8 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
         String contextPath = descriptor.getContextPath();
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(contextPath);
         cp.appendClassPath(new LoaderClassPath(loader));
-        List<MockedField> fields = forkJoinPool.invoke(
-                new LoadClassAction(new ArrayList<>(classNames), loader, descriptor, this, mockedFieldsRepository));
-        for (MockedField field : fields) {
-            descriptor.addField(field);
-        }
+        forkJoinPool.invoke(new LoadClassAction(new ArrayList<>(classNames), loader, descriptor, this, mockedFieldsRepository))
+                    .forEach(descriptor::addField);
         log.info("just finished processing " + descriptor.getInstallationPath());
     }
 
@@ -180,10 +177,8 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
             String libDir = String.format("%sWEB-INF%slib%s", session.getInstallationPath(), File.separator,
                                           File.separator);
             File dir = new File(libDir);
-            List<CustomObjectFactory> jars = customObjectFactoryRepository.getCustomObjectFactories();
-            for (CustomObjectFactory jar : jars) {
-                copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir);
-            }
+            customObjectFactoryRepository.getCustomObjectFactories()
+                    .forEach(jar -> copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir));
             copyEjistoLibs(entries, dir);
             String deployablePath = System.getProperty(
                     DEPLOYABLES_DIR.getValue()) + File.separator + getFilenameWithoutExt(

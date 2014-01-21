@@ -27,9 +27,9 @@
     </formats>
     <files>
         <file>
-            <source>src/main/resources/ejisto-license.txt</source>
+            <source>../EJISTO-GPLv3.txt</source>
             <outputDirectory>/</outputDirectory>
-            <destName>LICENSE.txt</destName>
+            <destName>EJISTO-GPLv3.txt</destName>
             <filtered>false</filtered>
         </file>
         <file>

@@ -24,7 +24,7 @@ import com.ejisto.modules.dao.entities.MockedField;
 import java.util.Arrays;
 import java.util.List;
 
-public class MockedFieldChanged extends BaseApplicationEvent {
+class MockedFieldChanged extends BaseApplicationEvent {
     private static final long serialVersionUID = -1695827582666783071L;
 
     private final List<MockedField> mockedFields;

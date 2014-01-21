@@ -19,6 +19,9 @@
 
 package com.ejisto.modules.gui.components.helper;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 import static com.ejisto.util.GuiUtils.getMessage;
 
 /**
@@ -51,12 +54,9 @@ public enum EditorType {
         return label;
     }
 
-    public static EditorType fromIndex(int index) {
-        for (EditorType editorType : values()) {
-            if (editorType.index == index) {
-                return editorType;
-            }
-        }
-        return null;
+    public static Optional<EditorType> fromIndex(final int index) {
+        return Arrays.stream(values())
+                .filter(v -> v.index == index)
+                .findFirst();
     }
 }

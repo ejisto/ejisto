@@ -19,7 +19,10 @@
 
 package com.ejisto.modules.gui.components;
 
-import com.ejisto.event.def.MockedFieldChanged;
+import com.ejisto.event.def.BaseApplicationEvent;
+import com.ejisto.event.def.MockedFieldCreated;
+import com.ejisto.event.def.MockedFieldDeleted;
+import com.ejisto.event.def.MockedFieldUpdated;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.util.GuiUtils;
@@ -27,9 +30,10 @@ import com.ejisto.util.GuiUtils;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.APPLICATION_INSTALLER_WIZARD;
 
@@ -37,7 +41,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     private static final long serialVersionUID = 7654333693058889267L;
     public static final int EDITABLE_COLUMN_INDEX = 5;
     private String[] columnHeaders;
-    private List<MockedField> fields;
+    private final List<MockedField> fields;
     private List<List<String>> fieldsAsString;
     private boolean notifyChanges;
     private FieldsEditorContext ctx;
@@ -45,7 +49,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     public MockedFieldsTableModel(List<MockedField> fields, FieldsEditorContext ctx) {
         this.ctx = ctx;
         columnHeaders = ctx.getTableColumns();
-        this.fields = new ArrayList<>(fields);
+        this.fields = new CopyOnWriteArrayList<>(fields);
         Collections.sort(this.fields);
         this.fieldsAsString = GuiUtils.asStringList(this.fields, ctx.getColumnFillStrategy());
         addTableModelListener(this);
@@ -102,8 +106,22 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     }
 
     private void notifyTableChanged(TableModelEvent e) {
-        MockedFieldChanged event = new MockedFieldChanged(this, fields.get(e.getFirstRow()));
-        GuiUtils.publishEvent(event);
+        BaseApplicationEvent event = null;
+        final MockedField field = fields.get(e.getFirstRow());
+        switch(e.getType()) {
+            case TableModelEvent.INSERT:
+                event = new MockedFieldCreated(this, field);
+                break;
+            case TableModelEvent.UPDATE:
+                event = new MockedFieldUpdated(this, field);
+                break;
+            case TableModelEvent.DELETE:
+                event = new MockedFieldDeleted(this, field);
+                break;
+            default:
+                break;
+        }
+        Optional.of(event).ifPresent(GuiUtils::publishEvent);
     }
 
     @Override
@@ -120,22 +138,14 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
         return fields.get(row);
     }
 
-    public void replaceFields(List<MockedField> fields) {
-        for (MockedField field : fields) {
-            int index = this.fields.indexOf(field);
-            if (index == -1) {
-                this.fields.add(field);
-            } else {
-                this.fields.set(index, field);
-            }
-        }
+    public synchronized void addFields(List<MockedField> fields) {
+        this.fields.addAll(fields);
         Collections.sort(this.fields);
         fireTableDataChanged();
     }
 
-    public void deleteFields(List<MockedField> fields) {
+    public void removeFields(List<MockedField> fields) {
         this.fields.removeAll(fields);
-        Collections.sort(this.fields);
     }
 
 }

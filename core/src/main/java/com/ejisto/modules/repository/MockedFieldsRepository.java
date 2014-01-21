@@ -30,6 +30,7 @@ import lombok.extern.log4j.Log4j;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -74,6 +75,13 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
 
     public MockedField load(String contextPath, String className, String fieldName) {
         return CONVERTER.apply(getDao().getMockedField(contextPath, className, fieldName));
+    }
+
+    public Optional<MockedField> loadOptional(String contextPath, String className, String fieldName) {
+        if(exists(contextPath, className, fieldName)) {
+            return Optional.of(CONVERTER.apply(getDao().getMockedField(contextPath, className, fieldName)));
+        }
+        return Optional.empty();
     }
 
     public boolean exists(String contextPath, String className, String fieldName) {

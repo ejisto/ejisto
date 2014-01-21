@@ -19,6 +19,8 @@
 
 package com.ejisto;
 
+import org.springsource.loaded.agent.SpringLoadedAgent;
+
 import java.lang.instrument.Instrumentation;
 
 public final class InstrumentationHolder {
@@ -30,6 +32,7 @@ public final class InstrumentationHolder {
 
     public static void premain(String agentArgs, Instrumentation inst) {
         instrumentation = inst;
+        SpringLoadedAgent.premain(agentArgs, inst);
     }
 
     public static Instrumentation getInstrumentation() {

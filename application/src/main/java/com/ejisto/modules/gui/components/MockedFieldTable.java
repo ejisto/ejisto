@@ -27,8 +27,10 @@ import org.jdesktop.swingx.JXTable;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.ejisto.modules.gui.components.helper.FieldsEditorContext.ADD_FIELD;
 import static java.util.Collections.emptyList;
@@ -105,11 +107,9 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
         if (selectedRows.length == 0) {
             return emptyList();
         }
-        List<MockedField> selectedFields = new ArrayList<>(selectedRows.length);
-        for (int selectedRow : selectedRows) {
-            selectedFields.add(getModel().getMockedFieldAt(selectedRow));
-        }
-        return selectedFields;
+        return Arrays.stream(selectedRows)
+                .mapToObj(r -> getModel().getMockedFieldAt(r))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -123,23 +123,33 @@ public class MockedFieldTable extends JXTable implements MockedFieldsEditorCompo
     }
 
     @Override
+    public void fieldsAdded(List<MockedField> fields) {
+        getModel().addFields(fields);
+    }
+
+    @Override
+    public void fieldsUpdated(List<MockedField> fields) {
+        getModel().fireTableDataChanged();
+    }
+
+    @Override
+    public void fieldsRemoved(List<MockedField> fields) {
+        getModel().removeFields(fields);
+    }
+
+    @Override
     public MockedFieldsTableModel getModel() {
         return (MockedFieldsTableModel) super.getModel();
     }
 
     @Override
-    public void fieldsChanged(List<MockedField> fields) {
-        getModel().replaceFields(fields);
-    }
-
-    @Override
     public void contextInstalled(String contextPath, List<MockedField> fields) {
-        fieldsChanged(fields);
+        fieldsAdded(fields);
     }
 
     @Override
     public void contextRemoved(String contextPath, List<MockedField> fields) {
-        getModel().deleteFields(fields);
+        getModel().removeFields(fields);
     }
 
     @Override

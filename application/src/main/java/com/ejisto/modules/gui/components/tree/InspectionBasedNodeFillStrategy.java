@@ -25,6 +25,7 @@ import com.ejisto.modules.gui.components.tree.node.FieldNode;
 
 import java.util.Enumeration;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.ejisto.util.GuiUtils.encodeTreePath;
 
@@ -42,30 +43,15 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
     @Override
     public FieldNode insertField(ClassNode parent, MockedField child) {
         NodeOperationHelper operationHelper = new NodeOperationHelper();
-        operationHelper.whenFound = new WhenFoundAction() {
-            @Override
-            FieldNode doAction(ClassNode parent, MockedField child) {
-                return insertNode(parent, child);
-            }
-        };
-        operationHelper.whenNotFound = new WhenNotFoundAction() {
-            @Override
-            FieldNode doAction(ClassNode parent, MockedField child, int depthDifference) {
-                return createParent(parent, child, depthDifference);
-            }
-        };
+        operationHelper.whenFound = this::insertNode;
+        operationHelper.whenNotFound = this::createParent;
         return handleNodeModification(parent, child, operationHelper);
     }
 
     @Override
     public FieldNode removeField(ClassNode parent, MockedField child) {
         NodeOperationHelper operationHelper = new NodeOperationHelper();
-        operationHelper.whenFound = new WhenFoundAction() {
-            @Override
-            FieldNode doAction(ClassNode parent, MockedField child) {
-                return deleteNode(parent, child);
-            }
-        };
+        operationHelper.whenFound = this::deleteNode;
         return handleNodeModification(parent, child, operationHelper);
     }
 
@@ -80,15 +66,15 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
         if (depthDifference == 0) {
             return operationHelper.whenFound.doAction(parent, child);
         }
-        Enumeration<FieldNode> en = parent.children();
-        while (en.hasMoreElements()) {
-            FieldNode candidate = en.nextElement();
-            if (candidate instanceof ClassNode) {
-                if (containsChild((ClassNode) candidate, child)) {
-                    return handleNodeModification((ClassNode) candidate, child, operationHelper);
-                }
-            }
+        final Optional<ClassNode> matchingParent = parent.getChildrenAsStream()
+                .filter(ClassNode.class::isInstance)
+                .map(ClassNode.class::cast)
+                .filter(x -> containsChild(x, child))
+                .findFirst();
+        if(matchingParent.isPresent()) {
+            return handleNodeModification(matchingParent.get(), child, operationHelper);
         }
+
         if (operationHelper.whenNotFound != null) {
             return operationHelper.whenNotFound.doAction(parent, child, depthDifference);
         }
@@ -144,11 +130,13 @@ public class InspectionBasedNodeFillStrategy implements NodeFillStrategy {
         private WhenNotFoundAction whenNotFound;
     }
 
-    private abstract class WhenFoundAction {
-        abstract FieldNode doAction(ClassNode parent, MockedField child);
+    @FunctionalInterface
+    private interface WhenFoundAction {
+        FieldNode doAction(ClassNode parent, MockedField child);
     }
 
-    private abstract class WhenNotFoundAction {
-        abstract FieldNode doAction(ClassNode parent, MockedField child, int depthDifference);
+    @FunctionalInterface
+    private interface WhenNotFoundAction {
+        FieldNode doAction(ClassNode parent, MockedField child, int depthDifference);
     }
 }

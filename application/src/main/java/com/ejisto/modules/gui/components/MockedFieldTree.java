@@ -19,10 +19,10 @@
 
 package com.ejisto.modules.gui.components;
 
-import com.ejisto.event.def.MockedFieldChanged;
+import com.ejisto.event.def.MockedFieldCreated;
+import com.ejisto.event.def.MockedFieldUpdated;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.gui.components.helper.FieldEditingListener;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.gui.components.helper.MockedFieldEditingEvent;
@@ -47,9 +47,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
+import java.util.*;
 import java.util.List;
 
 import static com.ejisto.modules.gui.components.tree.FillStrategies.applyStrategy;
@@ -125,11 +123,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     @Override
     public void setFields(List<MockedField> fields) {
         final Enumeration<TreePath> expandedPaths = getExpandedDescendants(new TreePath(getModel().getRoot()));
-        NodeFillStrategy strategy = bestStrategyFor(getRoot());
-        for (MockedField field : fields) {
-            strategy.insertField(getRoot(), field);
-        }
-        getModel().reload();
+        fieldsChanged(fields);
         while (expandedPaths != null && expandedPaths.hasMoreElements()) {
             expandPath(expandedPaths.nextElement());
         }
@@ -156,9 +150,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
 
     private void fireEditingStarted(MockedField field, Point point) {
         MockedFieldEditingEvent event = new MockedFieldEditingEvent(this, field, fieldsEditorContext, point);
-        for (FieldEditingListener editingListener : editingListeners) {
-            editingListener.editingStarted(event);
-        }
+        editingListeners.forEach(l -> l.editingStarted(event));
     }
 
     @Override
@@ -185,53 +177,41 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     }
 
     @Override
-    public void fieldsChanged(List<MockedField> fields) {
-        NodeFillStrategy strategy = bestStrategyFor(getRoot());
+    public void fieldsAdded(List<MockedField> fields) {
+        fieldsChanged(fields);
+    }
+
+    @Override
+    public void fieldsUpdated(List<MockedField> fields) {
+        fieldsChanged(fields);
+    }
+
+    @Override
+    public void fieldsRemoved(List<MockedField> fields) {
+        fieldsChanged(fields);
+    }
+
+    private void fieldsChanged(List<MockedField> fields) {
         RootNode root = getRoot();
-        for (MockedField field : fields) {
-            applyStrategy(strategy, root, field);
-        }
+        NodeFillStrategy strategy = bestStrategyFor(root);
+        fields.forEach(f -> applyStrategy(strategy, root, f));
         getModel().reload();
     }
 
     @Override
     public void contextInstalled(String contextPath, List<MockedField> fields) {
-        Enumeration<FieldNode> e = getRoot().children();
-        boolean found = false;
-        FieldNode contextRoot = null;
-        while (!found && e.hasMoreElements()) {
-            FieldNode node = e.nextElement();
-            if (node.getNodePath()[0].equals(contextPath)) {
-                found = true;
-                contextRoot = node;
-            }
-        }
-        if (contextRoot != null) {
-            MockedField mf = new MockedFieldImpl();
-            mf.setClassName("");
-            mf.setFieldName("");
-            mf.setContextPath(contextPath);
-            getRoot().remove(mf);
-        }
+        getRoot().getChildrenAsStream()
+                .filter(f -> f.getNodePath()[0].equals(contextPath))
+                .findFirst()
+                .ifPresent(x -> getRoot().remove(x));
         fieldsChanged(fields);
     }
 
     @Override
     public void contextRemoved(String contextPath, List<MockedField> fields) {
-        FieldNode root = ((FieldNode) getModel().getRoot());
-        FieldNode deleted = null;
-        Enumeration<?> e = root.children();
-        boolean found = false;
-        while (!found && e.hasMoreElements()) {
-            FieldNode current = (FieldNode) e.nextElement();
-            found = contextPath.equals(current.getUserObject().getContextPath());
-            if (found) {
-                deleted = current;
-            }
-        }
-        if (deleted != null) {
-            deleted.removeFromParent();
-        }
+        getRoot().getChildrenAsStream()
+                .filter(x -> contextPath.equals(x.getUserObject().getContextPath()))
+                .findFirst().ifPresent(FieldNode::removeFromParent);
     }
 
     @Override
@@ -307,7 +287,7 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
         }
         getModel().reload(node);
         if (fieldsEditorContext.isNotifyChangeNeeded()) {
-            MockedFieldChanged event = new MockedFieldChanged(this, mf);
+            MockedFieldUpdated event = new MockedFieldUpdated(this, mf);
             GuiUtils.publishEvent(event);
         }
     }

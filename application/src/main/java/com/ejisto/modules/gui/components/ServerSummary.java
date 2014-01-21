@@ -30,6 +30,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
+import java.util.Optional;
 
 import static com.ejisto.constants.StringConstants.START_CONTAINER;
 import static com.ejisto.constants.StringConstants.STOP_CONTAINER;
@@ -88,19 +90,18 @@ class ServerSummary extends JXPanel implements PropertyChangeListener {
 
     @Override
     public void repaint(long tm, int x, int y, int width, int height) {
-        Dimension d = getSize();
-        boolean shrink = d.width < 700;
-        if (buttonsPanel != null) {
-            for (int i = 0; i < buttonsPanel.getComponentCount(); i++) {
-                Component c = buttonsPanel.getComponent(i);
-                if (c instanceof EnhancedButton && ((EnhancedButton) c).isShrunk() != shrink) {
-                    EnhancedButton b = (EnhancedButton) c;
-                    String text = shrink ? "" : String.valueOf(b.getAction().getValue(Action.NAME));
-                    b.setText(text);
-                    b.setShrunk(shrink);
-                }
-            }
-        }
+        final boolean shrink = getSize().width < 700;
+        Optional.of(buttonsPanel).ifPresent(p -> {
+            Arrays.stream(p.getComponents())
+                    .filter(EnhancedButton.class::isInstance)
+                    .map(EnhancedButton.class::cast)
+                    .filter(c -> c.isShrunk() != shrink)
+                    .forEach(b -> {
+                        String text = shrink ? "" : String.valueOf(b.getAction().getValue(Action.NAME));
+                        b.setText(text);
+                        b.setShrunk(shrink);
+                    });
+        });
         super.repaint(tm, x, y, width, height);
     }
 

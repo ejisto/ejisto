@@ -52,6 +52,7 @@ import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 @Log4j
 public abstract class GuiUtils {
@@ -101,17 +102,13 @@ public abstract class GuiUtils {
         try {
             synchronousRunInEDT(() -> JOptionPane.showMessageDialog(owner, text, "error", JOptionPane.ERROR_MESSAGE));
         } catch (InvocationTargetException e) {
-            log.error("exception during error message notification", e);
+            GuiUtils.log.error("exception during error message notification", e);
         }
 
     }
 
-    public static List<List<String>> asStringList(Collection<MockedField> fields, EditorColumnFillStrategy fillStrategy) {
-        List<List<String>> fieldsAsString = new ArrayList<>();
-        for (MockedField mockedField : fields) {
-            fillStrategy.fillRow(fieldsAsString, mockedField);
-        }
-        return fieldsAsString;
+    public static List<List<String>> asStringList(Collection<MockedField> fields, EditorColumnFormattingStrategy fillStrategy) {
+        return fields.stream().map(fillStrategy::format).collect(toList());
     }
 
     public static synchronized void putAction(Action action) {
@@ -150,7 +147,7 @@ public abstract class GuiUtils {
         try {
             SwingUtilities.invokeAndWait(action);
         } catch (InterruptedException e) {
-            log.error("action interrupted", e);
+            GuiUtils.log.error("action interrupted", e);
             Thread.currentThread().interrupt();
         }
     }
@@ -185,12 +182,10 @@ public abstract class GuiUtils {
 
     public static List<ContainerTab> getRegisteredContainers(ContainersRepository containersRepository,
                                                              WebApplicationRepository webApplicationRepository) {
-        List<com.ejisto.modules.dao.entities.Container> containers = containersRepository.loadContainers();
-        List<ContainerTab> containerTabs = new ArrayList<>();
-        for (Container container : containers) {
-            containerTabs.add(buildContainerTab(container, webApplicationRepository));
-        }
-        return containerTabs;
+        return containersRepository.loadContainers()
+                .stream()
+                .map(container -> buildContainerTab(container, webApplicationRepository))
+                .collect(toList());
     }
 
     public static List<com.ejisto.modules.dao.entities.Container> getActiveContainers(ContainersRepository containersRepository) {
@@ -210,8 +205,9 @@ public abstract class GuiUtils {
         return new ContainerTab(container.getDescription(), container.getId(), webApplicationRepository);
     }
 
-    public abstract static class EditorColumnFillStrategy {
-        public abstract void fillRow(List<List<String>> rows, MockedField row);
+    @FunctionalInterface
+    public interface EditorColumnFormattingStrategy {
+        public abstract List<String> format(MockedField row);
     }
 
     public static Throwable getRootThrowable(Throwable in) {
@@ -259,7 +255,8 @@ public abstract class GuiUtils {
                                   SettingsRepository settingsRepository,
                                   String... extensions) {
         JFileChooser fileChooser = new JFileChooser(directoryPath);
-        fileChooser.setFileFilter(new FileNameExtensionFilter(format("*.%s", stream(extensions).collect(joining(", *.")))));
+        String description = String.format("*.%s", stream(extensions).collect(joining(", *.")));
+        fileChooser.setFileFilter(new FileNameExtensionFilter(description, extensions));
         fileChooser.setDialogTitle(title);
         return openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_FILESELECTION_PATH,
                                        settingsRepository);

@@ -97,9 +97,7 @@ public class ApplicationInstallerWizardController implements PropertyChangeListe
     }
 
     private void initContainer() {
-        for (StepController<WebApplicationDescriptor> controller : controllers) {
-            wizard.addTab(controller.getView(), controller.getStep());
-        }
+        controllers.forEach(controller -> wizard.addTab(controller.getView(), controller.getStep()));
     }
 
     public boolean showWizard() {

@@ -25,6 +25,7 @@ import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.factory.ObjectFactory;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA.

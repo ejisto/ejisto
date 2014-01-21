@@ -57,9 +57,7 @@ public final class SharedClassLoader extends URLClassLoader {
     }
 
     public void addEntries(Collection<String> entries) {
-        for (String entry : entries) {
-            addEntry(entry);
-        }
+        entries.forEach(this::addEntry);
     }
 
 }

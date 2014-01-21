@@ -145,7 +145,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
 
     void selectionChanged(int selectedIndex) {
         this.selectedIndex = selectedIndex;
-        view.showCard(EditorType.fromIndex(selectedIndex));
+        view.showCard(EditorType.fromIndex(selectedIndex).orElseThrow(IllegalArgumentException::new));
     }
 
     final ActionMap getActionMap() {
@@ -191,7 +191,7 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
         editedField.setExpression(buildExpression());
         Point p = getCurrentEditingLocation();
         getView().getTree().redraw(p.x, p.y);
-        getView().requestFocusOnActiveEditor(EditorType.fromIndex(selectedIndex));
+        getView().requestFocusOnActiveEditor(EditorType.fromIndex(selectedIndex).orElseThrow(IllegalArgumentException::new));
         lock.unlock();
     }
 

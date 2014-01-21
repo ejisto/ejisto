@@ -36,6 +36,7 @@ import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import com.ejisto.util.GuiUtils;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXRootPane;
 import org.jdesktop.swingx.JXStatusBar;
@@ -51,8 +52,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static com.ejisto.util.GuiUtils.*;
+import static java.util.stream.Collectors.groupingBy;
 
 class MainRootPane extends JXRootPane {
     private static final long serialVersionUID = -3265545519465961578L;
@@ -160,9 +164,7 @@ class MainRootPane extends JXRootPane {
         containerTabs = getRegisteredContainers(containersRepository, webApplicationRepository);
         mainTabbedPane.removeAll();
         final List<ContainerTab> tabs = getContainerTabs();
-        for (ContainerTab containerTab : tabs) {
-            mainTabbedPane.addTab(containerTab.getName(), containerTab.getIcon(), containerTab);
-        }
+        tabs.forEach(containerTab -> mainTabbedPane.addTab(containerTab.getName(), containerTab.getIcon(), containerTab));
         if (CollectionUtils.isEmpty(tabs)) {
             mainTabbedPane.addTab(getMessage("container.installation.required"),
                                   new NoContainerInstalled());
@@ -241,8 +243,7 @@ class MainRootPane extends JXRootPane {
         if (sessions.isEmpty()) {
             return;
         }
-        final Map<String, List<JMenuItem>> items = new LinkedHashMap<>();
-        for (Map.Entry<String, CollectedData> entry : sessions.entrySet()) {
+        final Map<String, List<Pair<String, JCheckBoxMenuItem>>> items = sessions.entrySet().stream().map(entry -> {
             CollectedData collectedData = entry.getValue();
             JCheckBoxMenuItem item = new JCheckBoxMenuItem(new AbstractActionExt(entry.getKey()) {
                 @Override
@@ -257,18 +258,13 @@ class MainRootPane extends JXRootPane {
                 }
             });
             item.setState(collectedData.isActive());
-            if (!items.containsKey(collectedData.getContextPath())) {
-                items.put(collectedData.getContextPath(), new ArrayList<>());
-            }
-            items.get(collectedData.getContextPath()).add(item);
-        }
-        for (Map.Entry<String, List<JMenuItem>> entry : items.entrySet()) {
-            JMenu itemMenu = new JMenu(entry.getKey());
-            for (JMenuItem jMenuItem : entry.getValue()) {
-                itemMenu.add(jMenuItem);
-            }
-            root.add(itemMenu);
-        }
+            return Pair.of(collectedData.getContextPath(), item);
+        }).collect(groupingBy(Pair::getLeft));
+        items.entrySet().stream().map(pair -> {
+            JMenu itemMenu = new JMenu(pair.getKey());
+            pair.getValue().forEach(m -> itemMenu.add(m.getValue()));
+            return itemMenu;
+        }).forEach(root::add);
     }
 
 

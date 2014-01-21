@@ -46,9 +46,7 @@ public class EventListenerRegistrar extends BaseStartupService {
 
     @Override
     public void execute() {
-        for (ApplicationListener<BaseApplicationEvent> listener : applicationListeners) {
-            eventDispatcher.registerApplicationEventListener(listener);
-        }
+        applicationListeners.forEach(eventDispatcher::registerApplicationEventListener);
         GuiUtils.EVENT_DISPATCHER.set(eventDispatcher);
     }
 

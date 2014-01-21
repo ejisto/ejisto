@@ -34,6 +34,7 @@ import org.mockito.MockitoAnnotations;
 
 import javax.swing.tree.MutableTreeNode;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Arrays.asList;
@@ -52,7 +53,6 @@ public class InspectionBasedNodeFillStrategyTest {
     @Mock private MockedField field2;
     @Mock private MockedField field3;
     @Mock private MockedField field4;
-
 
     @Before
     public void initMocks() {
@@ -83,12 +83,12 @@ public class InspectionBasedNodeFillStrategyTest {
 
 
         when(root.getUserObject()).thenReturn(field2);
-        final IteratorEnumeration<FieldNode> enumeration = new IteratorEnumeration<>(
-                asList((FieldNode) new ClassNode(field3, new String[]{"/ejisto-test", "this"})).iterator());
-        when(root.children()).thenReturn(enumeration);
+        final List<FieldNode> children = asList((FieldNode) new ClassNode(field3, new String[]{"/ejisto-test", "this"}));
+        when(root.getChildrenAsStream()).thenReturn(children.stream());
         NodeFillStrategy strategy = new InspectionBasedNodeFillStrategy();
         FieldNode node = strategy.insertField(root, field1);
         verify(root, never()).add(any(FieldNode.class));
+        verify(root, never()).children();
         assertNotNull(node);
         assertEquals(GuiUtils.encodeTreePath(field1.getPath()), GuiUtils.encodeTreePath(node.getNodePath()));
         assertTrue(strategy.containsChild(root, field1));

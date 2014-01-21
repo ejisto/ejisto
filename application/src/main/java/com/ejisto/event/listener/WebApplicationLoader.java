@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URLClassLoader;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -183,7 +184,8 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             if (command.length != 3) {
                 throw new IllegalArgumentException(event.getActionCommand());
             }
-            WebAppContextStatusCommand statusCommand = WebAppContextStatusCommand.fromString(command[1]);
+            WebAppContextStatusCommand statusCommand = WebAppContextStatusCommand.fromString(command[1])
+                    .orElseThrow(IllegalArgumentException::new);
             switch (statusCommand) {
                 case START:
                     startWebapp(command[0], command[2]);
@@ -237,10 +239,14 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
 
     private void loadWebAppDescriptors() {
         try {
-            for (WebApplicationDescriptor descriptor : webApplicationDescriptorDao.loadAll()) {
-                deployWebApp(descriptor);
-                registerClassPool(descriptor);
-            }
+            webApplicationDescriptorDao.loadAll().forEach(descriptor -> {
+                try {
+                    deployWebApp(descriptor);
+                    registerClassPool(descriptor);
+                } catch (NotInstalledException | MalformedURLException e) {
+                    log.error("unable to load webapp descriptor: ", e);
+                }
+            });
         } catch (Exception e) {
             log.error("unable to load webapp descriptor: ", e);
         }

@@ -35,6 +35,7 @@ import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 
 import java.awt.*;
 import java.io.File;
+import java.util.Arrays;
 
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.putAction;
@@ -100,11 +101,11 @@ public class ResourcesInitializer extends BaseStartupService {
     }
 
     private void initDirectories(File... directories) {
-        for (File directory : directories) {
+        Arrays.stream(directories).forEach(directory -> {
             if (!directory.exists() && !directory.mkdirs()) {
                 eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
             }
-        }
+        });
     }
 
     private void initBaseDir(File baseDir) {

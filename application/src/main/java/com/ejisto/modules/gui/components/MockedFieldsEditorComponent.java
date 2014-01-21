@@ -54,7 +54,11 @@ public interface MockedFieldsEditorComponent {
 
     void removeFieldEditingListener(FieldEditingListener fieldEditingListener);
 
-    void fieldsChanged(List<MockedField> fields);
+    void fieldsAdded(List<MockedField> fields);
+
+    void fieldsUpdated(List<MockedField> fields);
+
+    void fieldsRemoved(List<MockedField> fields);
 
     void contextInstalled(String contextPath, List<MockedField> fields);
 

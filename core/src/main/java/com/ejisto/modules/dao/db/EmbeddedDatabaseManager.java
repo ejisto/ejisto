@@ -20,7 +20,6 @@ package com.ejisto.modules.dao.db;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.dao.db.util.MockedFieldContainer;
-import com.ejisto.modules.dao.db.util.MockedFieldContainerSorter;
 import com.ejisto.modules.dao.db.util.serializer.*;
 import com.ejisto.modules.dao.entities.*;
 import com.ejisto.modules.recorder.CollectedData;
@@ -29,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mapdb.Atomic;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
+import org.mapdb.Utils;
 
 import java.io.File;
 import java.util.*;
@@ -144,7 +144,7 @@ public class EmbeddedDatabaseManager {
                         .nodeSize(NODE_SIZE)
                         .keepCounter(true)
                         .serializer(new MockedFieldContainerSerializer())
-                        .comparator(new MockedFieldContainerSorter()).make();
+                        .comparator(Utils.COMPARABLE_COMPARATOR).make();
                 contextPaths.add(contextPath);
                 return null;
             }

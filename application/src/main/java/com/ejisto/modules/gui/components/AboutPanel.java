@@ -150,7 +150,7 @@ public class AboutPanel extends JXPanel {
         license.setName(getMessage("about.tab.license"));
         String licenseText;
         try {
-            String file = getClass().getResource("/ejisto-license.txt").getFile();
+            String file = getClass().getResource("/EJISTO-GPLv3.txt").getFile();
             licenseText = new String(IOUtils.readFile(new File(file)));
         } catch (Exception e) {
             licenseText = "";

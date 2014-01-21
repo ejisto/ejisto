@@ -33,6 +33,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.RecursiveAction;
@@ -80,7 +81,7 @@ public final class ScanAction extends RecursiveAction {
                     .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
         } else {
             toBeScanned = groupedFields;
-            toBeForked = null;
+            toBeForked = Collections.emptyMap();
         }
         invokeAll(new ScanAction(descriptor, toBeForked, mockedFieldsRepository));
         scanGroups(toBeScanned, descriptor);

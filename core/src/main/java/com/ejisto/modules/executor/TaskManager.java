@@ -23,11 +23,10 @@ import com.ejisto.core.ApplicationException;
 
 import java.beans.PropertyChangeListener;
 import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -60,19 +59,13 @@ public final class TaskManager {
             return;
         }
         try {
-            List<String> toBeRemoved = new ArrayList<>();
-            Future<?> future;
-            TaskEntry entry;
-            for (String key : registry.keySet()) {
-                entry = registry.get(key);
-                future = entry.getFuture();
-                if (future.isCancelled() || future.isDone()) {
-                    toBeRemoved.add(key);
-                }
-            }
-            for (String key : toBeRemoved) {
-                registry.remove(key);
-            }
+            registry.entrySet()
+                    .stream()
+                    .filter(e -> {
+                        Future<?> future = e.getValue().getFuture();
+                        return future.isCancelled() || future.isDone();
+                    }).collect(toList())
+                    .forEach(e -> registry.remove(e.getKey(), e.getValue()));
         } finally {
             lock.unlock();
         }
@@ -195,9 +188,7 @@ public final class TaskManager {
 
     public static <T> GuiTask<T> createNewGuiTask(Callable<T> callable, String description, PropertyChangeListener... listeners) {
         GuiTask<T> task = new GuiTask<>(callable, description);
-        for (PropertyChangeListener listener : listeners) {
-            task.addPropertyChangeListener(listener);
-        }
+        Arrays.stream(listeners).forEach(task::addPropertyChangeListener);
         return task;
     }
 

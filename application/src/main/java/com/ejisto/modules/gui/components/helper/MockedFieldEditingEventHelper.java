@@ -45,20 +45,14 @@ public class MockedFieldEditingEventHelper {
     }
 
     public void fireEditingStarted(MockedFieldEditingEvent event) {
-        for (FieldEditingListener listener : listeners) {
-            listener.editingStarted(event);
-        }
+        listeners.forEach(l -> l.editingStarted(event));
     }
 
     public void fireEditingStopped(MockedFieldEditingEvent event) {
-        for (FieldEditingListener listener : listeners) {
-            listener.editingStopped(event);
-        }
+        listeners.forEach(l -> l.editingStopped(event));
     }
 
     public void fireEditingCanceled(MockedFieldEditingEvent event) {
-        for (FieldEditingListener listener : listeners) {
-            listener.editingCanceled(event);
-        }
+        listeners.forEach(l -> l.editingCanceled(event));
     }
 }

@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2013 Celestino Bellone
+ * Copyright (C) 2010-2014 Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,29 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.util;
+package com.ejisto.event.def;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.util.Arrays;
+import com.ejisto.modules.dao.entities.MockedField;
+
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/22/11
- * Time: 9:58 PM
+ * Date: 1/15/14
+ * Time: 7:00 PM
  */
-class FilePrefixFilter implements FileFilter {
+public class MockedFieldDeleted extends MockedFieldChanged {
 
-    private String[] prefixes;
+    private static final long serialVersionUID = 1L;
 
-    public FilePrefixFilter(String[] prefixes) {
-        this.prefixes = prefixes.clone();
+    public MockedFieldDeleted(Object source, MockedField mockedField) {
+        super(source, mockedField);
     }
 
-    @Override
-    public boolean accept(File pathName) {
-        return Arrays.stream(prefixes)
-                .anyMatch(p -> pathName.getName().startsWith(p));
+    public MockedFieldDeleted(Object source, List<MockedField> mockedField) {
+        super(source, mockedField);
     }
 }

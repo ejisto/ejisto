@@ -21,6 +21,9 @@ package com.ejisto.event.def;
 
 import com.ejisto.constants.StringConstants;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 public class ChangeWebAppContextStatus extends BaseApplicationEvent {
     private static final long serialVersionUID = 1350522622740164683L;
 
@@ -34,13 +37,10 @@ public class ChangeWebAppContextStatus extends BaseApplicationEvent {
             this.command = command;
         }
 
-        public static WebAppContextStatusCommand fromString(String commandAsString) {
-            for (WebAppContextStatusCommand statusCommand : values()) {
-                if (statusCommand.command.getValue().equals(commandAsString)) {
-                    return statusCommand;
-                }
-            }
-            return null;
+        public static Optional<WebAppContextStatusCommand> fromString(String commandAsString) {
+            return Arrays.stream(values())
+                    .filter(c -> c.command.getValue().equals(commandAsString))
+                    .findFirst();
         }
     }
 

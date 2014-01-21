@@ -70,7 +70,7 @@
         </repository>
         <repository>
             <id>spring-snapshots</id>
-            <url>http://maven.springframework.org/snapshot</url>
+            <url>https://repo.springsource.org/release/</url>
         </repository>
     </repositories>
 
@@ -145,8 +145,8 @@
                 <version>0.6</version>
             </dependency>
             <dependency>
-                <groupId>org.sprigsource</groupId>
-                <artifactId>springloaded</artifactId>
+                <groupId>org.springsource.springloaded</groupId>
+                <artifactId>springloaded-core</artifactId>
                 <version>1.1.4</version>
             </dependency>
         </dependencies>

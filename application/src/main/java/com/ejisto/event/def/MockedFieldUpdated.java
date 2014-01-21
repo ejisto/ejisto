@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2013 Celestino Bellone
+ * Copyright (C) 2010-2014 Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,24 +17,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.dao.db.util;
+package com.ejisto.event.def;
 
-import java.io.Serializable;
-import java.util.Comparator;
+import com.ejisto.modules.dao.entities.MockedField;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/6/13
- * Time: 8:19 AM
+ * Date: 1/15/14
+ * Time: 6:56 PM
  */
-public class MockedFieldContainerSorter implements Comparator<MockedFieldContainer>, Serializable {
-    @Override
-    public int compare(MockedFieldContainer o1, MockedFieldContainer o2) {
-        int result = o1.getClassName().compareTo(o2.getClassName());
-        if (result != 0) {
-            return result;
-        }
-        return o1.getFieldName().compareTo(o2.getFieldName());
+public class MockedFieldUpdated extends MockedFieldChanged {
+
+    private static final long serialVersionUID = 1L;
+
+    public MockedFieldUpdated(Object source, MockedField mockedField) {
+        this(source, Arrays.asList(mockedField));
     }
+
+    public MockedFieldUpdated(Object source, List<MockedField> mockedField) {
+        super(source, mockedField);
+    }
+
 }

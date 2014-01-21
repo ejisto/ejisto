@@ -85,9 +85,7 @@ public class EjistoDialog extends JDialog {
             return;
         }
         this.actions.clear();
-        for (Action action : actions) {
-            registerAction(action);
-        }
+        actions.forEach(this::registerAction);
     }
 
     public void setContent(JPanel content) {
@@ -157,14 +155,13 @@ public class EjistoDialog extends JDialog {
         }
         buttonsBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonsBar.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.gray));
-        JButton button;
         Dimension buttonSize = new Dimension(120, 25);
-        for (Action action : actions) {
-            button = new JButton(action);
+        actions.stream().map(action -> {
+            JButton button = new JButton(action);
             button.setSize(buttonSize);
             button.setPreferredSize(buttonSize);
-            buttonsBar.add(button);
-        }
+            return button;
+        }).forEach(buttonsBar::add);
         return buttonsBar;
     }
 

@@ -32,7 +32,7 @@ import java.util.Objects;
  * Date: 3/5/13
  * Time: 10:03 PM
  */
-public final class MockedFieldContainer {
+public final class MockedFieldContainer implements Comparable<MockedFieldContainer> {
 
     private final String className;
     private final String fieldName;
@@ -62,5 +62,15 @@ public final class MockedFieldContainer {
         Objects.requireNonNull(mockedField, "Source MockedField cannot be null");
         return new MockedFieldContainer(mockedField.getClassName(), mockedField.getFieldName(),
                                         MockedFieldImpl.copyOf((MockedFieldImpl) mockedField.unwrap()));
+    }
+
+    @Override
+    @SuppressWarnings("NullableProblems")
+    public int compareTo(MockedFieldContainer other) {
+        int result = getClassName().compareTo(other.getClassName());
+        if (result != 0) {
+            return result;
+        }
+        return getFieldName().compareTo(other.getFieldName());
     }
 }

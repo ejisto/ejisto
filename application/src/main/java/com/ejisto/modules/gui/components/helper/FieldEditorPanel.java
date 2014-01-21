@@ -79,9 +79,7 @@ public final class FieldEditorPanel extends JXCollapsiblePane implements ActionL
 
     public void setTypes(Collection<String> types) {
         this.typeSelector.removeAllItems();
-        for (String s : types) {
-            this.typeSelector.addItem(TypeEntry.fromType(s));
-        }
+        types.stream().map(TypeEntry::fromType).forEach(typeSelector::addItem);
         this.fieldClass = getSelectedType();
     }
 
@@ -115,9 +113,7 @@ public final class FieldEditorPanel extends JXCollapsiblePane implements ActionL
 
     public void setAvailableContextPaths(Collection<String> availableContextPaths) {
         contextPathSelector.removeAllItems();
-        for (String availableContextPath : availableContextPaths) {
-            contextPathSelector.addItem(availableContextPath);
-        }
+        availableContextPaths.forEach(contextPathSelector::addItem);
     }
 
     public String getContextPath() {

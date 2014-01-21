@@ -106,9 +106,7 @@ public class GuiTask<T> extends SwingWorker<T, String> implements Task<T> {
 
     @Override
     protected void done() {
-        for (TaskExecutionListener taskExecutionListener : taskExecutionListeners) {
-            taskExecutionListener.stateChanged(ExecutionState.DONE);
-        }
+        taskExecutionListeners.forEach(l -> l.stateChanged(ExecutionState.DONE));
     }
 
     protected final void notifyJobCompleted(final ProgressDescriptor.ProgressState progressState, final String message) throws InterruptedException, InvocationTargetException {

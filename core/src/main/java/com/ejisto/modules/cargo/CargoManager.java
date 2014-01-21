@@ -66,6 +66,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -89,7 +90,7 @@ public class CargoManager implements ContainerManager {
 
     private final ConcurrentMap<String, AbstractInstalledLocalContainer> installedContainers = new ConcurrentHashMap<>();
     private final ReentrantLock lifeCycleOperationLock = new ReentrantLock();
-    private final Set<String> runningContainers = Collections.synchronizedSet(new HashSet<>());
+    private final Set<String> runningContainers = new CopyOnWriteArraySet<>();
 
     public CargoManager(ContainersRepository containersRepository,
                         SettingsRepository settingsRepository,
@@ -129,8 +130,7 @@ public class CargoManager implements ContainerManager {
 
     @Override
     public void stopAllRunningContainers() throws NotInstalledException {
-        Set<String> currentlyRunningContainers = new HashSet<>(runningContainers);
-        for (String runningContainer : currentlyRunningContainers) {
+        for (String runningContainer : runningContainers) {
             stop(containersRepository.loadContainer(runningContainer));
         }
     }
@@ -155,10 +155,7 @@ public class CargoManager implements ContainerManager {
                 }
                 DeployerFactory deployerFactory = new DefaultDeployerFactory();
                 Deployer deployer = deployerFactory.createDeployer(localContainer);
-                List<Deployable> deployables = localContainer.getConfiguration().getDeployables();
-                for (Deployable deployable : deployables) {
-                    deployer.undeploy(deployable);
-                }
+                localContainer.getConfiguration().getDeployables().forEach(deployer::undeploy);
                 localContainer.stop();
                 runningContainers.remove(container.getId());
                 return true;
@@ -275,9 +272,9 @@ public class CargoManager implements ContainerManager {
         if (StringUtils.isNotBlank(existingJvmArgs)) {
             args.append(existingJvmArgs);
         }
-        for (Map.Entry<String, String> property : additionalJavaSystemProperties.entrySet()) {
-            args.append(" -D").append(property.getKey()).append("=").append(property.getValue());
-        }
+        additionalJavaSystemProperties.entrySet()
+                .forEach(property -> args.append(" -D").append(property.getKey()).append("=").append(
+                        property.getValue()));
         configuration.setProperty(GeneralPropertySet.JVMARGS, args.toString());
         AbstractInstalledLocalContainer instance = createContainer(container.getHomeDir(), container.getCargoId(),
                                                                    container.getId(), configuration);

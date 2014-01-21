@@ -47,11 +47,8 @@ public class TaskInitializer extends BaseStartupService {
     @Override
     public void execute() {
         log.info("scheduling tasks for execution");
-        for (TaskManager.Descriptor taskDescriptor : taskDescriptors) {
-            taskManager.scheduleTaskAtFixedRate(taskDescriptor.getTask(), taskDescriptor.getInitialDelay(),
-                                                taskDescriptor.getPeriod(), SECONDS);
-        }
-
+        taskDescriptors.forEach(d -> taskManager
+                .scheduleTaskAtFixedRate(d.getTask(), d.getInitialDelay(), d.getPeriod(), SECONDS));
     }
 
     @Override

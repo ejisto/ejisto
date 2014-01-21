@@ -28,6 +28,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import static com.ejisto.util.IOUtils.findFirstAvailablePort;
 
@@ -69,10 +70,7 @@ public class HTTPServer {
     }
 
     private static ConcurrentMap<String, HttpHandler> toHandlersMap(List<RemoteRequestHandler> remoteRequestHandlers) {
-        ConcurrentMap<String, HttpHandler> result = new ConcurrentHashMap<>();
-        for (RemoteRequestHandler handler : remoteRequestHandlers) {
-            result.put(handler.getContextPath(), handler);
-        }
-        return result;
+        return remoteRequestHandlers.stream()
+                .collect(ConcurrentHashMap::new, (m, v) -> m.put(v.getContextPath(), v), ConcurrentHashMap::putAll);
     }
 }
