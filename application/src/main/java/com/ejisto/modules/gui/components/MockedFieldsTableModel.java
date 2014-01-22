@@ -30,6 +30,7 @@ import com.ejisto.util.GuiUtils;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +50,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
     public MockedFieldsTableModel(List<MockedField> fields, FieldsEditorContext ctx) {
         this.ctx = ctx;
         columnHeaders = ctx.getTableColumns();
-        this.fields = new CopyOnWriteArrayList<>(fields);
+        this.fields = new ArrayList<>(fields);
         Collections.sort(this.fields);
         this.fieldsAsString = GuiUtils.asStringList(this.fields, ctx.getColumnFillStrategy());
         addTableModelListener(this);
@@ -121,7 +122,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
             default:
                 break;
         }
-        Optional.of(event).ifPresent(GuiUtils::publishEvent);
+        Optional.ofNullable(event).ifPresent(GuiUtils::publishEvent);
     }
 
     @Override
@@ -138,7 +139,7 @@ public class MockedFieldsTableModel extends AbstractTableModel implements TableM
         return fields.get(row);
     }
 
-    public synchronized void addFields(List<MockedField> fields) {
+    public void addFields(List<MockedField> fields) {
         this.fields.addAll(fields);
         Collections.sort(this.fields);
         fireTableDataChanged();

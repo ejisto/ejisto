@@ -91,7 +91,7 @@ class ServerSummary extends JXPanel implements PropertyChangeListener {
     @Override
     public void repaint(long tm, int x, int y, int width, int height) {
         final boolean shrink = getSize().width < 700;
-        Optional.of(buttonsPanel).ifPresent(p -> {
+        Optional.ofNullable(buttonsPanel).ifPresent(p -> {
             Arrays.stream(p.getComponents())
                     .filter(EnhancedButton.class::isInstance)
                     .map(EnhancedButton.class::cast)
