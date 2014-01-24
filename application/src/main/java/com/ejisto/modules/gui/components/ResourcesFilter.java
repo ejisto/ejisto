@@ -29,6 +29,7 @@ import java.awt.event.ActionEvent;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.ejisto.util.GuiUtils.getMessage;
@@ -88,6 +89,14 @@ public class ResourcesFilter extends JXPanel {
         return resourcesList;
     }
 
+    /**
+     * only for unit testing purposes
+     * @param resourcesList the component
+     */
+    void setResourcesList(JXList resourcesList) {
+        this.resourcesList = resourcesList;
+    }
+
     private JXPanel getButtonsPanel() {
         if (this.buttonsPanel != null) {
             return this.buttonsPanel;
@@ -134,14 +143,18 @@ public class ResourcesFilter extends JXPanel {
     }
 
     public List<String> getBlacklistedObjects() {
-        int[] indices = getResourcesList().getSelectedIndices();
-        if (indices.length == resourcesSize) {
+        int[] selectedIndices = getResourcesList().getSelectedIndices();
+        final int[] sortedSelectedIndices = Arrays.copyOf(selectedIndices, selectedIndices.length);
+        Arrays.sort(sortedSelectedIndices);
+        if (selectedIndices.length == resourcesSize) {
             return emptyList();
         }
-        if (indices.length == 0) {
+        if (selectedIndices.length == 0) {
             return resources;
         }
-        Stream<String> stream = Arrays.stream(indices).mapToObj(resources::get);
+        Stream<String> stream = IntStream.range(0, resourcesSize)
+                .filter(i -> Arrays.binarySearch(sortedSelectedIndices, i) < 0)
+                .mapToObj(resources::get);
         return stream.collect(Collectors.toList());
     }
 
