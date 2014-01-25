@@ -178,7 +178,9 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
 
     @Override
     public void fieldsAdded(List<MockedField> fields) {
-        fieldsChanged(fields);
+        RootNode root = getRoot();
+        fields.forEach(f -> bestStrategyFor(root).insertField(root, f));
+        getModel().reload();
     }
 
     @Override

@@ -68,7 +68,7 @@ public class ResourcesInitializer extends BaseStartupService {
 
     @Override
     public int getPriority() {
-        return 1;
+        return 3;
     }
 
     private void initDirectories(File baseDir) {

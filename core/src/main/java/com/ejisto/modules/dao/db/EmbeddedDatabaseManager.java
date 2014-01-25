@@ -122,43 +122,34 @@ public class EmbeddedDatabaseManager {
     }
 
     public Optional<NavigableSet<MockedFieldContainer>> getMockedFields(final String contextPath) {
-        return doInTransaction(new Executor<NavigableSet<MockedFieldContainer>>() {
-            @Override
-            public NavigableSet<MockedFieldContainer> execute(DatabaseAccessor accessor) {
-                DB db = accessor.getDb();
-                String key = encodeContextPath(contextPath);
-                if(db.exists(key)) {
-                    return db.get(key);
-                }
-                return null;
+        return doInTransaction(accessor -> {
+            DB db = accessor.getDb();
+            String key = encodeContextPath(contextPath);
+            if(db.exists(key)) {
+                return db.get(key);
             }
+            return null;
         });
     }
 
     public void registerContextPath(final String contextPath) {
-        doInTransaction(new Executor<Void>() {
-            @Override
-            public Void execute(DatabaseAccessor accessor) {
-                DB db = accessor.getDb();
-                db.createTreeSet(encodeContextPath(contextPath))
-                        .nodeSize(NODE_SIZE)
-                        .keepCounter(true)
-                        .serializer(new MockedFieldContainerSerializer())
-                        .comparator(Utils.COMPARABLE_COMPARATOR).make();
-                contextPaths.add(contextPath);
-                return null;
-            }
+        doInTransaction(accessor -> {
+            DB db = accessor.getDb();
+            db.createTreeSet(encodeContextPath(contextPath))
+                    .nodeSize(NODE_SIZE)
+                    .keepCounter(true)
+                    .serializer(new MockedFieldContainerSerializer())
+                    .comparator(Utils.COMPARABLE_COMPARATOR).make();
+            contextPaths.add(contextPath);
+            return null;
         });
     }
 
     public void createNewRecordingSession(final String name, final CollectedData collectedData) {
-        doInTransaction(new Executor<Void>() {
-            @Override
-            public Void execute(DatabaseAccessor databaseAccessor) {
-                DB db = databaseAccessor.getDb();
-                db.getHashMap(RECORDED_SESSIONS).put(name, collectedData);
-                return null;
-            }
+        doInTransaction(databaseAccessor -> {
+            DB db = databaseAccessor.getDb();
+            db.getHashMap(RECORDED_SESSIONS).put(name, collectedData);
+            return null;
         });
     }
 
@@ -173,6 +164,7 @@ public class EmbeddedDatabaseManager {
                 DB db = accessor.getDb();
                 String key = encodeContextPath(contextPath);
                 db.getTreeSet(key).clear();
+                db.delete(key);
                 return Boolean.TRUE;
             }
         }).orElse(Boolean.FALSE);
@@ -265,6 +257,7 @@ public class EmbeddedDatabaseManager {
         return Optional.ofNullable(result);
     }
 
+    @FunctionalInterface
     private interface Executor<T> {
         T execute(DatabaseAccessor databaseAccessor);
     }

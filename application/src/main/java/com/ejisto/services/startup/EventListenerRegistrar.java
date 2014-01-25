@@ -52,6 +52,6 @@ public class EventListenerRegistrar extends BaseStartupService {
 
     @Override
     public int getPriority() {
-        return NORMAL_PRIORITY;
+        return 2;
     }
 }

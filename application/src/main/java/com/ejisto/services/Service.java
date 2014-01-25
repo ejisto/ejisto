@@ -21,13 +21,15 @@ package com.ejisto.services;
 
 public interface Service extends Comparable<Service> {
 
-    static final int NORMAL_PRIORITY = 2;
+    static final int NORMAL_PRIORITY = 20;
 
     void execute();
 
     ServiceType getServiceType();
 
-    int getPriority();
+    default int getPriority() {
+        return NORMAL_PRIORITY;
+    }
 
     default int compareTo(Service other) {
         return Integer.compare(getPriority(), other.getPriority());

@@ -239,7 +239,7 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
     }
 
     public void setFields(List<MockedField> fields) {
-        getSupportedEditorComponents().forEach(c -> c.setFields(fields));
+        getSupportedEditorComponents().forEach(c -> c.fieldsAdded(fields));
     }
 
     public void contextInstalled(String contextPath, List<MockedField> fields) {

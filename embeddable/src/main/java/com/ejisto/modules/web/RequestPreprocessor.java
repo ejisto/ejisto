@@ -44,7 +44,7 @@ import static java.lang.System.getProperty;
  * Date: 8/24/12
  * Time: 5:18 PM
  */
-class RequestPreprocessor implements Filter {
+public class RequestPreprocessor implements Filter {
 
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(10);
     private ServletContext context;
