@@ -36,6 +36,7 @@ import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.repository.SettingsRepository;
+import com.ejisto.util.GuiUtils;
 import com.ejisto.util.IOUtils;
 import javassist.ClassPool;
 import javassist.LoaderClassPath;
@@ -48,6 +49,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -210,6 +213,8 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
     private void undeployExistingWebapp(String serverId, String contextPath) throws NotInstalledException {
         log.info("undeploying webapp " + contextPath);
         if (containerManager.undeployFromDefaultContainer(contextPath)) {
+            mockedFieldsRepository.deleteContext(contextPath);
+            IOUtils.deleteFile(Paths.get(System.getProperty(DEPLOYABLES_DIR.getValue()), contextPath).toFile());
             log.info("webapp " + contextPath + " undeployed");
         }
     }

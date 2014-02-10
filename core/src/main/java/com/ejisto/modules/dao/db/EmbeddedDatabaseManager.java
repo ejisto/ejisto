@@ -102,6 +102,7 @@ public class EmbeddedDatabaseManager {
             db.createAtomicInteger(STARTUP_COUNTER, 1);
         }
         contextPaths.addAll(db.getAll().keySet().stream()
+                                    .filter(k -> k.startsWith(CONTEXT_PATH_PREFIX))
                                     .map(EmbeddedDatabaseManager::decodeContextPath)
                                     .collect(toList()));
         Atomic.Integer count = db.getAtomicInteger(STARTUP_COUNTER);
@@ -158,15 +159,13 @@ public class EmbeddedDatabaseManager {
     }
 
     public Boolean deleteAllMockedFields(final String contextPath) {
-        return doInTransaction(new Executor<Boolean>() {
-            @Override
-            public Boolean execute(DatabaseAccessor accessor) {
-                DB db = accessor.getDb();
-                String key = encodeContextPath(contextPath);
-                db.getTreeSet(key).clear();
-                db.delete(key);
-                return Boolean.TRUE;
-            }
+        return doInTransaction(accessor -> {
+            DB db = accessor.getDb();
+            String key = encodeContextPath(contextPath);
+            db.delete(key);
+            contextPaths.remove(key);
+            internalGetWebApplicationDescriptors(accessor).remove(contextPath);
+            return Boolean.TRUE;
         }).orElse(Boolean.FALSE);
     }
 
@@ -195,7 +194,11 @@ public class EmbeddedDatabaseManager {
 
 
     public Optional<Map<String, WebApplicationDescriptor>> getWebApplicationDescriptors() {
-        return doInTransaction(db -> db.getHashMap(WEB_APPLICATION_DESCRIPTORS));
+        return doInTransaction(this::internalGetWebApplicationDescriptors);
+    }
+
+    private Map<String, WebApplicationDescriptor> internalGetWebApplicationDescriptors(DatabaseAccessor db) {
+        return db.getHashMap(WEB_APPLICATION_DESCRIPTORS);
     }
 
     public Optional<Integer> getStartupCount() {

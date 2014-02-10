@@ -109,11 +109,11 @@ public class MockedFieldCreationController extends AbstractDialogManager {
     }
 
     private Optional<String> setAllAvailableContextPaths() {
-        final Stream<String> stream = mockedFieldsRepository.loadAll()
+        final Set<String> contextPaths = mockedFieldsRepository.loadAll()
                 .stream()
-                .map(MockedField::getContextPath);
-        final Optional<String> first = stream.findFirst();
-        fieldEditorPanel.setAvailableContextPaths(stream.collect(Collectors.toSet()));
-        return first;
+                .map(MockedField::getContextPath)
+                .collect(Collectors.toSet());
+        fieldEditorPanel.setAvailableContextPaths(contextPaths);
+        return contextPaths.stream().findFirst();
     }
 }

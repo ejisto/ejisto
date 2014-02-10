@@ -44,7 +44,7 @@ import static com.ejisto.constants.StringConstants.TARGET_CONTEXT_PATH;
  * Date: 2/20/11
  * Time: 6:13 PM
  */
-class ContextListener implements ServletContextListener {
+public class ContextListener implements ServletContextListener {
     private ServletContext context;
     private ClassTransformer classTransformer;
     private final AtomicBoolean sessionRecordingActive = new AtomicBoolean(false);

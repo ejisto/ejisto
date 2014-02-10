@@ -247,7 +247,7 @@ public final class IOUtils {
         return deleteFile(new File(path));
     }
 
-    private static boolean deleteFile(File file) {
+    public static boolean deleteFile(File file) {
         if (!file.isDirectory()) {
             return FileUtils.deleteQuietly(file);
         }

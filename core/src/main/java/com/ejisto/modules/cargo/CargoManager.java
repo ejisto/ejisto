@@ -39,6 +39,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.cargo.container.ContainerType;
 import org.codehaus.cargo.container.LocalContainer;
+import org.codehaus.cargo.container.State;
 import org.codehaus.cargo.container.configuration.Configuration;
 import org.codehaus.cargo.container.configuration.ConfigurationType;
 import org.codehaus.cargo.container.configuration.LocalConfiguration;
@@ -210,7 +211,10 @@ public class CargoManager implements ContainerManager {
         Deployable deployable = (Deployable) webApplicationRepository.getRegisteredWebApplication(
                 DEFAULT_CONTAINER_ID.getValue(),
                 contextPath).getContainerWebApplicationDescriptor();
-        undeploy(DEFAULT_CONTAINER_ID.getValue(), contextPath, deployable, loadDefault(false));
+        final AbstractInstalledLocalContainer defaultContainer = loadDefault(false);
+        if(defaultContainer.getState() == State.STARTED) {
+            undeploy(DEFAULT_CONTAINER_ID.getValue(), contextPath, deployable, defaultContainer);
+        }
         return true;
     }
 
