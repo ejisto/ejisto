@@ -95,7 +95,7 @@ public final class ScanAction extends RecursiveAction {
             classPool.appendClassPath(webInf + File.separator + "classes");
             classPool.appendClassPath(webInf + File.separator + "lib/*");
             classPool.appendSystemPath();
-            ClassTransformer transformer = new ClassTransformer(descriptor.getContextPath(), mockedFieldsRepository);
+            ClassTransformer transformer = new ClassTransformer(descriptor.getContextPath(), mockedFieldsRepository, null);
             groups.forEach((k, v) -> scanClass(v, classPool, transformer, normalize(webInf + File.separator + "classes/", true)));
         } catch (Exception e) {
             log.error("got exception: " + e.toString());

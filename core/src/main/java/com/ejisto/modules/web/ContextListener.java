@@ -22,6 +22,7 @@ package com.ejisto.modules.web;
 import com.ejisto.InstrumentationHolder;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.core.classloading.ClassTransformer;
+import com.ejisto.core.classloading.SpringLoadedJVMPlugin;
 import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.web.util.ConfigurationManager;
@@ -29,10 +30,14 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.LoaderClassPath;
 import org.apache.log4j.*;
+import org.springsource.loaded.agent.ClassPreProcessorAgentAdapter;
+import org.springsource.loaded.agent.SpringLoadedAgent;
+import org.springsource.loaded.agent.SpringLoadedPreProcessor;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.lang.instrument.Instrumentation;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.ejisto.constants.StringConstants.SESSION_RECORDING_ACTIVE;
@@ -69,8 +74,14 @@ public class ContextListener implements ServletContextListener {
         sessionRecordingActive.set(Boolean.getBoolean(SESSION_RECORDING_ACTIVE.getValue()));
         initLog();
         context.log("<Ejisto> ClassTransformer initialization...");
-        classTransformer = new ClassTransformer(targetContextPath, new MockedFieldsRepository(null));
-        InstrumentationHolder.getInstrumentation().addTransformer(classTransformer);
+        classTransformer = new ClassTransformer(targetContextPath, new MockedFieldsRepository(null), context.getRealPath("/WEB-INF/classes/"));
+        if(sessionRecordingActive.get()) {
+            InstrumentationHolder.getInstrumentation().addTransformer(classTransformer);
+        } else {
+            InstrumentationHolder.InstrumentationContainer instrumentationContainer = InstrumentationHolder.getInstrumentationContainer();
+            instrumentationContainer.instrumentation.addTransformer(new ClassPreProcessorAgentAdapter());
+            SpringLoadedPreProcessor.registerGlobalPlugin(new SpringLoadedJVMPlugin(classTransformer));
+        }
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(targetContextPath);
         cp.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
         context.log("<Ejisto> ClassTransformer successfully initialized!");
@@ -79,7 +90,7 @@ public class ContextListener implements ServletContextListener {
     private void initLog() {
         Logger logger = Logger.getLogger("EjistoClassTransformer");
         if (!logger.getAllAppenders().hasMoreElements()) {
-            Appender appender = new ConsoleAppender(new TTCCLayout());
+            Appender appender = new ConsoleAppender(new PatternLayout("%m%n"));
             logger.addAppender(appender);
             logger.setLevel(Level.TRACE);
             logger.info("ejisto class transformer logger initialized");

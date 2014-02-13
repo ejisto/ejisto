@@ -71,6 +71,10 @@
             <groupId>se.jbee</groupId>
             <artifactId>silk-di</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springsource.springloaded</groupId>
+            <artifactId>springloaded-core</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <resources>

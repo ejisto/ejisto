@@ -91,10 +91,4 @@
             </resource>
         </resources>
     </build>
-    <dependencies>
-        <dependency>
-            <groupId>org.springsource.springloaded</groupId>
-            <artifactId>springloaded-core</artifactId>
-        </dependency>
-    </dependencies>
 </project>

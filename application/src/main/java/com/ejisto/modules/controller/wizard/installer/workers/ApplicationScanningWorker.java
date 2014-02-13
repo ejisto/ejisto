@@ -68,7 +68,10 @@ import static com.ejisto.util.IOUtils.*;
  */
 @Log4j
 public class ApplicationScanningWorker extends GuiTask<Void> implements ProgressListener {
-    private static final String[] entries = {"ejisto-core", "ejisto-embeddable", "ejisto-agent", "hamcrest", "javassist", "lambdaj", "objenesis", "ognl", "cglib", "commons", "asm", "jackson"};
+    private static final String[] entries = {"ejisto-core", "ejisto-embeddable",
+            "ejisto-agent", "hamcrest", "javassist", "objenesis", "cglib", "commons", "asm", "jackson",
+            "springloaded"
+    };
     private static final Pattern contextExtractor = Pattern.compile("^[/a-zA-Z0-9\\s\\W]+(/.+?)/?$");
     private static final ForkJoinPool forkJoinPool = new ForkJoinPool();
     private final AtomicInteger counter = new AtomicInteger();

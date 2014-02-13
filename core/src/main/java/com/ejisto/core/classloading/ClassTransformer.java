@@ -28,13 +28,11 @@ import javassist.bytecode.AccessFlag;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
@@ -45,16 +43,34 @@ import static java.lang.Thread.currentThread;
 public class ClassTransformer implements ClassFileTransformer {
 
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
-    private ClassPool classPool;
     private final String contextPath;
     private final Collection<String> registeredClassNames;
     private final MockedFieldsRepository mockedFieldsRepository;
+    private final Optional<String> classesBasePath;
+    private ClassPool classPool;
 
-    public ClassTransformer(String contextPath, MockedFieldsRepository mockedFieldsRepository) {
+    public ClassTransformer(String contextPath,
+                            MockedFieldsRepository mockedFieldsRepository,
+                            String classesBasePath) {
         this.contextPath = contextPath;
         this.mockedFieldsRepository = mockedFieldsRepository;
         this.registeredClassNames = loadAllRegisteredClassNames(contextPath, mockedFieldsRepository);
+        this.classesBasePath = Optional.ofNullable(classesBasePath);
         initClassPool();
+    }
+
+    private static Collection<String> loadAllRegisteredClassNames(String contextPath,
+                                                                  MockedFieldsRepository mockedFieldsRepository) {
+        Collection<MockedField> fields = mockedFieldsRepository.load(requestAllClasses(contextPath));
+        Set<String> classes = fields.stream().map(MockedField::getClassName).collect(Collectors.toSet());
+        trace(format("filtered classes for %s: %s of %s", contextPath, classes, fields));
+        return classes;
+    }
+
+    private static void trace(String s) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(s);
+        }
     }
 
     private void initClassPool() {
@@ -80,69 +96,8 @@ public class ClassTransformer implements ClassFileTransformer {
         return clazz;
     }
 
-    public void addMissingProperties(CtClass clazz, List<MockedField> configuredFields) throws CannotCompileException, NotFoundException {
-        trace("trying to add missing properties");
-        for (MockedField field : configuredFields) {
-            createPropertyIfNotFound(clazz, field);
-        }
-    }
-
-    private void createPropertyIfNotFound(CtClass clazz, MockedField field) throws CannotCompileException, NotFoundException {
-        try {
-            clazz.getField(field.getFieldName());
-        } catch (NotFoundException e) {
-            createMissingProperty(clazz, field);
-        }
-    }
-
-    private void createMissingProperty(CtClass clazz, MockedField mockedField) throws CannotCompileException, NotFoundException {
-        trace("creating property " + mockedField.getFieldName());
-        CtField ctField = new CtField(load(mockedField.getFieldType()), mockedField.getFieldName(), clazz);
-        ctField.setModifiers(AccessFlag.PRIVATE);
-        clazz.addField(ctField);
-        String methodSuffix = StringUtils.capitalize(mockedField.getFieldName());
-        trace("creating getter: get" + methodSuffix);
-        CtMethod getter = CtNewMethod.getter("get" + methodSuffix, ctField);
-        trace(format("created [%s]", getter.getSignature()));
-        clazz.addMethod(getter);
-        trace("creating setter...");
-        CtMethod setter = CtNewMethod.setter("set" + methodSuffix, ctField);
-        trace(format("created [%s]", setter.getSignature()));
-        clazz.addMethod(setter);
-        trace("done.");
-    }
-
-    private CtClass load(String className) throws NotFoundException {
-        CtClass clazz = classPool.get(className.replaceAll("/", "."));
-        if (clazz.isFrozen()) {
-            clazz.defrost();
-        }
-        return clazz;
-    }
-
-
-    @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (!isInstrumentableClass(className)) {
-            return null;
-        }
-        trace(className + " is instrumentable. Loading fields...");
-        List<MockedField> fields = getFieldsFor(getCanonicalClassName(className));
-        boolean hasFields = fields != null && !fields.isEmpty();
-        trace(className + " has registered fields: " + hasFields);
-        if (!hasFields) {
-            return null;
-        } else {
-            return transform(className, fields);
-        }
-    }
-
-    private void removeFinalModifier(CtClass clazz) {
-        int modifiers = clazz.getModifiers();
-        if (Modifier.isFinal(clazz.getModifiers())) {
-            int cleanModifiers = Modifier.clear(modifiers, Modifier.FINAL);
-            clazz.setModifiers(cleanModifiers);
-        }
+    private List<MockedField> getFieldsFor(String className) {
+        return mockedFieldsRepository.load(contextPath, className);
     }
 
     private void addDefaultConstructor(CtClass clazz) throws NotFoundException, CannotCompileException {
@@ -169,11 +124,92 @@ public class ClassTransformer implements ClassFileTransformer {
                 .forEach(field -> field.setModifiers(Modifier.clear(field.getModifiers(), Modifier.FINAL)));
     }
 
-    private byte[] transform(String className, List<MockedField> mockedFields) throws IllegalClassFormatException {
+    private void removeFinalModifier(CtClass clazz) {
+        int modifiers = clazz.getModifiers();
+        if (Modifier.isFinal(clazz.getModifiers())) {
+            int cleanModifiers = Modifier.clear(modifiers, Modifier.FINAL);
+            clazz.setModifiers(cleanModifiers);
+        }
+    }
+
+    private CtClass load(String className) throws NotFoundException {
+        CtClass clazz = classPool.get(className.replaceAll("/", "."));
+        if (clazz.isFrozen()) {
+            clazz.defrost();
+        }
+        return clazz;
+    }
+
+    public boolean addMissingProperties(CtClass clazz, List<MockedField> configuredFields) throws CannotCompileException, NotFoundException {
+        boolean added = false;
+        trace("trying to add missing properties");
+        for (MockedField field : configuredFields) {
+            added |= createPropertyIfNotFound(clazz, field);
+        }
+        return added;
+    }
+
+    private boolean createPropertyIfNotFound(CtClass clazz, MockedField field) throws CannotCompileException, NotFoundException {
+        try {
+            clazz.getField(field.getFieldName());
+        } catch (NotFoundException e) {
+            createMissingProperty(clazz, field);
+            return true;
+        }
+        return false;
+    }
+
+    private void createMissingProperty(CtClass clazz, MockedField mockedField) throws CannotCompileException, NotFoundException {
+        trace("creating property " + mockedField.getFieldName());
+        CtField ctField = new CtField(load(mockedField.getFieldType()), mockedField.getFieldName(), clazz);
+        ctField.setModifiers(AccessFlag.PRIVATE);
+        clazz.addField(ctField);
+        String methodSuffix = StringUtils.capitalize(mockedField.getFieldName());
+        trace("creating getter: get" + methodSuffix);
+        CtMethod getter = CtNewMethod.getter("get" + methodSuffix, ctField);
+        trace(format("created [%s]", getter.getSignature()));
+        clazz.addMethod(getter);
+        trace("creating setter...");
+        CtMethod setter = CtNewMethod.setter("set" + methodSuffix, ctField);
+        trace(format("created [%s]", setter.getSignature()));
+        clazz.addMethod(setter);
+        trace("done.");
+    }
+
+    @Override
+    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        if (!isInstrumentableClass(className)) {
+            return null;
+        }
+        trace(className + " is instrumentable. Loading fields...");
+        List<MockedField> fields = getFieldsFor(getCanonicalClassName(className));
+        boolean hasFields = fields != null && !fields.isEmpty();
+        trace(className + " has registered fields: " + hasFields);
+        if (!hasFields) {
+            return null;
+        } else {
+            return transform(className, classfileBuffer, fields);
+        }
+    }
+
+    boolean isInstrumentableClass(String name) {
+        return registeredClassNames.contains(getCanonicalClassName(name));
+    }
+
+    private String getCanonicalClassName(String path) {
+        return path.replaceAll("/", ".");
+    }
+
+    private byte[] transform(String className, byte[] classFileBuffer, List<MockedField> mockedFields) throws IllegalClassFormatException {
         try {
             trace("retrieving " + className + " from pool");
-            CtClass clazz = classPool.get(getCanonicalClassName(className));
-            addMissingProperties(clazz, mockedFields);
+            CtClass clazz;
+            if(classFileBuffer == null) {
+                clazz = classPool.get(getCanonicalClassName(className));
+            } else {
+                clazz = classPool.makeClass(new ByteArrayInputStream(classFileBuffer));
+            }
+            boolean modified = addMissingProperties(clazz, mockedFields);
             trace("instrumenting " + className);
             clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, mockedFields)));
             trace("removing final modifier (if present)");
@@ -181,37 +217,17 @@ public class ClassTransformer implements ClassFileTransformer {
             trace("adding default constructor, if none present ");
             addDefaultConstructor(clazz);
             trace("done. Returning bytecode");
-            clazz.rebuildClassFile();
+            //clazz.rebuildClassFile();
+            if(modified) {
+                trace("class "+ className + " has been modified...");
+            }
+//            if(modified && classesBasePath.isPresent()) {
+//                clazz.writeFile(classesBasePath.get());
+//            }
             return clazz.toBytecode();
         } catch (Exception e) {
             logger.error("error during transformation of class " + className, e);
             throw new IllegalClassFormatException(e.getMessage());
         }
-    }
-
-    private List<MockedField> getFieldsFor(String className) {
-        return mockedFieldsRepository.load(contextPath, className);
-    }
-
-    private String getCanonicalClassName(String path) {
-        return path.replaceAll("/", ".");
-    }
-
-    boolean isInstrumentableClass(String name) {
-        return registeredClassNames.contains(getCanonicalClassName(name));
-    }
-
-    private static void trace(String s) {
-        if (logger.isTraceEnabled()) {
-            logger.trace(s);
-        }
-    }
-
-    private static Collection<String> loadAllRegisteredClassNames(String contextPath,
-                                                                  MockedFieldsRepository mockedFieldsRepository) {
-        Collection<MockedField> fields = mockedFieldsRepository.load(requestAllClasses(contextPath));
-        Set<String> classes = fields.stream().map(MockedField::getClassName).collect(Collectors.toSet());
-        trace(format("filtered classes for %s: %s of %s", contextPath, classes, fields));
-        return classes;
     }
 }

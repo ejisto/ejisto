@@ -59,6 +59,8 @@
                 <version>2.3</version>
                 <configuration>
                     <descriptors>
+                        <descriptor>src/main/assembly/runtime-libraries.xml</descriptor>
+                        <descriptor>src/main/assembly/session-recorder-libraries.xml</descriptor>
                         <descriptor>src/main/assembly/application.xml</descriptor>
                     </descriptors>
                 </configuration>

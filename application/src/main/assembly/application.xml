@@ -57,6 +57,21 @@
         <dependencySet>
             <outputDirectory>/lib/</outputDirectory>
             <useProjectArtifact>true</useProjectArtifact>
+            <excludes>
+                <exclude>org.springsource.springloaded:springloaded-core</exclude>
+                <exclude>com.ejisto:ejisto-core</exclude>
+                <exclude>com.ejisto:ejisto-embeddable</exclude>
+                <exclude>com.ejisto:ejisto-agent</exclude>
+                <exclude>org.javassist:javassist</exclude>
+                <exclude>cglib:cglib</exclude>
+                <exclude>commons-codec:commons-codec</exclude>
+                <exclude>commons-io:commons-io</exclude>
+                <exclude>commons-collections:commons-collections</exclude>
+                <exclude>org.apache.commons:commons-lang3</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-annotations</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-core</exclude>
+            </excludes>
             <scope>runtime</scope>
         </dependencySet>
     </dependencySets>
