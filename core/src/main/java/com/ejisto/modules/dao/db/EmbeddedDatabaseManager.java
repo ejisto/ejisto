@@ -26,9 +26,9 @@ import com.ejisto.modules.recorder.CollectedData;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.mapdb.Atomic;
+import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
-import org.mapdb.Utils;
 
 import java.io.File;
 import java.util.*;
@@ -63,7 +63,6 @@ public class EmbeddedDatabaseManager {
             }
             owned = true;
             db = DBMaker.newFileDB(new File(databaseFilePath))
-                    .randomAccessFileEnableIfNeeded()
                     .cacheLRUEnable().make();
             createSchema();
         } finally {
@@ -94,11 +93,11 @@ public class EmbeddedDatabaseManager {
         if (Boolean.getBoolean(StringConstants.INITIALIZE_DATABASE.getValue())) {
             //String name, boolean keepCounter, Serializer<K> keySerializer, Serializer<V> valueSerializer
             db.createHashMap(SETTINGS).valueSerializer(new SettingSerializer()).make();
-            db.createHashMap(CONTAINERS).keepCounter(true).valueSerializer(new ContainerSerializer()).make();
-            db.createHashMap(CUSTOM_OBJECT_FACTORIES).keepCounter(true).valueSerializer(new CustomObjectFactorySerializer()).make();
-            db.createHashMap(REGISTERED_OBJECT_FACTORIES).keepCounter(true).valueSerializer(new RegisteredObjectFactorySerializer()).make();
-            db.createHashMap(WEB_APPLICATION_DESCRIPTORS).keepCounter(true).valueSerializer(new WebApplicationDescriptorSerializer()).make();
-            db.createHashMap(RECORDED_SESSIONS).keepCounter(true).valueSerializer(new CollectedDataSerializer()).make();
+            db.createHashMap(CONTAINERS).counterEnable().valueSerializer(new ContainerSerializer()).make();
+            db.createHashMap(CUSTOM_OBJECT_FACTORIES).counterEnable().valueSerializer(new CustomObjectFactorySerializer()).make();
+            db.createHashMap(REGISTERED_OBJECT_FACTORIES).counterEnable().valueSerializer(new RegisteredObjectFactorySerializer()).make();
+            db.createHashMap(WEB_APPLICATION_DESCRIPTORS).counterEnable().valueSerializer(new WebApplicationDescriptorSerializer()).make();
+            db.createHashMap(RECORDED_SESSIONS).counterEnable().valueSerializer(new CollectedDataSerializer()).make();
             db.createAtomicInteger(STARTUP_COUNTER, 1);
         }
         contextPaths.addAll(db.getAll().keySet().stream()
@@ -138,9 +137,9 @@ public class EmbeddedDatabaseManager {
             DB db = accessor.getDb();
             db.createTreeSet(encodeContextPath(contextPath))
                     .nodeSize(NODE_SIZE)
-                    .keepCounter(true)
+                    .counterEnable()
                     .serializer(new MockedFieldContainerSerializer())
-                    .comparator(Utils.COMPARABLE_COMPARATOR).make();
+                    .comparator(BTreeMap.COMPARABLE_COMPARATOR).make();
             contextPaths.add(contextPath);
             return null;
         });

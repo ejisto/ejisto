@@ -26,6 +26,7 @@
     <artifactId>ejisto</artifactId>
     <packaging>pom</packaging>
     <version>0.3-SNAPSHOT</version>
+    <inceptionYear>2010</inceptionYear>
     <modules>
         <module>core</module>
         <module>agent</module>
@@ -65,10 +66,6 @@
             <url>http://repo1.maven.org</url>
         </repository>
         <repository>
-            <id>sonatype-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-        <repository>
             <id>spring-snapshots</id>
             <url>https://repo.springsource.org/release/</url>
         </repository>
@@ -101,43 +98,43 @@
             <dependency>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-core-container-tomcat</artifactId>
-                <version>1.4.0</version>
+                <version>1.4.7</version>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
-                <version>3.17.1-GA</version>
+                <version>3.18.1-GA</version>
             </dependency>
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
-                <version>2.2.2</version>
+                <version>3.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.1</version>
+                <version>3.2.1</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.7</version>
+                <version>1.9</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.2.1</version>
+                <version>2.3.1</version>
             </dependency>
             <dependency>
                 <groupId>org.mapdb</groupId>
                 <artifactId>mapdb</artifactId>
-                <version>0.9.7</version>
+                <version>0.9.9</version>
             </dependency>
             <dependency>
                 <groupId>se.jbee</groupId>
@@ -165,7 +162,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.12.2</version>
+            <version>1.12.4</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -191,7 +188,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>2.4.2</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                     <releaseProfiles>release</releaseProfiles>

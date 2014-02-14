@@ -27,6 +27,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * Created by IntelliJ IDEA.
@@ -64,6 +65,16 @@ abstract class JSONSerializer<T> extends BTreeKeySerializer<T> implements Serial
             ret[i] = deserialize(in, -1);
         }
         return ret;
+    }
+
+    @Override
+    public Comparator<T> getComparator() {
+        return null;//currently we don't need a special comparator here...
+    }
+
+    @Override
+    public int fixedSize() {
+        return -1;
     }
 
     protected abstract Class<T> getTargetClass();
