@@ -19,13 +19,12 @@
 
 package com.ejisto.util;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.core.ApplicationException;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 import com.ejisto.modules.repository.SettingsRepository;
-import com.ejisto.util.visitor.CopyFileVisitor;
-import com.ejisto.util.visitor.MultipurposeFileVisitor;
-import com.ejisto.util.visitor.PrefixBasedCopyFileVisitor;
+import com.ejisto.util.visitor.*;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.io.FileUtils;
 
@@ -42,8 +41,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.util.visitor.PrefixBasedCopyFileVisitor.CopyType.INCLUDE_ALL;
-import static com.ejisto.util.visitor.PrefixBasedCopyFileVisitor.CopyType.INCLUDE_ONLY_MATCHING_RESOURCES;
+import static com.ejisto.util.visitor.CopyType.INCLUDE_ALL;
+import static com.ejisto.util.visitor.CopyType.INCLUDE_ONLY_MATCHING_RESOURCES;
+import static com.ejisto.util.visitor.CopyType.INCLUDE_ONLY_ROOT_MATCHING_RESOURCES;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -74,23 +74,22 @@ public final class IOUtils {
     }
 
     public static void copyFullDirContent(String srcPath, String targetPath) {
-        copyDirContent(new File(srcPath), new File(targetPath), null, null, INCLUDE_ALL);
+        copyDirContent(new File(srcPath), new File(targetPath), FileMatchers.all(), null, INCLUDE_ALL);
     }
 
     private static void copyFilteredDirContent(File srcDir, File targetDir, String[] prefixes, String copiedFilesPrefix) {
-        copyDirContent(srcDir, targetDir, prefixes, copiedFilesPrefix, INCLUDE_ONLY_MATCHING_RESOURCES);
+        final List<String> prefixesList = prefixes != null ? asList(prefixes) : Collections.<String>emptyList();
+        copyDirContent(srcDir, targetDir, FileMatchers.prefixMatcher(prefixesList, INCLUDE_ONLY_MATCHING_RESOURCES), copiedFilesPrefix, INCLUDE_ONLY_MATCHING_RESOURCES);
     }
 
-    private static void copyDirContent(File srcDir, File targetDir, String[] prefixes, final String copiedFilesPrefix,
-                                       PrefixBasedCopyFileVisitor.CopyType copyType) {
+    private static void copyDirContent(File srcDir, File targetDir, FileMatcher matcher, final String copiedFilesPrefix,
+                                       CopyType copyType) {
         try {
             final Path srcRoot = srcDir.toPath();
             final Path targetRoot = targetDir.toPath();
-            final List<String> prefixesList = prefixes != null ? asList(prefixes) : Collections.<String>emptyList();
             Files.walkFileTree(srcRoot,
-                               new PrefixBasedCopyFileVisitor(
-                                       new PrefixBasedCopyFileVisitor.CopyOptions(srcRoot, targetRoot, prefixesList,
-                                                                                  copiedFilesPrefix, copyType)));
+                               new ConditionMatchingCopyFileVisitor(
+                                       new CopyOptions(srcRoot, targetRoot, matcher, copiedFilesPrefix, copyType)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -353,8 +352,18 @@ public final class IOUtils {
         }
     }
 
-    public static void copyEjistoLibs(String[] prefixes, File targetDir) {
-        copyFilteredDirContent(new File(System.getProperty("user.dir") + File.separator + "lib"), targetDir, prefixes, COPIED_FILES_PREFIX);
+    public static void copyEjistoLibs(boolean embeddable, File targetDir) {
+        //special handling for development mode
+        String libDir = System.getProperty("user.dir") + getActualLibDirectory();
+        String fileSuffix = embeddable ? "session-recorder" : "runtime";
+        copyDirContent(new File(libDir),
+                       targetDir,
+                       FileMatchers.regexpMatcher("^ejisto-application-.*?-"+fileSuffix+"-libraries.*$", INCLUDE_ONLY_MATCHING_RESOURCES),
+                       null, INCLUDE_ONLY_ROOT_MATCHING_RESOURCES);
+    }
+
+    private static String getActualLibDirectory() {
+        return Boolean.getBoolean(StringConstants.DEV_MODE.getValue()) ? "" : File.separator + "lib";
     }
 
     public static String getEjistoCoreClasspathEntry(SettingsRepository settingsRepository) {

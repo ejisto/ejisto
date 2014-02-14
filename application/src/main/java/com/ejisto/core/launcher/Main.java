@@ -41,7 +41,7 @@ class Main {
 
     /*
      * to start application from an IDE (like Intellij Idea)
-     * add -Dejisto.agent.jar.path=/path/to/agent.jar to vm parameters
+     * add -Dejisto.agent.jar.path=/path/to/agent.jar and -Dejisto.dev.mode=true to vm parameters
      * in launch configuration panel
      * it is also required to set working directory to:
      * /path-to-ejisto-project/application/target
