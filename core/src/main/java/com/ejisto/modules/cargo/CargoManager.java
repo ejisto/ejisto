@@ -23,7 +23,6 @@ import com.ejisto.constants.StringConstants;
 import com.ejisto.core.container.ContainerManager;
 import com.ejisto.core.container.WebApplication;
 import com.ejisto.event.EventManager;
-import com.ejisto.event.def.ApplicationScanRequired;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.modules.cargo.logging.ServerLogger;
 import com.ejisto.modules.cargo.util.ContainerInstaller;
@@ -212,8 +211,12 @@ public class CargoManager implements ContainerManager {
                 DEFAULT_CONTAINER_ID.getValue(),
                 contextPath).getContainerWebApplicationDescriptor();
         final AbstractInstalledLocalContainer defaultContainer = loadDefault(false);
+        boolean success = true;
         if(defaultContainer.getState() == State.STARTED) {
-            undeploy(DEFAULT_CONTAINER_ID.getValue(), contextPath, deployable, defaultContainer);
+            success = undeploy(DEFAULT_CONTAINER_ID.getValue(), contextPath, deployable, defaultContainer);
+        }
+        if(success) {
+            webApplicationRepository.unregisterWebApplication(DEFAULT_CONTAINER_ID.getValue(), contextPath);
         }
         return true;
     }
@@ -400,7 +403,6 @@ public class CargoManager implements ContainerManager {
             URLDeployableMonitor monitor = new URLDeployableMonitor(
                     new URL(guessWebApplicationUri(contextPath, settingsRepository)));
             getDeployerFor(container).undeploy(deployable, monitor);
-            webApplicationRepository.unregisterWebApplication(containerId, contextPath);
             return true;
         } catch (Exception ex) {
             log.error("error during undeploy", ex);
