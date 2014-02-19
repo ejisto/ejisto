@@ -19,25 +19,23 @@
 
 package com.ejisto.modules.web;
 
-import com.ejisto.InstrumentationHolder;
 import com.ejisto.constants.StringConstants;
-import com.ejisto.core.classloading.ClassTransformer;
+import com.ejisto.core.classloading.ClassTransformerImpl;
 import com.ejisto.core.classloading.SpringLoadedJVMPlugin;
 import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.web.util.ConfigurationManager;
+import com.ejisto.sl.ClassTransformer;
+import com.ejisto.sl.JVMPlugin;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.LoaderClassPath;
 import org.apache.log4j.*;
-import org.springsource.loaded.agent.ClassPreProcessorAgentAdapter;
-import org.springsource.loaded.agent.SpringLoadedAgent;
 import org.springsource.loaded.agent.SpringLoadedPreProcessor;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.lang.instrument.Instrumentation;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.ejisto.constants.StringConstants.SESSION_RECORDING_ACTIVE;
@@ -51,7 +49,7 @@ import static com.ejisto.constants.StringConstants.TARGET_CONTEXT_PATH;
  */
 public class ContextListener implements ServletContextListener {
     private ServletContext context;
-    private ClassTransformer classTransformer;
+    private SpringLoadedJVMPlugin transformerPlugin;
     private final AtomicBoolean sessionRecordingActive = new AtomicBoolean(false);
 
     static {
@@ -63,7 +61,6 @@ public class ContextListener implements ServletContextListener {
 
     public ContextListener() {
         this.context = null;
-        this.classTransformer = null;
     }
 
     @Override
@@ -73,18 +70,16 @@ public class ContextListener implements ServletContextListener {
         String targetContextPath = System.getProperty(TARGET_CONTEXT_PATH.getValue());
         sessionRecordingActive.set(Boolean.getBoolean(SESSION_RECORDING_ACTIVE.getValue()));
         initLog();
-        context.log("<Ejisto> ClassTransformer initialization...");
-        classTransformer = new ClassTransformer(targetContextPath, new MockedFieldsRepository(null), context.getRealPath("/WEB-INF/classes/"));
-        if(sessionRecordingActive.get()) {
-            InstrumentationHolder.getInstrumentation().addTransformer(classTransformer);
-        } else {
-            InstrumentationHolder.InstrumentationContainer instrumentationContainer = InstrumentationHolder.getInstrumentationContainer();
-            instrumentationContainer.instrumentation.addTransformer(new ClassPreProcessorAgentAdapter());
-            SpringLoadedPreProcessor.registerGlobalPlugin(new SpringLoadedJVMPlugin(classTransformer));
-        }
+        context.log("<Ejisto> ClassTransformerImpl initialization...");
+        ClassTransformer classTransformer = new ClassTransformerImpl(targetContextPath, new MockedFieldsRepository(null),
+                                                                 context.getRealPath("/WEB-INF/classes/"));
+        SpringLoadedPreProcessor.registerGlobalPlugin(new SpringLoadedJVMPlugin());
+        SpringLoadedJVMPlugin.initClassTransformer(classTransformer);
+//        transformerPlugin = new SpringLoadedJVMPlugin();
+//        SpringLoadedPreProcessor.registerGlobalPlugin(transformerPlugin);
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(targetContextPath);
         cp.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
-        context.log("<Ejisto> ClassTransformer successfully initialized!");
+        context.log("<Ejisto> ClassTransformerImpl successfully initialized!");
     }
 
     private void initLog() {
@@ -100,10 +95,9 @@ public class ContextListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        if (!sessionRecordingActive.get()) {
-            context.log("removing instrumentation agent...");
-            InstrumentationHolder.getInstrumentation().removeTransformer(classTransformer);
-            context.log("done.");
-        }
+        context.log("removing instrumentation agent...");
+        //SpringLoadedPreProcessor.unregisterGlobalPlugin(transformerPlugin);
+//        JVMPlugin.disableTransformer();
+        context.log("done.");
     }
 }

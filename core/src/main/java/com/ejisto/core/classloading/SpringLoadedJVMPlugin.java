@@ -19,15 +19,13 @@
 
 package com.ejisto.core.classloading;
 
-import com.ejisto.core.classloading.ClassTransformer;
-import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.sl.ClassTransformer;
 import org.apache.log4j.Logger;
 import org.springsource.loaded.LoadtimeInstrumentationPlugin;
 import org.springsource.loaded.ReloadEventProcessorPlugin;
 
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.Optional;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
 
@@ -38,16 +36,17 @@ import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATE
  * Time: 8:28 AM
  */
 public class SpringLoadedJVMPlugin implements ReloadEventProcessorPlugin, LoadtimeInstrumentationPlugin {
-    private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
-    private final ClassTransformer transformer;
+    private static final Logger LOGGER = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
+    private static volatile ClassTransformer transformer;
 
-    public SpringLoadedJVMPlugin(ClassTransformer transformer) {
-        this.transformer = transformer;
+    public SpringLoadedJVMPlugin() {
+        LOGGER.info("SpringLoadedJVMPlugin : called constructor");
     }
 
     @Override
     public boolean accept(String slashedTypeName, ClassLoader classLoader, ProtectionDomain protectionDomain, byte[] bytes) {
-        return slashedTypeName != null && transformer.isInstrumentableClass(toDottedClassName(slashedTypeName));
+        return initCompleted() && slashedTypeName != null &&
+                transformer.isInstrumentableClass(toDottedClassName(slashedTypeName));
     }
 
     @Override
@@ -55,7 +54,7 @@ public class SpringLoadedJVMPlugin implements ReloadEventProcessorPlugin, Loadti
         try {
             return transformer.transform(classLoader, toDottedClassName(slashedClassName), null, null, bytes);
         } catch (IllegalClassFormatException e) {
-            logger.warn(String.format("unable to transform class %s", slashedClassName), e);
+            LOGGER.warn(String.format("unable to transform class %s", slashedClassName), e);
             return null;
         }
     }
@@ -67,9 +66,24 @@ public class SpringLoadedJVMPlugin implements ReloadEventProcessorPlugin, Loadti
 
     @Override
     public void reloadEvent(String typename, Class<?> clazz, String encodedTimestamp) {
-        if(logger.isInfoEnabled()) {
-            logger.info(String.format("%s has been reloaded", typename));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(String.format("%s has been reloaded", typename));
         }
+    }
+
+    public static void initClassTransformer(ClassTransformer classTransformer) {
+        if(classTransformer != null) {
+            LOGGER.info("ClassTransformer init complete");
+            transformer = classTransformer;
+        }
+    }
+
+    public static void disableTransformer() {
+        transformer = null;
+    }
+
+    private static boolean initCompleted() {
+        return transformer != null;
     }
 
     private static String toDottedClassName(String slashedClassName) {

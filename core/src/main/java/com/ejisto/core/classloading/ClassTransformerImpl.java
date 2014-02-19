@@ -23,6 +23,7 @@ import com.ejisto.core.classloading.javassist.EjistoMethodFilter;
 import com.ejisto.core.classloading.javassist.ObjectEditor;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.sl.ClassTransformer;
 import javassist.*;
 import javassist.bytecode.AccessFlag;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +41,7 @@ import static com.ejisto.modules.web.MockedFieldRequest.requestAllClasses;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 
-public class ClassTransformer implements ClassFileTransformer {
+public class ClassTransformerImpl implements ClassTransformer {
 
     private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private final String contextPath;
@@ -49,9 +50,9 @@ public class ClassTransformer implements ClassFileTransformer {
     private final Optional<String> classesBasePath;
     private ClassPool classPool;
 
-    public ClassTransformer(String contextPath,
-                            MockedFieldsRepository mockedFieldsRepository,
-                            String classesBasePath) {
+    public ClassTransformerImpl(String contextPath,
+                                MockedFieldsRepository mockedFieldsRepository,
+                                String classesBasePath) {
         this.contextPath = contextPath;
         this.mockedFieldsRepository = mockedFieldsRepository;
         this.registeredClassNames = loadAllRegisteredClassNames(contextPath, mockedFieldsRepository);
@@ -192,7 +193,8 @@ public class ClassTransformer implements ClassFileTransformer {
         }
     }
 
-    boolean isInstrumentableClass(String name) {
+    @Override
+    public boolean isInstrumentableClass(String name) {
         return registeredClassNames.contains(getCanonicalClassName(name));
     }
 

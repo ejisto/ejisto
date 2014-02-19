@@ -30,6 +30,12 @@
     <modelVersion>4.0.0</modelVersion>
     <name>ejisto-agent</name>
     <artifactId>ejisto-agent</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>org.springsource.springloaded</groupId>
+            <artifactId>springloaded-core</artifactId>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -66,7 +72,7 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Premain-Class>com.ejisto.InstrumentationHolder</Premain-Class>
+                                        <Premain-Class>com.ejisto.Agent</Premain-Class>
                                         <Can-Redefine-Classes>true</Can-Redefine-Classes>
                                     </manifestEntries>
                                 </transformer>

@@ -33,7 +33,7 @@
                 <include>org.springsource.springloaded:springloaded-core</include>
                 <include>com.ejisto:ejisto-core</include>
                 <include>com.ejisto:ejisto-embeddable</include>
-                <include>com.ejisto:ejisto-agent</include>
+                <!--include>com.ejisto:ejisto-agent</include-->
                 <include>org.javassist:javassist</include>
                 <include>cglib:cglib</include>
                 <include>commons-codec:commons-codec</include>
@@ -44,6 +44,9 @@
                 <include>com.fasterxml.jackson.core:jackson-annotations</include>
                 <include>com.fasterxml.jackson.core:jackson-core</include>
             </includes>
+            <excludes>
+                <exclude>org.springsource.springloaded:springloaded-core</exclude>
+            </excludes>
         </dependencySet>
     </dependencySets>
     <files>

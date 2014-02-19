@@ -20,7 +20,7 @@
 package com.ejisto.core.classloading.scan;
 
 import com.ejisto.core.ApplicationException;
-import com.ejisto.core.classloading.ClassTransformer;
+import com.ejisto.core.classloading.ClassTransformerImpl;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.repository.MockedFieldsRepository;
@@ -95,7 +95,7 @@ public final class ScanAction extends RecursiveAction {
             classPool.appendClassPath(webInf + File.separator + "classes");
             classPool.appendClassPath(webInf + File.separator + "lib/*");
             classPool.appendSystemPath();
-            ClassTransformer transformer = new ClassTransformer(descriptor.getContextPath(), mockedFieldsRepository, null);
+            ClassTransformerImpl transformer = new ClassTransformerImpl(descriptor.getContextPath(), mockedFieldsRepository, null);
             groups.forEach((k, v) -> scanClass(v, classPool, transformer, normalize(webInf + File.separator + "classes/", true)));
         } catch (Exception e) {
             log.error("got exception: " + e.toString());
@@ -103,7 +103,7 @@ public final class ScanAction extends RecursiveAction {
         }
     }
 
-    private static void scanClass(List<MockedField> group, ClassPool classPool, ClassTransformer transformer, String destPath) {
+    private static void scanClass(List<MockedField> group, ClassPool classPool, ClassTransformerImpl transformer, String destPath) {
         if(!group.isEmpty()) {
             MockedField head = group.get(0);
             log.debug("scanning " + head.getClassName());

@@ -356,7 +356,7 @@ public class CargoManager implements ContainerManager {
         String agentPath = ContainerUtils.extractAgentJar(System.getProperty("java.class.path"));
         StringBuilder jvmArgs = new StringBuilder("-javaagent:");
         jvmArgs.append(agentPath);
-        jvmArgs.append(" -noverify -Djava.net.preferIPv4Stack=true");
+        jvmArgs.append(" -noverify -Dspringloaded=verbose -Djava.net.preferIPv4Stack=true");
         jvmArgs.append(" -Dejisto.http.port=").append(System.getProperty(HTTP_LISTEN_PORT.getValue()));
         jvmArgs.append(" -D").append(StringConstants.CLASS_DEBUG_PATH.getValue()).append("=").append(
                 FilenameUtils.normalize(System.getProperty("java.io.tmpdir") + "/"));

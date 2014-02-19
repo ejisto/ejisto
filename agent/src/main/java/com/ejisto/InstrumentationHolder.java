@@ -23,34 +23,17 @@ import java.lang.instrument.Instrumentation;
 
 public final class InstrumentationHolder {
 
-    private static volatile InstrumentationContainer instrumentationContainer;
+    private static Instrumentation instrumentation;
 
     private InstrumentationHolder() {
     }
 
     public static void premain(String agentArgs, Instrumentation inst) {
-        if (instrumentationContainer != null) {
-            return;
-        }
-        instrumentationContainer = new InstrumentationContainer(inst, agentArgs);
+        instrumentation = inst;
     }
 
     public static Instrumentation getInstrumentation() {
-        return instrumentationContainer.instrumentation;
-    }
-
-    public static InstrumentationContainer getInstrumentationContainer() {
-        return instrumentationContainer;
-    }
-
-    public static final class InstrumentationContainer {
-        public final Instrumentation instrumentation;
-        public final String agentArgs;
-
-        private InstrumentationContainer(Instrumentation instrumentation, String agentArgs) {
-            this.instrumentation = instrumentation;
-            this.agentArgs = agentArgs;
-        }
+        return instrumentation;
     }
 
 }
