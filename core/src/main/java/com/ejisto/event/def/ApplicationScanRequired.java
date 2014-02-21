@@ -20,6 +20,7 @@
 package com.ejisto.event.def;
 
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
+import lombok.Getter;
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,12 +28,15 @@ import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
  * Date: 8/3/12
  * Time: 6:35 PM
  */
+@Getter
 public class ApplicationScanRequired extends BaseApplicationEvent {
 
-    private WebApplicationDescriptor webApplicationDescriptor;
+    private final WebApplicationDescriptor webApplicationDescriptor;
+    private final String requestId;
 
-    public ApplicationScanRequired(Object source, WebApplicationDescriptor webApplicationDescriptor) {
+    public ApplicationScanRequired(Object source, String requestId, WebApplicationDescriptor webApplicationDescriptor) {
         super(source);
+        this.requestId = requestId;
         this.webApplicationDescriptor = webApplicationDescriptor;
     }
 
@@ -46,7 +50,4 @@ public class ApplicationScanRequired extends BaseApplicationEvent {
         return "scan";
     }
 
-    public WebApplicationDescriptor getWebApplicationDescriptor() {
-        return webApplicationDescriptor;
-    }
 }

@@ -24,6 +24,7 @@ import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class WebApplicationDescriptorHelper {
@@ -60,4 +61,10 @@ public class WebApplicationDescriptorHelper {
         return descriptor.getElements();
     }
 
+    public List<String> getWhiteListContent() {
+        return getElements().stream()
+                .filter(e -> !e.isBlacklisted())
+                .map(WebApplicationDescriptorElement::getPath)
+                .collect(Collectors.toList());
+    }
 }

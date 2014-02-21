@@ -35,6 +35,6 @@ public class EventManager {
     }
 
     public void publishEventAndWait(BaseApplicationEvent event) {
-        applicationEventDispatcher.broadcast(event);
+        applicationEventDispatcher.synchronousBroadcast(event);
     }
 }

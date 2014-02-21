@@ -23,6 +23,7 @@ import com.ejisto.constants.StringConstants;
 import com.ejisto.core.container.ContainerManager;
 import com.ejisto.core.container.WebApplication;
 import com.ejisto.event.EventManager;
+import com.ejisto.event.def.ApplicationScanRequired;
 import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.modules.cargo.logging.ServerLogger;
 import com.ejisto.modules.cargo.util.ContainerInstaller;
@@ -63,6 +64,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -184,8 +186,9 @@ public class CargoManager implements ContainerManager {
             eventManager.publishEventAndWait(
                     new ChangeServerStatus(this, container.getId(), ChangeServerStatus.Command.SHUTDOWN));
         }
-        //eventManager.publishEventAndWait(new ApplicationScanRequired(this, webApplicationDescriptor));
-        Deployable deployable = staticDeploy(webApplicationDescriptor, localContainer);
+        String deployId = UUID.randomUUID().toString();
+        eventManager.publishEventAndWait(new ApplicationScanRequired(this, deployId, webApplicationDescriptor));
+        Deployable deployable = staticDeploy(webApplicationDescriptor, deployId, localContainer);
         if (deployable == null) {
             return false;
         }
@@ -285,8 +288,10 @@ public class CargoManager implements ContainerManager {
         configuration.setProperty(GeneralPropertySet.JVMARGS, args.toString());
         AbstractInstalledLocalContainer instance = createContainer(container.getHomeDir(), container.getCargoId(),
                                                                    container.getId(), configuration);
+        String deployId = UUID.randomUUID().toString();
         for (WebApplicationDescriptor webApplication : webApplications) {
-            staticDeploy(webApplication, instance);
+            eventManager.publishEventAndWait(new ApplicationScanRequired(this, deployId, webApplication));
+            staticDeploy(webApplication, deployId, instance);
         }
         instance.start();
         container.setHomeDir(path.toString());
@@ -356,7 +361,7 @@ public class CargoManager implements ContainerManager {
         String agentPath = ContainerUtils.extractAgentJar(System.getProperty("java.class.path"));
         StringBuilder jvmArgs = new StringBuilder("-javaagent:");
         jvmArgs.append(agentPath);
-        jvmArgs.append(" -noverify -Dspringloaded=verbose -Djava.net.preferIPv4Stack=true");
+        jvmArgs.append(" -noverify -Djava.net.preferIPv4Stack=true");
         jvmArgs.append(" -Dejisto.http.port=").append(System.getProperty(HTTP_LISTEN_PORT.getValue()));
         jvmArgs.append(" -D").append(StringConstants.CLASS_DEBUG_PATH.getValue()).append("=").append(
                 FilenameUtils.normalize(System.getProperty("java.io.tmpdir") + "/"));
@@ -387,9 +392,9 @@ public class CargoManager implements ContainerManager {
     }
 
     @SuppressWarnings("unchecked")
-    private Deployable staticDeploy(WebApplicationDescriptor webApplicationDescriptor, LocalContainer container) {
+    private Deployable staticDeploy(WebApplicationDescriptor webApplicationDescriptor, String deployId, LocalContainer container) {
         try {
-            Deployable deployable = createDeployable(webApplicationDescriptor, container);
+            Deployable deployable = createDeployable(webApplicationDescriptor, deployId, container);
             replaceDeployable(deployable, container);
             return deployable;
         } catch (Exception e) {
@@ -438,10 +443,12 @@ public class CargoManager implements ContainerManager {
         return deployerFactory.createDeployer(container);
     }
 
-    private Deployable createDeployable(WebApplicationDescriptor webApplicationDescriptor, LocalContainer container) {
+    private Deployable createDeployable(WebApplicationDescriptor webApplicationDescriptor, String deployId, LocalContainer container) {
         DeployableFactory deployableFactory = new DefaultDeployableFactory();
+        Path contextPath = Paths.get(webApplicationDescriptor.getContextPath()).getFileName();
+        Path temporaryDeployableDir = Paths.get(System.getProperty("java.io.tmpdir"), deployId).resolve(contextPath);
         Deployable deployable = deployableFactory.createDeployable(container.getId(),
-                                                                   webApplicationDescriptor.getDeployablePath(),
+                                                                   temporaryDeployableDir.toFile().getAbsolutePath(),
                                                                    DeployableType.WAR);
         ((WAR) deployable).setContext(webApplicationDescriptor.getContextPath());
         return deployable;
@@ -449,10 +456,7 @@ public class CargoManager implements ContainerManager {
 
     private void replaceDeployable(Deployable replacement, LocalContainer container) {
         LocalConfiguration configuration = container.getConfiguration();
-        Optional<Deployable> old = findDeployable(replacement.getFile(), configuration);
-        if (old.isPresent()) {
-            configuration.getDeployables().remove(old.get());
-        }
+        findDeployable(replacement.getFile(), configuration).ifPresent(d -> configuration.getDeployables().remove(d));
         configuration.addDeployable(replacement);
     }
 

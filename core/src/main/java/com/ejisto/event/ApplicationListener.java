@@ -21,6 +21,7 @@ package com.ejisto.event;
 
 import com.ejisto.event.def.BaseApplicationEvent;
 
+import java.io.IOException;
 import java.util.EventListener;
 
 /**

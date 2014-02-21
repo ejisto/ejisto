@@ -89,6 +89,10 @@ public class WebApplicationDescriptor implements Serializable, Entity<String> {
         return helper.getIncludedJars();
     }
 
+    public List<String> getWhiteListContent() {
+        return helper.getWhiteListContent();
+    }
+
     @JsonIgnore
     public File getWarFile() {
         return warFile;

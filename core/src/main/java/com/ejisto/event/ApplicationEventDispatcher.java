@@ -71,11 +71,23 @@ public class ApplicationEventDispatcher {
     }
 
     public <T extends BaseApplicationEvent> void broadcast(final T event) {
+        internalBroadcast(event, true);
+    }
+
+    public <T extends BaseApplicationEvent> void synchronousBroadcast(final T event) {
+        internalBroadcast(event, false);
+    }
+
+    private <T extends BaseApplicationEvent> void internalBroadcast(final T event, final boolean asynchronous) {
         if (!running) {
             return;
         }
         log.trace("got event of type [" + event.getClass().getName() + "]");
-        taskManager.addNewTask(new BackgroundTask<Void>(() -> notifyListeners(event), null));
+        if(asynchronous) {
+            taskManager.addNewTask(new BackgroundTask<Void>(() -> notifyListeners(event), null));
+        } else {
+            notifyListeners(event);
+        }
         if (ShutdownRequest.class.isInstance(event)) {//poison pill
             running = false;
         }

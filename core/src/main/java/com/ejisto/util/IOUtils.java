@@ -73,25 +73,26 @@ public final class IOUtils {
         }
     }
 
-    public static void copyFullDirContent(String srcPath, String targetPath) {
-        copyDirContent(new File(srcPath), new File(targetPath), FileMatchers.all(), null, INCLUDE_ALL);
+    public static void copyFullDirContent(Path srcPath, Path targetPath) {
+        copyDirContent(srcPath, targetPath, FileMatchers.all(), null, INCLUDE_ALL);
     }
 
-    private static void copyFilteredDirContent(File srcDir, File targetDir, String[] prefixes, String copiedFilesPrefix) {
-        final List<String> prefixesList = prefixes != null ? asList(prefixes) : Collections.<String>emptyList();
-        copyDirContent(srcDir, targetDir, FileMatchers.prefixMatcher(prefixesList, INCLUDE_ONLY_MATCHING_RESOURCES), copiedFilesPrefix, INCLUDE_ONLY_MATCHING_RESOURCES);
-    }
 
-    private static void copyDirContent(File srcDir, File targetDir, FileMatcher matcher, final String copiedFilesPrefix,
+
+    private static void copyDirContent(Path srcDir, Path targetDir, FileMatcher matcher, final String copiedFilesPrefix,
                                        CopyType copyType) {
         try {
-            final Path srcRoot = srcDir.toPath();
-            final Path targetRoot = targetDir.toPath();
-            Files.walkFileTree(srcRoot,
+            Files.walkFileTree(srcDir,
                                new ConditionMatchingCopyFileVisitor(
-                                       new CopyOptions(srcRoot, targetRoot, matcher, copiedFilesPrefix, copyType)));
+                                       new CopyOptions(srcDir, targetDir, matcher, copiedFilesPrefix, copyType)));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void initPath(Path outputPath) throws IOException {
+        if(!Files.exists(outputPath)) {
+            Files.createDirectories(outputPath);
         }
     }
 
@@ -303,17 +304,22 @@ public final class IOUtils {
 
     @SafeVarargs
     public static void unzipFile(File src, String outputDirectory, FileVisitor<Path>... additionalVisitor) throws IOException {
-        Path out = Paths.get(outputDirectory);
-        if (!Files.exists(out)) {
-            Files.createDirectories(out);
+        unzipFile(src, Paths.get(outputDirectory), additionalVisitor);
+    }
+
+
+    @SafeVarargs
+    public static void unzipFile(File src, Path outputDirectory, FileVisitor<Path>... additionalVisitor) throws IOException {
+        if (!Files.exists(outputDirectory)) {
+            Files.createDirectories(outputDirectory);
         }
-        if (!Files.isDirectory(out)) {
-            throw new IllegalStateException(out.toString() + " is not a directory");
+        if (!Files.isDirectory(outputDirectory)) {
+            throw new IllegalStateException(outputDirectory.toUri() + " is not a directory");
         }
         try (FileSystem fileSystem = FileSystems.newFileSystem(URI.create("jar:file:" + src.getAbsolutePath()),
                                                                Collections.<String, Object>emptyMap())) {
             final Path srcRoot = fileSystem.getPath("/");
-            FileVisitor<Path> visitor = new MultipurposeFileVisitor<>(new CopyFileVisitor(srcRoot, out),
+            FileVisitor<Path> visitor = new MultipurposeFileVisitor<>(new CopyFileVisitor(srcRoot, outputDirectory),
                                                                       additionalVisitor);
             Files.walkFileTree(srcRoot, visitor);
         }
@@ -356,8 +362,8 @@ public final class IOUtils {
         //special handling for development mode
         String libDir = System.getProperty("user.dir") + getActualLibDirectory();
         String fileSuffix = embeddable ? "session-recorder" : "runtime";
-        copyDirContent(new File(libDir),
-                       targetDir,
+        copyDirContent(Paths.get(libDir),
+                       Paths.get(targetDir.getAbsolutePath()),
                        FileMatchers.regexpMatcher("^ejisto-application-.*?-"+fileSuffix+"-libraries.*$", INCLUDE_ONLY_MATCHING_RESOURCES),
                        null, INCLUDE_ONLY_ROOT_MATCHING_RESOURCES);
     }

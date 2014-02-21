@@ -183,7 +183,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
                     DEPLOYABLES_DIR.getValue()) + File.separator + getFilenameWithoutExt(
                     session.getWarFile()) + File.separator;
             deleteFile(deployablePath);
-            copyFullDirContent(session.getInstallationPath(), deployablePath);
+            copyFullDirContent(Paths.get(session.getInstallationPath()), Paths.get(deployablePath));
             session.setDeployablePath(deployablePath);
         } catch (InterruptedException e) {
             log.error("got interruptedException: ", e);

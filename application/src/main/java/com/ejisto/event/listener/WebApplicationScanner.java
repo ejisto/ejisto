@@ -19,23 +19,21 @@
 
 package com.ejisto.event.listener;
 
-import com.ejisto.core.classloading.scan.ScanAction;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.ApplicationScanRequired;
 import com.ejisto.event.def.BlockingTaskProgress;
-import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
-import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
-import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.util.IOUtils;
 import lombok.extern.log4j.Log4j;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ForkJoinPool;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 
@@ -49,36 +47,47 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
 public class WebApplicationScanner implements ApplicationListener<ApplicationScanRequired> {
 
     private final EventManager eventManager;
-    private final MockedFieldsRepository mockedFieldsRepository;
-    private final ForkJoinPool forkJoinPool = new ForkJoinPool();
 
-    public WebApplicationScanner(EventManager eventManager, MockedFieldsRepository mockedFieldsRepository) {
+    public WebApplicationScanner(EventManager eventManager) {
         this.eventManager = eventManager;
-        this.mockedFieldsRepository = mockedFieldsRepository;
     }
 
     @Override
     public void onApplicationEvent(ApplicationScanRequired event) {
         WebApplicationDescriptor descriptor = event.getWebApplicationDescriptor();
-        List<MockedField> fields = mockedFieldsRepository.loadAll(descriptor.getContextPath(),FieldsEditorContext.CREATE_FIELD::isAdmitted);
-        if (isEmpty(fields)) {
-            return;
-        }
+        Path outputPath = Paths.get(System.getProperty("java.io.tmpdir"), event.getRequestId(),
+                                    descriptor.getContextPath());
+        final List<String> includedJars = descriptor.getWhiteListContent();
         String id = UUID.randomUUID().toString();
         eventManager.publishEvent(new BlockingTaskProgress(this, id, "application.deploy.preprocessing.title",
                                                            "application.deploy.preprocessing.description",
                                                            "icon.work.in.progress", true));
-        final Map<String,List<MockedField>> groups = fields.stream().collect(
-                Collectors.groupingBy(MockedField::getClassName));
-        ScanAction action = new ScanAction(descriptor, groups, mockedFieldsRepository);
         try {
-            forkJoinPool.invoke(action);
-            action.get();
+            IOUtils.initPath(outputPath);
+            IOUtils.copyFullDirContent(Paths.get(descriptor.getDeployablePath()), outputPath);
+            Path classesDir = outputPath.resolve("WEB-INF").resolve("classes");
+            Path libDir = outputPath.resolve("WEB-INF").resolve("lib");
+            includedJars.forEach(j -> {
+                try {
+                    Path filePath = libDir.resolve(j);
+                    IOUtils.unzipFile(filePath.toFile(), classesDir);
+                    Files.delete(filePath);
+                } catch (IOException e) {
+                    notifyError(e);
+                }
+            });
+            IOUtils.copyEjistoLibs(false, libDir.toFile());
         } catch (Exception ex) {
-            log.error("exception during scan", ex);
-            eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, ex));
+            notifyError(ex);
         }
         eventManager.publishEventAndWait(new BlockingTaskProgress(this, id, null, null, null, false));
+    }
+
+
+
+    private void notifyError(Exception ex) {
+        log.error("exception during scan", ex);
+        eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, ex));
     }
 
     @Override
