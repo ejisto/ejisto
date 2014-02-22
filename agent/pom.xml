@@ -32,8 +32,8 @@
     <artifactId>ejisto-agent</artifactId>
     <dependencies>
         <dependency>
-            <groupId>org.springsource.springloaded</groupId>
-            <artifactId>springloaded-core</artifactId>
+            <groupId>org.springsource.loaded</groupId>
+            <artifactId>springloaded</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -66,7 +66,7 @@
                             </relocations>
                             <artifactSet>
                                 <includes>
-                                    <include>org.springsource.springloaded:springloaded-core</include>
+                                    <include>org.springsource.loaded:springloaded</include>
                                 </includes>
                             </artifactSet>
                             <transformers>

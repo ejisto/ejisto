@@ -58,7 +58,7 @@
             <outputDirectory>/lib/</outputDirectory>
             <useProjectArtifact>true</useProjectArtifact>
             <excludes>
-                <exclude>org.springsource.springloaded:springloaded-core</exclude>
+                <exclude>org.springsource.loaded:springloaded</exclude>
                 <exclude>com.ejisto:ejisto-core</exclude>
                 <exclude>com.ejisto:ejisto-embeddable</exclude>
                 <exclude>com.ejisto:ejisto-agent</exclude>

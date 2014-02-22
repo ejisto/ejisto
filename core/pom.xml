@@ -72,8 +72,8 @@
             <artifactId>silk-di</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springsource.springloaded</groupId>
-            <artifactId>springloaded-core</artifactId>
+            <groupId>org.springsource.loaded</groupId>
+            <artifactId>springloaded</artifactId>
         </dependency>
     </dependencies>
     <build>
