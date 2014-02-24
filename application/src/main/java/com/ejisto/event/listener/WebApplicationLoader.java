@@ -152,8 +152,6 @@ public class WebApplicationLoader implements ApplicationListener<LoadWebApplicat
             return;
         }
         containerManager.deployToDefaultContainer(webApplicationDescriptor);
-        //undeployExistingWebapp(webApplicationDescriptor.getContextPath(), false);
-        //bindAllDataSources(classLoader, webApplicationDescriptor);
         registerActions(webApplicationDescriptor);
     }
 

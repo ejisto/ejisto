@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -150,6 +151,21 @@ public class ClassTransformerImpl implements ClassTransformer {
         return added;
     }
 
+    boolean addMissingProperties(String className, List<MockedField> fields) throws CannotCompileException, NotFoundException, IOException {
+        CtClass clazz = null;
+        try {
+            clazz = load(className);
+            if(addMissingProperties(clazz, fields) && classesBasePath.isPresent()) {
+                clazz.writeFile(classesBasePath.get());
+            }
+            return true;
+        } finally {
+            if(clazz != null) {
+                clazz.detach();
+            }
+        }
+    }
+
     private boolean createPropertyIfNotFound(CtClass clazz, MockedField field) throws CannotCompileException, NotFoundException {
         try {
             clazz.getField(field.getFieldName());
@@ -223,10 +239,9 @@ public class ClassTransformerImpl implements ClassTransformer {
             if(modified) {
                 trace("class "+ className + " has been modified...");
             }
-//            if(modified && classesBasePath.isPresent()) {
-//                clazz.writeFile(classesBasePath.get());
-//            }
-            return clazz.toBytecode();
+            byte[] result = clazz.toBytecode();
+            clazz.detach();
+            return result;
         } catch (Exception e) {
             logger.error("error during transformation of class " + className, e);
             throw new IllegalClassFormatException(e.getMessage());

@@ -43,7 +43,7 @@ import static org.apache.commons.collections.MapUtils.isEmpty;
 public final class TaskManager {
 
     private ExecutorService executorService;
-    private ScheduledExecutorService scheduler;
+    private final ScheduledExecutorService scheduler;
     private final ReentrantLock lock = new ReentrantLock();
     private final ConcurrentMap<String, TaskEntry> registry;
 

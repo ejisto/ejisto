@@ -88,16 +88,21 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
             log.debug("trying to close active progress for event id: " + event.getId());
             DialogController controller = activeControllers.get(event.getId());
             log.debug("found controller: " + controller);
-            while (controller == null || controller != currentController.get()) {
+            int count = 0;
+            while (count++ < 50 && (controller == null || controller != currentController.get())) {
                 log.debug("sleeping 50ms...");
                 Thread.sleep(50L);
                 controller = activeControllers.get(event.getId());
             }
-            currentController.compareAndSet(controller, null);
-            activeControllers.remove(event.getId());
-            log.debug("hiding controller");
-            controller.hide();
-            log.debug("hidden");
+            if(controller != null) {
+                currentController.compareAndSet(controller, null);
+                activeControllers.remove(event.getId());
+                log.debug("hiding controller");
+                controller.hide();
+                log.debug("hidden");
+            } else {
+                log.debug("controller not found...");
+            }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error("got InterruptedException: ", e);

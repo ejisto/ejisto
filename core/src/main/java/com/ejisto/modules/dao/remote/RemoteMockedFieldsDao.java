@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.ejisto.constants.StringConstants.CTX_GET_MOCKED_FIELD;
+import static com.ejisto.constants.StringConstants.GET_NEWLY_CREATED_FIELDS_REQUEST;
 import static com.ejisto.modules.web.MockedFieldRequest.*;
 
 /**
@@ -72,6 +73,16 @@ public class RemoteMockedFieldsDao extends BaseRemoteDao implements MockedFields
     @Override
     public boolean exists(String contextPath, String className, String fieldName) {
         return getMockedField(contextPath, className, fieldName) != null;
+    }
+
+    @Override
+    public List<MockedField> getRecentlyCreatedFields() {
+        return decodeResponse(remoteCall(GET_NEWLY_CREATED_FIELDS_REQUEST.getValue(), REQUEST_PATH));
+    }
+
+    @Override
+    public void recordFieldCreation(MockedField mockedField) {
+        throw new UnsupportedOperationException(REMOTE_DAO_IS_READ_ONLY);
     }
 
     @Override

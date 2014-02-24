@@ -78,7 +78,8 @@ public enum StringConstants {
     CTX_GET_MOCKED_FIELD("/getField"),
     CTX_GET_SETTINGS("/getSettings"),
     DEFAULT_SERVLET_NAME("ejistoDefaultServlet"),
-    DEV_MODE("ejisto.dev.mode");
+    DEV_MODE("ejisto.dev.mode"),
+    GET_NEWLY_CREATED_FIELDS_REQUEST("newlyCreatedFields");
 
     private final String value;
 

@@ -19,12 +19,16 @@
 
 package com.ejisto.event.listener;
 
+import com.ejisto.core.classloading.scan.ScanAction;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.ApplicationScanRequired;
 import com.ejisto.event.def.BlockingTaskProgress;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
+import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.IOUtils;
 import lombok.extern.log4j.Log4j;
 
@@ -33,9 +37,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
 
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
 
 /**
  * Created by IntelliJ IDEA.
@@ -46,10 +52,13 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
 @Log4j
 public class WebApplicationScanner implements ApplicationListener<ApplicationScanRequired> {
 
+    private final MockedFieldsRepository mockedFieldsRepository;
     private final EventManager eventManager;
+    private final ForkJoinPool forkJoinPool = new ForkJoinPool();
 
-    public WebApplicationScanner(EventManager eventManager) {
+    public WebApplicationScanner(EventManager eventManager, MockedFieldsRepository mockedFieldsRepository) {
         this.eventManager = eventManager;
+        this.mockedFieldsRepository = mockedFieldsRepository;
     }
 
     @Override
@@ -63,6 +72,11 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
                                                            "application.deploy.preprocessing.description",
                                                            "icon.work.in.progress", true));
         try {
+            List<MockedField> fields = mockedFieldsRepository.loadAll(descriptor.getContextPath(), FieldsEditorContext.CREATE_FIELD::isAdmitted);
+            final Map<String,List<MockedField>> groups = fields.stream().collect(
+                    Collectors.groupingBy(MockedField::getClassName));
+            ScanAction action = new ScanAction(outputPath, descriptor.getContextPath(), groups, mockedFieldsRepository);
+            forkJoinPool.invoke(action);
             IOUtils.initPath(outputPath);
             IOUtils.copyFullDirContent(Paths.get(descriptor.getDeployablePath()), outputPath);
             Path classesDir = outputPath.resolve("WEB-INF").resolve("classes");
@@ -77,6 +91,7 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
                 }
             });
             IOUtils.copyEjistoLibs(false, libDir.toFile());
+            action.get();
         } catch (Exception ex) {
             notifyError(ex);
         }

@@ -92,11 +92,9 @@ public class MockedFieldCreationController extends AbstractDialogManager {
         mf.setClassName(fieldEditorPanel.getFieldClass());
         mf.setContextPath(fieldEditorPanel.getContextPath());
         mf.setFieldType(fieldEditorPanel.getFieldType());
-        mockedFieldsRepository.insert(mf);
-        publishEvent(new MockedFieldCreated(this,
-                                            mockedFieldsRepository.load(mf.getContextPath(),
-                                                                        mf.getClassName(),
-                                                                        mf.getFieldName())));
+        MockedField result = mockedFieldsRepository.insert(mf);
+        publishEvent(new MockedFieldCreated(this, result));
+        mockedFieldsRepository.recordFieldCreation(result);
         publishEvent(new ServerRestartRequired(DEFAULT_CONTAINER_ID.getValue(), this));
     }
 

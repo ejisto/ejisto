@@ -98,6 +98,14 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
         return getDao().update(mockedField);
     }
 
+    public void recordFieldCreation(MockedField mockedField) {
+        getDao().recordFieldCreation(mockedField);
+    }
+
+    public List<MockedField> getRecentlyCreatedFields() {
+        return getDao().getRecentlyCreatedFields();
+    }
+
     public MockedField insert(MockedField mockedField) {
         return getDao().insert(mockedField);
     }

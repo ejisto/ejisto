@@ -32,6 +32,8 @@ import org.mapdb.DBMaker;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -54,6 +56,7 @@ public class EmbeddedDatabaseManager {
     private static final int NODE_SIZE = 32;
     private volatile DB db;
     private final CopyOnWriteArrayList<String> contextPaths = new CopyOnWriteArrayList<>();
+    private final Queue<MockedField> newInsertions = new ConcurrentLinkedQueue<>();
 
     public void initDb(String databaseFilePath) {
         boolean owned = false;
@@ -143,6 +146,19 @@ public class EmbeddedDatabaseManager {
             contextPaths.add(contextPath);
             return null;
         });
+    }
+
+    public void recordNewMockedFieldInsertion(final MockedField mockedField) {
+        newInsertions.offer(mockedField);
+    }
+
+    public List<MockedField> getNewMockedFieldInsertion() {
+        List<MockedField> result = new ArrayList<>();
+        MockedField head;
+        while((head = newInsertions.poll()) != null) {
+            result.add(head);
+        }
+        return result;
     }
 
     public void createNewRecordingSession(final String name, final CollectedData collectedData) {

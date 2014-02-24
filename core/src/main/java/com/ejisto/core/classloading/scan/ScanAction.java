@@ -33,6 +33,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,14 +51,17 @@ import static org.apache.commons.io.FilenameUtils.normalize;
 @Log4j
 public final class ScanAction extends RecursiveAction {
     private static final int SIZE_THRESHOLD = 25;
-    private final WebApplicationDescriptor descriptor;
     private final Map<String, List<MockedField>> groupedFields;
     private final MockedFieldsRepository mockedFieldsRepository;
+    private final Path baseDirectory;
+    private final String contextPath;
 
-    public ScanAction(WebApplicationDescriptor descriptor,
+    public ScanAction(Path baseDirectory,
+                      String contextPath,
                       Map<String, List<MockedField>> groupedFields,
                       MockedFieldsRepository mockedFieldsRepository) {
-        this.descriptor = descriptor;
+        this.baseDirectory = baseDirectory;
+        this.contextPath = contextPath;
         this.groupedFields = groupedFields;
         this.mockedFieldsRepository = mockedFieldsRepository;
     }
@@ -83,19 +87,18 @@ public final class ScanAction extends RecursiveAction {
             toBeScanned = groupedFields;
             toBeForked = Collections.emptyMap();
         }
-        invokeAll(new ScanAction(descriptor, toBeForked, mockedFieldsRepository));
-        scanGroups(toBeScanned, descriptor);
+        invokeAll(new ScanAction(baseDirectory, contextPath, toBeForked, mockedFieldsRepository));
+        scanGroups(toBeScanned);
     }
 
-    private void scanGroups(Map<String, List<MockedField>> groups, WebApplicationDescriptor descriptor) {
+    private void scanGroups(Map<String, List<MockedField>> groups) {
         try {
             ClassPool classPool = new ClassPool();
-            String webInf = FilenameUtils.normalizeNoEndSeparator(
-                    descriptor.getDeployablePath()) + File.separator + "WEB-INF";
-            classPool.appendClassPath(webInf + File.separator + "classes");
-            classPool.appendClassPath(webInf + File.separator + "lib/*");
+            Path webInf = baseDirectory.resolve("WEB-INF");
+            classPool.appendClassPath(webInf.resolve("classes").toAbsolutePath().toUri().toString());
+            classPool.appendClassPath(webInf.resolve("lib").toAbsolutePath().toUri().toString() + "/*");
             classPool.appendSystemPath();
-            ClassTransformerImpl transformer = new ClassTransformerImpl(descriptor.getContextPath(), mockedFieldsRepository, null);
+            ClassTransformerImpl transformer = new ClassTransformerImpl(contextPath, mockedFieldsRepository, null);
             groups.forEach((k, v) -> scanClass(v, classPool, transformer, normalize(webInf + File.separator + "classes/", true)));
         } catch (Exception e) {
             log.error("got exception: " + e.toString());

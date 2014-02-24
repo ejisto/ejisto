@@ -307,7 +307,6 @@ public final class IOUtils {
         unzipFile(src, Paths.get(outputDirectory), additionalVisitor);
     }
 
-
     @SafeVarargs
     public static void unzipFile(File src, Path outputDirectory, FileVisitor<Path>... additionalVisitor) throws IOException {
         if (!Files.exists(outputDirectory)) {

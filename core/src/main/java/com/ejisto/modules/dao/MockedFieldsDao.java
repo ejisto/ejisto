@@ -53,4 +53,8 @@ public interface MockedFieldsDao extends Dao {
     boolean deleteContext(String contextPath);
 
     boolean exists(String contextPath, String className, String fieldName);
+
+    void recordFieldCreation(MockedField mockedField);
+
+    List<MockedField> getRecentlyCreatedFields();
 }

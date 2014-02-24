@@ -94,6 +94,16 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
     }
 
     @Override
+    public void recordFieldCreation(final MockedField mockedField) {
+        getDatabase().recordNewMockedFieldInsertion(mockedField);
+    }
+
+    @Override
+    public List<MockedField> getRecentlyCreatedFields() {
+        return getDatabase().getNewMockedFieldInsertion();
+    }
+
+    @Override
     public boolean update(final MockedField field) {
         transactionalOperation(() -> {
             Collection<MockedFieldContainer> fields = getMockedFieldsByClassName(field.getContextPath(),
@@ -108,11 +118,7 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
 
     @Override
     public MockedField insert(final MockedField field) {
-        transactionalOperation(() -> {
-            internalInsert(field);
-            return null;
-        });
-        return field;
+        return transactionalOperation(() -> internalInsert(field));
     }
 
 

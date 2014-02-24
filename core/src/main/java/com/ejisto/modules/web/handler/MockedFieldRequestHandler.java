@@ -35,6 +35,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 
 import static com.ejisto.constants.StringConstants.CTX_GET_MOCKED_FIELD;
+import static com.ejisto.constants.StringConstants.GET_NEWLY_CREATED_FIELDS_REQUEST;
 
 /**
  * Created by IntelliJ IDEA.
@@ -55,8 +56,13 @@ public class MockedFieldRequestHandler implements RemoteRequestHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
         try (OutputStream os = httpExchange.getResponseBody()) {
             String requestBody = IOUtils.readInputStream(httpExchange.getRequestBody(), "UTF-8");
-            MockedFieldRequest request = JSONUtil.decode(requestBody, MockedFieldRequest.class);
-            Collection<MockedField> found = mockedFieldsRepository.load(request);
+            Collection<MockedField> found;
+            if(httpExchange.getRequestURI().toString().endsWith(GET_NEWLY_CREATED_FIELDS_REQUEST.getValue())) {
+                found = mockedFieldsRepository.getRecentlyCreatedFields();
+            } else {
+                MockedFieldRequest request = JSONUtil.decode(requestBody, MockedFieldRequest.class);
+                found = mockedFieldsRepository.load(request);
+            }
             String response = MockedFieldsJSONUtil.encodeMockedFields(found);
             httpExchange.sendResponseHeaders(200, response.length());
             os.write(response.getBytes(ConfigurationManager.UTF_8));
