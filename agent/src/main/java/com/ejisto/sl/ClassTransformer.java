@@ -14,4 +14,6 @@ import java.util.List;
 public interface ClassTransformer extends ClassFileTransformer {
 
     boolean isInstrumentableClass(String className);
+    void resetClassPool();
+
 }

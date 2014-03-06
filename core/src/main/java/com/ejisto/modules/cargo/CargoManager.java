@@ -365,6 +365,7 @@ public class CargoManager implements ContainerManager {
         jvmArgs.append(" -Dejisto.http.port=").append(System.getProperty(HTTP_LISTEN_PORT.getValue()));
         jvmArgs.append(" -D").append(StringConstants.CLASS_DEBUG_PATH.getValue()).append("=").append(
                 FilenameUtils.normalize(System.getProperty("java.io.tmpdir") + "/"));
+        jvmArgs.append(" -D").append(StringConstants.ACTIVATE_IN_MEMORY_RELOAD.getValue()).append("=false");
 
         String existingConfiguration = configuration.getPropertyValue(GeneralPropertySet.JVMARGS);
         if (StringUtils.isNotBlank(existingConfiguration)) {

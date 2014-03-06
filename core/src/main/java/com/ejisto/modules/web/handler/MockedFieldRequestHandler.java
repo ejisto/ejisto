@@ -57,7 +57,7 @@ public class MockedFieldRequestHandler implements RemoteRequestHandler {
         try (OutputStream os = httpExchange.getResponseBody()) {
             String requestBody = IOUtils.readInputStream(httpExchange.getRequestBody(), "UTF-8");
             Collection<MockedField> found;
-            if(httpExchange.getRequestURI().toString().endsWith(GET_NEWLY_CREATED_FIELDS_REQUEST.getValue())) {
+            if(requestBody.equals(GET_NEWLY_CREATED_FIELDS_REQUEST.getValue())) {
                 found = mockedFieldsRepository.getRecentlyCreatedFields();
             } else {
                 MockedFieldRequest request = JSONUtil.decode(requestBody, MockedFieldRequest.class);

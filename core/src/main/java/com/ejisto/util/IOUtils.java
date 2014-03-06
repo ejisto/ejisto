@@ -357,18 +357,18 @@ public final class IOUtils {
         }
     }
 
-    public static void copyEjistoLibs(boolean embeddable, File targetDir) {
+    public static void copyEjistoLibs(boolean embeddable, Path targetDir) {
         //special handling for development mode
-        String libDir = System.getProperty("user.dir") + getActualLibDirectory();
+        Path libDir = Paths.get(System.getProperty("user.dir"), getActualLibDirectory());
         String fileSuffix = embeddable ? "session-recorder" : "runtime";
-        copyDirContent(Paths.get(libDir),
-                       Paths.get(targetDir.getAbsolutePath()),
+        copyDirContent(libDir,
+                       targetDir,
                        FileMatchers.regexpMatcher("^ejisto-application-.*?-"+fileSuffix+"-libraries.*$", INCLUDE_ONLY_MATCHING_RESOURCES),
                        null, INCLUDE_ONLY_ROOT_MATCHING_RESOURCES);
     }
 
     private static String getActualLibDirectory() {
-        return Boolean.getBoolean(StringConstants.DEV_MODE.getValue()) ? "" : File.separator + "lib";
+        return Boolean.getBoolean(StringConstants.DEV_MODE.getValue()) ? "" : "lib";
     }
 
     public static String getEjistoCoreClasspathEntry(SettingsRepository settingsRepository) {

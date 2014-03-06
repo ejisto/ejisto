@@ -29,8 +29,11 @@ import com.ejisto.modules.gui.components.ProgressPanel;
 import lombok.extern.log4j.Log4j;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.ejisto.util.GuiUtils.getMessage;
@@ -46,6 +49,7 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
 
     private final Application application;
     private final TaskManager taskManager;
+    private final List<String> blacklist = new CopyOnWriteArrayList<>();
     private final ConcurrentMap<String, DialogController> activeControllers = new ConcurrentHashMap<>();
     private final AtomicReference<DialogController> currentController = new AtomicReference<>();
 
@@ -56,6 +60,9 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
 
     @Override
     public void onApplicationEvent(final BlockingTaskProgress event) {
+        if(blacklist.contains(event.getId())) {
+            return;
+        }
         if (event.isRunning()) {
             taskManager.addNewTask(new BackgroundTask<>(() -> {
                 DialogController controller = DialogController.Builder.newInstance().
@@ -65,12 +72,14 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
                         withIconKey(event.getIconKey()).
                         withHeader(getMessage(event.getPanelTitle()), getMessage(event.getPanelDescription())).
                         build();
-                activeControllers.put(event.getId(), controller);
-                while (activeControllers.containsKey(event.getId()) &&
-                        !currentController.compareAndSet(null, controller)) {
-                    Thread.sleep(100L);
+                if(!blacklist.contains(event.getId())) {
+                    activeControllers.put(event.getId(), controller);
+                    while (activeControllers.containsKey(event.getId()) &&
+                            !currentController.compareAndSet(null, controller)) {
+                        Thread.sleep(100L);
+                    }
+                    controller.showUndecorated(true);
                 }
-                controller.showUndecorated(true);
                 return null;
             }));
         } else {
@@ -84,6 +93,7 @@ public class TaskProgressNotifier implements ApplicationListener<BlockingTaskPro
     }
 
     private void closeActiveProgress(BlockingTaskProgress event) {
+        blacklist.add(event.getId());
         try {
             log.debug("trying to close active progress for event id: " + event.getId());
             DialogController controller = activeControllers.get(event.getId());

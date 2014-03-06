@@ -79,7 +79,8 @@ public enum StringConstants {
     CTX_GET_SETTINGS("/getSettings"),
     DEFAULT_SERVLET_NAME("ejistoDefaultServlet"),
     DEV_MODE("ejisto.dev.mode"),
-    GET_NEWLY_CREATED_FIELDS_REQUEST("newlyCreatedFields");
+    GET_NEWLY_CREATED_FIELDS_REQUEST("newlyCreatedFields"),
+    ACTIVATE_IN_MEMORY_RELOAD("classes.memory.reload");
 
     private final String value;
 

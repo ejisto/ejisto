@@ -31,10 +31,11 @@ import org.apache.log4j.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
@@ -44,21 +45,17 @@ import static java.lang.Thread.currentThread;
 
 public class ClassTransformerImpl implements ClassTransformer {
 
-    private static final Logger logger = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
+    private static final Logger LOGGER = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private final String contextPath;
     private final Collection<String> registeredClassNames;
     private final MockedFieldsRepository mockedFieldsRepository;
-    private final Optional<String> classesBasePath;
-    private ClassPool classPool;
+    private final AtomicReference<ClassPool> classPoolContainer = new AtomicReference<>();
 
     public ClassTransformerImpl(String contextPath,
-                                MockedFieldsRepository mockedFieldsRepository,
-                                String classesBasePath) {
+                                MockedFieldsRepository mockedFieldsRepository) {
         this.contextPath = contextPath;
         this.mockedFieldsRepository = mockedFieldsRepository;
         this.registeredClassNames = loadAllRegisteredClassNames(contextPath, mockedFieldsRepository);
-        this.classesBasePath = Optional.ofNullable(classesBasePath);
-        initClassPool();
     }
 
     private static Collection<String> loadAllRegisteredClassNames(String contextPath,
@@ -70,14 +67,18 @@ public class ClassTransformerImpl implements ClassTransformer {
     }
 
     private static void trace(String s) {
-        if (logger.isTraceEnabled()) {
-            logger.trace(s);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace(s);
         }
     }
 
-    private void initClassPool() {
-        classPool = new ClassPool();
-        classPool.appendClassPath(new LoaderClassPath(currentThread().getContextClassLoader()));
+    private ClassPool getClassPool() {
+        if(classPoolContainer.get() == null) {
+            ClassPool classPool = new ClassPool();
+            classPool.appendClassPath(new LoaderClassPath(currentThread().getContextClassLoader()));
+            classPoolContainer.compareAndSet(null, classPool);
+        }
+        return classPoolContainer.get();
     }
 
     public Class<?> transform(String className) throws CannotCompileException, NotFoundException {
@@ -135,7 +136,7 @@ public class ClassTransformerImpl implements ClassTransformer {
     }
 
     private CtClass load(String className) throws NotFoundException {
-        CtClass clazz = classPool.get(className.replaceAll("/", "."));
+        CtClass clazz = getClassPool().get(className.replaceAll("/", "."));
         if (clazz.isFrozen()) {
             clazz.defrost();
         }
@@ -151,19 +152,33 @@ public class ClassTransformerImpl implements ClassTransformer {
         return added;
     }
 
-    boolean addMissingProperties(String className, List<MockedField> fields) throws CannotCompileException, NotFoundException, IOException {
+    byte[] addMissingProperties(byte[] original, String className, List<MockedField> fields) throws CannotCompileException, NotFoundException, IOException {
+        return addMissingProperties(original, className, fields, x -> {});
+    }
+
+    byte[] addMissingProperties(byte[] original, String className, List<MockedField> fields, Consumer<CtClass> consumer) throws CannotCompileException, NotFoundException, IOException {
         CtClass clazz = null;
         try {
-            clazz = load(className);
-            if(addMissingProperties(clazz, fields) && classesBasePath.isPresent()) {
-                clazz.writeFile(classesBasePath.get());
+            if(original != null) {
+                clazz = getClassPool().makeClass(new ByteArrayInputStream(original));
+            } else {
+                clazz = load(className);
             }
-            return true;
+            if(addMissingProperties(clazz, fields)) {
+                clazz.rebuildClassFile();
+                consumer.accept(clazz);
+                return clazz.toBytecode();
+            }
+            return original;
         } finally {
             if(clazz != null) {
                 clazz.detach();
             }
         }
+    }
+
+    public void resetClassPool() {
+        classPoolContainer.set(null);
     }
 
     private boolean createPropertyIfNotFound(CtClass clazz, MockedField field) throws CannotCompileException, NotFoundException {
@@ -221,13 +236,14 @@ public class ClassTransformerImpl implements ClassTransformer {
     private byte[] transform(String className, byte[] classFileBuffer, List<MockedField> mockedFields) throws IllegalClassFormatException {
         try {
             trace("retrieving " + className + " from pool");
+            ClassPool classPool = getClassPool();
             CtClass clazz;
             if(classFileBuffer == null) {
                 clazz = classPool.get(getCanonicalClassName(className));
             } else {
+                trace("class file bytes already loaded. Reusing it...");
                 clazz = classPool.makeClass(new ByteArrayInputStream(classFileBuffer));
             }
-            boolean modified = addMissingProperties(clazz, mockedFields);
             trace("instrumenting " + className);
             clazz.instrument(new ObjectEditor(new EjistoMethodFilter(contextPath, mockedFields)));
             trace("removing final modifier (if present)");
@@ -235,15 +251,12 @@ public class ClassTransformerImpl implements ClassTransformer {
             trace("adding default constructor, if none present ");
             addDefaultConstructor(clazz);
             trace("done. Returning bytecode");
-            //clazz.rebuildClassFile();
-            if(modified) {
-                trace("class "+ className + " has been modified...");
-            }
+            clazz.rebuildClassFile();
             byte[] result = clazz.toBytecode();
             clazz.detach();
             return result;
         } catch (Exception e) {
-            logger.error("error during transformation of class " + className, e);
+            LOGGER.error("error during transformation of class " + className, e);
             throw new IllegalClassFormatException(e.getMessage());
         }
     }

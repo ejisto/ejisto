@@ -95,10 +95,10 @@ public final class ScanAction extends RecursiveAction {
         try {
             ClassPool classPool = new ClassPool();
             Path webInf = baseDirectory.resolve("WEB-INF");
-            classPool.appendClassPath(webInf.resolve("classes").toAbsolutePath().toUri().toString());
-            classPool.appendClassPath(webInf.resolve("lib").toAbsolutePath().toUri().toString() + "/*");
+            classPool.appendClassPath(webInf.resolve("classes").toAbsolutePath().toString());
+            classPool.appendClassPath(webInf.resolve("lib").toAbsolutePath().toString() + "/*");
             classPool.appendSystemPath();
-            ClassTransformerImpl transformer = new ClassTransformerImpl(contextPath, mockedFieldsRepository, null);
+            ClassTransformerImpl transformer = new ClassTransformerImpl(contextPath, mockedFieldsRepository);
             groups.forEach((k, v) -> scanClass(v, classPool, transformer, normalize(webInf + File.separator + "classes/", true)));
         } catch (Exception e) {
             log.error("got exception: " + e.toString());

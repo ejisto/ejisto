@@ -178,7 +178,7 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
             File dir = new File(libDir);
             customObjectFactoryRepository.getCustomObjectFactories()
                     .forEach(jar -> copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir));
-            copyEjistoLibs(false, dir);
+            copyEjistoLibs(false, dir.toPath());
             String deployablePath = System.getProperty(
                     DEPLOYABLES_DIR.getValue()) + File.separator + getFilenameWithoutExt(
                     session.getWarFile()) + File.separator;

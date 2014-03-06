@@ -75,8 +75,6 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
             List<MockedField> fields = mockedFieldsRepository.loadAll(descriptor.getContextPath(), FieldsEditorContext.CREATE_FIELD::isAdmitted);
             final Map<String,List<MockedField>> groups = fields.stream().collect(
                     Collectors.groupingBy(MockedField::getClassName));
-            ScanAction action = new ScanAction(outputPath, descriptor.getContextPath(), groups, mockedFieldsRepository);
-            forkJoinPool.invoke(action);
             IOUtils.initPath(outputPath);
             IOUtils.copyFullDirContent(Paths.get(descriptor.getDeployablePath()), outputPath);
             Path classesDir = outputPath.resolve("WEB-INF").resolve("classes");
@@ -90,7 +88,9 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
                     notifyError(e);
                 }
             });
-            IOUtils.copyEjistoLibs(false, libDir.toFile());
+            IOUtils.copyEjistoLibs(false, libDir);
+            ScanAction action = new ScanAction(outputPath, descriptor.getContextPath(), groups, mockedFieldsRepository);
+            forkJoinPool.invoke(action);
             action.get();
         } catch (Exception ex) {
             notifyError(ex);

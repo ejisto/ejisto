@@ -20,6 +20,7 @@
 package com.ejisto.core.classloading;
 
 import com.ejisto.sl.ClassTransformer;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springsource.loaded.LoadtimeInstrumentationPlugin;
 import org.springsource.loaded.ReloadEventProcessorPlugin;
@@ -28,6 +29,8 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
+import static org.apache.commons.lang3.StringUtils.indexOf;
+import static org.apache.commons.lang3.StringUtils.substring;
 
 /**
  * Created by IntelliJ IDEA.
@@ -46,13 +49,13 @@ public class SpringLoadedJVMPlugin implements ReloadEventProcessorPlugin, Loadti
     @Override
     public boolean accept(String slashedTypeName, ClassLoader classLoader, ProtectionDomain protectionDomain, byte[] bytes) {
         return initCompleted() && slashedTypeName != null &&
-                transformer.isInstrumentableClass(toDottedClassName(slashedTypeName));
+                transformer.isInstrumentableClass(cleanClassName(slashedTypeName));
     }
 
     @Override
     public byte[] modify(String slashedClassName, ClassLoader classLoader, byte[] bytes) {
         try {
-            return transformer.transform(classLoader, toDottedClassName(slashedClassName), null, null, bytes);
+            return transformer.transform(classLoader, cleanClassName(slashedClassName), null, null, bytes);
         } catch (IllegalClassFormatException e) {
             LOGGER.warn(String.format("unable to transform class %s", slashedClassName), e);
             return null;
@@ -69,6 +72,7 @@ public class SpringLoadedJVMPlugin implements ReloadEventProcessorPlugin, Loadti
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(String.format("%s has been reloaded", typename));
         }
+        transformer.resetClassPool();
     }
 
     public static void initClassTransformer(ClassTransformer classTransformer) {
@@ -86,7 +90,12 @@ public class SpringLoadedJVMPlugin implements ReloadEventProcessorPlugin, Loadti
         return transformer != null;
     }
 
-    private static String toDottedClassName(String slashedClassName) {
-        return slashedClassName.replaceAll("/", ".");
+    private static String cleanClassName(String slashedClassName) {
+        String dottedClassName = slashedClassName.replaceAll("/", ".");
+        final int dollarIndex = indexOf(dottedClassName, "$");
+        if(dollarIndex > -1) {
+            return substring(dottedClassName, 0, dollarIndex);
+        }
+        return dottedClassName;
     }
 }

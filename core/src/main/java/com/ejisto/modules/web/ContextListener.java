@@ -26,8 +26,6 @@ import com.ejisto.core.classloading.SpringLoadedJVMPlugin;
 import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.web.util.ConfigurationManager;
-import com.ejisto.sl.ClassTransformer;
-import com.ejisto.sl.JVMPlugin;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.LoaderClassPath;
@@ -42,8 +40,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.ejisto.constants.StringConstants.SESSION_RECORDING_ACTIVE;
-import static com.ejisto.constants.StringConstants.TARGET_CONTEXT_PATH;
+import static com.ejisto.constants.StringConstants.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -77,14 +74,16 @@ public class ContextListener implements ServletContextListener {
         initLog();
         context.log("<Ejisto> ClassTransformerImpl initialization...");
         final MockedFieldsRepository mockedFieldsRepository = new MockedFieldsRepository(null);
-        ClassTransformerImpl classTransformer = new ClassTransformerImpl(targetContextPath, mockedFieldsRepository,
-                                                                 context.getRealPath("/WEB-INF/classes/"));
+        ClassTransformerImpl classTransformer = new ClassTransformerImpl(targetContextPath, mockedFieldsRepository);
         transformerPlugin = new SpringLoadedJVMPlugin();
         SpringLoadedPreProcessor.registerGlobalPlugin(transformerPlugin);
         SpringLoadedJVMPlugin.initClassTransformer(classTransformer);
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(targetContextPath);
         cp.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
-        scheduler.scheduleAtFixedRate(new ClassReloader(classTransformer, mockedFieldsRepository), 5L, 5L, TimeUnit.SECONDS);
+        ClassReloader task = new ClassReloader(classTransformer, mockedFieldsRepository,
+                                               Boolean.getBoolean(ACTIVATE_IN_MEMORY_RELOAD.getValue()),
+                                               context.getRealPath("/WEB-INF/classes/"));
+        scheduler.scheduleWithFixedDelay(task, 5L, 5L, TimeUnit.SECONDS);
         context.log("<Ejisto> ClassTransformerImpl successfully initialized!");
     }
 
