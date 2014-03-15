@@ -1,0 +1,15 @@
+.idea/
+*.iml
+classes/
+agent/build/
+agent/target/
+application/target/
+core/build/
+core/target/
+embeddable/build/
+embeddable/target/
+test-beans/build/
+test-beans/target/
+test-factories/target/
+test-webapp/build/
+test-webapp/target/

@@ -27,6 +27,8 @@ import org.springsource.loaded.ReloadEventProcessorPlugin;
 
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 import static com.ejisto.constants.StringConstants.EJISTO_CLASS_TRANSFORMER_CATEGORY;
 import static org.apache.commons.lang3.StringUtils.indexOf;
@@ -41,9 +43,12 @@ import static org.apache.commons.lang3.StringUtils.substring;
 public class SpringLoadedJVMPlugin implements ReloadEventProcessorPlugin, LoadtimeInstrumentationPlugin {
     private static final Logger LOGGER = Logger.getLogger(EJISTO_CLASS_TRANSFORMER_CATEGORY.getValue());
     private static volatile ClassTransformer transformer;
+    private final Consumer<String> reloadEventHandler;
 
-    public SpringLoadedJVMPlugin() {
+    public SpringLoadedJVMPlugin(Consumer<String> reloadEventHandler) {
         LOGGER.info("SpringLoadedJVMPlugin : called constructor");
+        Objects.requireNonNull(reloadEventHandler, "reloadEventHandler cannot be null");
+        this.reloadEventHandler = reloadEventHandler;
     }
 
     @Override
@@ -63,16 +68,17 @@ public class SpringLoadedJVMPlugin implements ReloadEventProcessorPlugin, Loadti
     }
 
     @Override
-    public boolean shouldRerunStaticInitializer(String typename, Class<?> clazz, String encodedTimestamp) {
+    public boolean shouldRerunStaticInitializer(String typeName, Class<?> clazz, String encodedTimestamp) {
         return false;
     }
 
     @Override
-    public void reloadEvent(String typename, Class<?> clazz, String encodedTimestamp) {
+    public void reloadEvent(String typeName, Class<?> clazz, String encodedTimestamp) {
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(String.format("%s has been reloaded", typename));
+            LOGGER.info(String.format("%s has been reloaded", typeName));
         }
         transformer.resetClassPool();
+        reloadEventHandler.accept(typeName);
     }
 
     public static void initClassTransformer(ClassTransformer classTransformer) {

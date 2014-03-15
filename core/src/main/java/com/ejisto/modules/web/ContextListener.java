@@ -22,10 +22,12 @@ package com.ejisto.modules.web;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.core.classloading.ClassReloader;
 import com.ejisto.core.classloading.ClassTransformerImpl;
+import com.ejisto.core.classloading.ReloadAwareDelegatingClassLoader;
 import com.ejisto.core.classloading.SpringLoadedJVMPlugin;
 import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.web.util.ConfigurationManager;
+import com.ejisto.sl.ClassTransformer;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.LoaderClassPath;
@@ -35,6 +37,7 @@ import org.springsource.loaded.agent.SpringLoadedPreProcessor;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.net.MalformedURLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -73,18 +76,36 @@ public class ContextListener implements ServletContextListener {
         sessionRecordingActive.set(Boolean.getBoolean(SESSION_RECORDING_ACTIVE.getValue()));
         initLog();
         context.log("<Ejisto> ClassTransformerImpl initialization...");
+        ClassReloader task = initClassReloader(targetContextPath);
+        scheduler.scheduleWithFixedDelay(task, 5L, 5L, TimeUnit.SECONDS);
+        context.log("<Ejisto> ClassTransformerImpl successfully initialized!");
+    }
+
+    private ClassReloader initClassReloader(String targetContextPath) {
         final MockedFieldsRepository mockedFieldsRepository = new MockedFieldsRepository(null);
         ClassTransformerImpl classTransformer = new ClassTransformerImpl(targetContextPath, mockedFieldsRepository);
-        transformerPlugin = new SpringLoadedJVMPlugin();
+        String classesBasePath = context.getRealPath("/WEB-INF/classes/");
+        ReloadAwareDelegatingClassLoader classLoader = createDelegatingClassLoader(classesBasePath, classTransformer);
+        Thread.currentThread().setContextClassLoader(classLoader);
+        transformerPlugin = new SpringLoadedJVMPlugin(c -> classLoader.resetWebAppClassLoader());
         SpringLoadedPreProcessor.registerGlobalPlugin(transformerPlugin);
         SpringLoadedJVMPlugin.initClassTransformer(classTransformer);
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(targetContextPath);
-        cp.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
-        ClassReloader task = new ClassReloader(classTransformer, mockedFieldsRepository,
+        cp.appendClassPath(new LoaderClassPath(classLoader));
+        return new ClassReloader(classTransformer, mockedFieldsRepository,
                                                Boolean.getBoolean(ACTIVATE_IN_MEMORY_RELOAD.getValue()),
-                                               context.getRealPath("/WEB-INF/classes/"));
-        scheduler.scheduleWithFixedDelay(task, 5L, 5L, TimeUnit.SECONDS);
-        context.log("<Ejisto> ClassTransformerImpl successfully initialized!");
+                                               classesBasePath);
+    }
+
+    private ReloadAwareDelegatingClassLoader createDelegatingClassLoader(String classesBasePath,
+                                                                         ClassTransformer classTransformer) {
+        try {
+            return new ReloadAwareDelegatingClassLoader(Thread.currentThread().getContextClassLoader(),
+                                                        classesBasePath,
+                                                        classTransformer);
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private void initLog() {
