@@ -107,7 +107,7 @@ public final class MockedFieldsRepository extends ExternalizableService<MockedFi
     }
 
     public MockedField insert(MockedField mockedField) {
-        return getDao().insert(mockedField);
+        return CONVERTER.apply(getDao().insert(mockedField));
     }
 
     public boolean isMockableClass(String contextPath, String className) {
