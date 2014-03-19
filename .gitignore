@@ -1,5 +1,6 @@
 .idea/
 *.iml
+target/
 classes/
 agent/build/
 agent/target/
