@@ -147,7 +147,7 @@ class ServerSummary extends JXPanel implements PropertyChangeListener {
         }
         info = new JXLabel(getIcon(getMessage("icon.warn")));
         info.setVisible(false);
-        info.setToolTipText(getMessage("server.restart.required"));
+        info.setToolTipText(getMessage("classes.reloading.warning"));
         return info;
     }
 
