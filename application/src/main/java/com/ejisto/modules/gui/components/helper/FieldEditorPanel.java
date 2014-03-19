@@ -34,6 +34,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
+import java.util.Optional;
 
 import static com.ejisto.modules.controller.MockedFieldsEditorController.CANCEL_EDITING;
 import static com.ejisto.modules.controller.MockedFieldsEditorController.STOP_EDITING;
@@ -77,10 +78,13 @@ public final class FieldEditorPanel extends JXCollapsiblePane implements ActionL
         }
     }
 
-    public void setTypes(Collection<String> types) {
+    public void setTypes(Collection<String> types, Optional<String> defaultClassName) {
         this.typeSelector.removeAllItems();
         types.stream().map(TypeEntry::fromType).forEach(typeSelector::addItem);
-        this.fieldClass = getSelectedType();
+        final Optional<String> selectedType = getSelectedType(defaultClassName);
+        if(selectedType.isPresent()) {
+            this.fieldClass = selectedType.get();
+        }
     }
 
     public void setTitle(String title) {
@@ -125,17 +129,18 @@ public final class FieldEditorPanel extends JXCollapsiblePane implements ActionL
     }
 
     void onTypeSelected() {
-        fieldClass = getSelectedType();
-        if (fieldClass != null) {
+        final Optional<String> selectedType = getSelectedType(Optional.<String>empty());
+        if (selectedType.isPresent()) {
+            this.fieldClass = selectedType.get();
             typeSelector.setToolTipText(fieldClass);
         }
     }
 
-    private String getSelectedType() {
+    private Optional<String> getSelectedType(Optional<String> defaultClassName) {
         if (typeSelector == null || typeSelector.getSelectedItem() == null) {
-            return null;
+            return defaultClassName;
         }
-        return ((TypeEntry) typeSelector.getSelectedItem()).type;
+        return Optional.of(((TypeEntry) typeSelector.getSelectedItem()).type);
     }
 
     void setSize(String fieldSize) {

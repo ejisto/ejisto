@@ -34,7 +34,6 @@ import java.awt.event.ActionEvent;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
 import static com.ejisto.util.GuiUtils.getMessage;
@@ -53,7 +52,8 @@ public class MockedFieldCreationController extends AbstractDialogManager {
     private final FieldEditorPanel fieldEditorPanel;
     private final MockedFieldsRepository mockedFieldsRepository;
 
-    public MockedFieldCreationController(MockedFieldsRepository mockedFieldsRepository) {
+    public MockedFieldCreationController(MockedFieldsRepository mockedFieldsRepository,
+                                         Optional<MockedField> selectedFieldOnContainer) {
         super();
         this.mockedFieldsRepository = mockedFieldsRepository;
         view = new JPanel(new BorderLayout());
@@ -61,13 +61,13 @@ public class MockedFieldCreationController extends AbstractDialogManager {
         map.put(CTX_SELECTION, new AbstractActionExt() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setTypes(fieldEditorPanel.getContextPath());
+                setTypes(fieldEditorPanel.getContextPath(), selectedFieldOnContainer);
             }
         });
         fieldEditorPanel = new FieldEditorPanel(map, FieldsEditorContext.CREATE_FIELD);
         final Optional<String> first = setAllAvailableContextPaths();
         if(first.isPresent()) {
-            setTypes(first.get());
+            setTypes(first.get(), selectedFieldOnContainer);
         }
         view.add(fieldEditorPanel, BorderLayout.CENTER);
     }
@@ -98,12 +98,12 @@ public class MockedFieldCreationController extends AbstractDialogManager {
         publishEvent(new ServerRestartRequired(DEFAULT_CONTAINER_ID.getValue(), this));
     }
 
-    private void setTypes(String selectedContextPath) {
+    private void setTypes(String selectedContextPath, Optional<MockedField> selectedFieldOnContainer) {
         Set<String> contexts = mockedFieldsRepository.loadAll(selectedContextPath, FieldsEditorContext.CREATE_FIELD::isAdmitted)
                 .stream()
                 .map(MockedField::getClassName)
                 .collect(Collectors.toSet());
-        fieldEditorPanel.setTypes(contexts);
+        fieldEditorPanel.setTypes(contexts, selectedFieldOnContainer.map(MockedField::getClassName));
     }
 
     private Optional<String> setAllAvailableContextPaths() {

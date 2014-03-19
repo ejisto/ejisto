@@ -163,7 +163,11 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
 
     @Override
     public List<MockedField> getSelectedFields() {
-        return Arrays.asList(getSelectedField());
+        final Optional<MockedField> selectedField = getSelectedField();
+        if(selectedField.isPresent()) {
+            return Arrays.asList(selectedField.get());
+        }
+        return Collections.emptyList();
     }
 
     @Override
@@ -334,10 +338,13 @@ public class MockedFieldTree extends JTree implements CellEditorListener, Mocked
     }
 
 
-    MockedField getSelectedField() {
-        TreePath path = getSelectionPath();
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-        return (MockedField) node.getUserObject();
+    Optional<MockedField> getSelectedField() {
+        Optional<TreePath> path = Optional.ofNullable(getSelectionPath());
+        if(!path.isPresent()) {
+            return Optional.empty();
+        }
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.get().getLastPathComponent();
+        return Optional.of((MockedField) node.getUserObject());
     }
 
     private JTextField getTextField() {

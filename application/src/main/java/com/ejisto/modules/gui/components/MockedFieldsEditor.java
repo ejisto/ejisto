@@ -43,6 +43,7 @@ import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -291,9 +292,9 @@ public class MockedFieldsEditor extends JXPanel implements ItemListener {
 
     public void initEditorPanel(Collection<String> types, String title, MockedField editedField) {
         if (editedField.getFieldElementType() != null) {
-            getValueEditorPanel().setTypes(Arrays.asList(editedField.getFieldElementType()));
+            getValueEditorPanel().setTypes(Arrays.asList(editedField.getFieldElementType()), Optional.empty());
         } else {
-            getValueEditorPanel().setTypes(types);
+            getValueEditorPanel().setTypes(types, Optional.empty());
         }
         getValueEditorPanel().setTitle(title);
     }

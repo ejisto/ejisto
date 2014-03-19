@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.controller;
 
-import com.ejisto.event.def.MockedFieldCreated;
 import com.ejisto.event.def.MockedFieldDeleted;
 import com.ejisto.event.def.MockedFieldOperation;
 import com.ejisto.event.def.MockedFieldUpdated;
@@ -30,6 +29,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Optional;
 
 import static com.ejisto.util.GuiUtils.getMessage;
 
@@ -45,15 +45,16 @@ public class MockedFieldOperationController {
     private final MockedFieldOperation.OperationType operationType;
     private final Window container;
     private final MockedFieldsRepository mockedFieldsRepository;
+    private final Optional<MockedField> selectedFieldOnContainer;
 
     public MockedFieldOperationController(Window container,
-                                          MockedField field,
-                                          MockedFieldOperation.OperationType operationType,
-                                          MockedFieldsRepository mockedFieldsRepository) {
-        this.field = field;
-        this.operationType = operationType;
+                                          MockedFieldsRepository mockedFieldsRepository,
+                                          MockedFieldOperation event) {
+        this.field = event.getMockedField();
+        this.operationType = event.getOperationType();
         this.container = container;
         this.mockedFieldsRepository = mockedFieldsRepository;
+        this.selectedFieldOnContainer = event.getSource().getSelectedFields().stream().findFirst();
     }
 
     public void showDialog() {
@@ -65,7 +66,7 @@ public class MockedFieldOperationController {
                 activateFields();
                 break;
             case CREATE:
-                createField();
+                createField(selectedFieldOnContainer);
                 break;
             default:
                 break;
@@ -89,8 +90,8 @@ public class MockedFieldOperationController {
         }
     }
 
-    private void createField() {
-        MockedFieldCreationController controller = new MockedFieldCreationController(mockedFieldsRepository);
+    private void createField(Optional<MockedField> selectedFieldOnContainer) {
+        MockedFieldCreationController controller = new MockedFieldCreationController(mockedFieldsRepository, selectedFieldOnContainer);
         controller.showCreateDialog();
     }
 
