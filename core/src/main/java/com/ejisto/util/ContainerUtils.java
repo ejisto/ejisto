@@ -22,7 +22,9 @@ package com.ejisto.util;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -40,8 +42,13 @@ public class ContainerUtils {
         if (StringUtils.isNotBlank(systemProperty)) {
             return systemProperty;
         }
-        return Arrays.stream(classPath.split(Pattern.quote(File.pathSeparator)))
+
+        final Optional<String> agentPath = Arrays.stream(classPath.split(Pattern.quote(File.pathSeparator)))
                 .filter(e -> AGENT_JAR.matcher(e).matches())
-                .findFirst().orElse("");
+                .findFirst();
+        if(agentPath.isPresent()) {
+            return Paths.get(System.getProperty("user.dir"), agentPath.get()).toString();
+        }
+        throw new IllegalStateException("unable to find agent jar");
     }
 }

@@ -21,7 +21,7 @@ package com.ejisto.modules.gui.components;
 
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ContainerStatusChanged;
-import com.ejisto.event.def.ServerRestartRequired;
+import com.ejisto.event.def.ClassesReloadingWarning;
 import com.ejisto.modules.gui.EjistoAction;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
@@ -55,17 +55,17 @@ class ServerSummary extends JXPanel implements PropertyChangeListener {
     public ServerSummary(String containerId, String serverName) {
         this.containerId = containerId;
         this.serverName = serverName;
-        registerApplicationEventListener(new ApplicationListener<ServerRestartRequired>() {
+        registerApplicationEventListener(new ApplicationListener<ClassesReloadingWarning>() {
             @Override
-            public void onApplicationEvent(ServerRestartRequired event) {
+            public void onApplicationEvent(ClassesReloadingWarning event) {
                 if (ServerSummary.this.containerId.equals(event.getContainerId())) {
                     getInfo().setVisible(!getAction(START_CONTAINER.getValue()).isEnabled());
                 }
             }
 
             @Override
-            public Class<ServerRestartRequired> getTargetEventType() {
-                return ServerRestartRequired.class;
+            public Class<ClassesReloadingWarning> getTargetEventType() {
+                return ClassesReloadingWarning.class;
             }
         });
         registerApplicationEventListener(new ApplicationListener<ContainerStatusChanged>() {

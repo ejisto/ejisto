@@ -25,23 +25,23 @@ package com.ejisto.event.def;
  * Date: 7/31/12
  * Time: 8:12 AM
  */
-public class ServerRestartRequired extends BaseApplicationEvent {
+public class ClassesReloadingWarning extends BaseApplicationEvent {
 
     private final String containerId;
 
-    public ServerRestartRequired(String containerId, Object source) {
+    public ClassesReloadingWarning(String containerId, Object source) {
         super(source);
         this.containerId = containerId;
     }
 
     @Override
     public String getDescription() {
-        return "Server restart required";
+        return "Classes reloading warning";
     }
 
     @Override
     public String getKey() {
-        return "server.restart.required";
+        return "classes.reloading.warning";
     }
 
     public String getContainerId() {

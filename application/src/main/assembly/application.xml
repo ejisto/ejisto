@@ -61,7 +61,6 @@
                 <exclude>org.springsource.loaded:springloaded</exclude>
                 <exclude>com.ejisto:ejisto-core</exclude>
                 <exclude>com.ejisto:ejisto-embeddable</exclude>
-                <exclude>com.ejisto:ejisto-agent</exclude>
                 <exclude>org.javassist:javassist</exclude>
                 <exclude>cglib:cglib</exclude>
                 <exclude>commons-codec:commons-codec</exclude>

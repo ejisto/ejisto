@@ -20,7 +20,7 @@
 package com.ejisto.modules.controller;
 
 import com.ejisto.event.def.MockedFieldCreated;
-import com.ejisto.event.def.ServerRestartRequired;
+import com.ejisto.event.def.ClassesReloadingWarning;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.gui.components.helper.FieldEditorPanel;
@@ -95,7 +95,7 @@ public class MockedFieldCreationController extends AbstractDialogManager {
         MockedField result = mockedFieldsRepository.insert(mf);
         publishEvent(new MockedFieldCreated(this, result));
         mockedFieldsRepository.recordFieldCreation(result);
-        publishEvent(new ServerRestartRequired(DEFAULT_CONTAINER_ID.getValue(), this));
+        publishEvent(new ClassesReloadingWarning(DEFAULT_CONTAINER_ID.getValue(), this));
     }
 
     private void setTypes(String selectedContextPath, Optional<MockedField> selectedFieldOnContainer) {
