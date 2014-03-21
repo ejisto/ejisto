@@ -23,6 +23,9 @@ import com.ejisto.core.launcher.ApplicationController;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.listener.*;
 import com.ejisto.modules.gui.Application;
+import com.ejisto.modules.handler.ContextHandler;
+import com.ejisto.modules.handler.Index;
+import com.ejisto.modules.handler.Resources;
 import com.ejisto.services.Service;
 import com.ejisto.services.shutdown.ContainerShutdown;
 import com.ejisto.services.shutdown.DatabaseMaintenance;
@@ -53,6 +56,7 @@ public class ApplicationBinder extends BinderModule {
         construct(TaskProgressNotifier.class);
         construct(SessionRecorderManager.class);
         multibind(Service.class).to(ConstraintsVerifier.class);
+        multibind(Service.class).to(VertxInitializer.class);
         multibind(Service.class).to(ContainerShutdown.class);
         multibind(Service.class).to(ResourcesInitializer.class);
         multibind(Service.class).to(TaskInitializer.class);
@@ -71,5 +75,7 @@ public class ApplicationBinder extends BinderModule {
         multibind(ApplicationListener.class).to(TaskProgressNotifier.class);
         multibind(ApplicationListener.class).to(WebApplicationLoader.class);
         multibind(ApplicationListener.class).to(WebApplicationScanner.class);
+        multibind(ContextHandler.class).to(Index.class);
+        multibind(ContextHandler.class).to(Resources.class);
     }
 }
