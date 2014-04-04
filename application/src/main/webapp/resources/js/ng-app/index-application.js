@@ -32,7 +32,7 @@
         $scope.testMessage = "Hello, World!"
     });
 
-    index.controller('PropertiesEditorController', function ($scope, FieldService) {
+    index.controller('PropertiesEditorController', function ($scope, FieldService, $log) {
         $scope.selectedEditor = 'HIERARCHICAL';
         FieldService.getFieldsGrouped().then(function(result) {
             var collapsedStatusContainer = {
@@ -56,17 +56,15 @@
             $scope.isCollapsed = function(path) {
                 return collapsedStatusContainer.isCollapsed(path);
             };
-            if(!$scope.fieldContainer) {
-                $scope.fieldContainer = {};
-            }
-            $scope.fieldContainer.fields = result.data;
+            $scope.fields = result.data;
         }, function(error) {
-            $scope.$emit('error', error.message);
+            $log.error(error);
+            $scope.$emit('applicationError', error.message);
         });
     });
 
     index.controller('ErrorController', function($scope, $rootScope) {
-        $rootScope.$on('error', function(message) {
+        $rootScope.$on('applicationError', function(message) {
             $scope.errorMessage = message;
         });
     });

@@ -16,9 +16,9 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<div data-ng-show="!fieldContainer || fieldContainer.fields.length == 0">{{"main.propertieseditor.tree.novalues.text" | translate}}</div>
+<div data-ng-show="!fields || fields.length == 0">{{"main.propertieseditor.tree.novalues.text" | translate}}</div>
 <ul class="root">
-    <li data-ng-class="{'package': !node.element, 'field': node.element}" data-sf-treepeat="node in children of fieldContainer.fields" data-collapse="isCollapsed(node.path)" data-ng-click="toggleCollapse(node.path)">
+    <li data-ng-class="{'package': !node.element, 'field': node.element}" data-sf-treepeat="node in children of fields" data-collapse="isCollapsed(node.path)" data-ng-click="toggleCollapse(node.path)">
         <span data-ng-show="node.root">{{node.label | translate}}</span>
         <span data-ng-show="!node.root">{{node.label}}</span>
         <span data-ng-show="node.element.fieldValue">: {{node.element.fieldValue}}</span>

@@ -52,7 +52,9 @@ public class FieldService implements ContextHandler {
             String result = JSONUtil.encode(node);
             request.response()
                     .putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(result.length()))
-                    .write(result);
+                    .putHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+                    .write(result)
+                    .end();
         });
     }
 
