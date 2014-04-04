@@ -22,6 +22,7 @@ package com.ejisto.modules.handler;
 import com.ejisto.constants.StringConstants;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.vertx.java.core.buffer.Buffer;
+import org.vertx.java.core.http.HttpHeaders;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpServerResponse;
 import org.vertx.java.core.http.RouteMatcher;
@@ -34,7 +35,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +48,75 @@ final class Boilerplate {
 
     private static final Boilerplate INSTANCE = new Boilerplate();
     private static final String ROOT = "/";
+    private static final ResourcePathSupplier DEV_SUPPLIER = relativePath ->
+            Paths.get(System.getProperty("user.dir"))
+                    .resolve(Paths.get("..", "src", "main", "webapp"))
+                    .resolve(relativePath);
+    private static final ResourcePathSupplier DEFAULT_SUPPLIER = relativePath -> Paths.get(
+            getResourceURI(relativePath));
+    private static boolean DEV_MODE = Boolean.getBoolean(StringConstants.DEV_MODE.getValue());
+
+    private Boilerplate() {
+    }
+
+    static void serveTemplate(HttpServerResponse response, String relativePath) {
+        serveResource(response, relativePath, "text/html");
+    }
+
+    static void serveResource(HttpServerResponse response, final String relativePath, String contentType) {
+        internalServeResource(response,
+                              DEV_MODE ? DEV_SUPPLIER.get(relativePath) : DEFAULT_SUPPLIER.get(relativePath),
+                              contentType);
+    }
+
+    private static URI getResourceURI(String relativePath) {
+        try {
+            return INSTANCE.getClass().getResource(ROOT + relativePath).toURI();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(relativePath, e);
+        }
+    }
+
+    private static void internalServeResource(HttpServerResponse response, Path resourcePath, String contentType) {
+        try {
+            Objects.requireNonNull(resourcePath);
+            final byte[] resourceBytes = Files.readAllBytes(resourcePath);
+            Buffer b = new Buffer(resourceBytes);
+            response.putHeader(HttpHeaders.CONTENT_TYPE, contentType)
+                    .putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(resourceBytes.length))
+                    .write(b)
+                    .end();
+        } catch (IOException e) {
+            response.setStatusCode(HttpResponseStatus.NOT_FOUND.code());
+            response.setStatusMessage(e.getMessage());
+        }
+    }
+
+    static void addResourcesMatcher(RouteMatcher m) {
+        Arrays.stream(ResourceType.values())
+                .forEach(t -> m.getWithRegEx(t.regex, req -> serveResource(req.response(),
+                                                                           extractResourceFileName(req, t),
+                                                                           t.contentType)));
+    }
+
+    static void sendRedirect(HttpServerResponse response, String target) {
+        response.setStatusCode(HttpResponseStatus.FOUND.code()).putHeader("Location", target).end();
+    }
+
+    private static String extractResourceFileName(HttpServerRequest request, ResourceType resourceType) {
+        final Matcher matcher = resourceType.pattern.matcher(request.path());
+        if (matcher.matches()) {
+            final String resource = matcher.group(1);
+            Objects.requireNonNull(resource);
+            return resourceType.addBaseDir(resource);
+        }
+        throw new IllegalArgumentException("invalid URL");
+    }
+
+    @FunctionalInterface
+    private interface ResourcePathSupplier {
+        Path get(String relativePath);
+    }
 
     private enum ResourceType {
         JS("^/resources/js/(.*?\\.js)(\\?.*?)?$", "application/javascript") {
@@ -91,65 +160,5 @@ final class Boilerplate {
         }
 
         abstract String addBaseDir(String path);
-    }
-
-
-    private Boilerplate() {
-    }
-
-    static void serveTemplate(HttpServerResponse response, String relativePath) {
-        serveResource(response, relativePath, "text/html");
-    }
-
-    static void serveResource(HttpServerResponse response, final String relativePath, String contentType) {
-        Supplier<Path> resourcePathSupplier;
-        if (Boolean.getBoolean(StringConstants.DEV_MODE.getValue())) {
-            resourcePathSupplier = () -> Paths.get(System.getProperty("user.dir"))
-                    .resolve(Paths.get("..", "src", "main", "webapp"))
-                    .resolve(relativePath);
-        } else {
-            resourcePathSupplier = () -> Paths.get(getResourceURI(relativePath));
-        }
-        internalServeResource(response, resourcePathSupplier, contentType);
-    }
-
-    private static URI getResourceURI(String relativePath) {
-        try {
-            return INSTANCE.getClass().getResource(ROOT + relativePath).toURI();
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException(relativePath, e);
-        }
-    }
-
-    private static void internalServeResource(HttpServerResponse response, Supplier<Path> resourcePathSupplier, String contentType) {
-        try {
-            Objects.requireNonNull(resourcePathSupplier);
-            Buffer b = new Buffer(Files.readAllBytes(resourcePathSupplier.get()));
-            response.putHeader("content-type", contentType).end(b);
-        } catch (IOException e) {
-            response.setStatusCode(HttpResponseStatus.NOT_FOUND.code());
-            response.setStatusMessage(e.getMessage());
-        }
-    }
-
-    static void addResourcesMatcher(RouteMatcher m) {
-        Arrays.stream(ResourceType.values())
-                .forEach(t -> m.getWithRegEx(t.regex, req -> serveResource(req.response(),
-                                                                           extractResourceFileName(req, t),
-                                                                           t.contentType)));
-    }
-
-    static void sendRedirect(HttpServerResponse response, String target) {
-        response.setStatusCode(HttpResponseStatus.FOUND.code()).putHeader("Location", target).end();
-    }
-
-    private static String extractResourceFileName(HttpServerRequest request, ResourceType resourceType) {
-        final Matcher matcher = resourceType.pattern.matcher(request.path());
-        if (matcher.matches()) {
-            final String resource = matcher.group(1);
-            Objects.requireNonNull(resource);
-            return resourceType.addBaseDir(resource);
-        }
-        throw new IllegalArgumentException("invalid URL");
     }
 }

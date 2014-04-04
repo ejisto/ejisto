@@ -32,7 +32,9 @@ public class VertxInitializer extends BaseStartupService {
         final HttpServer server = VertxFactory.newVertx().createHttpServer();
         RouteMatcher routeMatcher = new RouteMatcher();
         handlers.forEach(h -> h.addRoutes(routeMatcher));
-        server.requestHandler(routeMatcher).listen(6789, host);
+        server.setCompressionSupported(true)
+                .requestHandler(routeMatcher)
+                .listen(6789, host);
     }
 
     @Override
