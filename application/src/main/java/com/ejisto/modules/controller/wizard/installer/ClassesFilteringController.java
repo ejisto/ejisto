@@ -19,13 +19,12 @@
 
 package com.ejisto.modules.controller.wizard.installer;
 
-import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.components.EjistoDialog;
 import com.ejisto.modules.gui.components.ResourcesFilter;
 import com.ejisto.modules.gui.components.helper.CallbackAction;
 import com.ejisto.modules.gui.components.helper.Step;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

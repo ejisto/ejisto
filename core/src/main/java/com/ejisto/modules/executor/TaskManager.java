@@ -23,16 +23,17 @@ import com.ejisto.core.ApplicationException;
 
 import java.beans.PropertyChangeListener;
 import java.lang.ref.SoftReference;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.collections.MapUtils.isEmpty;
+import static org.apache.commons.collections4.MapUtils.isEmpty;
 
 /**
  * Created by IntelliJ IDEA.

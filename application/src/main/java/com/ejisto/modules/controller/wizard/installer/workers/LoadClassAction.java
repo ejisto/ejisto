@@ -28,13 +28,15 @@ import com.ejisto.modules.repository.MockedFieldsRepository;
 import javassist.*;
 import javassist.bytecode.SignatureAttribute;
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.RecursiveTask;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.ejisto.modules.executor.ErrorDescriptor.Category.ERROR;
 import static com.ejisto.modules.executor.ErrorDescriptor.Category.WARN;

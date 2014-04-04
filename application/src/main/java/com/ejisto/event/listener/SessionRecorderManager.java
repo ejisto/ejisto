@@ -40,7 +40,7 @@ import com.ejisto.modules.web.HTTPServer;
 import com.ejisto.modules.web.handler.DataCollectorHandler;
 import com.ejisto.util.GuiUtils;
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.cargo.module.DescriptorElement;

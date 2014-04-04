@@ -30,8 +30,7 @@ import org.vertx.java.core.http.RouteMatcher;
 public class Resources implements ContextHandler {
 
     @Override
-    public RouteMatcher getRouteMatcher() {
-        return Boilerplate.resourcesMatcher();
+    public void addRoutes(RouteMatcher routeMatcher) {
+        Boilerplate.addResourcesMatcher(routeMatcher);
     }
-
 }

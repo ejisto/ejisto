@@ -25,7 +25,7 @@ import com.ejisto.event.def.MockedFieldUpdated;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.GuiUtils;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.awt.*;
 import java.util.List;

@@ -29,6 +29,6 @@ import org.vertx.java.core.http.RouteMatcher;
  */
 public interface ContextHandler {
 
-    RouteMatcher getRouteMatcher();
+    void addRoutes(RouteMatcher routeMatcher);
 
 }

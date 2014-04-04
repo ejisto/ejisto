@@ -24,7 +24,7 @@ import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.modules.executor.BackgroundTask;
 import com.ejisto.modules.executor.TaskManager;
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.swing.*;
 import java.util.ArrayList;

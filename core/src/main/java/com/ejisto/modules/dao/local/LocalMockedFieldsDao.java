@@ -29,7 +29,7 @@ import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.dao.local.helper.RecursiveMockedFieldLoader;
 import com.ejisto.modules.recorder.CollectedData;
 import com.ejisto.modules.web.MockedFieldRequest;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;

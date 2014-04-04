@@ -36,7 +36,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
  * Created by IntelliJ IDEA.

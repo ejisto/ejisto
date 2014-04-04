@@ -26,8 +26,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.join;
 
 @Data
@@ -42,6 +42,7 @@ public class MockedFieldImpl implements MockedField {
     private boolean active;
     private String link;
     private int recordedObjectHashCode;
+    private final AtomicReference<String> comparisonKey = new AtomicReference<String>();
 
     @Override
     public boolean isSimpleValue() {
@@ -50,7 +51,12 @@ public class MockedFieldImpl implements MockedField {
 
     @Override
     public String getComparisonKey() {
-        return join(asList(contextPath, getPackageName(), className, fieldName), PATH_SEPARATOR);
+        String cachedValue = comparisonKey.get();
+        if(cachedValue == null) {
+            cachedValue = join(new String[] {contextPath, className.replaceAll("\\.", PATH_SEPARATOR), fieldName}, PATH_SEPARATOR);
+            comparisonKey.compareAndSet(null, cachedValue);
+        }
+        return cachedValue;
     }
 
     @Override

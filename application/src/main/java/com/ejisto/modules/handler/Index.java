@@ -33,10 +33,8 @@ import static com.ejisto.modules.handler.Boilerplate.serveTemplate;
 public class Index implements ContextHandler {
 
     @Override
-    public RouteMatcher getRouteMatcher() {
-        RouteMatcher matcher = new RouteMatcher();
-        return matcher.get("/index.html", request -> serveTemplate(request.response(), "index.html"))
+    public void addRoutes(RouteMatcher routeMatcher) {
+        routeMatcher.get("/index.html", request -> serveTemplate(request.response(), "index.html"))
                 .all("/", request -> sendRedirect(request.response(), "/index.html"));
     }
-
 }
