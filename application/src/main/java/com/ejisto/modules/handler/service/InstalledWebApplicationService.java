@@ -19,37 +19,30 @@
 
 package com.ejisto.modules.handler.service;
 
-import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
-import com.ejisto.modules.handler.Boilerplate;
 import com.ejisto.modules.handler.ContextHandler;
-import com.ejisto.modules.repository.MockedFieldsRepository;
-import com.ejisto.util.collector.FieldNode;
-import com.ejisto.util.collector.MockedFieldCollector;
+import com.ejisto.modules.repository.WebApplicationRepository;
 import org.vertx.java.core.http.RouteMatcher;
+
+import static com.ejisto.modules.handler.Boilerplate.writeOutputAsJSON;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/28/14
- * Time: 6:27 PM
+ * Date: 4/6/14
+ * Time: 11:05 AM
  */
-public class FieldService implements ContextHandler {
+public class InstalledWebApplicationService implements ContextHandler {
 
-    private final MockedFieldsRepository mockedFieldsRepository;
+    private final WebApplicationRepository webApplicationRepository;
 
-    public FieldService(MockedFieldsRepository mockedFieldsRepository) {
-        this.mockedFieldsRepository = mockedFieldsRepository;
+    public InstalledWebApplicationService(WebApplicationRepository webApplicationRepository) {
+        this.webApplicationRepository = webApplicationRepository;
     }
 
     @Override
     public void addRoutes(RouteMatcher routeMatcher) {
-        routeMatcher.get("/fields/grouped", request -> {
-            final FieldNode node = mockedFieldsRepository.loadAll()
-                    .parallelStream()
-                    .filter(FieldsEditorContext.MAIN_WINDOW::isAdmitted)
-                    .collect(new MockedFieldCollector());
-            Boilerplate.writeOutputAsJSON(node, request.response());
+        routeMatcher.get("/webApplications", request -> {
+            writeOutputAsJSON(webApplicationRepository.getInstalledWebApplications(), request.response());
         });
     }
-
 }

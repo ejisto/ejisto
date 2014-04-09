@@ -68,12 +68,17 @@
             <h1>{{"about.title" | translate}}</h1>
             <p class="lead">test</p>
         </div>
-        <div data-ng-controller="PropertiesEditorController" class="jumbotron">
-            <p class="lead">{{"main.propertieseditor.title.text" | translate}}</p>
-            <field-editor-chooser></field-editor-chooser>
+        <div data-ng-controller="PropertiesEditorController" class="panel panel-default col-sm-9">
+            <h4 class="panel-heading">{{"main.propertieseditor.title.text" | translate}}</h4>
+            <div class="panel-body">
+                <field-editor-chooser></field-editor-chooser>
+            </div>
         </div>
-        <div>
-            <container-manager></container-manager>
+        <div data-ng-controller="ContainersController" class="panel panel-default col-sm-3">
+            <h4 class="panel-heading">{{"installed.containers" | translate}}</h4>
+            <div class="panel-body">
+                <container-manager></container-manager>
+            </div>
         </div>
 
     </div>

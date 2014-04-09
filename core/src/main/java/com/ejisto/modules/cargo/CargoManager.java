@@ -121,6 +121,11 @@ public class CargoManager implements ContainerManager {
     }
 
     @Override
+    public boolean isRunning(String containerId) {
+        return runningContainers.contains(containerId);
+    }
+
+    @Override
     public boolean startDefault() throws NotInstalledException {
         return start(containersRepository.loadDefault());
     }

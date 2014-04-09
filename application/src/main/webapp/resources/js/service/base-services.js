@@ -24,12 +24,29 @@
      */
     var baseServices = angular.module('BaseServices', ['ui.bootstrap', 'pascalprecht.translate']);
 
-    baseServices.service("FieldService", function($http) {
+    baseServices.service("FieldService", function($http, HttpErrorHandler) {
         return {
             getFieldsGrouped : function() {
-                return $http.get('/fields/grouped');
+                return $http.get('/fields/grouped').error(HttpErrorHandler.handle);
             }
         };
-    })
+    });
+
+    baseServices.service("ContainerService", function($http, HttpErrorHandler) {
+        return {
+            getRegisteredContainers : function() {
+                return $http.get('/containers/list').error(HttpErrorHandler.handle);
+            }
+        };
+    });
+
+    baseServices.service("HttpErrorHandler", function($rootScope, $log) {
+        return {
+            handle : function(error) {
+                $log.warn(error);
+                $rootScope.$broadcast('applicationError', error.message);
+            }
+        };
+    });
 
 })();

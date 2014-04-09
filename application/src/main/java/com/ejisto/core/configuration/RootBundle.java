@@ -20,6 +20,7 @@
 package com.ejisto.core.configuration;
 
 import com.ejisto.core.configuration.binder.ApplicationBinder;
+import com.ejisto.core.configuration.binder.ContextHandlerBinder;
 import se.jbee.inject.bootstrap.BootstrapperBundle;
 
 /**
@@ -33,5 +34,6 @@ public class RootBundle extends BootstrapperBundle {
     protected void bootstrap() {
         install(CoreBundle.class);
         install(ApplicationBinder.class);
+        install(ContextHandlerBinder.class);
     }
 }

@@ -20,6 +20,7 @@
 package com.ejisto.modules.handler;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.modules.web.util.JSONUtil;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpHeaders;
@@ -44,7 +45,7 @@ import java.util.regex.Pattern;
  * Date: 3/21/14
  * Time: 5:05 PM
  */
-final class Boilerplate {
+public final class Boilerplate {
 
     private static final Boilerplate INSTANCE = new Boilerplate();
     private static final String ROOT = "/";
@@ -57,6 +58,14 @@ final class Boilerplate {
     private static boolean DEV_MODE = Boolean.getBoolean(StringConstants.DEV_MODE.getValue());
 
     private Boilerplate() {
+    }
+
+    public static <T> void writeOutputAsJSON(T output, HttpServerResponse response) {
+        String result = JSONUtil.encode(output);
+        response.putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(result.length()))
+                .putHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+                .write(result)
+                .end();
     }
 
     static void serveTemplate(HttpServerResponse response, String relativePath) {

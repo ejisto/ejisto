@@ -16,13 +16,6 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<div class="list-group">
-    <div class="list-group-item" data-ng-repeat="container in containers">
-        <div class="list-group-item-heading">
-            <container-heading></container-heading>
-        </div>
-        <div class="list-group-item-text">
-            <container></container>
-        </div>
-    </div>
-</div>
+<h4>{{container.description}}</h4>
+<img src="/resources/images/server/{{imageName}}" alt="{{altKey | translate}}"/>
+<div class="clearfix"></div>

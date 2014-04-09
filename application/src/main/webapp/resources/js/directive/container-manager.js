@@ -42,4 +42,15 @@
         };
     });
 
+    containerManager.directive("containerHeading", function() {
+       return {
+           templateUrl: '/resources/templates/container/containerHeading.html',
+           restrict: 'E',
+           link: function(scope, element, attrs) {
+               scope.imageName = 'lightbulb'+ (scope.container.running ? '' : '_off') +'.png';
+               scope.altKey = 'server.summary.status.indicator.tooltip.'+ scope.container.running ? 'running' : 'shutdown';
+           }
+       }
+    });
+
 })();

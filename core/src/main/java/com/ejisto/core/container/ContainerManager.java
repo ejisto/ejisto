@@ -38,6 +38,8 @@ public interface ContainerManager {
 
     boolean isServerRunning();
 
+    boolean isRunning(String containerId);
+
     boolean startDefault() throws NotInstalledException;
 
     boolean stopDefault() throws NotInstalledException;

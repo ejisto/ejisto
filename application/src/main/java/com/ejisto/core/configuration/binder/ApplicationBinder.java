@@ -23,11 +23,6 @@ import com.ejisto.core.launcher.ApplicationController;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.listener.*;
 import com.ejisto.modules.gui.Application;
-import com.ejisto.modules.handler.ContextHandler;
-import com.ejisto.modules.handler.Index;
-import com.ejisto.modules.handler.Resources;
-import com.ejisto.modules.handler.Translations;
-import com.ejisto.modules.handler.service.FieldService;
 import com.ejisto.services.Service;
 import com.ejisto.services.shutdown.ContainerShutdown;
 import com.ejisto.services.shutdown.DatabaseMaintenance;
@@ -77,9 +72,5 @@ public class ApplicationBinder extends BinderModule {
         multibind(ApplicationListener.class).to(TaskProgressNotifier.class);
         multibind(ApplicationListener.class).to(WebApplicationLoader.class);
         multibind(ApplicationListener.class).to(WebApplicationScanner.class);
-        multibind(ContextHandler.class).to(Index.class);
-        multibind(ContextHandler.class).to(Resources.class);
-        multibind(ContextHandler.class).to(Translations.class);
-        multibind(ContextHandler.class).to(FieldService.class);
     }
 }

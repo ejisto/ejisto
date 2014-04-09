@@ -57,9 +57,6 @@
                 return collapsedStatusContainer.isCollapsed(path);
             };
             $scope.fields = result.data;
-        }, function(error) {
-            $log.error(error);
-            $scope.$emit('applicationError', error.message);
         });
     });
 
@@ -68,5 +65,13 @@
             $scope.errorMessage = message;
         });
     });
+
+    index.controller('ContainersController', function($scope, ContainerService) {
+        ContainerService.getRegisteredContainers().success(function(data) {
+            $scope.containers = data;
+        });
+    });
+
+
 
 })();

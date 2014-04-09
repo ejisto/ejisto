@@ -55,3 +55,18 @@ li.class {
 li.field {
     list-style: none url("/resources/images/editor/brick.png");
 }
+
+.list-group-item-heading h4, .list-group-item-heading img {
+    float:left;
+}
+
+a.link-disabled {
+    cursor: not-allowed;
+}
+
+.server-control-container {
+    width:50px;
+}
+.server-control-container img {
+
+}
