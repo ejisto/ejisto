@@ -61,36 +61,47 @@
             </div>
         </div>
     </div>
-    <span data-ng-controller="ErrorController" data-ng-show="errorMessage" class="alert alert-danger">{{errorMessage}}</span>
 
     <div class="container" role="main">
+        <span data-ng-controller="ErrorController" data-ng-show="errorMessage" class="alert alert-danger">{{errorMessage}}</span>
 
         <div data-ng-controller="HeaderController">
             <h1>{{"about.title" | translate}}</h1>
             <p class="lead">test</p>
         </div>
-        <div data-ng-controller="PropertiesEditorController" class="panel panel-default col-sm-9">
-            <h4 class="panel-heading">{{"main.propertieseditor.title.text" | translate}}</h4>
-            <div class="panel-body">
-                <field-editor-chooser></field-editor-chooser>
+        <div class="row">
+            <div class="col-sm-9">
+                <div data-ng-controller="PropertiesEditorController" class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">{{"main.propertieseditor.title.text" | translate}}</h4>
+                    </div>
+                    <div class="panel-body">
+                        <field-editor-chooser></field-editor-chooser>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div data-ng-controller="ContainersController" class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">{{"installed.containers" | translate}}</h4>
+                    </div>
+                    <div class="panel-body">
+                        <container-manager></container-manager>
+                    </div>
+                </div>
+                <div data-ng-controller="InstalledApplicationController" class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">{{"main.tab.webappcontext.text" | translate}}</h4>
+                    </div>
+                    <div class="panel-body">
+                        <web-application-manager></web-application-manager>
+                    </div>
+                </div>
             </div>
         </div>
-        <div data-ng-controller="ContainersController" class="panel panel-default col-sm-3">
-            <h4 class="panel-heading">{{"installed.containers" | translate}}</h4>
-            <div class="panel-body">
-                <container-manager></container-manager>
-            </div>
+        <div class="well">
+            <p>{{"main.header.description" | translate}}</p>
         </div>
-        <div data-ng-controller="InstalledApplicationController" class="panel panel-default col-sm-3">
-            <h4 class="panel-heading">{{"main.tab.webappcontext.text" | translate}}</h4>
-            <div class="panel-body">
-                <web-application-manager></web-application-manager>
-            </div>
-        </div>
-
-    </div>
-    <div class="well">
-        <p>{{"main.header.description" | translate}}</p>
     </div>
 </body>
 </html>
