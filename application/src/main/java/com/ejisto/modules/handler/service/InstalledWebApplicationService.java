@@ -41,8 +41,8 @@ public class InstalledWebApplicationService implements ContextHandler {
 
     @Override
     public void addRoutes(RouteMatcher routeMatcher) {
-        routeMatcher.get("/webApplications", request -> {
-            writeOutputAsJSON(webApplicationRepository.getInstalledWebApplications(), request.response());
-        });
+        routeMatcher.get("/webApplications/list",
+                         request -> writeOutputAsJSON(webApplicationRepository.getInstalledWebApplications(),
+                                                      request.response()));
     }
 }

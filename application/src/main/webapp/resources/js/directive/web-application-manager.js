@@ -20,36 +20,26 @@
 (function () {
     "use strict";
     /**
-     * Created by celestino on 28/03/2014.
+     * Created by celestino on 09/04/2014.
      */
-    var containerManager = angular.module('ContainerManager', ['ui.bootstrap', 'pascalprecht.translate']);
+    var webApplicationManager = angular.module('WebApplicationManager', ['ui.bootstrap', 'pascalprecht.translate']);
 
-    containerManager.directive("containerManager", function() {
+    webApplicationManager.directive("webApplicationManager", function() {
         return {
-            templateUrl: '/resources/templates/container/containerTabs.html',
+            templateUrl: '/resources/templates/webapp/installed-web-applications.html',
             restrict: 'E',
             link: function(scope, element, attrs) {
             }
         };
     });
 
-    containerManager.directive("container", function() {
+    webApplicationManager.directive("application", function() {
         return {
-            templateUrl: '/resources/templates/container/container.html',
+            templateUrl: '/resources/templates/webapp/application.html',
             restrict: 'E',
             link: function(scope, element, attrs) {
             }
         };
-    });
-
-    containerManager.directive("containerHeading", function() {
-       return {
-           templateUrl: '/resources/templates/container/containerHeading.html',
-           restrict: 'E',
-           link: function(scope, element, attrs) {
-               scope.altKey = 'server.summary.status.indicator.tooltip.'+ scope.container.running ? 'running' : 'shutdown';
-           }
-       }
     });
 
 })();

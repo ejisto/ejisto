@@ -40,6 +40,14 @@
         };
     });
 
+    baseServices.service("InstalledApplicationService", function($http, HttpErrorHandler) {
+        return {
+            getInstalledWebApplications : function() {
+                return $http.get('/webApplications/list').error(HttpErrorHandler.handle);
+            }
+        };
+    });
+
     baseServices.service("HttpErrorHandler", function($rootScope, $log) {
         return {
             handle : function(error) {

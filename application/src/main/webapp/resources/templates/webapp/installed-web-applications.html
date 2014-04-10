@@ -16,5 +16,14 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<h4>{{container.description}}</h4>
-<div class="clearfix" data-ng-class="{'container-status-running': container.running, 'container-status-shutdown': !container.running}"></div>
+<div class="list-group">
+    <div class="list-group-item" data-ng-repeat="application in applications">
+        <div class="list-group-item-heading">
+            <h4>{{application.webApplicationContextPath}}</h4>
+        </div>
+        <div class="clearfix"></div>
+        <div class="list-group-item-text">
+            <application></application>
+        </div>
+    </div>
+</div>

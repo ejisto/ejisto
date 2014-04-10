@@ -67,6 +67,10 @@ a.link-disabled {
 .server-control-container {
     width:50px;
 }
-.server-control-container img {
+.container-status-shutdown {
+    background: url('/resources/images/server/lightbulb_off.png') no-repeat top right;
+}
 
+.container-status-running {
+    background: url('/resources/images/server/lightbulb.png') no-repeat top right;
 }

@@ -37,6 +37,7 @@
     <script src="/resources/js/ng-app/index-application.js"></script>
     <script src="/resources/js/directive/field-editor.js"></script>
     <script src="/resources/js/directive/container-manager.js"></script>
+    <script src="/resources/js/directive/web-application-manager.js"></script>
     <script src="/resources/js/service/base-services.js"></script>
     <title>{{"about.title" | translate}}</title>
 </head>
@@ -78,6 +79,12 @@
             <h4 class="panel-heading">{{"installed.containers" | translate}}</h4>
             <div class="panel-body">
                 <container-manager></container-manager>
+            </div>
+        </div>
+        <div data-ng-controller="InstalledApplicationController" class="panel panel-default col-sm-3">
+            <h4 class="panel-heading">{{"main.tab.webappcontext.text" | translate}}</h4>
+            <div class="panel-body">
+                <web-application-manager></web-application-manager>
             </div>
         </div>
 

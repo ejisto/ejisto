@@ -21,7 +21,7 @@
     /**
      * Created by celestino on 3/22/14.
      */
-    var index = angular.module('indexApplication', ['ui.bootstrap', 'pascalprecht.translate', 'FieldEditor', 'ContainerManager', 'BaseServices']);
+    var index = angular.module('indexApplication', ['ui.bootstrap', 'pascalprecht.translate', 'FieldEditor', 'ContainerManager', 'BaseServices', 'WebApplicationManager']);
 
     index.config(function ($translateProvider) {
         $translateProvider.useUrlLoader("/translations");
@@ -72,6 +72,11 @@
         });
     });
 
+    index.controller('InstalledApplicationController', function($scope, InstalledApplicationService) {
+        InstalledApplicationService.getInstalledWebApplications().success(function(data) {
+            $scope.applications = data;
+        });
+    });
 
 
 })();
