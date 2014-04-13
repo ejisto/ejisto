@@ -44,6 +44,11 @@ public class SessionRecorderStart extends BaseApplicationEvent {
         return "temp.server.start";
     }
 
+    @Override
+    protected String getEventDescriptionValue() {
+        return null;
+    }
+
     public String getWebApplicationContextPath() {
         return webApplicationContextPath;
     }

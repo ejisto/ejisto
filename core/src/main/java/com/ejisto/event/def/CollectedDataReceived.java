@@ -46,6 +46,11 @@ public class CollectedDataReceived extends BaseApplicationEvent {
         return "recordingResultReceived";
     }
 
+    @Override
+    protected String getEventDescriptionValue() {
+        return "";
+    }
+
     public CollectedData getData() {
         return data;
     }

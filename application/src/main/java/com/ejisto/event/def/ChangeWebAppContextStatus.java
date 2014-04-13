@@ -63,6 +63,11 @@ public class ChangeWebAppContextStatus extends BaseApplicationEvent {
         return null;
     }
 
+    @Override
+    protected String getEventDescriptionValue() {
+        return getContextPath();
+    }
+
     public WebAppContextStatusCommand getCommand() {
         return command;
     }

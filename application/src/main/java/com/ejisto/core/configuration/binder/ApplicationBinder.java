@@ -72,5 +72,6 @@ public class ApplicationBinder extends BinderModule {
         multibind(ApplicationListener.class).to(TaskProgressNotifier.class);
         multibind(ApplicationListener.class).to(WebApplicationLoader.class);
         multibind(ApplicationListener.class).to(WebApplicationScanner.class);
+        multibind(ApplicationListener.class).to(VertxEventHandler.class);
     }
 }

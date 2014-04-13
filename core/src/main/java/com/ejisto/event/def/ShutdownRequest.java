@@ -40,6 +40,11 @@ public class ShutdownRequest extends BaseApplicationEvent {
     }
 
     @Override
+    protected String getEventDescriptionValue() {
+        return getDescription();
+    }
+
+    @Override
     public String getIconKey() {
         return "exit.icon";
     }

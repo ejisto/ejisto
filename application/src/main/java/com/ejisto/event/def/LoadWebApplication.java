@@ -39,6 +39,11 @@ public class LoadWebApplication extends BaseApplicationEvent {
         return StringConstants.LOAD_WEB_APP.getValue();
     }
 
+    @Override
+    protected String getEventDescriptionValue() {
+        return null;
+    }
+
     public boolean loadStored() {
         return this.loadStored;
     }

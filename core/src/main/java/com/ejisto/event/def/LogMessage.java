@@ -45,6 +45,11 @@ public class LogMessage extends BaseApplicationEvent {
     }
 
     @Override
+    protected String getEventDescriptionValue() {
+        return message;
+    }
+
+    @Override
     public boolean shouldRunOnEDT() {
         return true;
     }

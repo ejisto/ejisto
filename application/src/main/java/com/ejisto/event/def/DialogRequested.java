@@ -73,6 +73,11 @@ public class DialogRequested extends BaseApplicationEvent {
         return StringConstants.SHOW_ABOUT_PANEL.getValue();
     }
 
+    @Override
+    protected String getEventDescriptionValue() {
+        return getDescription();
+    }
+
     public Dimension getDialogSize() {
         return type.getDimension();
     }

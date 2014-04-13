@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.handler;
+package com.ejisto.modules.vertx.handler;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.web.util.JSONUtil;

@@ -47,6 +47,11 @@ public class ContainerInstalled extends BaseApplicationEvent {
     }
 
     @Override
+    protected String getEventDescriptionValue() {
+        return getContainerId();
+    }
+
+    @Override
     public boolean shouldRunOnEDT() {
         return false;
     }

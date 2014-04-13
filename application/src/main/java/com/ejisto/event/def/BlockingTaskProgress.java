@@ -52,6 +52,11 @@ public class BlockingTaskProgress extends BaseApplicationEvent {
         return "progress";
     }
 
+    @Override
+    protected String getEventDescriptionValue() {
+        return getId();
+    }
+
     public String getPanelTitle() {
         return panelTitle;
     }

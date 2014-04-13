@@ -76,6 +76,11 @@ public class ChangeServerStatus extends BaseApplicationEvent {
         return command == Command.STARTUP ? StringConstants.START_CONTAINER.getValue() : StringConstants.STOP_CONTAINER.getValue();
     }
 
+    @Override
+    protected String getEventDescriptionValue() {
+        return getCommand().getDescription();
+    }
+
     public String getContainerId() {
         return containerId;
     }

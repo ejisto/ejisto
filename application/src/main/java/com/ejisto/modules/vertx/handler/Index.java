@@ -17,32 +17,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.handler.service;
+package com.ejisto.modules.vertx.handler;
 
-import com.ejisto.modules.handler.ContextHandler;
-import com.ejisto.modules.repository.WebApplicationRepository;
 import org.vertx.java.core.http.RouteMatcher;
 
-import static com.ejisto.modules.handler.Boilerplate.writeOutputAsJSON;
+import static com.ejisto.modules.vertx.handler.Boilerplate.sendRedirect;
+import static com.ejisto.modules.vertx.handler.Boilerplate.serveTemplate;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 4/6/14
- * Time: 11:05 AM
+ * Date: 3/21/14
+ * Time: 8:33 AM
  */
-public class InstalledWebApplicationService implements ContextHandler {
-
-    private final WebApplicationRepository webApplicationRepository;
-
-    public InstalledWebApplicationService(WebApplicationRepository webApplicationRepository) {
-        this.webApplicationRepository = webApplicationRepository;
-    }
+public class Index implements ContextHandler {
 
     @Override
     public void addRoutes(RouteMatcher routeMatcher) {
-        routeMatcher.get("/webApplications/list",
-                         request -> writeOutputAsJSON(webApplicationRepository.getInstalledWebApplications(),
-                                                      request.response()));
+        routeMatcher.get("/index.html", request -> serveTemplate(request.response(), "index.html"))
+                .all("/", request -> sendRedirect(request.response(), "/index.html"));
     }
 }

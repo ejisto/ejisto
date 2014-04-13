@@ -46,6 +46,11 @@ public class ContainerStatusChanged extends BaseApplicationEvent {
         return started ? "container.started" : "container.stopped";
     }
 
+    @Override
+    protected String getEventDescriptionValue() {
+        return getContainerId();
+    }
+
     public boolean isStarted() {
         return started;
     }

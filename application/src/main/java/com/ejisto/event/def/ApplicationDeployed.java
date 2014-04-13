@@ -46,6 +46,11 @@ public class ApplicationDeployed extends BaseApplicationEvent {
         return context;
     }
 
+    @Override
+    protected String getEventDescriptionValue() {
+        return getContext();
+    }
+
     public String getContext() {
         return context;
     }

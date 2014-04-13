@@ -37,9 +37,19 @@ public abstract class BaseApplicationEvent extends EventObject {
 
     public abstract String getKey();
 
+    protected abstract String getEventDescriptionValue();
+
+    public EventDescription toEventDescription() {
+        return new EventDescription(getClientKey(), getEventDescriptionValue());
+    }
+
     @Override
     public String toString() {
         return getDescription();
+    }
+
+    public String getClientKey() {
+        return getClass().getSimpleName();
     }
 
     public boolean shouldRunOnEDT() {

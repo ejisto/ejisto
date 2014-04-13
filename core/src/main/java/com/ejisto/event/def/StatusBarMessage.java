@@ -40,6 +40,11 @@ public class StatusBarMessage extends BaseApplicationEvent {
         return null;
     }
 
+    @Override
+    protected String getEventDescriptionValue() {
+        return getMessage();
+    }
+
     public String getMessage() {
         return message;
     }

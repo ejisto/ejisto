@@ -50,4 +50,10 @@ public class ApplicationScanRequired extends BaseApplicationEvent {
         return "scan";
     }
 
+    @Override
+    protected String getEventDescriptionValue() {
+        return webApplicationDescriptor.getContextPath();
+    }
+
+
 }

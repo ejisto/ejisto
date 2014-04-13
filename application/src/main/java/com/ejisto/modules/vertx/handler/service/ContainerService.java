@@ -17,12 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.handler.service;
+package com.ejisto.modules.vertx.handler.service;
 
 import com.ejisto.core.container.ContainerManager;
 import com.ejisto.modules.dao.entities.Container;
-import com.ejisto.modules.handler.ContextHandler;
 import com.ejisto.modules.repository.ContainersRepository;
+import com.ejisto.modules.vertx.handler.ContextHandler;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.Delegate;
 import org.vertx.java.core.http.RouteMatcher;
@@ -30,7 +30,7 @@ import org.vertx.java.core.http.RouteMatcher;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.ejisto.modules.handler.Boilerplate.writeOutputAsJSON;
+import static com.ejisto.modules.vertx.handler.Boilerplate.writeOutputAsJSON;
 import static java.util.stream.Collectors.toList;
 
 /**

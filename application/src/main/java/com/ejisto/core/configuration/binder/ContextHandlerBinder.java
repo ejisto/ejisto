@@ -19,13 +19,13 @@
 
 package com.ejisto.core.configuration.binder;
 
-import com.ejisto.modules.handler.ContextHandler;
-import com.ejisto.modules.handler.Index;
-import com.ejisto.modules.handler.Resources;
-import com.ejisto.modules.handler.Translations;
-import com.ejisto.modules.handler.service.ContainerService;
-import com.ejisto.modules.handler.service.FieldService;
-import com.ejisto.modules.handler.service.InstalledWebApplicationService;
+import com.ejisto.modules.vertx.handler.ContextHandler;
+import com.ejisto.modules.vertx.handler.Index;
+import com.ejisto.modules.vertx.handler.Resources;
+import com.ejisto.modules.vertx.handler.Translations;
+import com.ejisto.modules.vertx.handler.service.ContainerService;
+import com.ejisto.modules.vertx.handler.service.FieldService;
+import com.ejisto.modules.vertx.handler.service.InstalledWebApplicationService;
 import se.jbee.inject.bind.BinderModule;
 
 /**

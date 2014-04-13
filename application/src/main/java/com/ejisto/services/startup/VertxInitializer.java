@@ -1,14 +1,17 @@
 package com.ejisto.services.startup;
 
-import com.ejisto.modules.handler.ContextHandler;
+import com.ejisto.modules.vertx.VertxManager;
+import com.ejisto.modules.vertx.handler.ContextHandler;
 import lombok.extern.log4j.Log4j;
-import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.RouteMatcher;
+import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
-import java.net.InetAddress;
 import java.util.Collection;
 import java.util.List;
+
+import static java.net.InetAddress.getLoopbackAddress;
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,14 +30,23 @@ public class VertxInitializer extends BaseStartupService {
 
     @Override
     public void execute() {
-        String host = InetAddress.getLoopbackAddress().getHostAddress();
-        log.info("hostname: "+host);
-        final HttpServer server = VertxFactory.newVertx().createHttpServer();
-        RouteMatcher routeMatcher = new RouteMatcher();
+        final HttpServer server = VertxManager.getHttpServer();
+        configureHttpServer(server);
+        configureWebSocketServer();
+        server.listen(6789, getLoopbackAddress().getHostAddress());
+    }
+
+    private void configureWebSocketServer() {
+        //source: https://github.com/vert-x/vertx-examples/blob/master/src/raw/java/eventbusbridge/BridgeServer.java
+        JsonArray permitted = new JsonArray();
+        permitted.add(new JsonObject());
+        VertxManager.getWebSocketServer().bridge(new JsonObject().putString("prefix", "/eventbus"), permitted, permitted);
+    }
+
+    private void configureHttpServer(HttpServer server) {RouteMatcher routeMatcher = new RouteMatcher();
         handlers.forEach(h -> h.addRoutes(routeMatcher));
         server.setCompressionSupported(true)
-                .requestHandler(routeMatcher)
-                .listen(6789, host);
+                .requestHandler(routeMatcher);
     }
 
     @Override

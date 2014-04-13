@@ -17,12 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.handler.service;
+package com.ejisto.modules.vertx.handler.service;
 
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
-import com.ejisto.modules.handler.Boilerplate;
-import com.ejisto.modules.handler.ContextHandler;
 import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.modules.vertx.handler.Boilerplate;
+import com.ejisto.modules.vertx.handler.ContextHandler;
 import com.ejisto.util.collector.FieldNode;
 import com.ejisto.util.collector.MockedFieldCollector;
 import org.vertx.java.core.http.RouteMatcher;

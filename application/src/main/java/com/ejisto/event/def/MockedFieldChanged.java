@@ -51,4 +51,9 @@ class MockedFieldChanged extends BaseApplicationEvent {
     public String getKey() {
         return null;
     }
+
+    @Override
+    protected String getEventDescriptionValue() {
+        return null;
+    }
 }

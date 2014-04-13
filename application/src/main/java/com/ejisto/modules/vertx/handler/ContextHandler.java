@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.handler;
+package com.ejisto.modules.vertx.handler;
 
 import org.vertx.java.core.http.RouteMatcher;
 
@@ -25,12 +25,10 @@ import org.vertx.java.core.http.RouteMatcher;
  * Created by IntelliJ IDEA.
  * User: celestino
  * Date: 3/21/14
- * Time: 7:05 PM
+ * Time: 7:54 AM
  */
-public class Resources implements ContextHandler {
+public interface ContextHandler {
 
-    @Override
-    public void addRoutes(RouteMatcher routeMatcher) {
-        Boilerplate.addResourcesMatcher(routeMatcher);
-    }
+    void addRoutes(RouteMatcher routeMatcher);
+
 }

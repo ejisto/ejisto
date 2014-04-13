@@ -21,7 +21,7 @@
     /**
      * Created by celestino on 3/22/14.
      */
-    var index = angular.module('indexApplication', ['ui.bootstrap', 'pascalprecht.translate', 'FieldEditor', 'ContainerManager', 'BaseServices', 'WebApplicationManager']);
+    var index = angular.module('indexApplication', ['ui.bootstrap', 'pascalprecht.translate', 'FieldEditor', 'ContainerManager', 'BaseServices', 'WebApplicationManager', 'knalli.angular-vertxbus']);
 
     index.config(function ($translateProvider) {
         $translateProvider.useUrlLoader("/translations");
@@ -66,16 +66,25 @@
         });
     });
 
-    index.controller('ContainersController', function($scope, ContainerService) {
-        ContainerService.getRegisteredContainers().success(function(data) {
-            $scope.containers = data;
-        });
+    index.controller('ContainersController', function($scope, ContainerService, vertxEventBusService) {
+        var loadContainers = function() {
+            ContainerService.getRegisteredContainers().success(function(data) {
+                $scope.containers = data;
+            });
+        };
+        loadContainers();
+        vertxEventBusService.on('ContainerStatusChanged', loadContainers);
     });
 
-    index.controller('InstalledApplicationController', function($scope, InstalledApplicationService) {
-        InstalledApplicationService.getInstalledWebApplications().success(function(data) {
-            $scope.applications = data;
-        });
+    index.controller('InstalledApplicationController', function($scope, InstalledApplicationService, vertxEventBusService) {
+        var loadApplications = function() {
+            InstalledApplicationService.getInstalledWebApplications().success(function(data) {
+                $scope.applications = data;
+            });
+        };
+        loadApplications();
+        vertxEventBusService.on('ChangeWebAppContextStatus', loadApplications);
+        vertxEventBusService.on('ContainerStatusChanged', loadApplications);
     });
 
 

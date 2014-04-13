@@ -72,6 +72,11 @@ public class MockedFieldOperation extends BaseApplicationEvent {
     }
 
     @Override
+    protected String getEventDescriptionValue() {
+        return null;
+    }
+
+    @Override
     public String getIconKey() {
         return operationType.getIcon();
     }

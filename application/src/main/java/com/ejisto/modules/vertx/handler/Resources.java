@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2013 Celestino Bellone
+ * Copyright (C) 2010-2014 Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,39 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.event.def;
+package com.ejisto.modules.vertx.handler;
+
+import org.vertx.java.core.http.RouteMatcher;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 7/31/12
- * Time: 8:12 AM
+ * Date: 3/21/14
+ * Time: 7:05 PM
  */
-public class ClassesReloadingWarning extends BaseApplicationEvent {
-
-    private final String containerId;
-
-    public ClassesReloadingWarning(String containerId, Object source) {
-        super(source);
-        this.containerId = containerId;
-    }
+public class Resources implements ContextHandler {
 
     @Override
-    public String getDescription() {
-        return "Classes reloading warning";
-    }
-
-    @Override
-    public String getKey() {
-        return "classes.reloading.warning";
-    }
-
-    @Override
-    protected String getEventDescriptionValue() {
-        return getContainerId();
-    }
-
-    public String getContainerId() {
-        return containerId;
+    public void addRoutes(RouteMatcher routeMatcher) {
+        Boilerplate.addResourcesMatcher(routeMatcher);
     }
 }

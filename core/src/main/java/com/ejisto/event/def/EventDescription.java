@@ -17,18 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.handler;
+package com.ejisto.event.def;
 
-import org.vertx.java.core.http.RouteMatcher;
+import lombok.Data;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/21/14
- * Time: 7:54 AM
+ * Date: 4/13/14
+ * Time: 12:35 PM
  */
-public interface ContextHandler {
+@Data
+public class EventDescription {
+    private final String key;
+    private final String value;
 
-    void addRoutes(RouteMatcher routeMatcher);
-
+    public EventDescription(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
 }
