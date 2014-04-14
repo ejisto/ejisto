@@ -65,21 +65,21 @@
         </div>
     </div>
 
-    <div class="container" role="main">
+    <div class="container first-component" role="main">
         <div data-ng-controller="ErrorController">
             <span data-ng-show="errorMessage" class="alert alert-danger">{{errorMessage}}</span>
             <span data-ng-show="connectionLost" class="alert alert-danger">{{"websocket.server.connection.lost" | translate}}</span>
         </div>
 
-        <div data-ng-controller="HeaderController">
-            <h1>{{"about.title" | translate}}</h1>
-            <p class="lead">test</p>
-        </div>
         <div class="row">
             <div class="col-sm-9">
                 <div data-ng-controller="PropertiesEditorController" class="panel panel-primary">
                     <div class="panel-heading">
-                        <h4 class="panel-title">{{"main.propertieseditor.title.text" | translate}}</h4>
+                        <h4 class="panel-title properties-editor-heading">{{"main.propertieseditor.title.text" | translate}}</h4>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-xs btn-primary active" data-ng-model="selectedEditor" data-btn-radio="'HIERARCHICAL'">Hierarchical</button>
+                            <button type="button" class="btn btn-xs btn-primary ng-valid" data-ng-model="selectedEditor" data-btn-radio="'FLATTEN'">Flatten</button>
+                        </div>
                     </div>
                     <div class="panel-body">
                         <field-editor-chooser></field-editor-chooser>
@@ -105,10 +105,14 @@
                 </div>
             </div>
         </div>
-        <div class="well" data-ng-controller="StatusBarController">
-            <span>{{"main.header.description" | translate}}</span>
-            <img data-ng-show="connected" src="/resources/images/status/link.png" data-tooltip="{{'websocket.server.connection.ok' | translate}}" data-tooltip-trigger="mouseenter"/>
-            <img data-ng-show="!connected" src="/resources/images/status/link_error.png" data-tooltip="{{'websocket.server.connection.lost' | translate}}" data-tooltip-trigger="mouseenter" />
+        <div id="footer" class="row" data-ng-controller="StatusBarController">
+            <div class="messages col-sm-11">
+                <span>{{message | translate}}</span>
+            </div>
+            <div class="connectionStatus col-sm-1">
+                <img data-ng-show="connected" src="/resources/images/status/link.png" data-tooltip="{{'websocket.server.connection.ok' | translate}}" data-tooltip-trigger="mouseenter"/>
+                <img data-ng-show="!connected" src="/resources/images/status/link_error.png" data-tooltip="{{'websocket.server.connection.lost' | translate}}" data-tooltip-trigger="mouseenter" />
+            </div>
         </div>
     </div>
 </body>

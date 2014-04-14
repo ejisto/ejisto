@@ -17,10 +17,7 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 <div>
-    <span><strong>Status:</strong>&nbsp; {{application.running}}</span>
-    <a href="#" data-tooltip="{{'webapp.context.start.text' | translate}}" data-tooltip-trigger="mouseenter" data-ng-click="startApplication(application)" data-ng-show="!application.running"><img alt="{{'webapp.context.start.text' | translate}}" src="/resources/images/server/control_play_blue.png"></a>
-    <img data-ng-show="application.running" alt="{{'webapp.context.start.text' | translate}}" src="/resources/images/server/control_play.png">
-    <a href="#" data-tooltip="{{'webapp.context.stop.text' | translate}}" data-tooltip-trigger="mouseenter" data-ng-click="stopApplication(application)"  data-ng-show="application.running"><img alt="{{'webapp.context.stop.text' | translate}}" src="/resources/images/server/control_stop_blue.png"></a>
-    <img data-ng-show="!application.running" alt="{{'stop.default.server' | translate}}" src="/resources/images/server/control_stop.png">
-    <a href="#" data-tooltip="{{'webapp.context.delete.text' | translate}}" data-ng-click="deleteApplication(application)"><img alt="{{'webapp.context.delete.text' | translate}}" src="/resources/images/server/cancel.png"></a>
+    <button class="btn btn-sm btn-success" data-ng-click="startApplication(application)" data-ng-show="!application.running" data-tooltip="{{'webapp.context.start.text' | translate}}" data-tooltip-trigger="mouseenter">{{'start' | translate}}</button>
+    <button class="btn btn-sm btn-default" data-ng-click="stopApplication(application)" data-ng-show="application.running" data-tooltip="{{'webapp.context.stop.text' | translate}}" data-tooltip-trigger="mouseenter">{{'stop' | translate}}</button>
+    <button class="btn btn-sm btn-danger" data-ng-click="deleteApplication(application)" data-tooltip="{{'webapp.context.delete.text' | translate}}">{{'delete' | translate}}</button>
 </div>

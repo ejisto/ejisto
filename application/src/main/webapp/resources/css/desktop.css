@@ -74,3 +74,22 @@ a.link-disabled {
 .container-status-running {
     background: url('/resources/images/server/lightbulb.png') no-repeat top right;
 }
+
+#footer {
+    border-top: 1px solid #428bca;
+    margin-bottom: 3px;
+}
+
+.first-component {
+    margin-top:20px;
+}
+
+.properties-editor-heading {
+    position: relative;
+    float: left;
+    vertical-align: middle;
+}
+
+.panel-heading .btn-group {
+    margin-left: 50px;
+}

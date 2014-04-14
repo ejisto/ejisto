@@ -17,8 +17,6 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 <div class="server-control-container">
-    <a href="#" data-tooltip="{{'start.default.server' | translate}}" data-tooltip-trigger="mouseenter" data-ng-click="startServer()" data-ng-show="!container.running"><img alt="{{'start.default.server' | translate}}" src="/resources/images/server/control_play_blue.png"></a>
-    <img data-ng-show="container.running" alt="{{'start.default.server' | translate}}" src="/resources/images/server/control_play.png">
-    <a href="#" data-ng-click="stopServer()" data-tooltip="{{'stop.default.server' | translate}}" data-tooltip-trigger="mouseenter" data-ng-show="container.running"><img alt="{{'stop.default.server' | translate}}" src="/resources/images/server/control_stop_blue.png"></a>
-    <img data-ng-show="!container.running" alt="{{'stop.default.server' | translate}}" src="/resources/images/server/control_stop.png">
+    <button class="btn btn-sm btn-success" data-ng-click="startServer()" data-ng-show="!container.running" data-tooltip="{{'start.default.server' | translate}}" data-tooltip-trigger="mouseenter">{{'start' | translate}}</button>
+    <button class="btn btn-sm btn-default" data-ng-click="stopServer()" data-ng-show="container.running" data-tooltip="{{'stop.default.server' | translate}}" data-tooltip-trigger="mouseenter">{{'stop' | translate}}</button>
 </div>
