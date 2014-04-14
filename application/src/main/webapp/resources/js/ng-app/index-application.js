@@ -87,5 +87,14 @@
         vertxEventBusService.on('ContainerStatusChanged', loadApplications);
     });
 
+    index.controller('StatusBarController', function($scope) {
+        $scope.$on('vertx-eventbus.system.disconnected', function() {
+            $scope.connected=false;
+        });
+        $scope.$on('vertx-eventbus.system.connected', function() {
+            $scope.connected=true;
+        });
+    });
+
 
 })();

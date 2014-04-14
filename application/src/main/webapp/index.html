@@ -66,7 +66,10 @@
     </div>
 
     <div class="container" role="main">
-        <span data-ng-controller="ErrorController" data-ng-show="errorMessage" class="alert alert-danger">{{errorMessage}}</span>
+        <div data-ng-controller="ErrorController">
+            <span data-ng-show="errorMessage" class="alert alert-danger">{{errorMessage}}</span>
+            <span data-ng-show="connectionLost" class="alert alert-danger">{{"websocket.server.connection.lost" | translate}}</span>
+        </div>
 
         <div data-ng-controller="HeaderController">
             <h1>{{"about.title" | translate}}</h1>
@@ -102,8 +105,10 @@
                 </div>
             </div>
         </div>
-        <div class="well">
-            <p>{{"main.header.description" | translate}}</p>
+        <div class="well" data-ng-controller="StatusBarController">
+            <span>{{"main.header.description" | translate}}</span>
+            <img data-ng-show="connected" src="/resources/images/status/link.png" data-tooltip="{{'websocket.server.connection.ok' | translate}}" data-tooltip-trigger="mouseenter"/>
+            <img data-ng-show="!connected" src="/resources/images/status/link_error.png" data-tooltip="{{'websocket.server.connection.lost' | translate}}" data-tooltip-trigger="mouseenter" />
         </div>
     </div>
 </body>
