@@ -35,27 +35,6 @@
     index.controller('PropertiesEditorController', function ($scope, FieldService, $log) {
         $scope.selectedEditor = 'HIERARCHICAL';
         FieldService.getFieldsGrouped().then(function(result) {
-            var collapsedStatusContainer = {
-                status : {
-                    paths : []
-                },
-                isCollapsed : function(path) {
-                    return status[path] && status[path] === 'COLLAPSED';
-                },
-                toggleCollapse : function(path) {
-                    var flag = status.paths[path];
-                    if(!flag) {
-                        flag = 'EXPANDED';
-                    }
-                    status.paths[path] = (flag === 'COLLAPSED' ? 'EXPANDED' : 'COLLAPSED');
-                }
-            };
-            $scope.toggleCollapse = function(path) {
-                collapsedStatusContainer.toggleCollapse(path);
-            };
-            $scope.isCollapsed = function(path) {
-                return collapsedStatusContainer.isCollapsed(path);
-            };
             $scope.fields = result.data;
         });
     });
