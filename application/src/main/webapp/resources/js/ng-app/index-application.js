@@ -49,10 +49,21 @@
         var loadContainers = function() {
             ContainerService.getRegisteredContainers().success(function(data) {
                 $scope.containers = data;
+                $scope.loading = false;
             });
         };
         loadContainers();
         vertxEventBusService.on('ContainerStatusChanged', loadContainers);
+        $scope.startContainer = function(container) {
+            ContainerService.startContainer(container).then(function() {
+                $scope.loading=true;
+            });
+        };
+        $scope.stopContainer = function(container) {
+            ContainerService.stopContainer(container).then(function() {
+                $scope.loading=true;
+            });
+        };
     });
 
     index.controller('InstalledApplicationController', function($scope, InstalledApplicationService, vertxEventBusService) {

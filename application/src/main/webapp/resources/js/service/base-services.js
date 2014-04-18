@@ -32,10 +32,16 @@
         };
     });
 
-    baseServices.service("ContainerService", function($http, HttpErrorHandler) {
+    baseServices.service("ContainerService", function($http, vertxEventBusService, HttpErrorHandler) {
         return {
             getRegisteredContainers : function() {
                 return $http.get('/containers/list').error(HttpErrorHandler.handle);
+            },
+            startContainer: function(container) {
+                return vertxEventBusService.send('StartContainer', {"containerId" : container.id}, true);
+            },
+            stopContainer: function(container) {
+                return vertxEventBusService.send('StopContainer', {"containerId" : container.id}, true);
             }
         };
     });

@@ -16,7 +16,8 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<div class="server-control-container">
-    <button class="btn btn-sm btn-success" data-ng-click="startServer()" data-ng-show="!container.running" data-tooltip="{{'start.default.server' | translate}}" data-tooltip-trigger="mouseenter">{{'start' | translate}}</button>
-    <button class="btn btn-sm btn-default" data-ng-click="stopServer()" data-ng-show="container.running" data-tooltip="{{'stop.default.server' | translate}}" data-tooltip-trigger="mouseenter">{{'stop' | translate}}</button>
+<i class="fa fa-refresh fa-spin" data-ng-show="loading"></i>
+<div class="server-control-container" data-ng-show="!loading">
+    <button class="btn btn-sm btn-success" data-ng-click="startContainer(container)" data-ng-show="!container.running" data-tooltip="{{'start.default.server' | translate}}" data-tooltip-trigger="mouseenter">{{'start' | translate}}</button>
+    <button class="btn btn-sm btn-default" data-ng-click="stopContainer(container)" data-ng-show="container.running" data-tooltip="{{'stop.default.server' | translate}}" data-tooltip-trigger="mouseenter">{{'stop' | translate}}</button>
 </div>

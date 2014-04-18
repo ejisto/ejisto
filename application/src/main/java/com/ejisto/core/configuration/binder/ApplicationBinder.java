@@ -61,6 +61,7 @@ public class ApplicationBinder extends BinderModule {
         multibind(Service.class).to(DatabaseMaintenance.class);
         multibind(Service.class).to(FolderCleaner.class);
         multibind(Service.class).to(EventListenerRegistrar.class);
+        multibind(Service.class).to(GUIEventHandler.class);
         multibind(ApplicationListener.class).to(CollectedDataNotifier.class);
         multibind(ApplicationListener.class).to(ContainerInstaller.class);
         multibind(ApplicationListener.class).to(DialogManager.class);

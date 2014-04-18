@@ -140,6 +140,36 @@ public final class Boilerplate {
                 return "resources/css/" + path;
             }
         },
+        EOT("^/resources/css/fonts/(.*?\\.eot)(\\?.*?)?$", "application/vnd.ms-fontobject") {
+            @Override
+            String addBaseDir(String path) {
+                return "resources/css/fonts/" + path;
+            }
+        },
+        TTF("^/resources/css/fonts/(.*?\\.ttf)(\\?.*?)?$", "application/x-font-truetype") {
+            @Override
+            String addBaseDir(String path) {
+                return "resources/css/fonts/" + path;
+            }
+        },
+        SVG("^/resources/css/fonts/(.*?\\.svg)(\\?.*?)?$", "image/svg+xml") {
+            @Override
+            String addBaseDir(String path) {
+                return "resources/css/fonts/" + path;
+            }
+        },
+        OTF("^/resources/css/fonts/(.*?\\.otf)(\\?.*?)?$", "application/x-font-opentype") {
+            @Override
+            String addBaseDir(String path) {
+                return "resources/css/fonts/" + path;
+            }
+        },
+        WOFF("^/resources/css/fonts/(.*?\\.woff)(\\?.*?)?$", "application/font-woff") {
+            @Override
+            String addBaseDir(String path) {
+                return "resources/css/fonts/" + path;
+            }
+        },
         PNG("^/resources/images/(.*?\\.png)(\\?.*?)?$", "image/png") {
             @Override
             String addBaseDir(String path) {

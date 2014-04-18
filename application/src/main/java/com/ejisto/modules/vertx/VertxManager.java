@@ -19,8 +19,10 @@
 
 package com.ejisto.modules.vertx;
 
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
+import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.sockjs.SockJSServer;
 
@@ -73,9 +75,8 @@ public final class VertxManager {
         INSTANCE.vertx.eventBus().publish(address, message);
     }
 
-    public static void registerClient() {
-        //INSTANCE.webSocketServer.bridge()
+    public static <T> void registerEventHandler(String address, Handler<Message<T>> handler) {
+        INSTANCE.vertx.eventBus().registerHandler(address, handler);
     }
-
 
 }
