@@ -42,6 +42,9 @@ public class GUIEventHandler extends BaseStartupService {
     static {
         REGISTRY.put("StartContainer", GUIEvents::startServer);
         REGISTRY.put("StopContainer", GUIEvents::stopServer);
+        REGISTRY.put("StartApplication", GUIEvents::startApplication);
+        REGISTRY.put("StopApplication", GUIEvents::stopApplication);
+        REGISTRY.put("DeleteApplication", GUIEvents::deleteApplication);
     }
 
     private final Handler<Message<JsonObject>> guiEventHandler;

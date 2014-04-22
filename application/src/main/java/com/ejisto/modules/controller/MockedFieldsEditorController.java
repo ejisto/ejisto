@@ -21,11 +21,12 @@ package com.ejisto.modules.controller;
 
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ApplicationDeployed;
-import com.ejisto.event.def.ChangeWebAppContextStatus;
+import com.ejisto.event.def.WebAppContextStatusChanged;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.gui.components.MockedFieldsEditor;
 import com.ejisto.modules.gui.components.helper.*;
 import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.util.WebAppContextStatusCommand;
 
 import javax.swing.*;
 import java.awt.*;
@@ -103,11 +104,11 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
             }
         });
 
-        registerApplicationEventListener(new ApplicationListener<ChangeWebAppContextStatus>() {
+        registerApplicationEventListener(new ApplicationListener<WebAppContextStatusChanged>() {
             @Override
-            public void onApplicationEvent(final ChangeWebAppContextStatus event) {
+            public void onApplicationEvent(final WebAppContextStatusChanged event) {
                 runOnEDT(() -> {
-                    if (event.getCommand() == ChangeWebAppContextStatus.WebAppContextStatusCommand.DELETE) {
+                    if (event.getCommand() == WebAppContextStatusCommand.DELETE) {
                         notifyContextDeleted(
                                 event.getContextPath());
                     }
@@ -115,8 +116,8 @@ public class MockedFieldsEditorController implements ActionListener, FieldEditin
             }
 
             @Override
-            public Class<ChangeWebAppContextStatus> getTargetEventType() {
-                return ChangeWebAppContextStatus.class;
+            public Class<WebAppContextStatusChanged> getTargetEventType() {
+                return WebAppContextStatusChanged.class;
             }
         });
     }

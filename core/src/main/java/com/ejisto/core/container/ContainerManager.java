@@ -54,13 +54,13 @@ public interface ContainerManager {
 
     boolean deploy(WebApplicationDescriptor webApplicationDescriptor, Container container);
 
-    boolean undeploy(String containerId, String contextPath);
+    boolean undeploy(String containerId, String contextPath) throws NotInstalledException;
 
     boolean undeployFromDefaultContainer(String contextPath) throws NotInstalledException;
 
-    boolean startWebApplication(String containerId, String contextPath);
+    boolean startWebApplication(String containerId, String contextPath) throws NotInstalledException;
 
-    boolean stopWebApplication(String containerId, String contextPath);
+    boolean stopWebApplication(String containerId, String contextPath) throws NotInstalledException;
 
     boolean startWebApplicationOnDefaultServer(String contextPath) throws NotInstalledException;
 

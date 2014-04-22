@@ -20,6 +20,7 @@
 package com.ejisto.util;
 
 import com.ejisto.event.def.ChangeServerStatus;
+import com.ejisto.event.def.ChangeWebAppStatus;
 import org.vertx.java.core.json.JsonObject;
 
 /**
@@ -36,5 +37,23 @@ public class GUIEvents {
 
     public static ChangeServerStatus stopServer(Object source, JsonObject properties) {
         return new ChangeServerStatus(source, properties.getString("containerId"), ChangeServerStatus.Command.SHUTDOWN);
+    }
+
+    public static ChangeWebAppStatus startApplication(Object source, JsonObject properties) {
+        return new ChangeWebAppStatus(source, properties.getString("containerId"),
+                                             properties.getString("contextPath"),
+                                             WebAppContextStatusCommand.START);
+    }
+
+    public static ChangeWebAppStatus stopApplication(Object source, JsonObject properties) {
+        return new ChangeWebAppStatus(source, properties.getString("containerId"),
+                                      properties.getString("contextPath"),
+                                      WebAppContextStatusCommand.STOP);
+    }
+
+    public static ChangeWebAppStatus deleteApplication(Object source, JsonObject properties) {
+        return new ChangeWebAppStatus(source, properties.getString("containerId"),
+                                      properties.getString("contextPath"),
+                                      WebAppContextStatusCommand.DELETE);
     }
 }

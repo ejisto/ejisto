@@ -19,35 +19,15 @@
 
 package com.ejisto.event.def;
 
-import com.ejisto.constants.StringConstants;
+import com.ejisto.util.WebAppContextStatusCommand;
 
-import java.util.Arrays;
-import java.util.Optional;
-
-public class ChangeWebAppContextStatus extends BaseApplicationEvent {
+public class WebAppContextStatusChanged extends BaseApplicationEvent {
     private static final long serialVersionUID = 1350522622740164683L;
-
-    public enum WebAppContextStatusCommand {
-        START(StringConstants.START_CONTEXT_COMMAND),
-        STOP(StringConstants.STOP_CONTEXT_COMMAND),
-        DELETE(StringConstants.DELETE_CONTEXT_COMMAND);
-        private final StringConstants command;
-
-        private WebAppContextStatusCommand(StringConstants command) {
-            this.command = command;
-        }
-
-        public static Optional<WebAppContextStatusCommand> fromString(String commandAsString) {
-            return Arrays.stream(values())
-                    .filter(c -> c.command.getValue().equals(commandAsString))
-                    .findFirst();
-        }
-    }
 
     private final WebAppContextStatusCommand command;
     private final String contextPath;
 
-    public ChangeWebAppContextStatus(Object source, WebAppContextStatusCommand command, String contextPath) {
+    public WebAppContextStatusChanged(Object source, WebAppContextStatusCommand command, String contextPath) {
         super(source);
         this.command = command;
         this.contextPath = contextPath;

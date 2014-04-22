@@ -16,8 +16,9 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<div>
-    <button class="btn btn-sm btn-success" data-ng-click="startApplication(application)" data-ng-show="!application.running" data-tooltip="{{'webapp.context.start.text' | translate}}" data-tooltip-trigger="mouseenter">{{'start' | translate}}</button>
-    <button class="btn btn-sm btn-default" data-ng-click="stopApplication(application)" data-ng-show="application.running" data-tooltip="{{'webapp.context.stop.text' | translate}}" data-tooltip-trigger="mouseenter">{{'stop' | translate}}</button>
-    <button class="btn btn-sm btn-danger" data-ng-click="deleteApplication(application)" data-tooltip="{{'webapp.context.delete.text' | translate}}">{{'delete' | translate}}</button>
+<i class="fa fa-refresh fa-spin" data-ng-show="loading"></i>
+<div data-ng-show="!loading">
+    <button class="btn btn-sm btn-success" data-ng-click="startApplication(application)" data-ng-show="!application.running" data-tooltip="{{'webapp.context.start.text' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-play fa-cog"></i><span class="sr-only">{{'start' | translate}}</span></button>
+    <button class="btn btn-sm btn-default" data-ng-click="stopApplication(application)" data-ng-show="application.running" data-tooltip="{{'webapp.context.stop.text' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-stop fa-cog"></i><span class="sr-only">{{'stop' | translate}}</span></button>
+    <button class="btn btn-sm btn-danger" data-ng-click="deleteApplication(application)" data-tooltip="{{'webapp.context.delete.text' | translate}}"><i class="fa fa-trash-o fa-cog"></i><span class="sr-only">{{'delete' | translate}}</span></button>
 </div>

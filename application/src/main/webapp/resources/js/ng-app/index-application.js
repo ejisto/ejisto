@@ -70,10 +70,26 @@
         var loadApplications = function() {
             InstalledApplicationService.getInstalledWebApplications().success(function(data) {
                 $scope.applications = data;
+                $scope.loading=false;
             });
         };
         loadApplications();
-        vertxEventBusService.on('ChangeWebAppContextStatus', loadApplications);
+        $scope.startApplication = function(application) {
+            InstalledApplicationService.startApplication(application).then(function() {
+                $scope.loading=true;
+            });
+        };
+        $scope.stopApplication = function(application) {
+            InstalledApplicationService.stopApplication(application).then(function() {
+                $scope.loading=true;
+            });
+        };
+        $scope.deleteApplication = function(application) {
+            InstalledApplicationService.deleteApplication(application).then(function() {
+                $scope.loading=true;
+            });
+        };
+        vertxEventBusService.on('WebAppContextStatusChanged', loadApplications);
         vertxEventBusService.on('ContainerStatusChanged', loadApplications);
     });
 

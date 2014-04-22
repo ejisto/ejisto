@@ -46,10 +46,19 @@
         };
     });
 
-    baseServices.service("InstalledApplicationService", function($http, HttpErrorHandler) {
+    baseServices.service("InstalledApplicationService", function($http, HttpErrorHandler, vertxEventBusService) {
         return {
             getInstalledWebApplications : function() {
                 return $http.get('/webApplications/list').error(HttpErrorHandler.handle);
+            },
+            startApplication : function(application) {
+                return vertxEventBusService.send('StartApplication', {"contextPath" : application.webApplicationContextPath}, true);
+            },
+            stopApplication : function(application) {
+                return vertxEventBusService.send('StopApplication', {"contextPath" : application.webApplicationContextPath}, true);
+            },
+            deleteApplication : function(application) {
+                return vertxEventBusService.send('DeleteApplication', {"contextPath" : application.webApplicationContextPath}, true);
             }
         };
     });

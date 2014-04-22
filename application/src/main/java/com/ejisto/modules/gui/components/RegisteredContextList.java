@@ -22,8 +22,8 @@ package com.ejisto.modules.gui.components;
 import com.ejisto.core.container.WebApplication;
 import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.def.ApplicationDeployed;
-import com.ejisto.event.def.ChangeWebAppContextStatus;
 import com.ejisto.event.def.ContainerStatusChanged;
+import com.ejisto.event.def.WebAppContextStatusChanged;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import com.ejisto.util.GuiUtils;
 import org.jdesktop.swingx.JXButton;
@@ -33,7 +33,6 @@ import org.jdesktop.swingx.JXPanel;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.ejisto.constants.StringConstants.*;
 import static com.ejisto.util.GuiUtils.*;
@@ -42,15 +41,15 @@ class RegisteredContextList extends JXPanel {
 
     private static final long serialVersionUID = -157871898009911909L;
     private final WebApplicationRepository webApplicationRepository;
-    private final transient ApplicationListener<ChangeWebAppContextStatus> contextChangeListener = new ApplicationListener<ChangeWebAppContextStatus>() {
+    private final transient ApplicationListener<WebAppContextStatusChanged> contextChangeListener = new ApplicationListener<WebAppContextStatusChanged>() {
         @Override
-        public void onApplicationEvent(ChangeWebAppContextStatus event) {
+        public void onApplicationEvent(WebAppContextStatusChanged event) {
             reloadAllContexts();
         }
 
         @Override
-        public Class<ChangeWebAppContextStatus> getTargetEventType() {
-            return ChangeWebAppContextStatus.class;
+        public Class<WebAppContextStatusChanged> getTargetEventType() {
+            return WebAppContextStatusChanged.class;
         }
     };
 
