@@ -18,10 +18,13 @@
  */
 (function () {
     "use strict";
-    /**
-     * Created by celestino on 3/22/14.
-     */
-    var index = angular.module('indexApplication', ['ui.bootstrap', 'pascalprecht.translate', 'FieldEditor', 'ContainerManager', 'BaseServices', 'WebApplicationManager', 'knalli.angular-vertxbus']);
+
+    var index = angular.module('indexApplication', ['ui.bootstrap',
+        'pascalprecht.translate', 'FieldEditor',
+        'ContainerManager', 'BaseServices',
+        'WebApplicationManager', 'knalli.angular-vertxbus',
+        'Utilities'
+    ]);
 
     index.config(function ($translateProvider) {
         $translateProvider.useUrlLoader("/translations");
@@ -93,18 +96,11 @@
         vertxEventBusService.on('ContainerStatusChanged', loadApplications);
     });
 
-    index.controller('StatusBarController', function($scope, vertxEventBusService) {
+    index.controller('MessageBarController', function($scope, vertxEventBusService) {
         $scope.message = 'main.header.description';
-        $scope.$on('vertx-eventbus.system.disconnected', function() {
-            $scope.connected=false;
-        });
-        $scope.$on('vertx-eventbus.system.connected', function() {
-            $scope.connected=true;
-        });
         vertxEventBusService.on('StatusBarMessage', function(event) {
             $scope.message = event.value;
         });
     });
-
 
 })();

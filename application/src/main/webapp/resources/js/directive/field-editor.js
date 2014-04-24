@@ -19,9 +19,7 @@
 
 (function () {
     "use strict";
-    /**
-     * Created by celestino on 3/26/14.
-     */
+
     var fieldEditor = angular.module('FieldEditor', ['ui.bootstrap', 'pascalprecht.translate', 'sf.treeRepeat', 'support']);
 
     fieldEditor.directive("fieldEditorChooser", function() {

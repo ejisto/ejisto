@@ -16,8 +16,4 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<i class="fa fa-refresh fa-spin" data-ng-show="loading"></i>
-<div class="server-control-container" data-ng-show="!loading">
-    <button class="btn btn-sm btn-success" data-ng-click="startContainer(container)" data-ng-show="!container.running" data-tooltip="{{'start.default.server' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-play fa-cog"></i><span class="sr-only" data-translate>start</span></button>
-    <button class="btn btn-sm btn-default" data-ng-click="stopContainer(container)" data-ng-show="container.running" data-tooltip="{{'stop.default.server' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-stop fa-cog"></i><span class="sr-only" data-translate>stop</span></button>
-</div>
+<i class="fa btn btn-lg btn-link" data-ng-class="{'fa-link':connected, 'fa-unlink':!connected}" data-tooltip="{{connectionStatusMessage | translate}}" data-tooltip-trigger="mouseenter"></i>

@@ -42,6 +42,7 @@
     <script src="/resources/js/directive/field-editor.js"></script>
     <script src="/resources/js/directive/container-manager.js"></script>
     <script src="/resources/js/directive/web-application-manager.js"></script>
+    <script src="/resources/js/directive/utilities.js"></script>
     <script src="/resources/js/service/base-services.js"></script>
     <title>{{"about.title" | translate}}</title>
 </head>
@@ -55,13 +56,18 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand logo" href="#">{{"about.title" | translate}}</a>
+                <a class="navbar-brand logo" href="#" data-translate>about.title</a>
             </div>
-            <div class="collapse navbar-collapse">
-                <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#about">{{"menu.about" | translate}}</a></li>
-                </ul>
+            <div class="navbar-left">
+                <div class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li class="active"><a href="#">Home</a></li>
+                        <li><a href="#about" data-translate>menu.about</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="navbar-right">
+                <system-connection-status></system-connection-status>
             </div>
         </div>
     </div>
@@ -69,14 +75,14 @@
     <div class="container first-component" role="main">
         <div data-ng-controller="ErrorController">
             <span data-ng-show="errorMessage" class="alert alert-danger">{{errorMessage}}</span>
-            <span data-ng-show="connectionLost" class="alert alert-danger">{{"websocket.server.connection.lost" | translate}}</span>
+            <span data-ng-show="connectionLost" class="alert alert-danger" data-translate>websocket.server.connection.lost</span>
         </div>
 
         <div class="row">
             <div class="col-sm-9">
                 <div data-ng-controller="PropertiesEditorController" class="panel panel-primary">
                     <div class="panel-heading">
-                        <h4 class="panel-title properties-editor-heading">{{"main.propertieseditor.title.text" | translate}}</h4>
+                        <h4 class="panel-title properties-editor-heading" data-translate>main.propertieseditor.title.text</h4>
                         <div class="btn-group">
                             <button type="button" class="btn btn-xs btn-primary active" data-ng-model="selectedEditor" data-btn-radio="'HIERARCHICAL'">Hierarchical</button>
                             <button type="button" class="btn btn-xs btn-primary ng-valid" data-ng-model="selectedEditor" data-btn-radio="'FLATTEN'">Flatten</button>
@@ -87,10 +93,10 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-3 ">
                 <div data-ng-controller="ContainersController" class="panel panel-primary">
                     <div class="panel-heading">
-                        <h4 class="panel-title">{{"installed.containers" | translate}}</h4>
+                        <h4 class="panel-title" data-translate>installed.containers</h4>
                     </div>
                     <div class="panel-body">
                         <container-manager></container-manager>
@@ -98,7 +104,7 @@
                 </div>
                 <div data-ng-controller="InstalledApplicationController" class="panel panel-primary">
                     <div class="panel-heading">
-                        <h4 class="panel-title">{{"main.tab.webappcontext.text" | translate}}</h4>
+                        <h4 class="panel-title" data-translate>main.tab.webappcontext.text</h4>
                     </div>
                     <div class="panel-body">
                         <web-application-manager></web-application-manager>
@@ -106,15 +112,7 @@
                 </div>
             </div>
         </div>
-        <div id="footer" class="row" data-ng-controller="StatusBarController">
-            <div class="messages col-sm-11">
-                <span>{{message | translate}}</span>
-            </div>
-            <div class="connectionStatus col-sm-1">
-                <img data-ng-show="connected" src="/resources/images/status/link.png" data-tooltip="{{'websocket.server.connection.ok' | translate}}" data-tooltip-trigger="mouseenter"/>
-                <img data-ng-show="!connected" src="/resources/images/status/link_error.png" data-tooltip="{{'websocket.server.connection.lost' | translate}}" data-tooltip-trigger="mouseenter" />
-            </div>
-        </div>
+        <status-message></status-message>
     </div>
 </body>
 </html>
