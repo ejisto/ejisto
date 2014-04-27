@@ -1,0 +1,38 @@
+<!--
+  ~ Ejisto, a powerful developer assistant
+  ~
+  ~ Copyright (C) 2010-2014 Celestino Bellone
+  ~
+  ~ Ejisto is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Ejisto is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<div data-wizard-container>
+    <div id="selectFile" class="wizardStep">
+        first step ({{activeStep.id}}
+    </div>
+    <div id="filterClasses" class="wizardStep">
+        second step
+    </div>
+    <div id="editProperties" class="wizardStep">
+        third step
+    </div>
+    <div id="summary" class="wizardStep">
+        fourth step
+    </div>
+    <div>
+        <button class="btn btn-sm btn-default" data-ng-click="previousStep(activeStep)" data-ng-show="showPrevious" data-translate>buttons.previous.text</button>
+        <button class="btn btn-sm btn-default" data-ng-click="cancelProcess()" data-ng-show="showCancel" data-translate>wizard.close.text</button>
+        <button class="btn btn-sm btn-success" data-ng-click="processCompleted()" data-ng-show="showFinish" data-translate>wizard.ok.text</button>
+        <button class="btn btn-sm btn-success" data-ng-click="nextStep(activeStep)" data-ng-show="showNext" data-translate>buttons.next.text</button>
+    </div>
+</div>

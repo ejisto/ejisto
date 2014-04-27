@@ -93,3 +93,11 @@ a.link-disabled {
 .panel-heading .btn-group {
     margin-left: 50px;
 }
+
+.wizardStep {
+    display: none;
+}
+
+.activeStep {
+    display: block;
+}

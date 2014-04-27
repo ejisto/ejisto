@@ -31,8 +31,32 @@
         $translateProvider.preferredLanguage('en');
     });
 
-    index.controller('HeaderController', function ($scope) {
-        $scope.testMessage = "Hello, World!"
+    var WizardController = function($scope, FieldService) {
+        $scope.cancel = function() {
+            if(confirm("cancel?")) {
+                $scope.$dismiss('canceled');
+            }
+        };
+        $scope.finished = function() {
+            $scope.$close(true);
+        };
+        $scope.commitSelectFile = function(step) {
+            return FieldService.getFieldsGrouped();
+        };
+    };
+
+    index.controller('MenuController', function ($scope, $modal, $log) {
+        $scope.installNewApplication = function() {
+            var wizard = $modal.open({
+                templateUrl:'/resources/templates/wizard/index.html',
+                backdrop: 'static',
+                keyboard: false,
+                controller: WizardController
+            });
+            wizard.result.then(function() {
+                $log.debug("closed");
+            });
+        };
     });
 
     index.controller('PropertiesEditorController', function ($scope, FieldService, $log) {

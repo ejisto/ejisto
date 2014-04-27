@@ -22,9 +22,8 @@
     var utilities = angular.module('Utilities', ['ui.bootstrap', 'pascalprecht.translate', 'knalli.angular-vertxbus']);
     utilities.directive("systemConnectionStatus", function () {
         return {
-            template: '<i class="fa btn btn-lg btn-link" data-ng-class="{\'fa-link\':connected, \'fa-unlink\':!connected}" data-tooltip="{{connectionStatusMessage | translate}}" data-tooltip-trigger="mouseenter"></i>',
+            templateUrl: '/resources/templates/utilities/systemConnectionStatus.html',
             restrict: 'E',
-            replace: true,
             link: function (scope, element, attrs) {
                 scope.$on('vertx-eventbus.system.disconnected', function () {
                     scope.connected = false;
@@ -37,17 +36,67 @@
             }
         };
     });
-    utilities.directive("statusMessage", function(vertxEventBusService) {
+    utilities.directive("statusMessage", function(vertxEventBusService, $filter) {
         return {
             template: "<span>{{message}}</span>",
             restrict: 'E',
             replace: true,
             link: function(scope, element, attrs) {
-                scope.message = '';
+                scope.message = $filter('translate')("main.header.description");
                 vertxEventBusService.on('StatusBarMessage', function(event) {
-                    scope.message = angular.filter('translate').apply(event.value);
+                    scope.message = $filter('translate')(event.value);
                 });
             }
         }
+    });
+    utilities.directive("wizardContainer", function() {
+        var evaluateCurrentStepData = function(scope, root, steps, currentStep) {
+            scope.activeStep = currentStep;
+            scope.showPrevious = angular.isDefined(currentStep.previous);
+            scope.showNext = angular.isDefined(currentStep.next);
+            scope.showCancel = true;
+            scope.showFinish = !angular.isDefined(currentStep.next);
+            root.find('#'+currentStep.id).addClass('activeStep');
+        };
+        var initSteps = function(steps) {
+            var previousSteps = _.clone(steps);
+            previousSteps.unshift(null);
+            var nextSteps = _.clone(steps);
+            nextSteps.shift();
+            return _.map(_.zip(steps, previousSteps, nextSteps), function(obj) {
+                return {
+                    'id' : obj[0],
+                    'previous': obj[1],
+                    'next': obj[2]
+                }
+            }).filter(function(o) {
+                return o.id;
+            });
+        };
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs) {
+                var stepIds = _.map(element.find('.wizardStep'), function(el) {
+                    return el.attributes.getNamedItem('id').value;
+                });
+                var steps = initSteps(stepIds);
+                evaluateCurrentStepData(scope, element, steps, _.first(steps));
+                scope.nextStep = function(currentStep) {
+                    var fnName = "commit" + currentStep.id.charAt(0).toUpperCase() + currentStep.id.slice(1);
+                    if(angular.isFunction(scope[fnName])) {
+                        scope[fnName](currentStep).then(function(result) {
+                            var nextStep = _.find(steps, {'id': currentStep.next});
+                            if(nextStep) {
+                                element.find('#'+currentStep.id).removeClass('activeStep');
+                                evaluateCurrentStepData(scope, element, steps, nextStep);
+                            }
+                        });
+                    }
+                };
+                scope.cancelProcess = function() {
+                    scope.cancel();
+                }
+            }
+        };
     });
 })();

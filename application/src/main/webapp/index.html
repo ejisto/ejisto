@@ -38,6 +38,7 @@
     <script src="/resources/js/lib/sockjs-0.3.4.js"></script>
     <script src="/resources/js/lib/vertxbus-2.1.js"></script>
     <script src="/resources/js/lib/angular-vertxbus-0.5.0.js"></script>
+    <script src="/resources/js/lib/lodash-2.4.1.js"></script>
     <script src="/resources/js/ng-app/index-application.js"></script>
     <script src="/resources/js/directive/field-editor.js"></script>
     <script src="/resources/js/directive/container-manager.js"></script>
@@ -60,8 +61,9 @@
             </div>
             <div class="navbar-left">
                 <div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav">
+                    <ul class="nav navbar-nav" data-ng-controller="MenuController">
                         <li class="active"><a href="#">Home</a></li>
+                        <li><a href="#" data-ng-click="installNewApplication()">New</a></li>
                         <li><a href="#about" data-translate>menu.about</a></li>
                     </ul>
                 </div>
@@ -112,7 +114,6 @@
                 </div>
             </div>
         </div>
-        <status-message></status-message>
     </div>
 </body>
 </html>
