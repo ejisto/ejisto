@@ -19,13 +19,14 @@
 
 package com.ejisto.modules.controller.wizard.installer.workers;
 
-import com.ejisto.modules.controller.wizard.installer.FileExtractionController;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptorElement;
 import com.ejisto.modules.executor.GuiTask;
 import com.ejisto.util.IOUtils;
 import lombok.extern.log4j.Log4j;
 
+import javax.swing.*;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -52,7 +53,7 @@ public class FileExtractionWorker extends GuiTask<Void> {
 
     private WebApplicationDescriptor session;
 
-    public FileExtractionWorker(WebApplicationDescriptor session, FileExtractionController controller) {
+    public FileExtractionWorker(WebApplicationDescriptor session, PropertyChangeListener controller) {
         this.session = session;
         addPropertyChangeListener(controller);
     }
@@ -60,7 +61,7 @@ public class FileExtractionWorker extends GuiTask<Void> {
     @Override
     protected Void internalDoInBackground() throws IOException, InvocationTargetException, InterruptedException {
         File war = getSession().getWarFile();
-
+        SwingUtilities.invokeAndWait(() -> firePropertyChange("startProgress", null, null));
         String path = openWar(war);
         getSession().setInstallationPath(path);
         notifyJobCompleted(COMPLETED, getMessage("progress.file.extraction.end", war.getName()));

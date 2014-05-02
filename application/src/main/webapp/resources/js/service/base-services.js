@@ -24,10 +24,20 @@
      */
     var baseServices = angular.module('BaseServices', ['ui.bootstrap', 'pascalprecht.translate']);
 
-    baseServices.service("FieldService", function($http, HttpErrorHandler) {
+    baseServices.service("FieldService", function($http, vertxEventBusService, HttpErrorHandler) {
         return {
             getFieldsGrouped : function() {
                 return $http.get('/fields/grouped').error(HttpErrorHandler.handle);
+            },
+            updateField: function(field, value) {
+                return $http['put']('/field/update', null, {
+                    params: {
+                        'contextPath': field.contextPath,
+                        'className': field.className,
+                        'fieldName': field.fieldName,
+                        'newValue': value
+                    }
+                });
             }
         };
     });

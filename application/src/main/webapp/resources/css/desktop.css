@@ -101,3 +101,34 @@ a.link-disabled {
 .activeStep {
     display: block;
 }
+
+div.file-selection {
+    width:500px;
+    height:200px;
+    border-radius: 6px;
+    background-color: #eeeeee;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+div.file-selection-drag {
+    opacity: 0.5;
+}
+
+.upload-image {
+    opacity: 0.5;
+    position: absolute;
+    bottom: 20px;
+    right: 60px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+div.centered {
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.margin-20-left {
+    margin-left: 20px;
+}

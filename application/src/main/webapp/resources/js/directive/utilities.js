@@ -56,11 +56,13 @@
             scope.showNext = angular.isDefined(currentStep.next);
             scope.showCancel = true;
             scope.showFinish = !angular.isDefined(currentStep.next);
-            root.find('#'+currentStep.id).addClass('activeStep');
+            var element = root.find('#'+currentStep.id);
+            scope.stepTitle=element.attr('data-step-title');
+            element.addClass('activeStep');
         };
         var initSteps = function(steps) {
             var previousSteps = _.clone(steps);
-            previousSteps.unshift(null);
+            previousSteps.unshift(undefined);
             var nextSteps = _.clone(steps);
             nextSteps.shift();
             return _.map(_.zip(steps, previousSteps, nextSteps), function(obj) {

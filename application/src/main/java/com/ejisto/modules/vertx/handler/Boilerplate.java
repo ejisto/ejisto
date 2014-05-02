@@ -39,6 +39,8 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
+
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
@@ -58,6 +60,13 @@ public final class Boilerplate {
     private static boolean DEV_MODE = Boolean.getBoolean(StringConstants.DEV_MODE.getValue());
 
     private Boilerplate() {
+    }
+
+    public static void writeError(HttpServerRequest req, Throwable e) {
+        req.response()
+                .setStatusCode(INTERNAL_SERVER_ERROR.code())
+                .setStatusMessage(e.getMessage())
+                .end();
     }
 
     public static <T> void writeOutputAsJSON(T output, HttpServerResponse response) {

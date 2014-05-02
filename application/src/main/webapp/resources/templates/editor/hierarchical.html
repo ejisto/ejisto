@@ -21,7 +21,7 @@
     <li data-ng-class="{'package': !node.element, 'field': node.element}" data-sf-treepeat="node in children of fields" data-collapse="isCollapsed(node.path)" data-ng-click="toggleCollapse(node.path)">
         <span data-ng-show="node.root" data-translate>node.label</span>
         <span data-ng-show="!node.root">{{node.label}}</span>
-        <span data-ng-show="node.element.fieldValue">: {{node.element.fieldValue}}</span>
+        <span data-ng-show="node.element.fieldValue">: <span data-editable-text="node.element.fieldValue" data-onbeforesave="updateField(node.element, $data)">{{node.element.fieldValue}}</span></span>
         <span data-ng-show="node.element.expression">: {{node.element.expression}}</span>
 
         <ul class="node">
