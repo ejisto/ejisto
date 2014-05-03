@@ -39,63 +39,8 @@
         $translateProvider.preferredLanguage('en');
     });
 
-    var WizardController = function($scope, FieldService, $upload, vertxEventBusService) {
-        $scope.descriptor = {};
-        $scope.cancel = function() {
-            if(confirm("cancel?")) {
-                $scope.$dismiss('canceled');
-            }
-        };
-        $scope.finished = function() {
-            $scope.$close(true);
-        };
-        $scope.fileSelected = function(element) {
-            $scope.$apply(function(scope) {
-                var reader = new FileReader();
-                var url = reader.readAsDataURL(element.files[0]);
-            });
-        };
-        $scope.commitSelectFile = function(step) {
-            var descriptor = $scope.descriptor;
-            return FieldService.getFieldsGrouped();
-        };
-
-        $scope.onFileSelect = function($files) {
-            $scope.loading=true;
-            _.forEach($files, function(file) {
-                $scope.upload = $upload.upload({
-                   url: '/application/new/upload',
-                   method: 'PUT',
-                   file: file
-                }).success(function (data, status, headers, config) {
-                    $scope.sessionID=data.sessionID;
-                    $scope.includedJars=data.resources;
-                    $scope.fileName=file.name;
-                    $scope.loading=false;
-                    $scope.newUploadRequested = false;
-                }).error(function() {
-                    $scope.loading=false;
-                });
-            });
-        };
-        $scope.requestNewUpload = function() {
-            $scope.newUploadRequested = true;
-            $scope.extractionCompleted = false;
-        };
-        vertxEventBusService.on('StartFileExtraction', function() {
-            $scope.fileExtractionInProgress=true;
-        });
-        vertxEventBusService.on('FileExtractionProgress', function(progress) {
-            var progressStatus = JSON.parse(progress);
-            if(progressStatus.taskCompleted) {
-                $scope.fileExtractionInProgress=false;
-            } else {
-                $scope.progressStatus = progressStatus.message;
-                $scope.extractionCompleted = true;
-            }
-        });
-
-    };
+    Ejisto.controllers.index.install(index);
+    Ejisto.controllers.applicationInstaller.install(index);
 
     index.controller('MenuController', function ($scope, $modal, $log) {
         $scope.installNewApplication = function() {
@@ -103,7 +48,7 @@
                 templateUrl:'/resources/templates/wizard/application-installer-index.html',
                 backdrop: 'static',
                 keyboard: false,
-                controller: WizardController
+                controller: Ejisto.controllers.applicationInstaller.ApplicationInstaller
             });
             wizard.result.then(function() {
                 $log.debug("closed");
@@ -111,68 +56,10 @@
         };
     });
 
-    index.controller('PropertiesEditorController', function ($scope, FieldService, $log) {
-        $scope.selectedEditor = 'HIERARCHICAL';
-        FieldService.getFieldsGrouped().then(function(result) {
-            $scope.fields = result.data;
-        });
-        $scope.updateField = function(element, data) {
-            return FieldService.updateField(element, data);
-        };
-    });
-
     index.controller('ErrorController', function($scope, $rootScope) {
         $rootScope.$on('applicationError', function(message) {
             $scope.errorMessage = message;
         });
-    });
-
-    index.controller('ContainersController', function($scope, ContainerService, vertxEventBusService) {
-        var loadContainers = function() {
-            ContainerService.getRegisteredContainers().success(function(data) {
-                $scope.containers = data;
-                $scope.loading = false;
-            });
-        };
-        loadContainers();
-        vertxEventBusService.on('ContainerStatusChanged', loadContainers);
-        $scope.startContainer = function(container) {
-            ContainerService.startContainer(container).then(function() {
-                $scope.loading=true;
-            });
-        };
-        $scope.stopContainer = function(container) {
-            ContainerService.stopContainer(container).then(function() {
-                $scope.loading=true;
-            });
-        };
-    });
-
-    index.controller('InstalledApplicationController', function($scope, InstalledApplicationService, vertxEventBusService) {
-        var loadApplications = function() {
-            InstalledApplicationService.getInstalledWebApplications().success(function(data) {
-                $scope.applications = data;
-                $scope.loading=false;
-            });
-        };
-        loadApplications();
-        $scope.startApplication = function(application) {
-            InstalledApplicationService.startApplication(application).then(function() {
-                $scope.loading=true;
-            });
-        };
-        $scope.stopApplication = function(application) {
-            InstalledApplicationService.stopApplication(application).then(function() {
-                $scope.loading=true;
-            });
-        };
-        $scope.deleteApplication = function(application) {
-            InstalledApplicationService.deleteApplication(application).then(function() {
-                $scope.loading=true;
-            });
-        };
-        vertxEventBusService.on('WebAppContextStatusChanged', loadApplications);
-        vertxEventBusService.on('ContainerStatusChanged', loadApplications);
     });
 
     index.controller('MessageBarController', function($scope, vertxEventBusService) {
