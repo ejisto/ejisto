@@ -20,7 +20,7 @@
     <div class="modal-header"><h3>{{stepTitle | translate}}</h3></div>
     <div class="modal-body">
         <div id="selectFile" class="wizardStep" data-step-title="wizard.fileselection.title" data-ng-controller="WizardFileSelectionController">
-            <div data-ng-show="extractionCompleted" class="alert alert-success"><span data-translate>wizard.fileselection.complete</span> <strong>{{fileName}}</strong> <button class="margin-20-left btn btn-default" data-ng-click="requestNewUpload()" data-translate>change</button></div>
+            <div data-ng-show="extractionCompleted" class="alert alert-success"><span data-translate>wizard.fileselection.complete</span> <strong>{{descriptor.fileName}}</strong> <button class="margin-20-left btn btn-default" data-ng-click="requestNewUpload()" data-translate>change</button></div>
             <div data-ng-show="!extractionCompleted || newUploadRequested" class="file-selection center-block" data-ng-file-drop="onFileSelect($files)" data-ng-file-drag-over-class="file-selection-drag">
                 <div class="text-center" data-translate>wizard.fileselection.description</div>
                 <div class="clearfix"></div>
@@ -30,8 +30,16 @@
                 <div class="fa fa-refresh fa-5x fa-spin upload-image" data-ng-show="loading"></div>
             </div>
         </div>
-        <div id="filterClasses" class="wizardStep" data-step-title="second">
-            second step
+        <div id="filterClasses" class="wizardStep" data-step-title="wizard.classesfiltering.title" data-ng-controller="WizardLibFilterController">
+            <div class="well-sm" data-translate>wizard.classesfiltering.description</div>
+            <div>
+                <ul>
+                   <li data-ng-repeat="jar in descriptor.includedJars" class="list-unstyled">
+                       <input type="checkbox" id="{{jar}}" name="{{jar}}">
+                       <label for="{{jar}}">{{jar}}</label>
+                   </li>
+                </ul>
+            </div>
         </div>
         <div id="editProperties" class="wizardStep" data-step-title="third">
             third step
@@ -41,9 +49,9 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-sm btn-default" data-ng-click="previousStep(activeStep)" data-ng-show="showPrevious" data-translate>buttons.previous.text</button>
+        <button class="btn btn-sm btn-default" data-ng-click="previousStep(activeStep)" data-ng-show="!loading && showPrevious" data-translate>buttons.previous.text</button>
         <button class="btn btn-sm btn-default" data-ng-click="cancelProcess()" data-ng-show="showCancel" data-translate>wizard.close.text</button>
-        <button class="btn btn-sm btn-success" data-ng-click="processCompleted()" data-ng-show="showFinish" data-translate>wizard.ok.text</button>
-        <button class="btn btn-sm btn-success" data-ng-click="nextStep(activeStep)" data-ng-show="showNext" data-translate>buttons.next.text</button>
+        <button class="btn btn-sm btn-success" data-ng-click="processCompleted()" data-ng-show="!loading && showFinish" data-translate>wizard.ok.text</button>
+        <button class="btn btn-sm btn-success" data-ng-click="nextStep(activeStep)" data-ng-show="!loading && showNext" data-translate>buttons.next.text</button>
     </div>
 </div>
