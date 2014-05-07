@@ -26,32 +26,33 @@
                 <div class="clearfix"></div>
                 <div data-ng-show="fileExtractionInProgress">{{"wizard.fileextraction.description" | translate}}</div>
                 <div data-ng-show="fileExtractionInProgress">{{progressStatus}}</div>
-                <div class="fa fa-upload fa-5x upload-image" data-ng-show="!loading"></div>
-                <div class="fa fa-refresh fa-5x fa-spin upload-image" data-ng-show="loading"></div>
+                <div class="fa fa-upload fa-5x upload-image" data-ng-show="!progressIndicator.loading"></div>
+                <div class="fa fa-refresh fa-5x fa-spin upload-image" data-ng-show="progressIndicator.loading"></div>
             </div>
         </div>
         <div id="filterClasses" class="wizardStep" data-step-title="wizard.classesfiltering.title" data-ng-controller="WizardLibFilterController">
-            <div class="well-sm" data-translate>wizard.classesfiltering.description</div>
-            <div>
+            <div class="well-sm" data-ng-show="!progressIndicator.loading" data-translate>wizard.classesfiltering.description</div>
+            <div data-ng-show="!progressIndicator.loading">
                 <ul>
                    <li data-ng-repeat="jar in descriptor.includedJars" class="list-unstyled">
-                       <input type="checkbox" id="{{jar}}" name="{{jar}}">
+                       <input type="checkbox" id="{{jar}}" name="{{jar}}" data-ng-click="addRemoveResource(jar, $event)">
                        <label for="{{jar}}">{{jar}}</label>
                    </li>
                 </ul>
             </div>
+            <div data-ng-show="progressIndicator.loading" class="fa fa-refresh fa-5x fa-spin upload-image"></div>
         </div>
-        <div id="editProperties" class="wizardStep" data-step-title="third">
-            third step
+        <div id="editProperties" class="wizardStep" data-step-title="wizard.propertiesedit.title" data-ng-controller="WizardFieldEditorController">
+            <hierarchical-field-editor data-fields="descriptor.fields" data-before-update="activateField"></hierarchical-field-editor>
         </div>
         <div id="summary" class="wizardStep">
             fourth step
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-sm btn-default" data-ng-click="previousStep(activeStep)" data-ng-show="!loading && showPrevious" data-translate>buttons.previous.text</button>
+        <button class="btn btn-sm btn-default" data-ng-click="previousStep(activeStep)" data-ng-show="!progressIndicator.loading && showPrevious" data-translate>buttons.previous.text</button>
         <button class="btn btn-sm btn-default" data-ng-click="cancelProcess()" data-ng-show="showCancel" data-translate>wizard.close.text</button>
-        <button class="btn btn-sm btn-success" data-ng-click="processCompleted()" data-ng-show="!loading && showFinish" data-translate>wizard.ok.text</button>
-        <button class="btn btn-sm btn-success" data-ng-click="nextStep(activeStep)" data-ng-show="!loading && showNext" data-translate>buttons.next.text</button>
+        <button class="btn btn-sm btn-success" data-ng-click="processCompleted()" data-ng-show="!progressIndicator.loading && showFinish" data-translate>wizard.ok.text</button>
+        <button class="btn btn-sm btn-success" data-ng-click="nextStep(activeStep)" data-ng-show="!progressIndicator.loading && showNext" data-translate>buttons.next.text</button>
     </div>
 </div>

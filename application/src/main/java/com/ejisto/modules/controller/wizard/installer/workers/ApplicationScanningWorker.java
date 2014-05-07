@@ -19,9 +19,6 @@
 
 package com.ejisto.modules.controller.wizard.installer.workers;
 
-import com.ejisto.modules.controller.wizard.installer.ApplicationScanningController;
-import com.ejisto.modules.dao.entities.CustomObjectFactory;
-import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.executor.GuiTask;
@@ -36,6 +33,7 @@ import org.codehaus.cargo.module.webapp.*;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -47,7 +45,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -77,7 +74,8 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
     private final boolean hybrid;
     private String containerHome;
 
-    public ApplicationScanningWorker(ApplicationScanningController controller,
+    public ApplicationScanningWorker(PropertyChangeListener listener,
+                                     WebApplicationDescriptor session,
                                      MockedFieldsRepository mockedFieldsRepository,
                                      CustomObjectFactoryRepository customObjectFactoryRepository,
                                      String containerHome,
@@ -85,10 +83,10 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
         super();
         this.mockedFieldsRepository = mockedFieldsRepository;
         this.customObjectFactoryRepository = customObjectFactoryRepository;
-        this.session = controller.getSession();
+        this.session = session;
         this.containerHome = containerHome;
         this.hybrid = hybrid;
-        addPropertyChangeListener(controller);
+        addPropertyChangeListener(listener);
     }
 
     @Override
@@ -126,8 +124,9 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
         String contextPath = descriptor.getContextPath();
         ClassPool cp = ClassPoolRepository.getRegisteredClassPool(contextPath);
         cp.appendClassPath(new LoaderClassPath(loader));
-        forkJoinPool.invoke(new LoadClassAction(new ArrayList<>(classNames), loader, descriptor, this, mockedFieldsRepository))
-                    .forEach(descriptor::addField);
+        forkJoinPool.invoke(
+                new LoadClassAction(new ArrayList<>(classNames), loader, descriptor, this, mockedFieldsRepository))
+                .forEach(descriptor::addField);
         log.info("just finished processing " + descriptor.getInstallationPath());
     }
 
@@ -177,7 +176,8 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
                                           File.separator);
             File dir = new File(libDir);
             customObjectFactoryRepository.getCustomObjectFactories()
-                    .forEach(jar -> copyFile(System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir));
+                    .forEach(jar -> copyFile(
+                            System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir));
             copyEjistoLibs(false, dir.toPath());
             String deployablePath = System.getProperty(
                     DEPLOYABLES_DIR.getValue()) + File.separator + getFilenameWithoutExt(

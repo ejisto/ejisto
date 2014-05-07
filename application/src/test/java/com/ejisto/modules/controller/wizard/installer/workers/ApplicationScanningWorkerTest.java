@@ -36,7 +36,7 @@ public class ApplicationScanningWorkerTest {
 
     @Test
     public void testGetContextPath() {
-        ApplicationScanningWorker worker = new ApplicationScanningWorker(controller, null, null, "", true);
+        ApplicationScanningWorker worker = new ApplicationScanningWorker(controller, null, null,null, "", true);
         assertEquals("/simpleWarProject",
                      worker.getContextPath("/tmp/ejisto/jetty/webapps/simpleWarProject/"));
         assertEquals("/simpleWarProject", worker.getContextPath(

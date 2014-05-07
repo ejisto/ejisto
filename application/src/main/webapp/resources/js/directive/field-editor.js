@@ -42,12 +42,32 @@
         };
     });
 
-    fieldEditor.directive("hierarchicalFieldEditor", function() {
+    fieldEditor.directive("hierarchicalFieldEditor", function($q) {
         return {
+            scope: {
+                fields: '=',
+                beforeUpdate: '='
+            },
             templateUrl: '/resources/templates/editor/hierarchical.html',
             restrict: 'E',
             link: function(scope, element, attrs) {
-
+                scope.updateField = function(el, $data) {
+                    if(angular.isFunction(scope.beforeUpdate)) {
+                        var deferred = $q.defer();
+                        var promise = scope.beforeUpdate(el, $data);
+                        if(promise && angular.isFunction(promise.then)) {
+                            promise.then(function(success) {
+                                deferred.resolve(success);
+                            }, function(error) {
+                                deferred.reject(error);
+                            });
+                        } else {
+                            deferred.resolve(promise);
+                        }
+                        return deferred.promise;
+                    }
+                    return undefined;
+                };
             }
         };
     });

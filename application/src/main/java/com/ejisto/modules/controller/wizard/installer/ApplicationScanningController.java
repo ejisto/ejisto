@@ -19,7 +19,6 @@
 
 package com.ejisto.modules.controller.wizard.installer;
 
-import com.ejisto.modules.controller.WizardException;
 import com.ejisto.modules.controller.wizard.installer.workers.ApplicationScanningWorker;
 import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.executor.ProgressDescriptor;
@@ -88,7 +87,7 @@ public class ApplicationScanningController extends AbstractApplicationInstallerC
 
     @Override
     protected Task<?> createNewTask() {
-        return new ApplicationScanningWorker(this, mockedFieldsRepository, customObjectFactoryRepository, containerHome,
+        return new ApplicationScanningWorker(this, this.getSession(), mockedFieldsRepository, customObjectFactoryRepository, containerHome,
                                              true);
     }
 

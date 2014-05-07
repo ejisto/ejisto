@@ -19,9 +19,15 @@
 
 package com.ejisto.modules.vertx.handler;
 
+import com.ejisto.core.container.ContainerManager;
+import com.ejisto.modules.controller.wizard.installer.workers.ApplicationScanningWorker;
 import com.ejisto.modules.controller.wizard.installer.workers.FileExtractionWorker;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
+import com.ejisto.modules.repository.CustomObjectFactoryRepository;
+import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.web.util.JSONUtil;
+import com.ejisto.util.collector.MockedFieldCollector;
+import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -29,13 +35,13 @@ import org.vertx.java.core.http.RouteMatcher;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static com.ejisto.modules.vertx.VertxManager.publishEvent;
+import static com.ejisto.modules.vertx.handler.Boilerplate.writeError;
+import static com.ejisto.modules.vertx.handler.Boilerplate.writeOutputAsJSON;
 
 /**
  * Created by IntelliJ IDEA.
@@ -43,11 +49,14 @@ import static com.ejisto.modules.vertx.VertxManager.publishEvent;
  * Date: 4/30/14
  * Time: 8:05 AM
  */
+@Log4j
 public class ApplicationInstallerWizardHandler implements ContextHandler {
 
     private static final String SESSION_ID = "sessionID";
     private final ConcurrentMap<String, WebApplicationDescriptor> registry = new ConcurrentHashMap<>();
-
+    private final MockedFieldsRepository mockedFieldsRepository;
+    private final CustomObjectFactoryRepository customObjectFactoryRepository;
+    private final ContainerManager containerManager;
     private final Handler<HttpServerRequest> uploadHandler = req -> {
         req.expectMultiPart(true);
         req.uploadHandler(fileHandler -> {
@@ -57,7 +66,7 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
             String fileName = fileHandler.filename();
             Path war = Paths.get(System.getProperty("java.io.tmpdir"), fileName);
             fileHandler.streamToFileSystem(war.toString());
-            fileHandler.exceptionHandler(event -> Boilerplate.writeError(req, event));
+            fileHandler.exceptionHandler(event -> writeError(req, event));
             fileHandler.endHandler(end -> {
                 try {
                     session.setWarFile(war.toFile());
@@ -75,16 +84,50 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
                     Map<String, Object> result = new HashMap<>(2);
                     result.put(SESSION_ID, key);
                     result.put("resources", session.getIncludedJars());
-                    Boilerplate.writeOutputAsJSON(result, req.response());
+                    writeOutputAsJSON(result, req.response());
                 } catch (Exception e) {
-                    Boilerplate.writeError(req, e);
+                    writeError(req, e);
                 }
             });
         });
     };
 
+    public ApplicationInstallerWizardHandler(MockedFieldsRepository mockedFieldsRepository, CustomObjectFactoryRepository customObjectFactoryRepository, ContainerManager containerManager) {
+        this.mockedFieldsRepository = mockedFieldsRepository;
+        this.customObjectFactoryRepository = customObjectFactoryRepository;
+        this.containerManager = containerManager;
+    }
+
     @Override
     public void addRoutes(RouteMatcher routeMatcher) {
-        routeMatcher.put("/application/new/upload", uploadHandler);
+        routeMatcher.put("/application/new/upload", uploadHandler)
+                .put("/application/new/:sessionID/include", req -> {
+                    String sessionId = req.params().get("sessionID");
+                    if(registry.containsKey(sessionId)) {
+                        scanApplication(req, sessionId);
+                    }
+                });
+    }
+
+    private void scanApplication(HttpServerRequest req, String sessionId) {
+        final WebApplicationDescriptor descriptor = registry.get(sessionId);
+        Optional.ofNullable(req.params().get("resources"))
+                .map(s -> s.split(","))
+                .ifPresent(a -> descriptor.setWhiteList(Arrays.asList(a)));
+        try {
+            ApplicationScanningWorker worker = new ApplicationScanningWorker(e -> {},
+                                                                             descriptor,
+                                                                             mockedFieldsRepository,
+                                                                             customObjectFactoryRepository,
+                                                                             containerManager.getDefaultHome(),
+                                                                             true);
+            worker.work();
+            worker.get();
+            writeOutputAsJSON(descriptor.getFields().parallelStream().collect(new MockedFieldCollector()),
+                              req.response());
+        } catch (Exception e) {
+            writeError(req, e);
+            log.error("error during application scanning", e);
+        }
     }
 }

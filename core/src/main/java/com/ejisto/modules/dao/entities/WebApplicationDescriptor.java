@@ -25,7 +25,10 @@ import lombok.extern.log4j.Log4j;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.TreeSet;
 
 import static com.ejisto.modules.dao.entities.WebApplicationDescriptorElement.Kind.CLASSPATH;
 import static java.util.stream.Collectors.toList;
@@ -77,8 +80,14 @@ public class WebApplicationDescriptor implements Serializable, Entity<String> {
     }
 
     public void setBlacklist(List<String> blacklist) {
-        log.debug("blacklisting: " + blacklist);
         helper.setBlacklist(blacklist);
+    }
+
+    public void setWhiteList(List<String> whiteList) {
+        helper.setBlacklist(helper.getIncludedJars()
+                                    .stream()
+                                    .filter(e -> !whiteList.contains(e))
+                                    .collect(toList()));
     }
 
     public boolean isBlacklistedEntry(String filename) {

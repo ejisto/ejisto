@@ -22,9 +22,9 @@
     /**
      * Created by celestino on 26/03/2014.
      */
-    var baseServices = angular.module('BaseServices', ['ui.bootstrap', 'pascalprecht.translate']);
+    var baseServices = angular.module('BaseServices', ['ui.bootstrap', 'knalli.angular-vertxbus', 'pascalprecht.translate']);
 
-    baseServices.service("FieldService", function($http, vertxEventBusService, HttpErrorHandler) {
+    baseServices.service("FieldService", function($http, HttpErrorHandler) {
         return {
             getFieldsGrouped : function() {
                 return $http.get('/fields/grouped').error(HttpErrorHandler.handle);
@@ -37,7 +37,29 @@
                         'fieldName': field.fieldName,
                         'newValue': value
                     }
-                });
+                }).error(HttpErrorHandler.handle);
+            }
+        };
+    });
+
+    baseServices.service("InstallApplicationService", function($http, HttpErrorHandler) {
+        return {
+            selectExternalLibraries : function(libs, sessionId) {
+                return $http['put']('/application/new/'+sessionId+'/include', null, {
+                    params: {
+                        resources: libs.join(",")
+                    }
+                }).error(HttpErrorHandler.handle);
+            },
+            updateField: function(field, value) {
+                return $http['put']('/field/update', null, {
+                    params: {
+                        'contextPath': field.contextPath,
+                        'className': field.className,
+                        'fieldName': field.fieldName,
+                        'newValue': value
+                    }
+                }).error(HttpErrorHandler.handle);
             }
         };
     });

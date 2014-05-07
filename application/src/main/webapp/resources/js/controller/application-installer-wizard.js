@@ -24,11 +24,12 @@ Ejisto.controllers = Ejisto.controllers || {};
     "use strict";
     Ejisto.controllers.applicationInstaller = {
 
-        ApplicationInstaller: function ($scope) {
+        ApplicationInstaller: function ($scope, $filter) {
             $scope.descriptor = {};
-            $scope.loading = false;
+            $scope.progressIndicator = {};
+            $scope.progressIndicator.loading = false;
             $scope.cancel = function () {
-                if (confirm("cancel?")) {
+                if (confirm($filter('translate')('wizard.quit.message'))) {
                     $scope.$dismiss('canceled');
                 }
             };
@@ -39,22 +40,25 @@ Ejisto.controllers = Ejisto.controllers || {};
         WizardFileSelectionController: function($scope, vertxEventBusService, $upload) {
 
             $scope.onFileSelect = function ($files) {
-                $scope.loading = true;
-                _.forEach($files, function (file) {
+                $scope.progressIndicator.loading = true;
+                var firstFile = _.first(_.filter($files, function(file) {
+                    return /.*?\.war/.test(file.name);
+                }));
+                if(firstFile) {
                     $scope.upload = $upload.upload({
                        url: '/application/new/upload',
                        method: 'PUT',
-                       file: file
+                       file: firstFile
                    }).success(function (data, status, headers, config) {
-                        $scope.sessionID = data.sessionID;
-                        $scope.descriptor.includedJars = data.resources;
-                        $scope.descriptor.fileName = file.name;
-                        $scope.loading = false;
-                        $scope.newUploadRequested = false;
+                       $scope.descriptor.sessionID = data.sessionID;
+                       $scope.descriptor.includedJars = data.resources;
+                       $scope.descriptor.fileName = firstFile.name;
+                       $scope.progressIndicator.loading = false;
+                       $scope.newUploadRequested = false;
                    }).error(function () {
-                       $scope.loading = false;
+                       $scope.progressIndicator.loading = false;
                    });
-                });
+                }
             };
             $scope.requestNewUpload = function () {
                 $scope.newUploadRequested = true;
@@ -68,17 +72,30 @@ Ejisto.controllers = Ejisto.controllers || {};
                 if (progressStatus.taskCompleted) {
                     $scope.fileExtractionInProgress = false;
                 } else {
-                    $scope.progressStatus = progressStatus.message;
+                    $scope.progressIndicator.status = progressStatus.message;
                     $scope.extractionCompleted = true;
                 }
             });
         },
         WizardLibFilterController: function($scope) {
-            $scope.commitFilterClasses = function(step) {
-
+            $scope.descriptor.selectedResources = [];
+            $scope.addRemoveResource = function(resource, $event) {
+                var list = $scope.descriptor.selectedResources;
+                if(!$event.target.checked) {
+                    _.remove(list, function(e) { return e == resource;});
+                } else {
+                    list.push(resource);
+                }
+                $scope.descriptor.selectedResources = list;
             };
         },
-        StepEvaluator: function($q) {
+        WizardFieldEditorController: function($scope) {
+            $scope.activateField = function(element, value) {
+                element.active = true;
+                return undefined;
+            };
+        },
+        StepEvaluator: function($q, InstallApplicationService) {
             return {
                 commitSelectFile: function (step, scope) {
                     var deferred = $q.defer();
@@ -91,7 +108,15 @@ Ejisto.controllers = Ejisto.controllers || {};
                     return deferred.promise;
                 },
                 commitFilterClasses: function(step, scope) {
-
+                    var deferred = $q.defer();
+                    InstallApplicationService.selectExternalLibraries(scope.descriptor.selectedResources, scope.descriptor.sessionID).then(function(success) {
+                        scope.descriptor.fields = success.data;
+                        deferred.resolve("success");
+                    }, function(error) {
+                        scope.descriptor.fields = [];
+                        deferred.reject(error);
+                    });
+                    return deferred.promise;
                 }
             };
         },
@@ -100,6 +125,7 @@ Ejisto.controllers = Ejisto.controllers || {};
             module.service('StepEvaluator', this.StepEvaluator);
             module.controller('WizardFileSelectionController', this.WizardFileSelectionController);
             module.controller('WizardLibFilterController', this.WizardLibFilterController);
+            module.controller('WizardFieldEditorController', this.WizardFieldEditorController);
             module.directive("wizardContainer", function(StepEvaluator) {
                 var evaluateCurrentStepData = function(scope, root, steps, currentStep) {
                     scope.activeStep = currentStep;
@@ -137,11 +163,13 @@ Ejisto.controllers = Ejisto.controllers || {};
                         scope.nextStep = function(currentStep) {
                             var fnName = "commit" + currentStep.id.charAt(0).toUpperCase() + currentStep.id.slice(1);
                             if(angular.isFunction(StepEvaluator[fnName])) {
+                                scope.progressIndicator.loading=true;
                                 StepEvaluator[fnName](currentStep, scope).then(function(result) {
                                     var nextStep = _.find(steps, {'id': currentStep.next});
                                     if(nextStep) {
                                         element.find('#'+currentStep.id).removeClass('activeStep');
                                         evaluateCurrentStepData(scope, element, steps, nextStep);
+                                        scope.progressIndicator.loading=false;
                                     }
                                 });
                             }
