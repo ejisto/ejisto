@@ -36,15 +36,15 @@
             }
         };
     });
-    utilities.directive("statusMessage", function(vertxEventBusService, $filter) {
+    utilities.directive("statusMessage", function(vertxEventBusService) {
         return {
-            template: "<span>{{message}}</span>",
+            template: "<span>{{message | translate}}</span>",
             restrict: 'E',
             replace: true,
             link: function(scope, element, attrs) {
-                scope.message = $filter('translate')("main.header.description");
+                scope.message = "main.header.description";
                 vertxEventBusService.on('StatusBarMessage', function(event) {
-                    scope.message = $filter('translate')(event.value);
+                    scope.message = event.value;
                 });
             }
         }

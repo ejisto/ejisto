@@ -17,8 +17,7 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 <div data-tooltip="{{connectionStatusMessage | translate}}" data-tooltip-trigger="mouseenter">
-    <i class="fa" data-ng-class="{'fa-link':connected, 'fa-unlink':!connected}">
-        <span class="sr-only" data-translate>connectionStatusMessage</span>
+    <i class="fa" data-ng-class="{'fa-check':connected, 'fa-exclamation-triangle':!connected}">
+        <span class="sr-only">{{connectionStatusMessage | translate}}</span>
     </i><br/>
-    <status-message></status-message>
 </div>
