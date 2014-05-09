@@ -63,6 +63,10 @@ public final class FieldNode implements Comparable<FieldNode> {
         return !isRoot() && children.isEmpty() && element.get().isSimpleValue();
     }
 
+    public boolean isActive() {
+        return element.isPresent() && element.get().isActive();
+    }
+
     public boolean isParentOf(MockedField field) {
         return isRoot() || field.getComparisonKey().startsWith(path);
     }

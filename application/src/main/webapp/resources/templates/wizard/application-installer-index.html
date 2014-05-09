@@ -16,10 +16,10 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<div data-wizard-container>
+<div data-wizard-container="selectFile,filterClasses,editProperties,summary">
     <div class="modal-header"><h3>{{stepTitle | translate}}</h3></div>
-    <div class="modal-body">
-        <div id="selectFile" class="wizardStep" data-step-title="wizard.fileselection.title" data-ng-controller="WizardFileSelectionController">
+    <div class="modal-body" data-ng-switch="currentStepId">
+        <div id="selectFile" data-ng-switch-when="selectFile" data-wizard-step-title="wizard.fileselection.title" data-ng-controller="WizardFileSelectionController">
             <div data-ng-show="extractionCompleted" class="alert alert-success"><span data-translate>wizard.fileselection.complete</span> <strong>{{descriptor.fileName}}</strong> <button class="margin-20-left btn btn-default" data-ng-click="requestNewUpload()" data-translate>change</button></div>
             <div data-ng-show="!extractionCompleted || newUploadRequested" class="file-selection center-block" data-ng-file-drop="onFileSelect($files)" data-ng-file-drag-over-class="file-selection-drag">
                 <div class="text-center" data-translate>wizard.fileselection.description</div>
@@ -30,7 +30,7 @@
                 <div class="fa fa-refresh fa-5x fa-spin upload-image" data-ng-show="progressIndicator.loading"></div>
             </div>
         </div>
-        <div id="filterClasses" class="wizardStep" data-step-title="wizard.classesfiltering.title" data-ng-controller="WizardLibFilterController">
+        <div id="filterClasses" data-ng-switch-when="filterClasses" data-wizard-step-title="wizard.classesfiltering.title" data-ng-controller="WizardLibFilterController">
             <div class="well-sm" data-ng-show="!progressIndicator.loading" data-translate>wizard.classesfiltering.description</div>
             <div data-ng-show="!progressIndicator.loading">
                 <ul>
@@ -42,11 +42,13 @@
             </div>
             <div data-ng-show="progressIndicator.loading" class="fa fa-refresh fa-5x fa-spin upload-image"></div>
         </div>
-        <div id="editProperties" class="wizardStep" data-step-title="wizard.propertiesedit.title" data-ng-controller="WizardFieldEditorController">
-            <hierarchical-field-editor data-fields="descriptor.fields" data-before-update="activateField"></hierarchical-field-editor>
+        <div id="editProperties" data-ng-switch-when="editProperties" data-wizard-step-title="wizard.propertiesedit.title" data-ng-controller="WizardFieldEditorController">
+            <hierarchical-field-editor data-fields="descriptor.fieldContainer" data-before-update="validateField" data-after-update="activateField"></hierarchical-field-editor>
         </div>
-        <div id="summary" class="wizardStep">
-            fourth step
+        <div id="summary" data-ng-switch-when="summary" data-wizard-step-title="wizard.summary.title" data-ng-controller="WizardSummaryController">
+            <ul>
+                <li data-ng-repeat="node in editedFields">{{node.label}}: {{node.element.fieldValue}}</li>
+            </ul>
         </div>
     </div>
     <div class="modal-footer">

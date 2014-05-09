@@ -90,10 +90,35 @@ Ejisto.controllers = Ejisto.controllers || {};
             };
         },
         WizardFieldEditorController: function($scope) {
-            $scope.activateField = function(element, value) {
-                element.active = true;
+            $scope.validateField = function(element, value) {
+                //TODO add field validation
                 return undefined;
             };
+            $scope.activateField = function(element, value) {
+                var match = _.chain(Ejisto.controllers.applicationInstaller.flattenDescriptor($scope.descriptor.fieldContainer))
+                 .flatten()
+                 .find(function(e) {
+                        var el = e.element;
+                        return el.contextPath == element.contextPath &&
+                               el.className == element.className &&
+                               el.fieldName == element.fieldName;
+                 }).value();
+                if(match) {
+                    match.active = true;
+                }
+            }
+        },
+        flattenDescriptor: function(container) {
+            if(container.children && container.children.length > 0) {
+                return _.map(container.children, Ejisto.controllers.applicationInstaller.flattenDescriptor);
+            }
+            return container;
+        },
+        WizardSummaryController: function($scope) {
+            var flattenFields = _.flatten(Ejisto.controllers.applicationInstaller.flattenDescriptor($scope.descriptor.fieldContainer));
+            $scope.editedFields = _.filter(flattenFields, function(e) {
+                return e.active === true;
+            });
         },
         StepEvaluator: function($q, InstallApplicationService) {
             return {
@@ -110,12 +135,18 @@ Ejisto.controllers = Ejisto.controllers || {};
                 commitFilterClasses: function(step, scope) {
                     var deferred = $q.defer();
                     InstallApplicationService.selectExternalLibraries(scope.descriptor.selectedResources, scope.descriptor.sessionID).then(function(success) {
-                        scope.descriptor.fields = success.data;
+                        scope.descriptor.fieldContainer = success.data;
                         deferred.resolve("success");
                     }, function(error) {
-                        scope.descriptor.fields = [];
+                        scope.descriptor.fieldContainer = [];
                         deferred.reject(error);
                     });
+                    return deferred.promise;
+                },
+                commitEditProperties: function(step, scope) {
+                    var deferred = $q.defer();
+                    //nothing to be done here
+                    deferred.resolve(step);
                     return deferred.promise;
                 }
             };
@@ -126,16 +157,15 @@ Ejisto.controllers = Ejisto.controllers || {};
             module.controller('WizardFileSelectionController', this.WizardFileSelectionController);
             module.controller('WizardLibFilterController', this.WizardLibFilterController);
             module.controller('WizardFieldEditorController', this.WizardFieldEditorController);
+            module.controller('WizardSummaryController', this.WizardSummaryController);
             module.directive("wizardContainer", function(StepEvaluator) {
                 var evaluateCurrentStepData = function(scope, root, steps, currentStep) {
                     scope.activeStep = currentStep;
+                    scope.currentStepId = currentStep.id;
                     scope.showPrevious = angular.isDefined(currentStep.previous);
                     scope.showNext = angular.isDefined(currentStep.next);
                     scope.showCancel = true;
                     scope.showFinish = !angular.isDefined(currentStep.next);
-                    var element = root.find('#'+currentStep.id);
-                    scope.stepTitle=element.attr('data-step-title');
-                    element.addClass('activeStep');
                 };
                 var initSteps = function(steps) {
                     var previousSteps = _.clone(steps);
@@ -155,9 +185,7 @@ Ejisto.controllers = Ejisto.controllers || {};
                 return {
                     restrict: 'A',
                     link: function(scope, element, attrs) {
-                        var stepIds = _.map(element.find('.wizardStep'), function(el) {
-                            return el.attributes.getNamedItem('id').value;
-                        });
+                        var stepIds = attrs.wizardContainer.split(",");
                         var steps = initSteps(stepIds);
                         evaluateCurrentStepData(scope, element, steps, _.first(steps));
                         scope.nextStep = function(currentStep) {
@@ -167,7 +195,6 @@ Ejisto.controllers = Ejisto.controllers || {};
                                 StepEvaluator[fnName](currentStep, scope).then(function(result) {
                                     var nextStep = _.find(steps, {'id': currentStep.next});
                                     if(nextStep) {
-                                        element.find('#'+currentStep.id).removeClass('activeStep');
                                         evaluateCurrentStepData(scope, element, steps, nextStep);
                                         scope.progressIndicator.loading=false;
                                     }
@@ -193,9 +220,20 @@ Ejisto.controllers = Ejisto.controllers || {};
                         };
                         scope.cancelProcess = function() {
                             scope.cancel();
-                        }
+                        };
+                        scope.$on('stepTitleChanged', function(event, title) {
+                            scope.stepTitle = title;
+                        });
                     }
                 };
+            });
+            module.directive("wizardStepTitle", function() {
+                return {
+                    restrict: 'A',
+                    link: function(scope, element, attrs) {
+                        scope.$emit('stepTitleChanged', attrs.wizardStepTitle);
+                    }
+                }
             });
         }
     };

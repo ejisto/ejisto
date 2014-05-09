@@ -46,15 +46,16 @@
         return {
             scope: {
                 fields: '=',
-                beforeUpdate: '='
+                beforeUpdate: '=',
+                afterUpdate: '='
             },
             templateUrl: '/resources/templates/editor/hierarchical.html',
             restrict: 'E',
             link: function(scope, element, attrs) {
-                scope.updateField = function(el, $data) {
-                    if(angular.isFunction(scope.beforeUpdate)) {
+                var callFunction = function(f, el, $data) {
+                    if(angular.isFunction(f)) {
                         var deferred = $q.defer();
-                        var promise = scope.beforeUpdate(el, $data);
+                        var promise = f(el, $data);
                         if(promise && angular.isFunction(promise.then)) {
                             promise.then(function(success) {
                                 deferred.resolve(success);
@@ -68,6 +69,12 @@
                     }
                     return undefined;
                 };
+                scope.updateField = function(el, $data) {
+                    return callFunction(scope.beforeUpdate, el, $data);
+                };
+                scope.afterUpdateField = function(el, $data) {
+                    return callFunction(scope.afterUpdate, el, $data);
+                }
             }
         };
     });
