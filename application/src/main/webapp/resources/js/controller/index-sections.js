@@ -23,14 +23,23 @@ Ejisto.controllers = Ejisto.controllers || {};
 (function () {
     "use strict";
     Ejisto.controllers.index = {
-        PropertiesEditorController: function ($scope, FieldService) {
+        PropertiesEditorController: function ($scope, FieldService, vertxEventBusService) {
             $scope.selectedEditor = 'HIERARCHICAL';
-            FieldService.getFieldsGrouped().then(function(result) {
-                $scope.fields = result.data;
-            });
+            $scope.loading = true;
+            var loadFields = function() {
+                FieldService.getFieldsGrouped().then(function(result) {
+                    $scope.fields = result.data;
+                });
+            };
+            loadFields();
             $scope.updateField = function(element, data) {
                 return FieldService.updateField(element, data);
             };
+            vertxEventBusService.on('WebAppContextStatusChanged', loadFields);
+            vertxEventBusService.on('ApplicationDeployed', loadFields);
+            vertxEventBusService.on('ApplicationInstallFinalization', function() {
+                $scope.loading = true;
+            });
         },
         ContainersController: function($scope, ContainerService, vertxEventBusService) {
             var loadContainers = function() {
