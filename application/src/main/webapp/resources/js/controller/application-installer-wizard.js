@@ -24,7 +24,7 @@ Ejisto.controllers = Ejisto.controllers || {};
     "use strict";
     Ejisto.controllers.applicationInstaller = {
 
-        ApplicationInstaller: function ($scope, $filter) {
+        ApplicationInstaller: function ($scope, $filter, InstallApplicationService) {
             $scope.descriptor = {};
             $scope.progressIndicator = {};
             $scope.progressIndicator.loading = false;
@@ -34,7 +34,10 @@ Ejisto.controllers = Ejisto.controllers || {};
                 }
             };
             $scope.processCompleted = function () {
-                $scope.$close(true);
+                InstallApplicationService.publishApplication($scope.descriptor.sessionID, $scope.descriptor.editedFields)
+                        .then(function(success) {
+                                $scope.$close(true);
+                         });
             };
         },
         WizardFileSelectionController: function($scope, vertxEventBusService, $upload) {
@@ -116,7 +119,7 @@ Ejisto.controllers = Ejisto.controllers || {};
         },
         WizardSummaryController: function($scope) {
             var flattenFields = _.flatten(Ejisto.controllers.applicationInstaller.flattenDescriptor($scope.descriptor.fieldContainer));
-            $scope.editedFields = _.filter(flattenFields, function(e) {
+            $scope.descriptor.editedFields = _.filter(flattenFields, function(e) {
                 return e.active === true;
             });
         },

@@ -51,6 +51,12 @@
                     }
                 }).error(HttpErrorHandler.handle);
             },
+            publishApplication: function(sessionID, editedFields) {
+                var fieldsToPublish = _.map(editedFields, function(field) {
+                    return field.element;
+                });
+                return $http.post('/application/new/'+sessionID+'/publish', fieldsToPublish).error(HttpErrorHandler.handle);
+            },
             updateField: function(field, value) {
                 return $http['put']('/field/update', null, {
                     params: {
@@ -84,13 +90,13 @@
                 return $http.get('/webApplications/list').error(HttpErrorHandler.handle);
             },
             startApplication : function(application) {
-                return vertxEventBusService.send('StartApplication', {"contextPath" : application.webApplicationContextPath}, true);
+                return vertxEventBusService.send('StartApplication', {"contextPath" : application.contextPath, "containerId":application.containerId}, true);
             },
             stopApplication : function(application) {
-                return vertxEventBusService.send('StopApplication', {"contextPath" : application.webApplicationContextPath}, true);
+                return vertxEventBusService.send('StopApplication', {"contextPath" : application.contextPath, "containerId":application.containerId}, true);
             },
             deleteApplication : function(application) {
-                return vertxEventBusService.send('DeleteApplication', {"contextPath" : application.webApplicationContextPath}, true);
+                return vertxEventBusService.send('DeleteApplication', {"contextPath" : application.contextPath, "containerId":application.containerId}, true);
             }
         };
     });

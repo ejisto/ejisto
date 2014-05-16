@@ -20,8 +20,12 @@
 package com.ejisto.modules.repository;
 
 import com.ejisto.core.container.WebApplication;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -46,8 +50,11 @@ public class WebApplicationRepository {
         webApplications.get(containerId).put(webApplication.getWebApplicationContextPath(), webApplication);
     }
 
-    public WebApplication<?> getRegisteredWebApplication(String containerId, String context) {
-        return webApplications.get(containerId).get(context);
+    public Optional<WebApplication<?>> getRegisteredWebApplication(String containerId, String context) {
+        if(StringUtils.isBlank(containerId)) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(webApplications.get(containerId)).map(m -> m.get(context));
     }
 
     public void unregisterWebApplication(String containerId, String context) {

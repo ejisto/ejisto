@@ -76,7 +76,11 @@ Ejisto.controllers = Ejisto.controllers || {};
                 });
             };
             vertxEventBusService.on('WebAppContextStatusChanged', loadApplications);
+            vertxEventBusService.on('ApplicationDeployed', loadApplications);
             vertxEventBusService.on('ContainerStatusChanged', loadApplications);
+            vertxEventBusService.on('ApplicationInstallFinalization', function() {
+                $scope.loading = true;
+            });
         },
         install: function(module) {
 

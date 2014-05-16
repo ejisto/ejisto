@@ -19,7 +19,7 @@
 
 package com.ejisto.services.startup;
 
-import com.ejisto.event.ApplicationEventDispatcher;
+import com.ejisto.event.EventManager;
 import com.ejisto.event.def.BaseApplicationEvent;
 import com.ejisto.modules.vertx.VertxManager;
 import com.ejisto.util.GUIEvents;
@@ -49,12 +49,12 @@ public class GUIEventHandler extends BaseStartupService {
 
     private final Handler<Message<JsonObject>> guiEventHandler;
 
-    public GUIEventHandler(ApplicationEventDispatcher applicationEventDispatcher) {
+    public GUIEventHandler(EventManager eventManager) {
         this.guiEventHandler = m -> {
             final JsonObject body = m.body();
             String type = m.address();
             if(REGISTRY.containsKey(type)) {
-                applicationEventDispatcher.broadcast(REGISTRY.get(type).build(this, body));
+                eventManager.publishEvent(REGISTRY.get(type).build(this, body));
             }
             m.reply(true);
         };

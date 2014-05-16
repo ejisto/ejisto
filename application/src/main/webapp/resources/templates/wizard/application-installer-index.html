@@ -47,7 +47,7 @@
         </div>
         <div id="summary" data-ng-switch-when="summary" data-wizard-step-title="wizard.summary.title" data-ng-controller="WizardSummaryController">
             <ul>
-                <li data-ng-repeat="node in editedFields">{{node.label}}: {{node.element.fieldValue}}</li>
+                <li data-ng-repeat="node in descriptor.editedFields">{{node.label}}: {{node.element.fieldValue}}</li>
             </ul>
         </div>
     </div>

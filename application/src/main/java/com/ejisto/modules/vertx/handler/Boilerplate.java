@@ -69,6 +69,15 @@ public final class Boilerplate {
                 .end();
     }
 
+    public static void writeError(HttpServerRequest req, int statusCode, String message) {
+        req.response()
+                .setStatusCode(statusCode)
+                .setStatusMessage(message)
+                .end();
+    }
+
+
+
     public static <T> void writeOutputAsJSON(T output, HttpServerResponse response) {
         String result = JSONUtil.encode(output);
         response.putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(result.length()))

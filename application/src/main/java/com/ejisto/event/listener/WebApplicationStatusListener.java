@@ -21,10 +21,13 @@ package com.ejisto.event.listener;
 
 import com.ejisto.core.container.ContainerManager;
 import com.ejisto.event.ApplicationListener;
+import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ChangeWebAppStatus;
+import com.ejisto.event.def.WebAppContextStatusChanged;
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.IOUtils;
+import com.ejisto.util.WebAppContextStatusCommand;
 import lombok.extern.log4j.Log4j;
 
 import java.nio.file.Paths;
@@ -44,11 +47,14 @@ public class WebApplicationStatusListener implements ApplicationListener<ChangeW
 
     private final ContainerManager containerManager;
     private final MockedFieldsRepository mockedFieldsRepository;
+    private final EventManager eventManager;
 
     public WebApplicationStatusListener(ContainerManager containerManager,
-                                        MockedFieldsRepository mockedFieldsRepository) {
+                                        MockedFieldsRepository mockedFieldsRepository,
+                                        EventManager eventManager) {
         this.containerManager = containerManager;
         this.mockedFieldsRepository = mockedFieldsRepository;
+        this.eventManager = eventManager;
     }
 
     @Override
@@ -77,6 +83,7 @@ public class WebApplicationStatusListener implements ApplicationListener<ChangeW
         if (containerManager.undeploy(containerId, contextPath)) {
             mockedFieldsRepository.deleteContext(contextPath);
             IOUtils.deleteFile(Paths.get(System.getProperty(DEPLOYABLES_DIR.getValue()), contextPath).toFile());
+            eventManager.publishEvent(new WebAppContextStatusChanged(this, WebAppContextStatusCommand.DELETE, contextPath));
             log.info("webapp " + contextPath + " undeployed");
         }
     }

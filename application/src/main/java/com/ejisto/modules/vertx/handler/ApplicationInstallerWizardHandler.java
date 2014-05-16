@@ -19,17 +19,28 @@
 
 package com.ejisto.modules.vertx.handler;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.core.container.ContainerManager;
+import com.ejisto.event.EventManager;
+import com.ejisto.event.def.ApplicationInstallFinalization;
+import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.controller.wizard.installer.workers.ApplicationScanningWorker;
 import com.ejisto.modules.controller.wizard.installer.workers.FileExtractionWorker;
+import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
+import com.ejisto.modules.dao.local.LocalWebApplicationDescriptorDao;
+import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.ejisto.util.collector.MockedFieldCollector;
+import com.fasterxml.jackson.core.type.TypeReference;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.MultiMap;
+import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.RouteMatcher;
 
@@ -53,10 +64,16 @@ import static com.ejisto.modules.vertx.handler.Boilerplate.writeOutputAsJSON;
 public class ApplicationInstallerWizardHandler implements ContextHandler {
 
     private static final String SESSION_ID = "sessionID";
+    private static final TypeReference<List<MockedField>> MF_LIST_TYPE_REFERENCE = new TypeReference<List<MockedField>>() {
+    };
     private final ConcurrentMap<String, WebApplicationDescriptor> registry = new ConcurrentHashMap<>();
     private final MockedFieldsRepository mockedFieldsRepository;
     private final CustomObjectFactoryRepository customObjectFactoryRepository;
     private final ContainerManager containerManager;
+    private final LocalWebApplicationDescriptorDao webApplicationDescriptorDao;
+    private final EventManager eventManager;
+    private final ContainersRepository containersRepository;
+
     private final Handler<HttpServerRequest> uploadHandler = req -> {
         req.expectMultiPart(true);
         req.uploadHandler(fileHandler -> {
@@ -92,21 +109,67 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
         });
     };
 
-    public ApplicationInstallerWizardHandler(MockedFieldsRepository mockedFieldsRepository, CustomObjectFactoryRepository customObjectFactoryRepository, ContainerManager containerManager) {
+    private final Handler<HttpServerRequest> scanHandler = req -> {
+        String sessionId = req.params().get(ApplicationInstallerWizardHandler.SESSION_ID);
+        if (registry.containsKey(sessionId)) {
+            scanApplication(req, sessionId);
+        }
+    };
+
+    public ApplicationInstallerWizardHandler(MockedFieldsRepository mockedFieldsRepository,
+                                             CustomObjectFactoryRepository customObjectFactoryRepository,
+                                             ContainerManager containerManager,
+                                             LocalWebApplicationDescriptorDao webApplicationDescriptorDao,
+                                             EventManager eventManager,
+                                             ContainersRepository containersRepository) {
         this.mockedFieldsRepository = mockedFieldsRepository;
         this.customObjectFactoryRepository = customObjectFactoryRepository;
         this.containerManager = containerManager;
+        this.webApplicationDescriptorDao = webApplicationDescriptorDao;
+        this.eventManager = eventManager;
+        this.containersRepository = containersRepository;
     }
 
     @Override
     public void addRoutes(RouteMatcher routeMatcher) {
         routeMatcher.put("/application/new/upload", uploadHandler)
-                .put("/application/new/:sessionID/include", req -> {
-                    String sessionId = req.params().get("sessionID");
-                    if(registry.containsKey(sessionId)) {
-                        scanApplication(req, sessionId);
-                    }
+                .put("/application/new/:" + SESSION_ID + "/include", scanHandler)
+                .post("/application/new/:" + SESSION_ID + "/publish", req -> {
+                    final MultiMap params = req.params();
+                    req.bodyHandler(buffer -> {
+                        try {
+                            handleApplicationPublish(req, params, buffer);
+                        } catch (Exception e) {
+                            writeError(req, e);
+                        }
+                    });
                 });
+    }
+
+    private void handleApplicationPublish(HttpServerRequest req, MultiMap params, Buffer buffer) throws NotInstalledException {
+        List<MockedField> newFields = JSONUtil.decode(buffer.toString(), MF_LIST_TYPE_REFERENCE);
+        String sessionID = params.get(SESSION_ID);
+        final WebApplicationDescriptor descriptor = registry.get(sessionID);
+        if(descriptor == null) {
+            writeError(req, HttpResponseStatus.BAD_REQUEST.code(), "invalid sessionID");
+            return;
+        }
+        final Collection<MockedField> descriptorFields = descriptor.getFields();
+        newFields.forEach(field -> descriptorFields.stream()
+                .filter(f -> f.getComparisonKey().equals(field.getComparisonKey()))
+                .findFirst()
+                .ifPresent(f -> {
+                    f.setActive(true);
+                    f.setFieldValue(field.getFieldValue());
+                    f.setExpression(field.getExpression());
+                }));
+        descriptor.getFields().stream().forEach(f -> f.setContextPath(descriptor.getContextPath()));
+        mockedFieldsRepository.deleteContext(descriptor.getContextPath());
+        mockedFieldsRepository.insert(descriptorFields);
+        webApplicationDescriptorDao.insert(descriptor);
+        String containerID = Optional.ofNullable(descriptor.getContainerId()).orElse(StringConstants.DEFAULT_CONTAINER_ID.getValue());
+        eventManager.publishEvent(new ApplicationInstallFinalization(this, descriptor, containersRepository.loadContainer(containerID)));
+        req.response().setStatusCode(HttpResponseStatus.OK.code()).end();
     }
 
     private void scanApplication(HttpServerRequest req, String sessionId) {
@@ -115,7 +178,8 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
                 .map(s -> s.split(","))
                 .ifPresent(a -> descriptor.setWhiteList(Arrays.asList(a)));
         try {
-            ApplicationScanningWorker worker = new ApplicationScanningWorker(e -> {},
+            ApplicationScanningWorker worker = new ApplicationScanningWorker(e -> {
+            },
                                                                              descriptor,
                                                                              mockedFieldsRepository,
                                                                              customObjectFactoryRepository,

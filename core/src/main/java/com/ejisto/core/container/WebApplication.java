@@ -29,7 +29,8 @@ public interface WebApplication<T> {
     enum Status {
         STARTED,
         STOPPED,
-        PAUSED
+        PAUSED,
+        UNKNOWN
     }
 
     T getContainerWebApplicationDescriptor();

@@ -19,9 +19,14 @@
 
 package com.ejisto.modules.vertx.handler.service;
 
+import com.ejisto.core.container.WebApplication;
+import com.ejisto.modules.dao.local.LocalWebApplicationDescriptorDao;
 import com.ejisto.modules.repository.WebApplicationRepository;
 import com.ejisto.modules.vertx.handler.ContextHandler;
 import org.vertx.java.core.http.RouteMatcher;
+
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import static com.ejisto.modules.vertx.handler.Boilerplate.writeOutputAsJSON;
 
@@ -34,15 +39,62 @@ import static com.ejisto.modules.vertx.handler.Boilerplate.writeOutputAsJSON;
 public class InstalledWebApplicationService implements ContextHandler {
 
     private final WebApplicationRepository webApplicationRepository;
+    private final LocalWebApplicationDescriptorDao webApplicationDescriptorDao;
 
-    public InstalledWebApplicationService(WebApplicationRepository webApplicationRepository) {
+    public InstalledWebApplicationService(WebApplicationRepository webApplicationRepository,
+                                          LocalWebApplicationDescriptorDao webApplicationDescriptorDao) {
         this.webApplicationRepository = webApplicationRepository;
+        this.webApplicationDescriptorDao = webApplicationDescriptorDao;
     }
 
     @Override
     public void addRoutes(RouteMatcher routeMatcher) {
         routeMatcher.get("/webApplications/list",
-                         request -> writeOutputAsJSON(webApplicationRepository.getInstalledWebApplications(),
+                         request -> writeOutputAsJSON(getInstalledWebApplications(),
                                                       request.response()));
     }
+
+    private Collection<InstalledWebApplication> getInstalledWebApplications() {
+        return webApplicationDescriptorDao.loadAll().stream()
+                .map(d -> {
+                    final WebApplication.Status status = webApplicationRepository
+                            .getRegisteredWebApplication(d.getContainerId(), d.getContextPath())
+                            .map(WebApplication::getStatus).orElse(WebApplication.Status.UNKNOWN);
+                    return new InstalledWebApplication(d.getContextPath(), d.getContainerId(), status);
+                }).collect(Collectors.toList());
+    }
+
+    private static final class InstalledWebApplication {
+        private final String contextPath;
+        private final String containerID;
+        private final WebApplication.Status status;
+
+
+        private InstalledWebApplication(String contextPath, String containerID, WebApplication.Status status) {
+            this.contextPath = contextPath;
+            this.containerID = containerID;
+            this.status = status;
+        }
+
+        public String getContextPath() {
+            return contextPath;
+        }
+
+        public String getContainerID() {
+            return containerID;
+        }
+
+        public WebApplication.Status getStatus() {
+            return status;
+        }
+
+        public boolean isRunning() {
+            return status == WebApplication.Status.STARTED;
+        }
+
+        public boolean isStopped() {
+            return status == WebApplication.Status.STOPPED;
+        }
+    }
+
 }

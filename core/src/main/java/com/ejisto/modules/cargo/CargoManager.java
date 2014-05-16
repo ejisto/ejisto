@@ -210,8 +210,9 @@ public class CargoManager implements ContainerManager {
 
     @Override
     public boolean undeploy(String containerId, String contextPath) throws NotInstalledException {
-        Deployable deployable = (Deployable) webApplicationRepository.getRegisteredWebApplication(
-                containerId, contextPath).getContainerWebApplicationDescriptor();
+        WebApplication<?> webApplication = webApplicationRepository.getRegisteredWebApplication(
+                containerId, contextPath).orElseThrow(IllegalArgumentException::new);
+        Deployable deployable = (Deployable) webApplication.getContainerWebApplicationDescriptor();
         final AbstractInstalledLocalContainer container = loadCargoContainer(
                 containersRepository.loadContainer(containerId), false);
         boolean success = true;
@@ -426,8 +427,9 @@ public class CargoManager implements ContainerManager {
     private boolean stop(String containerId, String contextPath, Deployable deployable, LocalContainer container) {
         try {
             getDeployerFor(container).stop(deployable);
-            webApplicationRepository.getRegisteredWebApplication(containerId, contextPath).setStatus(
-                    WebApplication.Status.STOPPED);
+            webApplicationRepository.getRegisteredWebApplication(containerId, contextPath)
+                    .orElseThrow(IllegalStateException::new)
+                    .setStatus(WebApplication.Status.STOPPED);
             return true;
         } catch (Exception ex) {
             log.error("error during web application stop", ex);
@@ -438,7 +440,8 @@ public class CargoManager implements ContainerManager {
     private boolean start(String containerId, String contextPath, Deployable deployable, LocalContainer container) {
         try {
             getDeployerFor(container).deploy(deployable);
-            webApplicationRepository.getRegisteredWebApplication(containerId, contextPath).setStatus(STARTED);
+            webApplicationRepository.getRegisteredWebApplication(containerId, contextPath)
+                    .orElseThrow(IllegalStateException::new).setStatus(STARTED);
             return true;
         } catch (Exception ex) {
             log.error("error during web application start", ex);
@@ -473,9 +476,9 @@ public class CargoManager implements ContainerManager {
     }
 
     private Deployable getDeployableFromRepository(String containerId, String contextPath) {
-        WebApplication<?> webApplication = webApplicationRepository.getRegisteredWebApplication(containerId,
-                                                                                                contextPath);
-        return (Deployable) webApplication.getContainerWebApplicationDescriptor();
+        final WebApplication<?> application = webApplicationRepository.getRegisteredWebApplication(
+                containerId, contextPath).orElseThrow(IllegalArgumentException::new);
+        return (Deployable) application.getContainerWebApplicationDescriptor();
     }
 
 }

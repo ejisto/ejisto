@@ -29,10 +29,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -43,6 +40,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Log4j
 public class ApplicationEventDispatcher {
     private static final BlockingQueue<BaseApplicationEvent> EVENT_QUEUE = new LinkedBlockingQueue<>();
+    private static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
     private final ConcurrentMap<Class<? extends BaseApplicationEvent>, List<ApplicationListener<? extends BaseApplicationEvent>>> registeredListeners;
     private volatile boolean running = false;
     private final TaskManager taskManager;
@@ -99,8 +97,10 @@ public class ApplicationEventDispatcher {
 
     private void processPendingEvents() throws InterruptedException {
         while (running) {
-            broadcast(EVENT_QUEUE.take());
+            final BaseApplicationEvent event = EVENT_QUEUE.take();
+            EXECUTOR_SERVICE.submit((Runnable) () -> broadcast(event));
         }
+        EXECUTOR_SERVICE.shutdown();
         EVENT_QUEUE.clear();
     }
 
