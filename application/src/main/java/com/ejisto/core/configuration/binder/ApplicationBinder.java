@@ -50,7 +50,6 @@ public class ApplicationBinder extends BinderModule {
         construct(MockedFieldOperationListener.class);
         construct(DialogManager.class);
         construct(WebApplicationScanner.class);
-        construct(TaskProgressNotifier.class);
         construct(SessionRecorderManager.class);
         multibind(Service.class).to(ConstraintsVerifier.class);
         multibind(Service.class).to(VertxInitializer.class);
@@ -71,7 +70,6 @@ public class ApplicationBinder extends BinderModule {
         multibind(ApplicationListener.class).to(MockedFieldOperationListener.class);
         multibind(ApplicationListener.class).to(ServerController.class);
         multibind(ApplicationListener.class).to(SessionRecorderManager.class);
-        multibind(ApplicationListener.class).to(TaskProgressNotifier.class);
         multibind(ApplicationListener.class).to(WebApplicationLoader.class);
         multibind(ApplicationListener.class).to(WebApplicationScanner.class);
         multibind(ApplicationListener.class).to(VertxEventHandler.class);
