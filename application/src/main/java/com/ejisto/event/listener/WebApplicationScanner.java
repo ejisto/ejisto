@@ -24,9 +24,8 @@ import com.ejisto.event.ApplicationListener;
 import com.ejisto.event.EventManager;
 import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.ApplicationScanRequired;
-import com.ejisto.event.def.BlockingTaskProgress;
-import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.util.IOUtils;
@@ -38,7 +37,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
@@ -67,13 +65,10 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
         Path outputPath = Paths.get(System.getProperty("java.io.tmpdir"), event.getRequestId(),
                                     descriptor.getContextPath());
         final List<String> includedJars = descriptor.getWhiteListContent();
-        String id = UUID.randomUUID().toString();
-        eventManager.publishEvent(new BlockingTaskProgress(this, id, "application.deploy.preprocessing.title",
-                                                           "application.deploy.preprocessing.description",
-                                                           "icon.work.in.progress", true));
         try {
-            List<MockedField> fields = mockedFieldsRepository.loadAll(descriptor.getContextPath(), FieldsEditorContext.CREATE_FIELD::isAdmitted);
-            final Map<String,List<MockedField>> groups = fields.stream().collect(
+            List<MockedField> fields = mockedFieldsRepository.loadAll(descriptor.getContextPath(),
+                                                                      FieldsEditorContext.CREATE_FIELD::isAdmitted);
+            final Map<String, List<MockedField>> groups = fields.stream().collect(
                     Collectors.groupingBy(MockedField::getClassName));
             IOUtils.initPath(outputPath);
             IOUtils.copyFullDirContent(Paths.get(descriptor.getDeployablePath()), outputPath);
@@ -95,9 +90,7 @@ public class WebApplicationScanner implements ApplicationListener<ApplicationSca
         } catch (Exception ex) {
             notifyError(ex);
         }
-        eventManager.publishEventAndWait(new BlockingTaskProgress(this, id, null, null, null, false));
     }
-
 
 
     private void notifyError(Exception ex) {
