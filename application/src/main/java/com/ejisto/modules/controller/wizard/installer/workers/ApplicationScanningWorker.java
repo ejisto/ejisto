@@ -178,13 +178,12 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
             customObjectFactoryRepository.getCustomObjectFactories()
                     .forEach(jar -> copyFile(
                             System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir));
-            copyEjistoLibs(false, dir.toPath());
-            String deployablePath = System.getProperty(
-                    DEPLOYABLES_DIR.getValue()) + File.separator + getFilenameWithoutExt(
-                    session.getWarFile()) + File.separator;
-            deleteFile(deployablePath);
-            copyFullDirContent(Paths.get(session.getInstallationPath()), Paths.get(deployablePath));
-            session.setDeployablePath(deployablePath);
+            Path deployablePath = Paths.get(System.getProperty(DEPLOYABLES_DIR.getValue()))
+                    .resolve(getFilenameWithoutExt(session.getWarFile()));
+            deleteFile(deployablePath.toFile());
+            copyFullDirContent(Paths.get(session.getInstallationPath()), deployablePath);
+            copyEjistoLibs(false, deployablePath.resolve("WEB-INF").resolve("lib"));
+            session.setDeployablePath(deployablePath.toString());
         } catch (InterruptedException e) {
             log.error("got interruptedException: ", e);
         } catch (InvocationTargetException e) {
