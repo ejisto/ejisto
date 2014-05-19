@@ -25,6 +25,7 @@ package com.ejisto.modules.executor;
  * Date: 12/12/11
  * Time: 6:43 PM
  */
+@FunctionalInterface
 public interface TaskExecutionListener {
     void stateChanged(ExecutionState state);
 }

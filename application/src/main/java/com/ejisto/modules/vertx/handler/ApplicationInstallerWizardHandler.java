@@ -44,12 +44,14 @@ import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.RouteMatcher;
 
+import java.beans.PropertyChangeListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static com.ejisto.constants.StringConstants.GUI_TASK_EXCEPTION_PROPERTY;
 import static com.ejisto.modules.vertx.VertxManager.publishEvent;
 import static com.ejisto.modules.vertx.handler.Boilerplate.writeError;
 import static com.ejisto.modules.vertx.handler.Boilerplate.writeOutputAsJSON;
@@ -112,6 +114,7 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
     private final Handler<HttpServerRequest> scanHandler = req -> {
         String sessionId = req.params().get(ApplicationInstallerWizardHandler.SESSION_ID);
         if (registry.containsKey(sessionId)) {
+
             scanApplication(req, sessionId);
         }
     };
@@ -150,7 +153,7 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
         List<MockedField> newFields = JSONUtil.decode(buffer.toString(), MF_LIST_TYPE_REFERENCE);
         String sessionID = params.get(SESSION_ID);
         final WebApplicationDescriptor descriptor = registry.get(sessionID);
-        if(descriptor == null) {
+        if (descriptor == null) {
             writeError(req, HttpResponseStatus.BAD_REQUEST.code(), "invalid sessionID");
             return;
         }
@@ -167,8 +170,10 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
         mockedFieldsRepository.deleteContext(descriptor.getContextPath());
         mockedFieldsRepository.insert(descriptorFields);
         webApplicationDescriptorDao.insert(descriptor);
-        String containerID = Optional.ofNullable(descriptor.getContainerId()).orElse(StringConstants.DEFAULT_CONTAINER_ID.getValue());
-        eventManager.publishEvent(new ApplicationInstallFinalization(this, descriptor, containersRepository.loadContainer(containerID)));
+        String containerID = Optional.ofNullable(descriptor.getContainerId()).orElse(
+                StringConstants.DEFAULT_CONTAINER_ID.getValue());
+        eventManager.publishEvent(
+                new ApplicationInstallFinalization(this, descriptor, containersRepository.loadContainer(containerID)));
         req.response().setStatusCode(HttpResponseStatus.OK.code()).end();
     }
 
@@ -178,17 +183,34 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
                 .map(s -> s.split(","))
                 .ifPresent(a -> descriptor.setWhiteList(Arrays.asList(a)));
         try {
-            ApplicationScanningWorker worker = new ApplicationScanningWorker(e -> {
-            },
+            PropertyChangeListener listener = e -> {
+                if(e.getPropertyName().equals(GUI_TASK_EXCEPTION_PROPERTY.getValue())) {
+                    writeError(req, (Throwable)e.getNewValue());
+                }
+            };
+            ApplicationScanningWorker worker = new ApplicationScanningWorker(listener,
                                                                              descriptor,
                                                                              mockedFieldsRepository,
                                                                              customObjectFactoryRepository,
                                                                              containerManager.getDefaultHome(),
                                                                              true);
+            worker.addTaskExecutionListener(e -> {
+                switch (e) {
+                    case DONE:
+                        writeOutputAsJSON(descriptor.getFields()
+                                                  .parallelStream()
+                                                  .collect(new MockedFieldCollector()),
+                                          req.response()
+                        );
+                        break;
+                    case CANCELED:
+                        writeError(req, HttpResponseStatus.GONE.code(), "task has been canceled");
+                        break;
+                    default:
+                        break;
+                }
+            });
             worker.work();
-            worker.get();
-            writeOutputAsJSON(descriptor.getFields().parallelStream().collect(new MockedFieldCollector()),
-                              req.response());
         } catch (Exception e) {
             writeError(req, e);
             log.error("error during application scanning", e);
