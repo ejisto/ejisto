@@ -172,12 +172,13 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
     private void createDeployable(WebApplicationDescriptor session) {
         try {
             notifyJobCompleted(0, getMessage("wizard.resource.war.packaging"));
-            String libDir = String.format("%sWEB-INF%slib%s", session.getInstallationPath(), File.separator,
-                                          File.separator);
-            File dir = new File(libDir);
+            File dir = Paths.get(session.getInstallationPath())
+                    .resolve("WEB-INF")
+                    .resolve("lib")
+                    .toFile();
+            Path extensionsDir = Paths.get(System.getProperty(EXTENSIONS_DIR.getValue()));
             customObjectFactoryRepository.getCustomObjectFactories()
-                    .forEach(jar -> copyFile(
-                            System.getProperty(EXTENSIONS_DIR.getValue()) + File.separator + jar.getFileName(), dir));
+                    .forEach(jar -> copyFile(extensionsDir.resolve(jar.getFileName()).toFile(), dir));
             Path deployablePath = Paths.get(System.getProperty(DEPLOYABLES_DIR.getValue()))
                     .resolve(getFilenameWithoutExt(session.getWarFile()));
             deleteFile(deployablePath.toFile());
