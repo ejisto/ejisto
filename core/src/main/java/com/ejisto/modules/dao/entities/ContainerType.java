@@ -1,7 +1,7 @@
 /*
  * Ejisto, a powerful developer assistant
  *
- * Copyright (C) 2010-2013 Celestino Bellone
+ * Copyright (C) 2010-2014 Celestino Bellone
  *
  * Ejisto is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,39 +19,36 @@
 
 package com.ejisto.modules.dao.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
+import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/6/11
- * Time: 8:44 AM
+ * Date: 5/21/14
+ * Time: 7:13 PM
  */
-@Data
-public class Container implements Entity<String> {
-    private String id;
-    private ContainerType containerType;
-    private String homeDir;
-    private String description;
-    private transient int port = 8080;
-    private transient final boolean standalone;
+public enum ContainerType {
+    TOMCAT_8("tomcat8x", "Apache Tomcat 8.x");
 
-    public Container() {
-        this(false);
+    private final String cargoId;
+    private final String name;
+
+    ContainerType(String cargoId, String name) {
+        this.cargoId = cargoId;
+        this.name = name;
     }
 
-    public Container(boolean standalone) {
-        this.standalone = standalone;
+    public String getCargoId() {
+        return cargoId;
     }
 
-    @Override
-    public String getKey() {
-        return id;
+    public String getName() {
+        return name;
     }
 
-    @JsonIgnore
-    public boolean isStandalone() {
-        return standalone;
+    public static ContainerType fromCargoId(String cargoId) {
+        return Arrays.stream(values()).filter(t -> t.getCargoId().equals(cargoId))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
     }
 }

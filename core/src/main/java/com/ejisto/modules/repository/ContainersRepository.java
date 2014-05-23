@@ -21,6 +21,7 @@ package com.ejisto.modules.repository;
 
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.dao.entities.Container;
+import com.ejisto.modules.dao.entities.ContainerType;
 import com.ejisto.modules.dao.local.LocalContainersDao;
 
 import java.util.List;
@@ -53,8 +54,8 @@ public final class ContainersRepository {
         return loadContainer(DEFAULT_CONTAINER_ID.getValue());
     }
 
-    public Container registerDefaultContainer(String cargoId, String homeDir, String description) {
-        return registerContainer(DEFAULT_CONTAINER_ID.getValue(), cargoId, homeDir, description);
+    public Container registerDefaultContainer(ContainerType containerType, String homeDir, String description) {
+        return registerContainer(DEFAULT_CONTAINER_ID.getValue(), containerType, homeDir, description);
     }
 
     public void registerTemporaryContainer(Container container) {
@@ -64,10 +65,10 @@ public final class ContainersRepository {
         }
     }
 
-    Container registerContainer(String id, String cargoId, String homeDir, String description) {
+    Container registerContainer(String id, ContainerType containerType, String homeDir, String description) {
         Container container = new Container();
         container.setId(id);
-        container.setCargoId(cargoId);
+        container.setContainerType(containerType);
         container.setDescription(description);
         container.setHomeDir(homeDir);
         containersDao.insert(container);
@@ -83,14 +84,19 @@ public final class ContainersRepository {
      */
     public Container loadContainer(String id) throws NotInstalledException {
         Objects.requireNonNull(id, "container id can't be null");
-        Container result = temporaryContainers.get(id);
-        if (result != null) {
-            return result;
-        }
-        result = containersDao.load(id);
+        Container result = safeLoadContainer(id);
         if (result == null) {
             throw new NotInstalledException(id);
         }
         return result;
+    }
+
+    public Container safeLoadContainer(String id) {
+        Objects.requireNonNull(id, "container id can't be null");
+        Container result = temporaryContainers.get(id);
+        if (result != null) {
+            return result;
+        }
+        return containersDao.load(id);
     }
 }

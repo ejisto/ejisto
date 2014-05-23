@@ -1,0 +1,32 @@
+<!--
+  ~ Ejisto, a powerful developer assistant
+  ~
+  ~ Copyright (C) 2010-2014 Celestino Bellone
+  ~
+  ~ Ejisto is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Ejisto is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<div class="modal-header"><h3 data-translate>container.installation.required</h3></div>
+<div class="modal-body">
+    <div class="alert alert-warning" data-ng-if="!urlRequested">
+        <span data-translate>container.installation.required.message</span>
+    </div>
+    <div data-ng-if="urlRequested">
+        <label class="alert alert-danger" for="containerURL" data-translate data-translate-value-name="{{selectedContainerDescription}}">container.download.failed</label>
+        <input id="containerURL" name="containerURL" data-ng-model="containerURL" />
+    </div>
+    <span class="fa fa-refresh fa-5x fa-spin" data-ng-show="loading"></span>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" data-ng-disabled="loading" data-ng-click="download()" data-translate>container.download</button>
+</div>

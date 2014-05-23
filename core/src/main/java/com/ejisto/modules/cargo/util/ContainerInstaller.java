@@ -59,11 +59,8 @@ public class ContainerInstaller extends ZipURLInstaller {
         try {
             super.download();
         } catch (ContainerException e) {
-            log.error("caught ContainerException. About to throw DownloadFailed", e);
+            log.error("caught ContainerException. Throwing DownloadFailed...", e);
             throw new DownloadFailed("cannot download from " + url.toString(), e);
-        } catch (Exception e) {
-            log.error("caught Exception. About to throw DownloadTimeout", e);
-            throw new DownloadTimeout("cannot open connection to " + url.toString(), e);
         }
     }
 

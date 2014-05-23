@@ -41,10 +41,22 @@ Ejisto.controllers = Ejisto.controllers || {};
                 $scope.loading = true;
             });
         },
-        ContainersController: function($scope, ContainerService, vertxEventBusService) {
+        ContainersController: function($scope, ContainerService, vertxEventBusService, $modal, $log) {
             var loadContainers = function() {
                 ContainerService.getRegisteredContainers().success(function(data) {
-                    $scope.containers = data;
+
+                    if(data.length > 0) {
+                        $scope.containers = data;
+                    } else {
+                        var wizard = $modal.open({
+                             templateUrl:'/resources/templates/wizard/container-installer-index.html',
+                             backdrop: 'static',
+                             controller: Ejisto.controllers.index.DownloadDefaultContainerController
+                        });
+                        wizard.result.then(function() {
+                            $log.debug("closed");
+                        });
+                    }
                     $scope.loading = false;
                 });
             };
@@ -60,6 +72,36 @@ Ejisto.controllers = Ejisto.controllers || {};
                     $scope.loading=true;
                 });
             };
+        },
+        DownloadDefaultContainerController: function($scope, ContainerService, $log, $translate) {
+            $scope.loading = false;
+            ContainerService.loadSupportedContainerTypes().success(function(list) {
+                $scope.containerTypes = list;
+                if(list.length == 1) {
+                    $scope.containerType = list[0];
+                    $translate('containers.'+list[0]+'.description').then(function(description) {
+                        $scope.selectedContainerDescription = description;
+                    });
+                }
+            });
+            $scope.download = function() {
+                $scope.loading = true;
+                ContainerService.downloadAndInstall($scope.containerType, $scope.containerURL, true).then(function(result) {
+                            $log.debug(result.data);
+                        }, function(error) {
+                            switch(error.status) {
+                                case 400:
+                                    $scope.urlRequested = false;
+                                    $scope.$dismiss('canceled');
+                                    break;
+                                case 404:
+                                    $scope.urlRequested = true;
+                                    break;
+                            }
+                            $log.error(error);
+                            $scope.loading = false;
+                        });
+            }
         },
         InstalledApplicationsController: function($scope, InstalledApplicationService, vertxEventBusService) {
             var loadApplications = function() {

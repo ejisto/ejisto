@@ -30,6 +30,7 @@ import com.ejisto.modules.cargo.util.DownloadFailed;
 import com.ejisto.modules.cargo.util.DownloadTimeout;
 import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.controller.DialogController;
+import com.ejisto.modules.dao.entities.ContainerType;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.gui.components.ProgressWithHeader;
@@ -141,7 +142,7 @@ public class ContainerInstaller implements ApplicationListener<InstallContainer>
         while (tryDownload) {
             try {
                 log.debug("calling cargoManager");
-                cargoManager.downloadAndInstall(url, System.getProperty(CONTAINERS_HOME_DIR.getValue()));
+                cargoManager.downloadAndInstall(url, System.getProperty(CONTAINERS_HOME_DIR.getValue()), ContainerType.TOMCAT_8);
                 log.debug("call succeeded");
                 settingsManager.putValue(DEFAULT_CONTAINER_DOWNLOAD_URL, url);
                 return true;

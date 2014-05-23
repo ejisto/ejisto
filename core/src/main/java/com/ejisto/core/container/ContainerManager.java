@@ -21,6 +21,7 @@ package com.ejisto.core.container;
 
 import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.dao.entities.Container;
+import com.ejisto.modules.dao.entities.ContainerType;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 
 import java.io.IOException;
@@ -34,7 +35,8 @@ import java.util.Map;
  * Time: 8:28 PM
  */
 public interface ContainerManager {
-    String downloadAndInstall(String urlToString, String folder) throws IOException;
+
+    String downloadAndInstall(String urlToString, String folder, ContainerType containerType) throws IOException;
 
     boolean isServerRunning();
 

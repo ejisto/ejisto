@@ -80,6 +80,18 @@
             },
             stopContainer: function(container) {
                 return vertxEventBusService.send('StopContainer', {"containerId" : container.id}, true);
+            },
+            downloadAndInstall: function(containerType, url, defaultContainer) {
+                return $http['put']('/containers/install', null, {
+                    params: {
+                        "containerType": containerType,
+                        "url": url,
+                        "defaultContainer": defaultContainer
+                    }
+                });
+            },
+            loadSupportedContainerTypes: function() {
+                return $http.get('/containers/supported').error(HttpErrorHandler.handle);
             }
         };
     });

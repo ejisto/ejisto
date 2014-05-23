@@ -28,6 +28,7 @@ import com.ejisto.event.def.ChangeServerStatus;
 import com.ejisto.modules.cargo.logging.ServerLogger;
 import com.ejisto.modules.cargo.util.ContainerInstaller;
 import com.ejisto.modules.dao.entities.Container;
+import com.ejisto.modules.dao.entities.ContainerType;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.SettingsRepository;
@@ -37,7 +38,6 @@ import com.ejisto.util.IOUtils;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.cargo.container.ContainerType;
 import org.codehaus.cargo.container.LocalContainer;
 import org.codehaus.cargo.container.State;
 import org.codehaus.cargo.container.configuration.Configuration;
@@ -72,7 +72,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.ejisto.constants.StringConstants.*;
+import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
+import static com.ejisto.constants.StringConstants.HTTP_LISTEN_PORT;
 import static com.ejisto.core.container.WebApplication.Status.STARTED;
 import static com.ejisto.util.IOUtils.guessWebApplicationUri;
 
@@ -105,13 +106,13 @@ public class CargoManager implements ContainerManager {
     }
 
     @Override
-    public String downloadAndInstall(String urlToString, String folder) throws IOException {
+    public String downloadAndInstall(String urlToString, String folder, ContainerType containerType) throws IOException {
         URL url = new URL(urlToString.trim());
         ContainerInstaller installer = new ContainerInstaller(url, folder);
         installer.install();
-        containersRepository.registerDefaultContainer(DEFAULT_CARGO_ID.getValue(), installer.getHome(),
-                                                      settingsRepository.getSettingValue(
-                                                              DEFAULT_CONTAINER_DESCRIPTION));
+        containersRepository.registerDefaultContainer(containerType,
+                                                      installer.getHome(),
+                                                      containerType.getName());
         return installer.getHome();
     }
 
@@ -268,7 +269,7 @@ public class CargoManager implements ContainerManager {
         Container defaultContainer = containersRepository.loadDefault();
         Container container = new Container(true);
         container.setId(UUID.randomUUID().toString());
-        container.setCargoId(defaultContainer.getCargoId());
+        container.setContainerType(defaultContainer.getContainerType());
         container.setDescription("Temporary Instance");
         container.setHomeDir(defaultContainer.getHomeDir());
         return container;
@@ -278,8 +279,8 @@ public class CargoManager implements ContainerManager {
     public Container startStandaloneInstance(Map<String, String> additionalJavaSystemProperties, List<WebApplicationDescriptor> webApplications) throws NotInstalledException, IOException {
         Container container = buildNewStandaloneContainer();
         Path path = Files.createTempDirectory("standalone").toAbsolutePath();
-        Configuration configuration = new DefaultConfigurationFactory().createConfiguration(container.getCargoId(),
-                                                                                            ContainerType.INSTALLED,
+        Configuration configuration = new DefaultConfigurationFactory().createConfiguration(container.getContainerType().getCargoId(),
+                                                                                            org.codehaus.cargo.container.ContainerType.INSTALLED,
                                                                                             ConfigurationType.STANDALONE,
                                                                                             path.toString());
         int serverPort = IOUtils.findFirstAvailablePort(9090);
@@ -294,7 +295,7 @@ public class CargoManager implements ContainerManager {
                 .forEach(property -> args.append(" -D").append(property.getKey()).append("=").append(
                         property.getValue()));
         configuration.setProperty(GeneralPropertySet.JVMARGS, args.toString());
-        AbstractInstalledLocalContainer instance = createContainer(container.getHomeDir(), container.getCargoId(),
+        AbstractInstalledLocalContainer instance = createContainer(container.getHomeDir(), container.getContainerType().getCargoId(),
                                                                    container.getId(), configuration);
         String deployId = UUID.randomUUID().toString();
         for (WebApplicationDescriptor webApplication : webApplications) {
@@ -346,7 +347,7 @@ public class CargoManager implements ContainerManager {
 
     @SuppressWarnings("unchecked")
     private AbstractInstalledLocalContainer loadCargoContainer(Container installedContainer, boolean addStartupOptions) {
-        String cargoId = installedContainer.getCargoId();
+        String cargoId = installedContainer.getContainerType().getCargoId();
         boolean standalone = installedContainer.isStandalone();
         if (!standalone && installedContainers.containsKey(cargoId)) {
             return installedContainers.get(cargoId);
@@ -383,7 +384,7 @@ public class CargoManager implements ContainerManager {
         DefaultContainerFactory containerFactory = new DefaultContainerFactory();
         AbstractInstalledLocalContainer container = (AbstractInstalledLocalContainer) containerFactory.createContainer(
                 cargoId,
-                ContainerType.INSTALLED,
+                org.codehaus.cargo.container.ContainerType.INSTALLED,
                 configuration);
         container.setHome(homeDir);
         container.setLogger(new ServerLogger(containerId));
@@ -395,7 +396,7 @@ public class CargoManager implements ContainerManager {
     private Configuration loadExistingConfiguration(String containerId, File configurationDir) {
         log.debug("loading existing configuration for container " + containerId);
         return new DefaultConfigurationFactory().createConfiguration(containerId,
-                                                                     ContainerType.INSTALLED,
+                                                                     org.codehaus.cargo.container.ContainerType.INSTALLED,
                                                                      ConfigurationType.EXISTING,
                                                                      configurationDir.getAbsolutePath());
     }
