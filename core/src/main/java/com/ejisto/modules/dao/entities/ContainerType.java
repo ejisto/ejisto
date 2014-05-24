@@ -19,6 +19,8 @@
 
 package com.ejisto.modules.dao.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Arrays;
 
 /**
@@ -27,19 +29,20 @@ import java.util.Arrays;
  * Date: 5/21/14
  * Time: 7:13 PM
  */
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum ContainerType {
     TOMCAT_8("tomcat8x", "Apache Tomcat 8.x");
 
-    private final String cargoId;
+    private final String cargoID;
     private final String name;
 
-    ContainerType(String cargoId, String name) {
-        this.cargoId = cargoId;
+    private ContainerType(String cargoID, String name) {
+        this.cargoID = cargoID;
         this.name = name;
     }
 
-    public String getCargoId() {
-        return cargoId;
+    public String getCargoID() {
+        return cargoID;
     }
 
     public String getName() {
@@ -47,7 +50,7 @@ public enum ContainerType {
     }
 
     public static ContainerType fromCargoId(String cargoId) {
-        return Arrays.stream(values()).filter(t -> t.getCargoId().equals(cargoId))
+        return Arrays.stream(values()).filter(t -> t.getCargoID().equals(cargoId))
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
     }

@@ -279,7 +279,7 @@ public class CargoManager implements ContainerManager {
     public Container startStandaloneInstance(Map<String, String> additionalJavaSystemProperties, List<WebApplicationDescriptor> webApplications) throws NotInstalledException, IOException {
         Container container = buildNewStandaloneContainer();
         Path path = Files.createTempDirectory("standalone").toAbsolutePath();
-        Configuration configuration = new DefaultConfigurationFactory().createConfiguration(container.getContainerType().getCargoId(),
+        Configuration configuration = new DefaultConfigurationFactory().createConfiguration(container.getContainerType().getCargoID(),
                                                                                             org.codehaus.cargo.container.ContainerType.INSTALLED,
                                                                                             ConfigurationType.STANDALONE,
                                                                                             path.toString());
@@ -295,7 +295,7 @@ public class CargoManager implements ContainerManager {
                 .forEach(property -> args.append(" -D").append(property.getKey()).append("=").append(
                         property.getValue()));
         configuration.setProperty(GeneralPropertySet.JVMARGS, args.toString());
-        AbstractInstalledLocalContainer instance = createContainer(container.getHomeDir(), container.getContainerType().getCargoId(),
+        AbstractInstalledLocalContainer instance = createContainer(container.getHomeDir(), container.getContainerType().getCargoID(),
                                                                    container.getId(), configuration);
         String deployId = UUID.randomUUID().toString();
         for (WebApplicationDescriptor webApplication : webApplications) {
@@ -347,7 +347,7 @@ public class CargoManager implements ContainerManager {
 
     @SuppressWarnings("unchecked")
     private AbstractInstalledLocalContainer loadCargoContainer(Container installedContainer, boolean addStartupOptions) {
-        String cargoId = installedContainer.getContainerType().getCargoId();
+        String cargoId = installedContainer.getContainerType().getCargoID();
         boolean standalone = installedContainer.isStandalone();
         if (!standalone && installedContainers.containsKey(cargoId)) {
             return installedContainers.get(cargoId);

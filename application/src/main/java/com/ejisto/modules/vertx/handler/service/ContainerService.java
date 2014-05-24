@@ -92,7 +92,7 @@ public class ContainerService implements ContextHandler {
 
     private void downloadAndInstallContainer(HttpServerRequest request) {
         final MultiMap params = request.params();
-        String url = StringUtils.defaultString(params.get("url"),
+        String url = StringUtils.defaultIfEmpty(params.get("url"),
                                                settingsManager.getValue("container.default.url"));
 
         final Optional<Container> defaultContainer = Optional.ofNullable(params.get("defaultContainer"))

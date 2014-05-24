@@ -111,7 +111,7 @@ div.file-selection {
     margin-left: auto;
 }
 
-div.file-selection-drag {
+.half-opacity {
     opacity: 0.5;
 }
 

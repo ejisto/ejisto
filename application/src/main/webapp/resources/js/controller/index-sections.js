@@ -54,7 +54,7 @@ Ejisto.controllers = Ejisto.controllers || {};
                              controller: Ejisto.controllers.index.DownloadDefaultContainerController
                         });
                         wizard.result.then(function() {
-                            $log.debug("closed");
+                            loadContainers();
                         });
                     }
                     $scope.loading = false;
@@ -73,21 +73,20 @@ Ejisto.controllers = Ejisto.controllers || {};
                 });
             };
         },
-        DownloadDefaultContainerController: function($scope, ContainerService, $log, $translate) {
+        DownloadDefaultContainerController: function($scope, ContainerService, $log) {
             $scope.loading = false;
+            $scope.containerDownloadData = {};
             ContainerService.loadSupportedContainerTypes().success(function(list) {
                 $scope.containerTypes = list;
                 if(list.length == 1) {
-                    $scope.containerType = list[0];
-                    $translate('containers.'+list[0]+'.description').then(function(description) {
-                        $scope.selectedContainerDescription = description;
-                    });
+                    $scope.containerDownloadData.type = list[0];
                 }
             });
             $scope.download = function() {
                 $scope.loading = true;
-                ContainerService.downloadAndInstall($scope.containerType, $scope.containerURL, true).then(function(result) {
-                            $log.debug(result.data);
+                var downloadData = $scope.containerDownloadData;
+                ContainerService.downloadAndInstall(downloadData.type.cargoID, downloadData.url, true).then(function(result) {
+                            $scope.$close(true);
                         }, function(error) {
                             switch(error.status) {
                                 case 400:

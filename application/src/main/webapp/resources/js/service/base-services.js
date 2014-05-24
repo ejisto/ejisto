@@ -81,10 +81,10 @@
             stopContainer: function(container) {
                 return vertxEventBusService.send('StopContainer', {"containerId" : container.id}, true);
             },
-            downloadAndInstall: function(containerType, url, defaultContainer) {
+            downloadAndInstall: function(cargoID, url, defaultContainer) {
                 return $http['put']('/containers/install', null, {
                     params: {
-                        "containerType": containerType,
+                        "cargoID": cargoID,
                         "url": url,
                         "defaultContainer": defaultContainer
                     }
