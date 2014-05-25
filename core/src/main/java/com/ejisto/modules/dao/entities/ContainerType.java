@@ -19,7 +19,9 @@
 
 package com.ejisto.modules.dao.entities;
 
+import com.ejisto.util.ContainerTypeDeserializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Arrays;
 
@@ -30,6 +32,7 @@ import java.util.Arrays;
  * Time: 7:13 PM
  */
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+@JsonDeserialize(using = ContainerTypeDeserializer.class)
 public enum ContainerType {
     TOMCAT_8("tomcat8x", "Apache Tomcat 8.x");
 

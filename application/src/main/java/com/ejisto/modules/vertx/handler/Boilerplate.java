@@ -22,6 +22,7 @@ package com.ejisto.modules.vertx.handler;
 import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.web.util.JSONUtil;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import org.apache.commons.lang3.StringUtils;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpHeaders;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -65,7 +66,7 @@ public final class Boilerplate {
     public static void writeError(HttpServerRequest req, Throwable e) {
         req.response()
                 .setStatusCode(INTERNAL_SERVER_ERROR.code())
-                .setStatusMessage(e.getMessage())
+                .setStatusMessage(StringUtils.defaultString(e.getMessage(), "exception"))
                 .end();
     }
 

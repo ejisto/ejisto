@@ -69,6 +69,23 @@
                     }
                     return undefined;
                 };
+                scope.isExpanded = function(node) {
+                    return node.expanded;
+                };
+                var hasChildren = function(node) {
+                    return node && node.children && node.children.length > 0;
+                };
+                scope.getCurrentTooltipText = function(node) {
+                    return node.expanded ? 'collapse.node.text': 'expand.node.text';
+                };
+                scope.hasChildren = function(node) {
+                    return hasChildren(node);
+                };
+                scope.toggleExpandCollapse = function(node) {
+                    if(hasChildren(node)) {
+                        node.expanded = !node.expanded;
+                    }
+                };
                 scope.updateField = function(el, $data) {
                     return callFunction(scope.beforeUpdate, el, $data);
                 };
