@@ -86,12 +86,31 @@
                         node.expanded = !node.expanded;
                     }
                 };
+                scope.getExpandCollapseIconClass = function(node) {
+                    return node && node.expanded ? 'fa-angle-double-up' : 'fa-angle-double-down';
+                };
+                var flattenParentNodes = function(node) {
+                    var elements = [];
+                    if(node.children && node.children.length > 0) {
+                        elements.push(node);
+                        return elements.concat(_.map(node.children, flattenParentNodes));
+                    }
+                    return elements;
+                };
+                scope.expandCollapseChildren = function(node) {
+                    var expand = !node.expanded;
+                    _.flatten(flattenParentNodes(node)).filter(function(n) {
+                        return n.children && n.children.length > 0;
+                    }).forEach(function(child) {
+                        child.expanded = expand;
+                    });
+                };
                 scope.updateField = function(el, $data) {
                     return callFunction(scope.beforeUpdate, el, $data);
                 };
                 scope.afterUpdateField = function(el, $data) {
                     return callFunction(scope.afterUpdate, el, $data);
-                }
+                };
             }
         };
     });
