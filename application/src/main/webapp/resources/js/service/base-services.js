@@ -25,19 +25,25 @@
     var baseServices = angular.module('BaseServices', ['ui.bootstrap', 'knalli.angular-vertxbus', 'pascalprecht.translate']);
 
     baseServices.service("FieldService", function($http, HttpErrorHandler) {
+        var callValidation = function(field, value, url) {
+            return $http['put'](url, null, {
+                params: {
+                    'contextPath': field.contextPath,
+                    'className': field.className,
+                    'fieldName': field.fieldName,
+                    'newValue': value
+                }
+            }).error(HttpErrorHandler.handle);
+        };
         return {
             getFieldsGrouped : function() {
                 return $http.get('/fields/grouped').error(HttpErrorHandler.handle);
             },
             updateField: function(field, value) {
-                return $http['put']('/field/update', null, {
-                    params: {
-                        'contextPath': field.contextPath,
-                        'className': field.className,
-                        'fieldName': field.fieldName,
-                        'newValue': value
-                    }
-                }).error(HttpErrorHandler.handle);
+                return callValidation(field, value, '/field/update');
+            },
+            validateField: function(field, value) {
+                return callValidation(field, value, '/field/validate');
             }
         };
     });

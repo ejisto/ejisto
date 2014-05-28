@@ -28,9 +28,11 @@ import com.ejisto.modules.vertx.handler.ContextHandler;
 import com.ejisto.util.collector.FieldNode;
 import com.ejisto.util.collector.MockedFieldCollector;
 import org.vertx.java.core.MultiMap;
+import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.RouteMatcher;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
@@ -56,24 +58,26 @@ public class FieldService implements ContextHandler {
                     .filter(FieldsEditorContext.MAIN_WINDOW::isAdmitted)
                     .collect(new MockedFieldCollector());
             Boilerplate.writeOutputAsJSON(node, request.response());
-        }).put("/field/update", httpRequest -> {
-            final MultiMap params = httpRequest.params();
-            Optional<MockedField> field = mockedFieldsRepository.loadOptional(params.get("contextPath"),
-                                                         params.get("className"),
-                                                         params.get("fieldName"));
-            if(field.isPresent()) {
-                MockedField f = field.get();
-                f.setFieldValue(params.get("newValue"));
-                if(new MockedFieldValidator().validate(f)) {
-                    mockedFieldsRepository.update(f);
-                    httpRequest.response().setStatusCode(OK.code()).end();
-                } else {
-                    httpRequest.response().setStatusCode(BAD_REQUEST.code()).end();
-                }
+        }).put("/field/validate", httpRequest -> performValidation(httpRequest.params(), httpRequest, f -> {
+        })).put("/field/update", httpRequest -> performValidation(httpRequest.params(), httpRequest, mockedFieldsRepository::update));
+    }
+
+    private void performValidation(MultiMap params, HttpServerRequest httpRequest, Consumer<MockedField> consumer) {
+        Optional<MockedField> field = mockedFieldsRepository.loadOptional(params.get("contextPath"),
+                                                                          params.get("className"),
+                                                                          params.get("fieldName"));
+        if (field.isPresent()) {
+            MockedField f = field.get();
+            f.setFieldValue(params.get("newValue"));
+            if (new MockedFieldValidator().validate(f)) {
+                consumer.accept(f);
+                httpRequest.response().setStatusCode(OK.code()).end();
             } else {
-                httpRequest.response().setStatusCode(NOT_FOUND.code()).end();
+                httpRequest.response().setStatusCode(BAD_REQUEST.code()).end();
             }
-        });
+        } else {
+            httpRequest.response().setStatusCode(NOT_FOUND.code()).end();
+        }
     }
 
 }

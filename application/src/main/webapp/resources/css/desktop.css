@@ -56,7 +56,7 @@ li.field {
     list-style: none url("/resources/images/editor/brick.png");
 }
 
-i.expand-collapse {
+.expand-collapse {
     display: none;
 }
 
@@ -65,16 +65,18 @@ li.package > span.hasChildren:hover {
     cursor: pointer;
 }
 
-li.package > span.hasChildren:hover > i.expand-collapse {
+li.package > span.hasChildren:hover > .expand-collapse {
+    display:inline-block;
+}
+
+li.package > span.hasChildren:hover > .expand-collapse .action {
     display:inline-block;
     padding-left: 5px;
 }
 
-li.package > span.hasChildren:hover > i.expand-collapse:hover {
+li.package > span.hasChildren:hover > .expand-collapse .action:hover {
     color:#245269;
 }
-
-
 
 .list-group-item-heading h4, .list-group-item-heading img {
     float:left;

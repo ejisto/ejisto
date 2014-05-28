@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 public class MockedFieldValidator {
 
-    private static Map<String, Pattern> validatorMap;
+    private static final Map<String, Pattern> validatorMap;
 
     static {
         validatorMap = new HashMap<>();

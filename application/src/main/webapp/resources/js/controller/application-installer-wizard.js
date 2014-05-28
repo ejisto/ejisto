@@ -92,10 +92,9 @@ Ejisto.controllers = Ejisto.controllers || {};
                 $scope.descriptor.selectedResources = list;
             };
         },
-        WizardFieldEditorController: function($scope) {
+        WizardFieldEditorController: function($scope, FieldService) {
             $scope.validateField = function(element, value) {
-                //TODO add field validation
-                return undefined;
+                return FieldService.validateField(element, value);
             };
             $scope.activateField = function(element, value) {
                 var match = _.chain(Ejisto.controllers.applicationInstaller.flattenDescriptor($scope.descriptor.fieldContainer))

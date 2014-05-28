@@ -20,7 +20,7 @@
 <ul class="root">
     <li data-ng-class="{'package': !node.element, 'field': node.element}" data-sf-treepeat="node in children of fields">
         <span data-ng-show="node.root">{{node.label | translate}}</span>
-        <span data-ng-show="!node.root" data-ng-class="{'hasChildren': hasChildren(node)}"><span data-ng-click="toggleExpandCollapse(node)">{{node.label}}</span> <i class="expand-collapse fa half-opacity" data-ng-class="getExpandCollapseIconClass(node)" data-ng-click="expandCollapseChildren(node)" data-tooltip="{{getCurrentTooltipText(node) | translate}}" data-tooltip-trigger="mouseenter"></i></span>
+        <span data-ng-show="!node.root" data-ng-class="{'hasChildren': hasChildren(node)}"><span data-ng-click="toggleExpandCollapse(node)">{{node.label}}</span> <ctrl-buttons class="expand-collapse"></ctrl-buttons></span>
         <span data-ng-show="node.element && node.simpleValueField">: <span data-editable-text="node.element.fieldValue" data-onbeforesave="updateField(node.element, $data)" data-onaftersave="afterUpdateField(node.element, $data)">{{node.element.fieldValue}}<i class="fa fa-edit" data-ng-show="!node.element.fieldValue"></i></span></span>
         <span data-ng-show="node.element && !node.simpleValueField">: {{node.element.expression}}<i class="fa fa-edit" data-ng-show="!node.element.fieldValue"></i></span>
 

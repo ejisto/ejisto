@@ -87,7 +87,7 @@
                     }
                 };
                 scope.getExpandCollapseIconClass = function(node) {
-                    return node && node.expanded ? 'fa-angle-double-up' : 'fa-angle-double-down';
+                    return node && node.expanded ? 'fa-level-up' : 'fa-level-down';
                 };
                 var flattenParentNodes = function(node) {
                     var elements = [];
@@ -105,12 +105,29 @@
                         child.expanded = expand;
                     });
                 };
+                scope.createNewField = function(parentNode) {
+                    alert('create new');
+                };
+                scope.addExistingField = function(parentNode) {
+                    alert('add existing field');
+                };
                 scope.updateField = function(el, $data) {
                     return callFunction(scope.beforeUpdate, el, $data);
                 };
                 scope.afterUpdateField = function(el, $data) {
                     return callFunction(scope.afterUpdate, el, $data);
                 };
+            }
+        };
+    });
+    fieldEditor.directive("ctrlButtons", function() {
+        return {
+            templateUrl:'/resources/templates/editor/ctrl-buttons.html',
+            restrict: 'E',
+            link: function(scope, element, args) {
+                scope.status = {
+                    isOpen: false
+                }
             }
         };
     });

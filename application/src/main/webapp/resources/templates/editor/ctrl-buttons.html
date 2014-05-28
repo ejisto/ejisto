@@ -1,0 +1,23 @@
+<!--
+  ~ Ejisto, a powerful developer assistant
+  ~
+  ~ Copyright (C) 2010-2014 Celestino Bellone
+  ~
+  ~ Ejisto is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Ejisto is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<div>
+    <span class="action" data-ng-click="expandCollapseChildren(node)" data-tooltip="{{getCurrentTooltipText(node) | translate}}" data-tooltip-trigger="mouseenter"><i class="fa half-opacity" data-ng-class="getExpandCollapseIconClass(node)"></i><span class="sr-only">{{getCurrentTooltipText(node) | translate}}</span></span>
+    <span class="action" data-ng-click="addExistingField(node)" data-tooltip="{{'propertieseditor.popup.add' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-plus half-opacity"></i> <span class="sr-only">{{'propertieseditor.popup.add' | translate}}</span></span>
+    <span class="action" data-ng-click="createNewField(node)" data-tooltip="{{'propertieseditor.popup.create' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-file half-opacity"></i> <span class="sr-only">{{'propertieseditor.popup.create' | translate}}</span></span>
+</div>
