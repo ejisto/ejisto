@@ -1,0 +1,52 @@
+<!--
+  ~ Ejisto, a powerful developer assistant
+  ~
+  ~ Copyright (C) 2010-2014 Celestino Bellone
+  ~
+  ~ Ejisto is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Ejisto is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<div class="modal-header">
+    <h3 data-translate>field.create.dialog.title</h3>
+</div>
+<div class="modal-body">
+    <ng-form role="form">
+        <div class="form-group">
+            <span class="help-block" data-translate>field.create.dialog.description</span>
+        </div>
+        <div class="form-group">
+            <label for="contextPath" data-translate>create.new.field.context.path</label>
+            <select id="contextPath" class="form-control" data-ng-model="field.contextPath" data-ng-options="contextPath for contextPath in webApplications"></select>
+        </div>
+        <div class="form-group">
+            <label for="className" data-translate>create.new.field.class</label>
+            <select id="className" class="form-control" data-ng-model="field.className" data-ng-options="className for className in classNames"></select>
+        </div>
+        <div class="form-group">
+            <label for="fieldType" data-translate>create.new.field.type</label>
+            <input type="text" id="fieldType" class="form-control" data-ng-model="field.type" />
+        </div>
+        <div class="form-group">
+            <label for="fieldName" data-translate>create.new.field.name</label>
+            <input type="text" id="fieldName" class="form-control" data-ng-model="field.name" />
+        </div>
+        <div class="form-group">
+            <label for="fieldValue" data-translate>create.new.field.value</label>
+            <input type="text" id="fieldValue" class="form-control" data-ng-model="field.value" />
+        </div>
+    </ng-form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-sm btn-default" data-ng-click="cancel()" data-translate>wizard.close.text</button>
+    <button class="btn btn-sm btn-success" data-ng-click="registerField(field)" data-translate>wizard.ok.text</button>
+</div>

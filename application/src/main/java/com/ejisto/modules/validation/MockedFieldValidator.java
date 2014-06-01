@@ -20,6 +20,8 @@
 package com.ejisto.modules.validation;
 
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.repository.ClassPoolRepository;
+import javassist.ClassPool;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +34,6 @@ public class MockedFieldValidator {
     static {
         validatorMap = new HashMap<>();
         validatorMap.put("java.lang.String", Pattern.compile("^.*$"));
-
         validatorMap.put("java.lang.Byte", Pattern.compile("^-?\\d{1,3}$"));
         validatorMap.put("byte", Pattern.compile("^-?\\d{1,3}$"));
         validatorMap.put("java.lang.Short", Pattern.compile("^-?\\d{1,5}$"));
@@ -58,6 +59,7 @@ public class MockedFieldValidator {
                 return false;
             }
         }
-        return true;
+        final ClassPool classPool = ClassPoolRepository.getRegisteredClassPool(field.getContextPath());
+        return classPool.getOrNull(type) != null;
     }
 }

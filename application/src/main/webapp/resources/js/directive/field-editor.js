@@ -42,7 +42,7 @@
         };
     });
 
-    fieldEditor.directive("hierarchicalFieldEditor", function($q) {
+    fieldEditor.directive("hierarchicalFieldEditor", function($q, $modal, $rootScope) {
         return {
             scope: {
                 fields: '=',
@@ -105,8 +105,37 @@
                         child.expanded = expand;
                     });
                 };
+                var CreateNewFieldController = function($scope, InstalledApplicationService, FieldService) {
+                    $scope.cancel = function() {
+                        $scope.$dismiss("canceled");
+                    };
+                    InstalledApplicationService.getInstalledWebApplications().success(function(data) {
+                        $scope.webApplications = _.map(data, 'contextPath');
+                    });
+                    $scope.field = {};
+                    $scope.$watch('field.contextPath', function(newValue) {
+                        if(!newValue) {
+                            return;
+                        }
+                        FieldService.getFieldsByContextPath(newValue).success(function(data) {
+                            $scope.classNames = _.uniq(_.map(data, 'className'));
+                        });
+                    });
+                    $scope.registerField = function(field) {
+                        FieldService.createNewField(field).success(function() {
+                            $scope.$close(true);
+                        });
+                    };
+                };
                 scope.createNewField = function(parentNode) {
-                    alert('create new');
+                    var w = $modal.open({
+                        templateUrl:'/resources/templates/editor/createNewField.html',
+                        backdrop: 'static',
+                        controller: CreateNewFieldController
+                    });
+                    w.result.then(function() {
+                        $rootScope.$broadcast('reloadFields', true);
+                    });
                 };
                 scope.addExistingField = function(parentNode) {
                     alert('add existing field');
@@ -122,7 +151,7 @@
     });
     fieldEditor.directive("ctrlButtons", function() {
         return {
-            templateUrl:'/resources/templates/editor/ctrl-buttons.html',
+            templateUrl:'/resources/templates/editor/ctrlButtons.html',
             restrict: 'E',
             link: function(scope, element, args) {
                 scope.status = {

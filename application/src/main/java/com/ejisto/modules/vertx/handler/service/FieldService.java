@@ -20,17 +20,20 @@
 package com.ejisto.modules.vertx.handler.service;
 
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.validation.MockedFieldValidator;
 import com.ejisto.modules.vertx.handler.Boilerplate;
 import com.ejisto.modules.vertx.handler.ContextHandler;
+import com.ejisto.modules.web.MockedFieldRequest;
 import com.ejisto.util.collector.FieldNode;
 import com.ejisto.util.collector.MockedFieldCollector;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.RouteMatcher;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -58,8 +61,29 @@ public class FieldService implements ContextHandler {
                     .filter(FieldsEditorContext.MAIN_WINDOW::isAdmitted)
                     .collect(new MockedFieldCollector());
             Boilerplate.writeOutputAsJSON(node, request.response());
+        }).get("/fields/by-context-path", request -> {
+            final Collection<MockedField> fields = mockedFieldsRepository.load(
+                    MockedFieldRequest.requestAllClasses(request.params().get("contextPath")));
+            Boilerplate.writeOutputAsJSON(fields, request.response());
         }).put("/field/validate", httpRequest -> performValidation(httpRequest.params(), httpRequest, f -> {
-        })).put("/field/update", httpRequest -> performValidation(httpRequest.params(), httpRequest, mockedFieldsRepository::update));
+        })).put("/field/update",
+                httpRequest -> performValidation(httpRequest.params(), httpRequest, mockedFieldsRepository::update))
+        .post("/field/new", httpRequest -> {
+            final MultiMap params = httpRequest.params();
+            MockedField f = new MockedFieldImpl();
+            f.setContextPath(params.get("contextPath"));
+            f.setClassName(params.get("className"));
+            f.setFieldName(params.get("fieldName"));
+            f.setFieldType(params.get("fieldType"));
+            f.setFieldValue(params.get("fieldValue"));
+            f.setExpression(params.get("expression"));
+            f.setActive(true);
+            if (new MockedFieldValidator().validate(f)) {
+                Boilerplate.writeOutputAsJSON(mockedFieldsRepository.insert(f), httpRequest.response());
+            } else {
+                Boilerplate.writeError(httpRequest, BAD_REQUEST.code(), BAD_REQUEST.reasonPhrase());
+            }
+        });
     }
 
     private void performValidation(MultiMap params, HttpServerRequest httpRequest, Consumer<MockedField> consumer) {

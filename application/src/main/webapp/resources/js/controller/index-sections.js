@@ -27,8 +27,10 @@ Ejisto.controllers = Ejisto.controllers || {};
             $scope.selectedEditor = 'HIERARCHICAL';
             $scope.loading = true;
             var loadFields = function() {
+                $scope.loading = true;
                 FieldService.getFieldsGrouped().then(function(result) {
                     $scope.fields = result.data;
+                    $scope.loading = false;
                 });
             };
             loadFields();
@@ -40,6 +42,7 @@ Ejisto.controllers = Ejisto.controllers || {};
             vertxEventBusService.on('ApplicationInstallFinalization', function() {
                 $scope.loading = true;
             });
+            $scope.$on('reloadFields', loadFields);
         },
         ContainersController: function($scope, ContainerService, vertxEventBusService, $modal, $log) {
             var loadContainers = function() {

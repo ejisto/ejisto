@@ -39,11 +39,29 @@
             getFieldsGrouped : function() {
                 return $http.get('/fields/grouped').error(HttpErrorHandler.handle);
             },
+            getFieldsByContextPath : function(contextPath) {
+                return $http.get('/fields/by-context-path', null, {
+                    params: {
+                        contextPath: contextPath
+                    }
+                }).error(HttpErrorHandler.handle);
+            },
             updateField: function(field, value) {
                 return callValidation(field, value, '/field/update');
             },
             validateField: function(field, value) {
                 return callValidation(field, value, '/field/validate');
+            },
+            createNewField: function(field) {
+                return $http.post('/field/new', null, {
+                    params: {
+                        'contextPath': field.contextPath,
+                        'className': field.className,
+                        'fieldName': field.name,
+                        'fieldType': field.type,
+                        'fieldValue': field.value
+                    }
+                }).error(HttpErrorHandler.handle);
             }
         };
     });
