@@ -29,7 +29,7 @@
             return $http['put'](url, null, {
                 params: {
                     'contextPath': field.contextPath,
-                    'className': field.className,
+                    'fieldClassName': field.className,
                     'fieldName': field.fieldName,
                     'newValue': value
                 }
@@ -49,14 +49,15 @@
             updateField: function(field, value) {
                 return callValidation(field, value, '/field/update');
             },
-            validateField: function(field, value) {
-                return callValidation(field, value, '/field/validate');
+            validateField: function(field, value, sessionID) {
+                var url = '/field/validate' + (sessionID ? '/for/' + sessionID : '');
+                return callValidation(field, value, url);
             },
             createNewField: function(field) {
                 return $http.post('/field/new', null, {
                     params: {
                         'contextPath': field.contextPath,
-                        'className': field.className,
+                        'fieldClassName': field.className,
                         'fieldName': field.name,
                         'fieldType': field.type,
                         'fieldValue': field.value
@@ -81,8 +82,9 @@
                 });
                 return $http.post('/application/new/'+sessionID+'/publish', fieldsToPublish).error(HttpErrorHandler.handle);
             },
-            updateField: function(field, value) {
-                return $http['put']('/field/update', null, {
+            updateField: function(field, value, sessionID) {
+                var url = '/field/update' + (sessionID ? '/for/' + sessionID : '');
+                return $http['put'](url, null, {
                     params: {
                         'contextPath': field.contextPath,
                         'className': field.className,

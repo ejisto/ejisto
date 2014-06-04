@@ -32,6 +32,7 @@ import com.ejisto.modules.dao.local.LocalWebApplicationDescriptorDao;
 import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.modules.vertx.handler.service.ApplicationInstallerRegistry;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.ejisto.util.collector.MockedFieldCollector;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -48,8 +49,6 @@ import java.beans.PropertyChangeListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static com.ejisto.constants.StringConstants.GUI_TASK_EXCEPTION_PROPERTY;
 import static com.ejisto.modules.vertx.VertxManager.publishEvent;
@@ -68,7 +67,6 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
     private static final String SESSION_ID = "sessionID";
     private static final TypeReference<List<MockedField>> MF_LIST_TYPE_REFERENCE = new TypeReference<List<MockedField>>() {
     };
-    private final ConcurrentMap<String, WebApplicationDescriptor> registry = new ConcurrentHashMap<>();
     private final MockedFieldsRepository mockedFieldsRepository;
     private final CustomObjectFactoryRepository customObjectFactoryRepository;
     private final ContainerManager containerManager;
@@ -80,8 +78,8 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
         req.expectMultiPart(true);
         req.uploadHandler(fileHandler -> {
             String key = StringUtils.defaultString(req.params().get(SESSION_ID), UUID.randomUUID().toString());
-            registry.putIfAbsent(key, new WebApplicationDescriptor());
-            WebApplicationDescriptor session = registry.get(key);
+            ApplicationInstallerRegistry.putDescriptorIfAbsent(key, new WebApplicationDescriptor());
+            WebApplicationDescriptor session = ApplicationInstallerRegistry.getDescriptor(key).orElseThrow(IllegalStateException::new);
             String fileName = fileHandler.filename();
             Path war = Paths.get(System.getProperty("java.io.tmpdir"), fileName);
             fileHandler.streamToFileSystem(war.toString());
@@ -113,8 +111,7 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
 
     private final Handler<HttpServerRequest> scanHandler = req -> {
         String sessionId = req.params().get(ApplicationInstallerWizardHandler.SESSION_ID);
-        if (registry.containsKey(sessionId)) {
-
+        if (ApplicationInstallerRegistry.isPresent(sessionId)) {
             scanApplication(req, sessionId);
         }
     };
@@ -152,11 +149,12 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
     private void handleApplicationPublish(HttpServerRequest req, MultiMap params, Buffer buffer) throws NotInstalledException {
         List<MockedField> newFields = JSONUtil.decode(buffer.toString(), MF_LIST_TYPE_REFERENCE);
         String sessionID = params.get(SESSION_ID);
-        final WebApplicationDescriptor descriptor = registry.get(sessionID);
-        if (descriptor == null) {
+        final Optional<WebApplicationDescriptor> optional = ApplicationInstallerRegistry.getDescriptor(sessionID);
+        if (!optional.isPresent()) {
             writeError(req, HttpResponseStatus.BAD_REQUEST.code(), "invalid sessionID");
             return;
         }
+        WebApplicationDescriptor descriptor = optional.get();
         final Collection<MockedField> descriptorFields = descriptor.getFields();
         newFields.forEach(field -> descriptorFields.stream()
                 .filter(f -> f.getComparisonKey().equals(field.getComparisonKey()))
@@ -178,7 +176,7 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
     }
 
     private void scanApplication(HttpServerRequest req, String sessionId) {
-        final WebApplicationDescriptor descriptor = registry.get(sessionId);
+        final WebApplicationDescriptor descriptor = ApplicationInstallerRegistry.getDescriptor(sessionId).orElseThrow(IllegalStateException::new);
         Optional.ofNullable(req.params().get("resources"))
                 .map(s -> s.split(","))
                 .ifPresent(a -> descriptor.setWhiteList(Arrays.asList(a)));

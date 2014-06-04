@@ -80,7 +80,13 @@ public enum StringConstants {
     DEFAULT_SERVLET_NAME("ejistoDefaultServlet"),
     DEV_MODE("ejisto.dev.mode"),
     GET_NEWLY_CREATED_FIELDS_REQUEST("newlyCreatedFields"),
-    ACTIVATE_IN_MEMORY_RELOAD("classes.memory.reload");
+    ACTIVATE_IN_MEMORY_RELOAD("classes.memory.reload"),
+    PARAM_CLASS_NAME("fieldClassName"),
+    PARAM_FIELD_NAME("fieldName"),
+    PARAM_FIELD_TYPE("fieldType"),
+    PARAM_FIELD_VALUE("fieldValue"),
+    PARAM_CONTEXT_PATH("contextPath"),
+    PARAM_EXPRESSION("expression");
 
     private final String value;
 

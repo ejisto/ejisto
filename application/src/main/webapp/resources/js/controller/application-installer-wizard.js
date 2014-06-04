@@ -94,7 +94,7 @@ Ejisto.controllers = Ejisto.controllers || {};
         },
         WizardFieldEditorController: function($scope, FieldService) {
             $scope.validateField = function(element, value) {
-                return FieldService.validateField(element, value);
+                return FieldService.validateField(element, value, $scope.descriptor.sessionID);
             };
             $scope.activateField = function(element, value) {
                 var match = _.chain(Ejisto.controllers.applicationInstaller.flattenDescriptor($scope.descriptor.fieldContainer))

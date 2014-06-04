@@ -21,14 +21,17 @@ package com.ejisto.modules.vertx.handler.service;
 
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.MockedFieldImpl;
+import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.validation.MockedFieldValidator;
 import com.ejisto.modules.vertx.handler.Boilerplate;
 import com.ejisto.modules.vertx.handler.ContextHandler;
 import com.ejisto.modules.web.MockedFieldRequest;
+import com.ejisto.util.LambdaUtil;
 import com.ejisto.util.collector.FieldNode;
 import com.ejisto.util.collector.MockedFieldCollector;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.RouteMatcher;
@@ -36,7 +39,10 @@ import org.vertx.java.core.http.RouteMatcher;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
+import static com.ejisto.constants.StringConstants.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 /**
@@ -55,41 +61,75 @@ public class FieldService implements ContextHandler {
 
     @Override
     public void addRoutes(RouteMatcher routeMatcher) {
-        routeMatcher.get("/fields/grouped", request -> {
-            final FieldNode node = mockedFieldsRepository.loadAll()
-                    .parallelStream()
-                    .filter(FieldsEditorContext.MAIN_WINDOW::isAdmitted)
-                    .collect(new MockedFieldCollector());
-            Boilerplate.writeOutputAsJSON(node, request.response());
-        }).get("/fields/by-context-path", request -> {
-            final Collection<MockedField> fields = mockedFieldsRepository.load(
-                    MockedFieldRequest.requestAllClasses(request.params().get("contextPath")));
-            Boilerplate.writeOutputAsJSON(fields, request.response());
-        }).put("/field/validate", httpRequest -> performValidation(httpRequest.params(), httpRequest, f -> {
-        })).put("/field/update",
-                httpRequest -> performValidation(httpRequest.params(), httpRequest, mockedFieldsRepository::update))
-        .post("/field/new", httpRequest -> {
+        routeMatcher.get("/fields/grouped", getFieldsGrouped())
+                .get("/fields/by-context-path", getFieldsByContextPath())
+                .put("/field/validate", validateField())
+                .put("/field/validate/for/:sessionID", validateWizardField())
+                .put("/field/update", updateField())
+                .post("/field/new", insertField());
+    }
+
+    private Handler<HttpServerRequest> insertField() {
+        return httpRequest -> {
             final MultiMap params = httpRequest.params();
             MockedField f = new MockedFieldImpl();
-            f.setContextPath(params.get("contextPath"));
-            f.setClassName(params.get("className"));
-            f.setFieldName(params.get("fieldName"));
-            f.setFieldType(params.get("fieldType"));
-            f.setFieldValue(params.get("fieldValue"));
-            f.setExpression(params.get("expression"));
+            f.setContextPath(params.get(PARAM_CONTEXT_PATH.getValue()));
+            f.setClassName(params.get(PARAM_CLASS_NAME.getValue()));
+            f.setFieldName(params.get(PARAM_FIELD_NAME.getValue()));
+            f.setFieldType(params.get(PARAM_FIELD_TYPE.getValue()));
+            f.setFieldValue(params.get(PARAM_FIELD_VALUE.getValue()));
+            f.setExpression(params.get(PARAM_EXPRESSION.getValue()));
             f.setActive(true);
             if (new MockedFieldValidator().validate(f)) {
                 Boilerplate.writeOutputAsJSON(mockedFieldsRepository.insert(f), httpRequest.response());
             } else {
                 Boilerplate.writeError(httpRequest, BAD_REQUEST.code(), BAD_REQUEST.reasonPhrase());
             }
-        });
+        };
     }
 
-    private void performValidation(MultiMap params, HttpServerRequest httpRequest, Consumer<MockedField> consumer) {
-        Optional<MockedField> field = mockedFieldsRepository.loadOptional(params.get("contextPath"),
-                                                                          params.get("className"),
-                                                                          params.get("fieldName"));
+    private Handler<HttpServerRequest> validateWizardField() {
+        return httpRequest -> performValidation(httpRequest.params(), httpRequest, f -> {}, getFieldFromWizardRegistry(httpRequest));
+    }
+
+    private Supplier<Optional<MockedField>> getFieldFromWizardRegistry(HttpServerRequest httpRequest) {
+        return () -> {
+            final MultiMap params = httpRequest.params();
+            final Predicate<MockedField> predicate = LambdaUtil.findField(
+                    params.get(PARAM_CONTEXT_PATH.getValue()),
+                    params.get(PARAM_CLASS_NAME.getValue()),
+                    params.get(PARAM_FIELD_NAME.getValue()));
+            return ApplicationInstallerRegistry.getDescriptor(params.get("sessionID"))
+                    .map(WebApplicationDescriptor::getFields)
+                    .flatMap(c -> c.stream().filter(predicate).findFirst());
+
+        };
+    }
+
+    private Handler<HttpServerRequest> updateField() {
+        return httpRequest -> performValidation(httpRequest.params(), httpRequest, mockedFieldsRepository::update,
+                                                getFieldFromRepository(httpRequest));
+    }
+
+    private Handler<HttpServerRequest> validateField() {
+        return httpRequest -> performValidation(httpRequest.params(), httpRequest, f -> {
+        }, getFieldFromRepository(httpRequest));
+    }
+
+    private Supplier<Optional<MockedField>> getFieldFromRepository(HttpServerRequest httpRequest) {
+        return () -> {
+            final MultiMap params = httpRequest.params();
+            return mockedFieldsRepository.loadOptional(
+                    params.get(PARAM_CONTEXT_PATH.getValue()),
+                    params.get(PARAM_CLASS_NAME.getValue()),
+                    params.get(PARAM_FIELD_NAME.getValue()));
+        };
+    }
+
+    private void performValidation(MultiMap params, HttpServerRequest httpRequest,
+                                   Consumer<MockedField> consumer,
+                                   Supplier<Optional<MockedField>> fieldFinder) {
+        Optional<MockedField> field = fieldFinder.get();
         if (field.isPresent()) {
             MockedField f = field.get();
             f.setFieldValue(params.get("newValue"));
@@ -102,6 +142,24 @@ public class FieldService implements ContextHandler {
         } else {
             httpRequest.response().setStatusCode(NOT_FOUND.code()).end();
         }
+    }
+
+    private Handler<HttpServerRequest> getFieldsByContextPath() {
+        return request -> {
+            final Collection<MockedField> fields = mockedFieldsRepository.load(
+                    MockedFieldRequest.requestAllClasses(request.params().get("contextPath")));
+            Boilerplate.writeOutputAsJSON(fields, request.response());
+        };
+    }
+
+    private Handler<HttpServerRequest> getFieldsGrouped() {
+        return request -> {
+            final FieldNode node = mockedFieldsRepository.loadAll()
+                    .parallelStream()
+                    .filter(FieldsEditorContext.MAIN_WINDOW::isAdmitted)
+                    .collect(new MockedFieldCollector());
+            Boilerplate.writeOutputAsJSON(node, request.response());
+        };
     }
 
 }
