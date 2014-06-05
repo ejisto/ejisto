@@ -43,7 +43,7 @@
             <div data-ng-show="progressIndicator.loading" class="fa fa-refresh fa-5x fa-spin upload-image"></div>
         </div>
         <div id="editProperties" data-ng-switch-when="editProperties" data-wizard-step-title="wizard.propertiesedit.title" data-ng-controller="WizardFieldEditorController">
-            <hierarchical-field-editor data-fields="descriptor.fieldContainer" data-before-update="validateField" data-after-update="activateField"></hierarchical-field-editor>
+            <hierarchical-field-editor data-fields="descriptor.fieldContainer" data-before-update="validateField" data-profile="applicationInstaller" data-after-update="activateField"></hierarchical-field-editor>
         </div>
         <div id="summary" data-ng-switch-when="summary" data-wizard-step-title="wizard.summary.title" data-ng-controller="WizardSummaryController">
             <ul>

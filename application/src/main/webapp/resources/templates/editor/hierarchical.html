@@ -19,10 +19,10 @@
 <div data-ng-show="!fields || fields.length == 0" data-translate>main.propertieseditor.tree.novalues.text</div>
 <ul class="root">
     <li data-ng-class="{'package': !node.element, 'field': node.element}" data-sf-treepeat="node in children of fields">
-        <span data-ng-show="node.root">{{node.label | translate}}</span>
-        <span data-ng-show="!node.root" data-ng-class="{'hasChildren': hasChildren(node)}"><span data-ng-click="toggleExpandCollapse(node)">{{node.label}}</span> <ctrl-buttons class="expand-collapse"></ctrl-buttons></span>
-        <span data-ng-show="node.element && node.simpleValueField">: <span data-editable-text="node.element.fieldValue" data-onbeforesave="updateField(node.element, $data)" data-onaftersave="afterUpdateField(node.element, $data)">{{node.element.fieldValue}}<i class="fa fa-edit" data-ng-show="!node.element.fieldValue"></i></span></span>
-        <span data-ng-show="node.element && !node.simpleValueField">: {{node.element.expression}}<i class="fa fa-edit" data-ng-show="!node.element.fieldValue"></i></span>
+        <span data-ng-if="node.root">{{node.label | translate}}</span>
+        <span data-ng-if="!node.root" data-ng-class="{'hasChildren': hasChildren(node)}"><span data-ng-click="toggleExpandCollapse(node)">{{node.label}}</span> <ctrl-buttons data-profile="{{profile}}" class="expand-collapse"></ctrl-buttons></span>
+        <span data-ng-if="node.element && node.simpleValueField">: <span data-editable-text="node.element.fieldValue" data-onbeforesave="updateField(node.element, $data)" data-onaftersave="afterUpdateField(node.element, $data)">{{node.element.fieldValue}}<i class="fa fa-edit" data-ng-show="!node.element.fieldValue"></i></span></span>
+        <span data-ng-if="node.element && !node.simpleValueField">: {{node.element.expression}}<i class="fa fa-edit" data-ng-show="!node.element.fieldValue"></i></span>
 
         <ul class="node" data-ng-if="node.root || isExpanded(node)">
             <li data-sf-treecurse data-ng-class="{'package': !node.element, 'field': node.element}"></li>

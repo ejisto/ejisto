@@ -47,7 +47,8 @@
             scope: {
                 fields: '=',
                 beforeUpdate: '=',
-                afterUpdate: '='
+                afterUpdate: '=',
+                profile: '@'
             },
             templateUrl: '/resources/templates/editor/hierarchical.html',
             restrict: 'E',
@@ -153,10 +154,12 @@
         return {
             templateUrl:'/resources/templates/editor/ctrlButtons.html',
             restrict: 'E',
-            link: function(scope, element, args) {
+            link: function(scope, element, attrs) {
                 scope.status = {
                     isOpen: false
-                }
+                };
+                scope.createNewFieldEnabled = attrs.profile == 'main';
+                scope.addExistingFieldEnabled = attrs.profile == 'main';
             }
         };
     });

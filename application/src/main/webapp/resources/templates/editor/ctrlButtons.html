@@ -18,6 +18,6 @@
   -->
 <div>
     <span class="action" data-ng-click="expandCollapseChildren(node)" data-tooltip="{{getCurrentTooltipText(node) | translate}}" data-tooltip-trigger="mouseenter"><i class="fa half-opacity" data-ng-class="getExpandCollapseIconClass(node)"></i><span class="sr-only">{{getCurrentTooltipText(node) | translate}}</span></span>
-    <span class="action" data-ng-click="addExistingField(node)" data-tooltip="{{'propertieseditor.popup.add' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-plus half-opacity"></i> <span class="sr-only">{{'propertieseditor.popup.add' | translate}}</span></span>
-    <span class="action" data-ng-click="createNewField(node)" data-tooltip="{{'propertieseditor.popup.create' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-file half-opacity"></i> <span class="sr-only">{{'propertieseditor.popup.create' | translate}}</span></span>
+    <span data-ng-if="addExistingFieldEnabled" class="action" data-ng-click="addExistingField(node)" data-tooltip="{{'propertieseditor.popup.add' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-plus half-opacity"></i> <span class="sr-only">{{'propertieseditor.popup.add' | translate}}</span></span>
+    <span data-ng-if="createNewFieldEnabled" class="action" data-ng-click="createNewField(node)" data-tooltip="{{'propertieseditor.popup.create' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-file half-opacity"></i> <span class="sr-only">{{'propertieseditor.popup.create' | translate}}</span></span>
 </div>
