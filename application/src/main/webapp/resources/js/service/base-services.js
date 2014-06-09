@@ -36,6 +36,9 @@
             }).error(HttpErrorHandler.handle);
         };
         return {
+            getAllFields: function() {
+                return $http.get('/fields/all').error(HttpErrorHandler.handle);
+            },
             getFieldsGrouped : function() {
                 return $http.get('/fields/grouped').error(HttpErrorHandler.handle);
             },
@@ -52,6 +55,9 @@
             validateField: function(field, value, sessionID) {
                 var url = '/field/validate' + (sessionID ? '/for/' + sessionID : '');
                 return callValidation(field, value, url);
+            },
+            activateFields: function(fields) {
+                return $http['put']('/fields/bulk/update', fields).error(HttpErrorHandler.handle);
             },
             createNewField: function(field) {
                 return $http.post('/field/new', null, {

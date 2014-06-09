@@ -128,6 +128,28 @@
                         });
                     };
                 };
+                var AddExistingFieldController = function($scope, FieldService) {
+                    $scope.selectedCount = 0;
+                    $scope.cancel = function() {
+                        $scope.$dismiss("canceled");
+                    };
+                    FieldService.getAllFields().success(function(data) {
+                        $scope.fields = data;
+                    });
+                    $scope.registerFields = function(fields) {
+                        var toBeActivated = _.filter(fields, function(f) {
+                            return f.active;
+                        });
+                        FieldService.activateFields(toBeActivated).success(function() {
+                            $scope.$close(true);
+                        });
+                    };
+                    $scope.toggleSelectedCount = function(field) {
+                        var count = $scope.selectedCount;
+                        count += (field.active ? -1 : 1);
+                        $scope.selectedCount = Math.max(0, count);
+                    };
+                };
                 scope.createNewField = function(parentNode) {
                     var w = $modal.open({
                         templateUrl:'/resources/templates/editor/createNewField.html',
@@ -139,7 +161,15 @@
                     });
                 };
                 scope.addExistingField = function(parentNode) {
-                    alert('add existing field');
+                    var w = $modal.open({
+                        templateUrl:'/resources/templates/editor/addExistingField.html',
+                        backdrop: 'static',
+                        size: 'lg',
+                        controller: AddExistingFieldController
+                    });
+                    w.result.then(function() {
+                        $rootScope.$broadcast('reloadFields', true);
+                    });
                 };
                 scope.updateField = function(el, $data) {
                     return callFunction(scope.beforeUpdate, el, $data);

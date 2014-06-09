@@ -20,7 +20,9 @@
 package com.ejisto.modules.vertx.handler;
 
 import com.ejisto.constants.StringConstants;
+import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.web.util.JSONUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.vertx.java.core.buffer.Buffer;
@@ -36,6 +38,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,6 +53,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERR
  */
 public final class Boilerplate {
 
+    public static final TypeReference<List<MockedField>> MF_LIST_TYPE_REFERENCE = new TypeReference<List<MockedField>>() {};
     private static final Boilerplate INSTANCE = new Boilerplate();
     private static final String ROOT = "/";
     private static final ResourcePathSupplier DEV_SUPPLIER = relativePath ->

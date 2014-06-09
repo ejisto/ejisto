@@ -108,9 +108,8 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
         transactionalOperation(() -> {
             Collection<MockedFieldContainer> fields = getMockedFieldsByClassName(field.getContextPath(),
                                                                                  field.getClassName());
-            MockedFieldContainer existing = getSingleField(fields, field.getFieldName()).orElseThrow(NullPointerException::new);
-            fields.remove(existing);
-            fields.add(MockedFieldContainer.from(field.unwrap()));
+            getSingleField(fields, field.getFieldName()).orElseThrow(IllegalArgumentException::new);
+            updateField(field.unwrap());
             return null;
         });
         return true;
@@ -160,14 +159,25 @@ public class LocalMockedFieldsDao extends BaseLocalDao implements MockedFieldsDa
     }
 
     private MockedField internalInsert(MockedField field) {
+        return saveField(field, false);
+    }
+
+    private MockedField updateField(MockedField field) {
+        return saveField(field, true);
+    }
+
+    private MockedField saveField(MockedField field, boolean update) {
         MockedField newField = cloneField(field);
         NavigableSet<MockedFieldContainer> container;
         Optional<NavigableSet<MockedFieldContainer>> result = getDatabase().getMockedFields(field.getContextPath());
         if (!result.isPresent()) {
             getDatabase().registerContextPath(field.getContextPath());
-            container = getDatabase().getMockedFields(field.getContextPath()).orElse(Collections.emptyNavigableSet());
+            container = getDatabase().getMockedFields(field.getContextPath()).orElseThrow(IllegalStateException::new);
         } else {
             container = result.get();
+        }
+        if(update) {
+            container.removeIf(c -> c.wraps(newField));
         }
         container.add(MockedFieldContainer.from(field));
         return newField;

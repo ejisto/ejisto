@@ -35,7 +35,6 @@ import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.vertx.handler.service.ApplicationInstallerRegistry;
 import com.ejisto.modules.web.util.JSONUtil;
 import com.ejisto.util.collector.MockedFieldCollector;
-import com.fasterxml.jackson.core.type.TypeReference;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
@@ -65,8 +64,6 @@ import static com.ejisto.modules.vertx.handler.Boilerplate.writeOutputAsJSON;
 public class ApplicationInstallerWizardHandler implements ContextHandler {
 
     private static final String SESSION_ID = "sessionID";
-    private static final TypeReference<List<MockedField>> MF_LIST_TYPE_REFERENCE = new TypeReference<List<MockedField>>() {
-    };
     private final MockedFieldsRepository mockedFieldsRepository;
     private final CustomObjectFactoryRepository customObjectFactoryRepository;
     private final ContainerManager containerManager;
@@ -147,7 +144,7 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
     }
 
     private void handleApplicationPublish(HttpServerRequest req, MultiMap params, Buffer buffer) throws NotInstalledException {
-        List<MockedField> newFields = JSONUtil.decode(buffer.toString(), MF_LIST_TYPE_REFERENCE);
+        List<MockedField> newFields = JSONUtil.decode(buffer.toString(), Boilerplate.MF_LIST_TYPE_REFERENCE);
         String sessionID = params.get(SESSION_ID);
         final Optional<WebApplicationDescriptor> optional = ApplicationInstallerRegistry.getDescriptor(sessionID);
         if (!optional.isPresent()) {

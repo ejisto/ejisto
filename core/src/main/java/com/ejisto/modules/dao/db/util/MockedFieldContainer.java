@@ -73,4 +73,11 @@ public final class MockedFieldContainer implements Comparable<MockedFieldContain
         }
         return getFieldName().compareTo(other.getFieldName());
     }
+
+    public boolean wraps(MockedField field) {
+        return mockedField.getContextPath().equals(field.getContextPath())
+                && mockedField.getClassName().equals(field.getClassName())
+                && mockedField.getFieldName().equals(field.getFieldName());
+
+    }
 }

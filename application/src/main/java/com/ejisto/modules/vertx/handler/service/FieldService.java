@@ -28,6 +28,7 @@ import com.ejisto.modules.validation.MockedFieldValidator;
 import com.ejisto.modules.vertx.handler.Boilerplate;
 import com.ejisto.modules.vertx.handler.ContextHandler;
 import com.ejisto.modules.web.MockedFieldRequest;
+import com.ejisto.modules.web.util.JSONUtil;
 import com.ejisto.util.LambdaUtil;
 import com.ejisto.util.collector.FieldNode;
 import com.ejisto.util.collector.MockedFieldCollector;
@@ -37,12 +38,16 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.RouteMatcher;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.ejisto.constants.StringConstants.*;
+import static com.ejisto.modules.vertx.handler.Boilerplate.writeError;
+import static com.ejisto.modules.vertx.handler.Boilerplate.writeOutputAsJSON;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 /**
@@ -62,11 +67,36 @@ public class FieldService implements ContextHandler {
     @Override
     public void addRoutes(RouteMatcher routeMatcher) {
         routeMatcher.get("/fields/grouped", getFieldsGrouped())
+                .get("/fields/all", getAllFields())
                 .get("/fields/by-context-path", getFieldsByContextPath())
                 .put("/field/validate", validateField())
                 .put("/field/validate/for/:sessionID", validateWizardField())
                 .put("/field/update", updateField())
+                .put("/fields/bulk/update", bulkUpdateFields())
                 .post("/field/new", insertField());
+    }
+
+    private Handler<HttpServerRequest> bulkUpdateFields() {
+        return request -> request.bodyHandler(buffer -> {
+            try {
+                List<MockedField> toBeActivated = JSONUtil.decode(buffer.toString(), Boilerplate.MF_LIST_TYPE_REFERENCE);
+                toBeActivated.forEach(mockedFieldsRepository::update);
+                writeOutputAsJSON("OK", request.response());
+            } catch (Exception e) {
+                writeError(request, e);
+            }
+        });
+    }
+
+    private Handler<HttpServerRequest> getAllFields() {
+        return request -> {
+            final List<MockedField> fields = mockedFieldsRepository.loadAll()
+                    .parallelStream()
+                    .filter(FieldsEditorContext.ADD_FIELD::isAdmitted)
+                    .sorted()
+                    .collect(Collectors.toList());
+            Boilerplate.writeOutputAsJSON(fields, request.response());
+        };
     }
 
     private Handler<HttpServerRequest> insertField() {
