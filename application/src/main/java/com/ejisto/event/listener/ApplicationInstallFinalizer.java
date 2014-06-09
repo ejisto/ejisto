@@ -27,6 +27,13 @@ import com.ejisto.event.def.ApplicationInstallFinalization;
 import com.ejisto.event.def.StatusBarMessage;
 import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
+import com.ejisto.modules.repository.ClassPoolRepository;
+import com.ejisto.util.IOUtils;
+import javassist.ClassPool;
+import javassist.LoaderClassPath;
+
+import java.net.MalformedURLException;
+import java.net.URLClassLoader;
 
 import static com.ejisto.util.GuiUtils.getMessage;
 
@@ -51,9 +58,19 @@ public class ApplicationInstallFinalizer implements ApplicationListener<Applicat
         final WebApplicationDescriptor descriptor = event.getDescriptor();
         final Container container = event.getTargetContainer();
         containerManager.deploy(descriptor, container);
+        initClassPool(descriptor);
         eventManager.publishEvent(new ApplicationDeployed(this, descriptor.getContextPath(), container.getId()));
         eventManager.publishEvent(new StatusBarMessage(this, getMessage("statusbar.installation.successful.message",
-                                                      descriptor.getContextPath()), false));
+                                                                        descriptor.getContextPath()), false));
+    }
+
+    private void initClassPool(WebApplicationDescriptor descriptor) {
+        try {
+            ClassPool classPool = ClassPoolRepository.getRegisteredClassPool(descriptor.getContextPath());
+            classPool.appendClassPath(new LoaderClassPath(new URLClassLoader(IOUtils.toUrlArray(descriptor))));
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override

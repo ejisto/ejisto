@@ -41,11 +41,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.util.visitor.CopyType.INCLUDE_ALL;
-import static com.ejisto.util.visitor.CopyType.INCLUDE_ONLY_MATCHING_RESOURCES;
-import static com.ejisto.util.visitor.CopyType.INCLUDE_ONLY_ROOT_MATCHING_RESOURCES;
+import static com.ejisto.util.visitor.CopyType.*;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.io.FilenameUtils.getName;
@@ -76,8 +73,6 @@ public final class IOUtils {
     public static void copyFullDirContent(Path srcPath, Path targetPath) {
         copyDirContent(srcPath, targetPath, FileMatchers.all(), null, INCLUDE_ALL);
     }
-
-
 
     private static void copyDirContent(Path srcDir, Path targetDir, FileMatcher matcher, final String copiedFilesPrefix,
                                        CopyType copyType) {
@@ -160,10 +155,8 @@ public final class IOUtils {
         return FileUtils.listFiles(dir, extensions, true);
     }
 
-    public static List<String> listJarFiles(String dir) {
-        return getAllFiles(new File(dir), jarExtension).stream()
-                .map(File::getAbsolutePath)
-                .collect(Collectors.toList());
+    public static Collection<File> listJarFiles(Path dir) {
+        return getAllFiles(dir.toFile(), jarExtension);
     }
 
     public static URL[] toUrlArray(WebApplicationDescriptor descriptor) throws MalformedURLException {

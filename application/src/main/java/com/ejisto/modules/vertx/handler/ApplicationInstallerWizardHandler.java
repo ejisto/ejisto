@@ -180,6 +180,7 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
         Optional.ofNullable(req.params().get("resources"))
                 .map(s -> s.split(","))
                 .ifPresent(a -> descriptor.setWhiteList(Arrays.asList(a)));
+
         try {
             PropertyChangeListener listener = e -> {
                 if(e.getPropertyName().equals(GUI_TASK_EXCEPTION_PROPERTY.getValue())) {

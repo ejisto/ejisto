@@ -22,11 +22,8 @@ package com.ejisto.modules.controller.wizard.installer.workers;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.executor.GuiTask;
-import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
-import javassist.ClassPool;
-import javassist.LoaderClassPath;
 import lombok.extern.log4j.Log4j;
 import org.codehaus.cargo.module.DescriptorElement;
 import org.codehaus.cargo.module.webapp.*;
@@ -121,9 +118,6 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
         URL[] descriptorEntries = toUrlArray(descriptor);
         ClassLoader loader = new URLClassLoader(
                 addServerLibs(descriptorEntries, containerHome + File.separator + "lib"));
-        String contextPath = descriptor.getContextPath();
-        ClassPool cp = ClassPoolRepository.getRegisteredClassPool(contextPath);
-        cp.appendClassPath(new LoaderClassPath(loader));
         forkJoinPool.invoke(
                 new LoadClassAction(new ArrayList<>(classNames), loader, descriptor, this, mockedFieldsRepository))
                 .forEach(descriptor::addField);

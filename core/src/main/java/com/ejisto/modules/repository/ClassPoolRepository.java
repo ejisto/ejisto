@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public final class ClassPoolRepository {
     private static final ClassPoolRepository INSTANCE = new ClassPoolRepository();
-    private final ConcurrentMap<String, ClassPool> dictionary;
+    private final ConcurrentMap<String, ClassPool> classPoolContainer;
 
     public static ClassPool getRegisteredClassPool(String context) {
         return INSTANCE.getValue(context);
@@ -43,14 +43,12 @@ public final class ClassPoolRepository {
     }
 
     private ClassPoolRepository() {
-        dictionary = new ConcurrentHashMap<>();
+        classPoolContainer = new ConcurrentHashMap<>();
     }
 
     private ClassPool getValue(String context) {
-        if (!dictionary.containsKey(context)) {
-            dictionary.putIfAbsent(context, new ClassPool(ClassPool.getDefault()));
-        }
-        return dictionary.get(context);
+        classPoolContainer.computeIfAbsent(context, ctx -> new ClassPool(ClassPool.getDefault()));
+        return classPoolContainer.get(context);
     }
 
 }
