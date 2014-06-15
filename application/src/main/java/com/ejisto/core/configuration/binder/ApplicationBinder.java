@@ -46,9 +46,6 @@ public class ApplicationBinder extends BinderModule {
         construct(WebApplicationLoader.class);
         construct(ErrorListener.class);
         construct(FieldsUpdateListener.class);
-        construct(ContainerInstaller.class);
-        construct(MockedFieldOperationListener.class);
-        construct(DialogManager.class);
         construct(WebApplicationScanner.class);
         construct(SessionRecorderManager.class);
         multibind(Service.class).to(ConstraintsVerifier.class);
@@ -63,11 +60,8 @@ public class ApplicationBinder extends BinderModule {
         multibind(Service.class).to(GUIEventHandler.class);
         multibind(ApplicationListener.class).to(ApplicationInstallFinalizer.class);
         multibind(ApplicationListener.class).to(CollectedDataNotifier.class);
-        multibind(ApplicationListener.class).to(ContainerInstaller.class);
-        multibind(ApplicationListener.class).to(DialogManager.class);
         multibind(ApplicationListener.class).to(ErrorListener.class);
         multibind(ApplicationListener.class).to(FieldsUpdateListener.class);
-        multibind(ApplicationListener.class).to(MockedFieldOperationListener.class);
         multibind(ApplicationListener.class).to(ServerController.class);
         multibind(ApplicationListener.class).to(SessionRecorderManager.class);
         multibind(ApplicationListener.class).to(WebApplicationLoader.class);

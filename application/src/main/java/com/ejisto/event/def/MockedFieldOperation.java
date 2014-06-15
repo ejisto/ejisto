@@ -20,7 +20,6 @@
 package com.ejisto.event.def;
 
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.gui.components.MockedFieldsEditorComponent;
 
 /**
  * Created by IntelliJ IDEA.
@@ -79,11 +78,6 @@ public class MockedFieldOperation extends BaseApplicationEvent {
     @Override
     public String getIconKey() {
         return operationType.getIcon();
-    }
-
-    @Override
-    public MockedFieldsEditorComponent getSource() {
-        return (MockedFieldsEditorComponent) super.getSource();
     }
 
     public OperationType getOperationType() {

@@ -20,106 +20,38 @@
 package com.ejisto.modules.gui;
 
 import com.ejisto.event.EventManager;
-import com.ejisto.event.def.ChangeServerStatus;
-import com.ejisto.event.def.ChangeServerStatus.Command;
-import com.ejisto.event.def.LogMessage;
 import com.ejisto.event.def.ShutdownRequest;
 import com.ejisto.modules.conf.SettingsManager;
-import com.ejisto.modules.executor.BackgroundTask;
-import com.ejisto.modules.executor.TaskManager;
-import com.ejisto.modules.repository.CollectedDataRepository;
-import com.ejisto.modules.repository.ContainersRepository;
-import com.ejisto.modules.repository.MockedFieldsRepository;
-import com.ejisto.modules.repository.WebApplicationRepository;
 
-import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Date;
 
-import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.util.GuiUtils.*;
+import static com.ejisto.constants.StringConstants.MAIN_TITLE;
+import static com.ejisto.util.GuiUtils.getMessage;
 
 public class Application extends javax.swing.JFrame {
 
     private static final long serialVersionUID = -3746366232127903518L;
     private final EventManager eventManager;
     private final SettingsManager settingsManager;
-    private final TaskManager taskManager;
-    private final MockedFieldsRepository mockedFieldsRepository;
-    private final ContainersRepository containersRepository;
-    private final WebApplicationRepository webApplicationRepository;
-    private final CollectedDataRepository collectedDataRepository;
 
     public Application(EventManager eventManager,
-                       SettingsManager settingsManager,
-                       TaskManager taskManager,
-                       MockedFieldsRepository mockedFieldsRepository,
-                       ContainersRepository containersRepository,
-                       WebApplicationRepository webApplicationRepository,
-                       CollectedDataRepository collectedDataRepository) {
+                       SettingsManager settingsManager) {
         this.eventManager = eventManager;
         this.settingsManager = settingsManager;
-        this.taskManager = taskManager;
-        this.mockedFieldsRepository = mockedFieldsRepository;
-        this.containersRepository = containersRepository;
-        this.webApplicationRepository = webApplicationRepository;
-        this.collectedDataRepository = collectedDataRepository;
     }
 
     public void init() {
-        setIconImage(getIcon("application.icon").getImage());
         setTitle(settingsManager.getValue(MAIN_TITLE));
-        setRootPane(new MainRootPane(mockedFieldsRepository,
-                                     collectedDataRepository,
-                                     containersRepository,
-                                     webApplicationRepository));
-        setMinimumSize(new Dimension(700, 500));
-        Dimension size = new Dimension(settingsManager.getIntValue(APPLICATION_WIDTH),
-                                       settingsManager.getIntValue(APPLICATION_HEIGHT));
-        setSize(size);
-        if (settingsManager.getBooleanValue(APPLICATION_MAXIMIZED)) {
-            setExtendedState(MAXIMIZED_BOTH);
-        }
-        setPreferredSize(size);
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                taskManager.addNewTask(new BackgroundTask<>(() -> {
-                    settingsManager.putValue(APPLICATION_WIDTH, Application.this.getWidth());
-                    settingsManager.putValue(APPLICATION_HEIGHT, Application.this.getHeight());
-                    return null;
-                }));
-
-            }
-        });
+        getContentPane().add(new JLabel(getMessage("main.application.text")));
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                saveSettings();
                 setVisible(false);
                 eventManager.publishEvent(new ShutdownRequest(this));
             }
         });
         pack();
     }
-
-    public void onServerStatusChange(ChangeServerStatus event) {
-        boolean shutdown = event.getCommand() == Command.SHUTDOWN;
-        if (shutdown) {
-            eventManager.publishEvent(new LogMessage(this, getMessage("default.server.shutdown.log", new Date()),
-                                                     event.getContainerId()));
-        }
-        getAction(START_CONTAINER.getValue()).setEnabled(shutdown);
-        getAction(STOP_CONTAINER.getValue()).setEnabled(!shutdown);
-    }
-
-    private void saveSettings() {
-        settingsManager.putValue(APPLICATION_WIDTH, getWidth());
-        settingsManager.putValue(APPLICATION_HEIGHT, getHeight());
-        settingsManager.putValue(APPLICATION_MAXIMIZED, getState() == MAXIMIZED_BOTH);
-    }
-
 }

@@ -22,15 +22,11 @@ package com.ejisto.core.launcher;
 import com.ejisto.core.classloading.SharedClassLoader;
 import com.ejisto.core.configuration.RootBundle;
 import lombok.extern.log4j.Log4j;
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.error.ErrorInfo;
 import se.jbee.inject.Injector;
 import se.jbee.inject.bootstrap.Bootstrap;
 
 import javax.swing.*;
-import java.util.logging.Level;
 
-import static com.ejisto.util.GuiUtils.getRootThrowable;
 import static se.jbee.inject.Dependency.dependency;
 
 /**
@@ -44,9 +40,7 @@ class Launcher {
     int launch() {
         try {
             Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-                showErrorDialog("Unexpected error",
-                                "Thread [" + t.getName() + "] failed with the following Exception", e);
-                Launcher.log.error("Unexpected exception", e);
+                Launcher.log.error(String.format("Unexpected exception on thread %s", t.getName()), e);
             });
             System.getProperties().list(System.out);
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -60,16 +54,9 @@ class Launcher {
             controller.startup();
             return 0;
         } catch (Exception e) {
-            showErrorDialog("Startup error", "Startup failed", e);
             log.error("startup failed", e);
             return -1;
         }
     }
 
-    private static void showErrorDialog(String title, String description, Throwable e) {
-        JXErrorPane.showDialog(null,
-                               new ErrorInfo(title, description, null, "SEVERE", getRootThrowable(e),
-                                             Level.SEVERE,
-                                             null));
-    }
 }

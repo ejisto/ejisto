@@ -26,13 +26,10 @@ import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.CollectedDataReceived;
 import com.ejisto.event.def.SessionRecorded;
 import com.ejisto.event.def.SessionRecorderStart;
-import com.ejisto.modules.controller.DialogController;
 import com.ejisto.modules.dao.entities.MockedField;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.local.LocalWebApplicationDescriptorDao;
 import com.ejisto.modules.gui.Application;
-import com.ejisto.modules.gui.components.MockedFieldsEditor;
-import com.ejisto.modules.gui.components.helper.FieldsEditorContext;
 import com.ejisto.modules.recorder.CollectedData;
 import com.ejisto.modules.repository.CollectedDataRepository;
 import com.ejisto.modules.repository.SettingsRepository;
@@ -47,12 +44,10 @@ import org.codehaus.cargo.module.DescriptorElement;
 import org.codehaus.cargo.module.webapp.*;
 import org.codehaus.cargo.module.webapp.elements.Filter;
 import org.codehaus.cargo.module.webapp.elements.FilterMapping;
-import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdom.JDOMException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -63,14 +58,10 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_HEIGHT;
-import static com.ejisto.modules.gui.components.EjistoDialog.DEFAULT_WIDTH;
-import static com.ejisto.util.GuiUtils.getIcon;
 import static com.ejisto.util.GuiUtils.getMessage;
 import static com.ejisto.util.IOUtils.*;
 import static javax.swing.JOptionPane.showInputDialog;
@@ -83,6 +74,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
  * Time: 8:16 AM
  */
 @Log4j
+@Deprecated
 public class SessionRecorderManager implements ApplicationListener<SessionRecorderStart> {
 
     private static final ConcurrentMap<String, Set<MockedField>> RECORDED_FIELDS = new ConcurrentHashMap<>();
@@ -94,7 +86,6 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     private final SettingsRepository settingsRepository;
     private final ApplicationEventDispatcher applicationEventDispatcher;
     private final CollectedDataRepository collectedDataRepository;
-    private final AtomicReference<DialogController> dialogController = new AtomicReference<>();
 
     public SessionRecorderManager(EventManager eventManager,
                                   Application application,
@@ -160,49 +151,31 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
                 log.warn("attempt to create httpHandler failed. An Handler has already been defined.");
             }
             log.debug("done.");
-            final MockedFieldsEditor editor = new MockedFieldsEditor(FieldsEditorContext.RECORD_FIELD, new ActionMap());
-            DialogController controller = DialogController.Builder.newInstance()
-                    .resizable(true)
-                    .withActions(new AbstractActionExt(getMessage("session.record.stop"), getIcon(
-                            "session.record.stop.icon")) {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            stopRecording(descriptor.getContextPath());
-                        }
-                    })
-                    .withContent(editor)
-                    .withHeader(getMessage("session.record.title"), getMessage("session.record.description"))
-                    .withIconKey("session.record.icon")
-                    .withParentFrame(application)
-                    .build();
-            if (dialogController.compareAndSet(null, controller)) {
-                applicationEventDispatcher.registerApplicationEventListener(
-                        new ApplicationListener<CollectedDataReceived>() {
-                            @Override
-                            public void onApplicationEvent(CollectedDataReceived event) {
-                                try {
-                                    CollectedData collectedData = event.getData();
-                                    String contextPath = collectedData.getContextPath();
-                                    Set<MockedField> fields = putIfAbsent(contextPath, RECORDED_FIELDS);
-                                    Set<CollectedData> data = putIfAbsent(contextPath, RECORDED_DATA);
-                                    fields.addAll(flattenAttributes(collectedData.getRequestAttributes()));
-                                    fields.addAll(flattenAttributes(collectedData.getSessionAttributes()));
-                                    replace(contextPath, RECORDED_FIELDS, fields);
-                                    data.add(collectedData);
-                                    replace(contextPath, RECORDED_DATA, data);
-                                    editor.setFields(new ArrayList<>(RECORDED_FIELDS.get(contextPath)));
-                                } catch (Exception e) {
-                                    SessionRecorderManager.log.error("got exception while collecting fields", e);
-                                }
-                            }
 
-                            @Override
-                            public Class<CollectedDataReceived> getTargetEventType() {
-                                return CollectedDataReceived.class;
+            applicationEventDispatcher.registerApplicationEventListener(
+                    new ApplicationListener<CollectedDataReceived>() {
+                        @Override
+                        public void onApplicationEvent(CollectedDataReceived event) {
+                            try {
+                                CollectedData collectedData = event.getData();
+                                String contextPath = collectedData.getContextPath();
+                                Set<MockedField> fields = putIfAbsent(contextPath, RECORDED_FIELDS);
+                                Set<CollectedData> data = putIfAbsent(contextPath, RECORDED_DATA);
+                                fields.addAll(flattenAttributes(collectedData.getRequestAttributes()));
+                                fields.addAll(flattenAttributes(collectedData.getSessionAttributes()));
+                                replace(contextPath, RECORDED_FIELDS, fields);
+                                data.add(collectedData);
+                                replace(contextPath, RECORDED_DATA, data);
+                            } catch (Exception e) {
+                                SessionRecorderManager.log.error("got exception while collecting fields", e);
                             }
-                        });
-                controller.show(true, new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-            }
+                        }
+
+                        @Override
+                        public Class<CollectedDataReceived> getTargetEventType() {
+                            return CollectedDataReceived.class;
+                        }
+                    });
         } catch (IOException | JDOMException e) {
             eventManager.publishEvent(new ApplicationError(this, ApplicationError.Priority.HIGH, e));
         }
@@ -233,44 +206,6 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
         }
         return new HashSet<>(values);
     }
-
-    private void stopRecording(String contextPath) {
-        tryToSave(contextPath);
-        DialogController controller = dialogController.get();
-        controller.hide();
-        dialogController.compareAndSet(controller, null);
-        httpServer.removeContext(contextPath);
-    }
-
-    private void tryToSave(final String contextPath) {
-        final Set<CollectedData> data = RECORDED_DATA.replace(contextPath, new HashSet<>());
-        if (CollectionUtils.isEmpty(data)) {
-            log.debug("Nothing to save, exiting");
-            return;
-        }
-        String name;
-        do {
-            name = showInputDialog(null, getMessage("session.record.save.as"),
-                                   new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date()));
-
-        } while (StringUtils.isEmpty(name) && !GuiUtils.showWarning(null, getMessage("warning.message")));
-
-        if (StringUtils.isNotEmpty(name)) {
-            final CollectedData collectedData;
-            if (data.size() > 1) {
-                final Stream<CollectedData> stream = data.stream();
-                CollectedData aggregated = CollectedData.empty(stream.findFirst().get().getRequestURI(), contextPath);
-                collectedData = stream.reduce(aggregated, CollectedData::join);
-            } else {
-                collectedData = data.iterator().next();
-            }
-            collectedDataRepository.saveRecordedSession(name, collectedData);
-
-            eventManager.publishEvent(
-                    new SessionRecorded(this, name, getMessage("session.recorded.status.message", name)));
-        }
-    }
-
 
     private WebApplicationDescriptor createTempWebApplicationDescriptor(WebApplicationDescriptor original) throws IOException, JDOMException {
         Path path = Files.createTempDirectory(original.getContextPath().replaceAll("/", "_"));
@@ -336,5 +271,39 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
 
         return GuiUtils.openFileSelectionDialog(parent, saveLastSelectionPath, fileChooser, LAST_OUTPUT_PATH,
                                                 settingsRepository);
+    }
+
+    private void stopRecording(String contextPath) {
+        tryToSave(contextPath);
+        httpServer.removeContext(contextPath);
+    }
+
+    private void tryToSave(final String contextPath) {
+        final Set<CollectedData> data = RECORDED_DATA.replace(contextPath, new HashSet<>());
+        if (CollectionUtils.isEmpty(data)) {
+            log.debug("Nothing to save, exiting");
+            return;
+        }
+        String name;
+        do {
+            name = showInputDialog(null, getMessage("session.record.save.as"),
+                                   new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date()));
+
+        } while (StringUtils.isEmpty(name) && !GuiUtils.showWarning(null, getMessage("warning.message")));
+
+        if (StringUtils.isNotEmpty(name)) {
+            final CollectedData collectedData;
+            if (data.size() > 1) {
+                final Stream<CollectedData> stream = data.stream();
+                CollectedData aggregated = CollectedData.empty(stream.findFirst().get().getRequestURI(), contextPath);
+                collectedData = stream.reduce(aggregated, CollectedData::join);
+            } else {
+                collectedData = data.iterator().next();
+            }
+            collectedDataRepository.saveRecordedSession(name, collectedData);
+
+            eventManager.publishEvent(
+                    new SessionRecorded(this, name, getMessage("session.recorded.status.message", name)));
+        }
     }
 }

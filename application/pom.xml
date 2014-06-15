@@ -128,14 +128,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.swinglabs</groupId>
-            <artifactId>swingx</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jgoodies</groupId>
-            <artifactId>forms</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
         </dependency>

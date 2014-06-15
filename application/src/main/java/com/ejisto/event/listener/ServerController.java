@@ -35,7 +35,6 @@ import lombok.extern.log4j.Log4j;
 
 import static com.ejisto.constants.StringConstants.DEFAULT_CONTAINER_ID;
 import static com.ejisto.modules.executor.TaskManager.createNewGuiTask;
-import static com.ejisto.util.GuiUtils.runOnEDT;
 import static java.lang.String.format;
 
 @Log4j
@@ -92,7 +91,6 @@ public class ServerController implements ApplicationListener<ChangeServerStatus>
                 log.info("done");
             }
             handleInstalledWebApplicationsStatus(started);
-            runOnEDT(() -> application.onServerStatusChange(event));
 
         } catch (NotInstalledException e) {
             log.error("server " + e.getId() + " is not installed.", e);

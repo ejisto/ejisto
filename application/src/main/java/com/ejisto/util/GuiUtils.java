@@ -21,38 +21,25 @@ package com.ejisto.util;
 
 import com.ejisto.constants.StringConstants;
 import com.ejisto.event.ApplicationEventDispatcher;
-import com.ejisto.event.ApplicationListener;
-import com.ejisto.event.def.ApplicationError;
 import com.ejisto.event.def.BaseApplicationEvent;
-import com.ejisto.modules.cargo.NotInstalledException;
-import com.ejisto.modules.dao.entities.Container;
 import com.ejisto.modules.dao.entities.MockedField;
-import com.ejisto.modules.executor.ErrorDescriptor;
-import com.ejisto.modules.gui.EjistoAction;
-import com.ejisto.modules.gui.components.ContainerTab;
-import com.ejisto.modules.gui.components.tree.node.FieldNode;
-import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.SettingsRepository;
-import com.ejisto.modules.repository.WebApplicationRepository;
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.ejisto.constants.StringConstants.LAST_FILESELECTION_PATH;
-import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 
 @Log4j
 public abstract class GuiUtils {
@@ -60,7 +47,6 @@ public abstract class GuiUtils {
     public static final AtomicReference<ApplicationEventDispatcher> EVENT_DISPATCHER = new AtomicReference<>();
     private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages");
     private static ActionMap actionMap = new ActionMap();
-    private static Font defaultFont;
 
     private GuiUtils() {
 
@@ -73,29 +59,18 @@ public abstract class GuiUtils {
                          window.getHeight());
     }
 
+    public static boolean showWarning(Component owner, String text, Object... values) {
+        return JOptionPane.showConfirmDialog(owner, getMessage(text, values), getMessage("confirmation.title"),
+                                             JOptionPane.YES_NO_OPTION,
+                                             JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION;
+    }
+
     public static String getMessage(String key, Object... values) {
         if (!MESSAGES.containsKey(key)) {
             return key;
         }
         String value = MESSAGES.getString(key);
         return MessageFormat.format(value, values);
-    }
-
-    public static <T extends BaseApplicationEvent> ImageIcon getIcon(T applicationEvent) {
-        return getIcon(applicationEvent.getIconKey());
-    }
-
-    public static ImageIcon getIcon(String key) {
-        if (!StringUtils.isNotBlank(key)) {
-            return null;
-        }
-        return new ImageIcon(GuiUtils.class.getResource(getMessage(key)));
-    }
-
-    public static boolean showWarning(Component owner, String text, Object... values) {
-        return JOptionPane.showConfirmDialog(owner, getMessage(text, values), getMessage("confirmation.title"),
-                                             JOptionPane.YES_NO_OPTION,
-                                             JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION;
     }
 
     public static void showErrorMessage(final Component owner, final String text) {
@@ -107,8 +82,13 @@ public abstract class GuiUtils {
 
     }
 
-    public static List<List<String>> asStringList(Collection<MockedField> fields, EditorColumnFormattingStrategy fillStrategy) {
-        return fields.stream().map(fillStrategy::format).collect(toList());
+    private static void synchronousRunInEDT(Runnable action) throws InvocationTargetException {
+        try {
+            SwingUtilities.invokeAndWait(action);
+        } catch (InterruptedException e) {
+            GuiUtils.log.error("action interrupted", e);
+            Thread.currentThread().interrupt();
+        }
     }
 
     public static synchronized void putAction(Action action) {
@@ -119,54 +99,12 @@ public abstract class GuiUtils {
         actionMap.put(key, action);
     }
 
-    public static synchronized <T extends BaseApplicationEvent> void putAction(EjistoAction<T> action) {
-        actionMap.put(action.getKey(), action);
-    }
-
-    public static synchronized Action getAction(String name) {
-        return actionMap.get(name);
-    }
-
-    public static synchronized ActionMap getActionMap() {
-        return actionMap;
-    }
-
-    public static void setDefaultFont(Font defaultFont) {
-        GuiUtils.defaultFont = defaultFont;
-    }
-
-    public static Font getDefaultFont() {
-        return defaultFont;
-    }
-
     public static String buildCommand(StringConstants commandPrefix, String containerId, String contextPath) {
         return containerId + commandPrefix.getValue() + contextPath;
     }
 
-    private static void synchronousRunInEDT(Runnable action) throws InvocationTargetException {
-        try {
-            SwingUtilities.invokeAndWait(action);
-        } catch (InterruptedException e) {
-            GuiUtils.log.error("action interrupted", e);
-            Thread.currentThread().interrupt();
-        }
-    }
-
     public static void runOnEDT(Runnable action) {
         SwingUtilities.invokeLater(action);
-    }
-
-    public static void setActionMap(ActionMap actionMap, JComponent component) {
-        fillActionMap(component.getActionMap(), actionMap);
-    }
-
-    public static void fillActionMap(ActionMap original, ActionMap target) {
-        ActionMap parent = target;
-        if (original.getParent() != null) {
-            parent = cloneActionMap(target);
-            parent.setParent(original.getParent());
-        }
-        original.setParent(parent);
     }
 
     private static ActionMap cloneActionMap(ActionMap original) {
@@ -180,36 +118,6 @@ public abstract class GuiUtils {
         return map;
     }
 
-    public static List<ContainerTab> getRegisteredContainers(ContainersRepository containersRepository,
-                                                             WebApplicationRepository webApplicationRepository) {
-        return containersRepository.loadContainers()
-                .stream()
-                .map(container -> buildContainerTab(container, webApplicationRepository))
-                .collect(toList());
-    }
-
-    public static List<com.ejisto.modules.dao.entities.Container> getActiveContainers(ContainersRepository containersRepository) {
-        return containersRepository.loadContainers();
-    }
-
-    public static com.ejisto.modules.dao.entities.Container loadContainer(ContainersRepository containersRepository, String id) {
-        try {
-            return containersRepository.loadContainer(id);
-        } catch (NotInstalledException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static ContainerTab buildContainerTab(Container container,
-                                                  WebApplicationRepository webApplicationRepository) {
-        return new ContainerTab(container.getDescription(), container.getId(), webApplicationRepository);
-    }
-
-    @FunctionalInterface
-    public interface EditorColumnFormattingStrategy {
-        public abstract List<String> format(MockedField row);
-    }
-
     public static Throwable getRootThrowable(Throwable in) {
         if (in.getCause() != null) {
             return getRootThrowable(in.getCause());
@@ -217,35 +125,8 @@ public abstract class GuiUtils {
         return in;
     }
 
-    public static void disableFocusPainting(JButton button) {
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(false);
-        button.setRolloverEnabled(true);
-        button.setFocusPainted(false);
-    }
-
-    public static Icon getErrorIcon(ErrorDescriptor.Category category) {
-        return getIcon(category.getIconKey());
-    }
-
     public static String encodeTreePath(String[] treePath) {
         return Arrays.stream(treePath).collect(joining(">"));
-    }
-
-    public static String encodeTreePath(String[] path, int from, int to) {
-        if (from >= to) {
-            throw new IllegalArgumentException("from: " + from + " to:" + to);
-        }
-        String[] target = new String[to - from];
-        System.arraycopy(path, 0, target, from, to - from);
-        return encodeTreePath(target);
-    }
-
-    public static void makeTransparent(JButton button) {
-        button.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        button.setBackground(new Color(255, 255, 255, 0));
-        button.setHideActionText(false);
-        disableFocusPainting(button);
     }
 
     public static File selectFile(Component parent,
@@ -279,25 +160,13 @@ public abstract class GuiUtils {
         }
     }
 
-    public static TreePath getNodePath(FieldNode node) {
-        Deque<FieldNode> path = new ArrayDeque<>();
-        path.add(node);
-        while ((node = (FieldNode) node.getParent()) != null) {
-            path.addFirst(node);
-        }
-        return new TreePath(path.toArray());
-    }
-
-    public static void publishError(Object source, Throwable e) {
-        publishEvent(new ApplicationError(source, ApplicationError.Priority.FATAL, e));
-    }
-
     public static void publishEvent(BaseApplicationEvent event) {
         ApplicationEventDispatcher.publish(event);
     }
 
-    public static <T extends BaseApplicationEvent> void registerApplicationEventListener(ApplicationListener<T> listener) {
-        EVENT_DISPATCHER.get().registerApplicationEventListener(listener);
+    @FunctionalInterface
+    public interface EditorColumnFormattingStrategy {
+        public abstract List<String> format(MockedField row);
     }
 
 }

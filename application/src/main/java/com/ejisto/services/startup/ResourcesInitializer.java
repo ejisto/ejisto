@@ -19,37 +19,26 @@
 
 package com.ejisto.services.startup;
 
-import com.ejisto.constants.StringConstants;
 import com.ejisto.core.ApplicationException;
 import com.ejisto.event.EventManager;
-import com.ejisto.event.def.*;
-import com.ejisto.event.def.ChangeServerStatus.Command;
+import com.ejisto.event.def.ApplicationError;
+import com.ejisto.event.def.LoadWebApplication;
 import com.ejisto.modules.dao.db.EmbeddedDatabaseManager;
-import com.ejisto.modules.executor.TaskManager;
-import com.ejisto.modules.gui.EjistoAction;
-import com.ejisto.modules.gui.components.Header;
-import com.ejisto.util.GuiUtils;
 import lombok.extern.log4j.Log4j;
-import org.jdesktop.swingx.JXHeader;
-import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 
-import java.awt.*;
 import java.io.File;
 import java.util.Arrays;
 
 import static com.ejisto.constants.StringConstants.*;
-import static com.ejisto.util.GuiUtils.putAction;
 
 @Log4j
 public class ResourcesInitializer extends BaseStartupService {
     private final EventManager eventManager;
     private final EmbeddedDatabaseManager dataSource;
-    private final TaskManager taskManager;
 
-    public ResourcesInitializer(EventManager eventManager, EmbeddedDatabaseManager dataSource, TaskManager taskManager) {
+    public ResourcesInitializer(EventManager eventManager, EmbeddedDatabaseManager dataSource) {
         this.eventManager = eventManager;
         this.dataSource = dataSource;
-        this.taskManager = taskManager;
     }
 
     @Override
@@ -62,8 +51,6 @@ public class ResourcesInitializer extends BaseStartupService {
         initDirectories(baseDir);
         initDb();
         initStoredWebApps();
-        initFonts();
-        initDefaultActions();
     }
 
     @Override
@@ -92,20 +79,20 @@ public class ResourcesInitializer extends BaseStartupService {
         System.setProperty("java.io.tmpdir", temp.getAbsolutePath());
     }
 
-    private void initDb() {
-        try {
-            dataSource.initDb(System.getProperty(DB_SCRIPT.getValue()));
-        } catch (Exception e) {
-            throw new ApplicationException(e);
-        }
-    }
-
     private void initDirectories(File... directories) {
         Arrays.stream(directories).forEach(directory -> {
             if (!directory.exists() && !directory.mkdirs()) {
                 eventManager.publishEventAndWait(new ApplicationError(this, ApplicationError.Priority.FATAL, null));
             }
         });
+    }
+
+    private void initDb() {
+        try {
+            dataSource.initDb(System.getProperty(DB_SCRIPT.getValue()));
+        } catch (Exception e) {
+            throw new ApplicationException(e);
+        }
     }
 
     private void initBaseDir(File baseDir) {
@@ -118,37 +105,5 @@ public class ResourcesInitializer extends BaseStartupService {
         LoadWebApplication event = new LoadWebApplication(this);
         event.setLoadStored(true);
         eventManager.publishEventAndWait(event);
-    }
-
-    private void initFonts() {
-
-        Font defaultFont = null;
-        Font baseFont;
-        Font bold = null;
-        try {
-            baseFont = Font.createFont(Font.TRUETYPE_FONT, Header.class.getResourceAsStream("/fonts/DejaVuSans.ttf"));
-            bold = Font.createFont(Font.TRUETYPE_FONT, Header.class.getResourceAsStream("/fonts/DejaVuSans-Bold.ttf"));
-            defaultFont = baseFont.deriveFont(10f);
-            bold = bold.deriveFont(Font.BOLD, 13f);
-
-        } catch (Exception e) {
-            log.error("unexpected error during Fonts initialization", e);
-        }
-
-        String a = JXHeader.uiClassID;//initialize JXHeader.class
-        log.debug("initializing JXHeader [" + a + "]");
-        LookAndFeelAddons.getAddon().loadDefaults(
-                new Object[]{"JXHeader.descriptionFont", defaultFont, "JXHeader.titleFont", bold, "JXTitledPanel.titleFont", bold, "JXHeader.background", Color.white});
-        GuiUtils.setDefaultFont(defaultFont);
-    }
-
-    private void initDefaultActions() {
-        putAction(new EjistoAction<>(new LoadWebApplication(this), true, taskManager));
-        putAction(new EjistoAction<>(new ShutdownRequest(this)));
-        putAction(new EjistoAction<>(
-                new ChangeServerStatus(this, StringConstants.DEFAULT_CONTAINER_ID.getValue(), Command.STARTUP)));
-        putAction(new EjistoAction<>(
-                new ChangeServerStatus(this, StringConstants.DEFAULT_CONTAINER_ID.getValue(), Command.SHUTDOWN)));
-        putAction(new EjistoAction<>(new DialogRequested(this, DialogRequested.DialogType.ABOUT)));
     }
 }
