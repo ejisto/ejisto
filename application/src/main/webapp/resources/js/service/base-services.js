@@ -24,6 +24,10 @@
      */
     var baseServices = angular.module('BaseServices', ['ui.bootstrap', 'knalli.angular-vertxbus', 'pascalprecht.translate']);
 
+    baseServices.config(['$httpProvider', function($httpProvider) {
+        $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    }]);
+
     baseServices.service("FieldService", function($http, HttpErrorHandler) {
         var callValidation = function(field, value, url) {
             return $http['put'](url, null, {
