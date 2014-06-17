@@ -2,6 +2,7 @@ package com.ejisto.services.startup;
 
 import com.ejisto.modules.vertx.VertxManager;
 import com.ejisto.modules.vertx.handler.ContextHandler;
+import com.ejisto.modules.vertx.handler.SecurityEnforcer;
 import lombok.extern.log4j.Log4j;
 import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.RouteMatcher;
@@ -43,7 +44,8 @@ public class VertxInitializer extends BaseStartupService {
         VertxManager.getWebSocketServer().bridge(new JsonObject().putString("prefix", "/eventbus"), permitted, permitted);
     }
 
-    private void configureHttpServer(HttpServer server) {RouteMatcher routeMatcher = new RouteMatcher();
+    private void configureHttpServer(HttpServer server) {
+        RouteMatcher routeMatcher = new SecurityEnforcer();
         handlers.forEach(h -> h.addRoutes(routeMatcher));
         server.setCompressionSupported(true)
                 .requestHandler(routeMatcher);
