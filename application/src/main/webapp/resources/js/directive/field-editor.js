@@ -20,7 +20,7 @@
 (function () {
     "use strict";
 
-    var fieldEditor = angular.module('FieldEditor', ['ui.bootstrap', 'pascalprecht.translate', 'sf.treeRepeat', 'support']);
+    var fieldEditor = angular.module('FieldEditor', ['ui.bootstrap', 'pascalprecht.translate', 'sf.treeRepeat']);
 
     fieldEditor.directive("fieldEditorChooser", function() {
         return {

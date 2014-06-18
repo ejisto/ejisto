@@ -32,6 +32,21 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>com.github.klieber</groupId>
+                <artifactId>phantomjs-maven-plugin</artifactId>
+                <version>0.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>install</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <version>1.9.2</version>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.github.searls</groupId>
                 <artifactId>jasmine-maven-plugin</artifactId>
                 <version>1.3.1.5</version>
@@ -44,6 +59,40 @@
                 </executions>
                 <configuration>
                     <jsSrcDir>${project.basedir}/src/main/webapp/resources/js/</jsSrcDir>
+                    <preloadSources>
+                        <source>lib/jquery-2.1.0.min.js</source>
+                        <source>lib/angular-file-upload-html5-shim-1.3.1.js</source>
+                        <source>lib/angular-1.2.18.min.js</source>
+                        <source>lib/angular-file-upload-1.3.1.js</source>
+                        <source>lib/ui-bootstrap-tpls-0.11.0.js</source>
+                        <source>lib/angular-translate-2.1.0.js</source>
+                        <source>lib/angular-translate-loader-url-2.1.0.js</source>
+                        <source>lib/angular-tree-repeat-module-0.0.1.js</source>
+                        <source>lib/angular-tree-repeat-0.0.1.js</source>
+                        <source>lib/angular-xeditable-0.1.8.js</source>
+                        <source>lib/sockjs-0.3.4.js</source>
+                        <source>lib/vertxbus-2.1.js</source>
+                        <source>lib/angular-vertxbus-0.5.0.js</source>
+                        <source>lib/lodash-2.4.1.js</source>
+                        <include>${project.basedir}/src/test/javascript/lib/angular-mocks-1.2.18.js</include>
+                    </preloadSources>
+                    <webDriverClassName>org.openqa.selenium.phantomjs.PhantomJSDriver</webDriverClassName>
+                    <webDriverCapabilities>
+                        <capability>
+                            <name>phantomjs.binary.path</name>
+                            <value>${phantomjs.binary}</value>
+                        </capability>
+                    </webDriverCapabilities>
+                    <sourceIncludes>
+                        <include>controller/*.js</include>
+                        <include>ng-app/*.js</include>
+                        <include>directive/*.js</include>
+                        <include>service/*.js</include>
+                    </sourceIncludes>
+                    <sourceExcludes>
+                        <exclude>lib/*.js</exclude>
+                        <exclude>lib/*.min.js</exclude>
+                    </sourceExcludes>
                 </configuration>
             </plugin>
             <plugin>
