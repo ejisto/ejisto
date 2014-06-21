@@ -57,15 +57,15 @@
     });
 
     index.controller('ErrorController', function($scope, $rootScope) {
-        $rootScope.$on('applicationError', function(message) {
+        $rootScope.$on('applicationError', function(event, message) {
             $scope.errorMessage = message;
         });
     });
 
     index.controller('MessageBarController', function($scope, vertxEventBusService) {
         $scope.message = 'main.header.description';
-        vertxEventBusService.on('StatusBarMessage', function(event) {
-            $scope.message = event.value;
+        vertxEventBusService.on('StatusBarMessage', function(statusBarMessage) {
+            $scope.message = statusBarMessage.message;
         });
     });
 
