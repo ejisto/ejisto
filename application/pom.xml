@@ -75,12 +75,18 @@
                         <source>lib/angular-vertxbus-0.5.0.js</source>
                         <source>lib/lodash-2.4.1.js</source>
                         <include>${project.basedir}/src/test/javascript/lib/angular-mocks-1.2.18.js</include>
+                        <include>${project.basedir}/src/test/javascript/lib/utils.js</include>
                     </preloadSources>
                     <webDriverClassName>org.openqa.selenium.phantomjs.PhantomJSDriver</webDriverClassName>
+
                     <webDriverCapabilities>
                         <capability>
                             <name>phantomjs.binary.path</name>
                             <value>${phantomjs.binary}</value>
+                        </capability>
+                        <capability>
+                            <name>phantomjs.cli.args</name>
+                            <value>--webdriver-logfile=${project.basedir}/target/phantomjs.log</value>
                         </capability>
                     </webDriverCapabilities>
                     <sourceIncludes>

@@ -27,25 +27,6 @@
 
         beforeEach(module("indexApplication"));
 
-        var scope, httpBackend, controller, rootScope;
-        var eventHandler = [];
-        var loadController = function(name, mocks) {
-            var baseMocks = {'$scope': scope};
-            var injectedMocks = angular.extend({}, baseMocks, mocks);
-            return controller(name, injectedMocks);
-        };
-        var initGlobalVariables = function($rootScope, $httpBackend, $controller) {
-            scope = $rootScope.$new();
-            httpBackend = $httpBackend;
-            controller = $controller;
-            rootScope = $rootScope;
-        };
-        var vertxEventBusService = {
-            on: function(name, fn) {
-                eventHandler[name] = fn;
-            },
-            send: jasmine.createSpy('send')
-        };
         describe("MenuController", function() {
             var MenuCtrl;
             beforeEach(inject(function($rootScope, $httpBackend, $controller) {
@@ -134,9 +115,9 @@
 
         describe("ContainersController", function() {
             var ContainersCtrl, modal,
-                ContainersService, q,
-                getRegisteredContainers,httpPromise,
-                startContainer, stopContainer;
+                    ContainersService, q,
+                    getRegisteredContainers,httpPromise,
+                    startContainer, stopContainer;
             beforeEach(inject(function($rootScope, $httpBackend, $controller, ContainerService, $q) {
                 initGlobalVariables($rootScope, $httpBackend, $controller);
                 q = $q;
@@ -179,10 +160,121 @@
                 expect(stopContainer).toHaveBeenCalledWith(container);
 
             });
+        });
 
+
+        describe("DownloadDefaultContainerController", function() {
+            var ctrl, ContainersService, q,
+                loadSupportedContainerTypes, httpPromise;
+            beforeEach(inject(function($rootScope, $httpBackend, $controller, ContainerService, $q, $log) {
+                initGlobalVariables($rootScope, $httpBackend, $controller);
+                q = $q;
+                ContainersService = ContainerService;
+                var deferred = q.defer();
+                deferred.resolve({});
+                httpPromise = jasmine.createSpyObj('httpPromise', ['success', 'error', 'then']);
+                loadSupportedContainerTypes = spyOn(ContainersService, 'loadSupportedContainerTypes').andReturn(httpPromise);
+                scope.$close = function() {};
+                scope.$dismiss = function() {};
+                spyOn(scope, '$close');
+                spyOn(scope, '$dismiss');
+                ctrl = Ejisto.controllers.index.DownloadDefaultContainerController(scope, ContainersService, $log);
+            }));
+
+            it("should define the download function", function() {
+                expect(angular.isFunction(scope.download)).toBeTruthy();
+            });
+
+            it("should load the supported container types", function() {
+                expect(loadSupportedContainerTypes.callCount).toEqual(1);
+                expect(httpPromise.success).toHaveBeenCalled();
+            });
+
+            it("should handle a successful download", function() {
+                spyOn(ContainersService, 'downloadAndInstall').andReturn(successPromise);
+                scope.containerDownloadData = {
+                    url: 'aaa',
+                    type: {
+                        cargoID: 'xxx'
+                    }
+                };
+                scope.download();
+                expect(ContainersService.downloadAndInstall).toHaveBeenCalledWith('xxx', 'aaa', true);
+                expect(scope.$close).toHaveBeenCalledWith(true);
+            });
+
+            it("should handle a failed (404) download", function() {
+                spyOn(ContainersService, 'downloadAndInstall').andReturn(errorPromise(404));
+                scope.containerDownloadData = {
+                    url: 'aaa',
+                    type: {
+                        cargoID: 'xxx'
+                    }
+                };
+                scope.download();
+                expect(ContainersService.downloadAndInstall).toHaveBeenCalledWith('xxx', 'aaa', true);
+                expect(scope.urlRequested).toBeTruthy();
+                expect(scope.$close).not.toHaveBeenCalled();
+                expect(scope.$dismiss).not.toHaveBeenCalled();
+            });
+
+            it("should handle a canceled download", function() {
+                spyOn(ContainersService, 'downloadAndInstall').andReturn(errorPromise(400));
+                scope.containerDownloadData = {
+                    url: 'aaa',
+                    type: {
+                        cargoID: 'xxx'
+                    }
+                };
+                scope.download();
+                expect(ContainersService.downloadAndInstall).toHaveBeenCalledWith('xxx', 'aaa', true);
+                expect(scope.urlRequested).not.toBeTruthy();
+                expect(scope.$close).not.toHaveBeenCalled();
+                expect(scope.$dismiss).toHaveBeenCalledWith('canceled');
+            });
 
         });
 
+        describe("InstalledApplicationsController", function() {
+            var ctrl, installedApplicationService, application, httpPromise;
+            beforeEach(inject(function($rootScope, $httpBackend, $controller, InstalledApplicationService) {
+                initGlobalVariables($rootScope, $httpBackend, $controller);
+                installedApplicationService = InstalledApplicationService;
+                httpPromise = jasmine.createSpyObj('httpPromise', ['success', 'error', 'then']);
+                spyOn(installedApplicationService, 'getInstalledWebApplications').andReturn(httpPromise);
+                spyOn(installedApplicationService, 'startApplication').andReturn(httpPromise);
+                spyOn(installedApplicationService, 'stopApplication').andReturn(httpPromise);
+                spyOn(installedApplicationService, 'deleteApplication').andReturn(httpPromise);
+                ctrl = loadController('InstalledApplicationsController', {
+                    'vertxEventBusService': vertxEventBusService,
+                    'InstalledApplicationService': installedApplicationService
+                });
+                application = {contextPath : "/ejisto-test", containerId:'001'};
+            }));
+
+            it("should be defined", function() {
+                expect(ctrl).not.toBeUndefined();
+            });
+
+            it("should load all the applications at startup", function() {
+                expect(installedApplicationService.getInstalledWebApplications).toHaveBeenCalled();
+            });
+
+            it("should handle the 'startApplication' request", function() {
+                scope.startApplication(application);
+                expect(installedApplicationService.startApplication).toHaveBeenCalledWith(application);
+            });
+
+            it("should handle the 'stopApplication' request", function() {
+                scope.stopApplication(application);
+                expect(installedApplicationService.stopApplication).toHaveBeenCalledWith(application);
+            });
+
+            it("should handle the 'deleteApplication' request", function() {
+                scope.deleteApplication(application);
+                expect(installedApplicationService.deleteApplication).toHaveBeenCalledWith(application);
+            });
+        });
 
     });
 

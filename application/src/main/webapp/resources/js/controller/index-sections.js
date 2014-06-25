@@ -139,7 +139,7 @@ Ejisto.controllers = Ejisto.controllers || {};
 
             module.controller('PropertiesEditorController', this.PropertiesEditorController);
             module.controller('ContainersController', this.ContainersController);
-            module.controller('InstalledApplicationController', this.InstalledApplicationsController);
+            module.controller('InstalledApplicationsController', this.InstalledApplicationsController);
         }
     };
 })();
