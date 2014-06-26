@@ -47,7 +47,7 @@
                 return $http.get('/fields/grouped').error(HttpErrorHandler.handle);
             },
             getFieldsByContextPath : function(contextPath) {
-                return $http.get('/fields/by-context-path', null, {
+                return $http.get('/fields/by-context-path', {
                     params: {
                         contextPath: contextPath
                     }
@@ -91,17 +91,6 @@
                     return field.element;
                 });
                 return $http.post('/application/new/'+sessionID+'/publish', fieldsToPublish).error(HttpErrorHandler.handle);
-            },
-            updateField: function(field, value, sessionID) {
-                var url = '/field/update' + (sessionID ? '/for/' + sessionID : '');
-                return $http['put'](url, null, {
-                    params: {
-                        'contextPath': field.contextPath,
-                        'className': field.className,
-                        'fieldName': field.fieldName,
-                        'newValue': value
-                    }
-                }).error(HttpErrorHandler.handle);
             }
         };
     });
