@@ -129,7 +129,6 @@
                 getRegisteredContainers = spyOn(ContainersService, 'getRegisteredContainers').andReturn(httpPromise);
                 startContainer = spyOn(ContainersService, 'startContainer').andReturn(httpPromise);
                 stopContainer = spyOn(ContainersService, 'stopContainer').andReturn(httpPromise);
-                //ContainersService = jasmine.createSpyObj('ContainersService', ['getRegisteredContainers', 'startContainer', 'stopContainer']);
                 ContainersCtrl = loadController('ContainersController', {
                     'vertxEventBusService': vertxEventBusService,
                     'ContainerService': ContainersService,
