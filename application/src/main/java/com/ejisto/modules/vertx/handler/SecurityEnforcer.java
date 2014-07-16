@@ -43,6 +43,7 @@ public class SecurityEnforcer extends RouteMatcher {
 
     static final String SECURITY_TOKEN = ")]}',\n";
     static final String XSRF_TOKEN = "XSRF-TOKEN";
+    static final String XSRF_TOKEN_HEADER = "X-"+XSRF_TOKEN;
     static final String X_REQUESTED_WITH = "X-Requested-With";
 
     private final String token;
@@ -66,7 +67,7 @@ public class SecurityEnforcer extends RouteMatcher {
             if (!isDevModeActive()) {
                 request.response().write(SECURITY_TOKEN);
             }
-            Optional<String> header = Optional.ofNullable(headers.get(XSRF_TOKEN))
+            Optional<String> header = Optional.ofNullable(headers.get(XSRF_TOKEN_HEADER))
                     .filter(token::equals);
             if(!header.isPresent()) {
                 Boilerplate.writeError(request, HttpResponseStatus.FORBIDDEN.code(), HttpResponseStatus.FORBIDDEN.reasonPhrase());
@@ -74,9 +75,8 @@ public class SecurityEnforcer extends RouteMatcher {
             }
         }
 
-        if("/".equals(request.path())) {
+        if("/index.html".equals(request.path())) {
             Cookie cookie = new DefaultCookie(XSRF_TOKEN, token);
-            cookie.setDomain("localhost");
             cookie.setPath("/");
             request.response().headers().set(HttpHeaders.SET_COOKIE, ServerCookieEncoder.encode(cookie));
         }

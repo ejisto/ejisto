@@ -64,7 +64,7 @@ public class SecurityEnforcerTest {
     public void testProductionHandle() throws Exception {
         MultiMap headers = new CaseInsensitiveMultiMap();
         headers.add(SecurityEnforcer.X_REQUESTED_WITH, "XMLHttpRequest");
-        headers.add(SecurityEnforcer.XSRF_TOKEN, NSA_PROOF_TOKEN);
+        headers.add(SecurityEnforcer.XSRF_TOKEN_HEADER, NSA_PROOF_TOKEN);
         when(serverRequest.headers()).thenReturn(headers);
         when(serverRequest.path()).thenReturn(PATH);
         System.setProperty(StringConstants.DEV_MODE.getValue(), "false");
@@ -77,7 +77,7 @@ public class SecurityEnforcerTest {
     public void testDevelopmentHandle() throws Exception {
         MultiMap headers = new CaseInsensitiveMultiMap();
         headers.add(SecurityEnforcer.X_REQUESTED_WITH, "XMLHttpRequest");
-        headers.add(SecurityEnforcer.XSRF_TOKEN, NSA_PROOF_TOKEN);
+        headers.add(SecurityEnforcer.XSRF_TOKEN_HEADER, NSA_PROOF_TOKEN);
         when(serverRequest.headers()).thenReturn(headers);
         when(serverRequest.path()).thenReturn(PATH);
         System.setProperty(StringConstants.DEV_MODE.getValue(), "true");
@@ -89,7 +89,7 @@ public class SecurityEnforcerTest {
     @Test
     public void testTokenCreation() throws Exception {
         MultiMap headers = new CaseInsensitiveMultiMap();
-        when(serverRequest.path()).thenReturn("/");
+        when(serverRequest.path()).thenReturn("/index.html");
         when(serverResponse.headers()).thenReturn(headers);
         System.setProperty(StringConstants.DEV_MODE.getValue(), "true");
         enforcer.handle(serverRequest);
@@ -97,7 +97,6 @@ public class SecurityEnforcerTest {
         assertTrue(headers.contains(HttpHeaders.SET_COOKIE));
         assertNotNull(headers.get(HttpHeaders.SET_COOKIE));
         Cookie cookie = new DefaultCookie(SecurityEnforcer.XSRF_TOKEN, NSA_PROOF_TOKEN);
-        cookie.setDomain("localhost");
         cookie.setPath("/");
         assertEquals(ServerCookieEncoder.encode(cookie), headers.get(HttpHeaders.SET_COOKIE));
     }
