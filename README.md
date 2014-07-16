@@ -1,7 +1,7 @@
 ejisto
 ======
 
-[![Build Status](https://travis-ci.org/ejisto/ejisto.png?branch=master)](https://travis-ci.org/ejisto/ejisto)
+[![Build Status](https://travis-ci.org/ejisto/ejisto.png?branch=master)](https://travis-ci.org/ejisto/ejisto) [ ![Download](https://api.bintray.com/packages/cbellone/generic/ejisto/images/download.png) ](https://bintray.com/cbellone/generic/ejisto/_latestVersion)
 
 What is ejisto?
 ---------------
