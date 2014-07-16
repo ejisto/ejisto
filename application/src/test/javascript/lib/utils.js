@@ -42,6 +42,10 @@ var vertxEventBusService = {
 var successPromise = {
     then: function(s, e) {
         s({});
+        return this;
+    },
+    success: function(s, e) {
+        return this.then(s,e);
     },
     error: function() {
         return {};

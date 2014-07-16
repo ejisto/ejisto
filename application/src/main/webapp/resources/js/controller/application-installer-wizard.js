@@ -24,12 +24,12 @@ Ejisto.controllers = Ejisto.controllers || {};
     "use strict";
     Ejisto.controllers.applicationInstaller = {
 
-        ApplicationInstaller: function ($scope, $filter, InstallApplicationService) {
+        ApplicationInstaller: function ($scope, $filter, InstallApplicationService, $window) {
             $scope.descriptor = {};
             $scope.progressIndicator = {};
             $scope.progressIndicator.loading = false;
             $scope.cancel = function () {
-                if (confirm($filter('translate')('wizard.quit.message'))) {
+                if ($window.confirm($filter('translate')('wizard.quit.message'))) {
                     $scope.$dismiss('canceled');
                 }
             };
