@@ -45,4 +45,9 @@ public class ObjectFactoryHandler implements ContextHandler {
         routeMatcher.get(CTX_GET_OBJECT_FACTORY.getValue(),
                          request -> Boilerplate.writeOutputAsJSON(objectFactoryDao.loadAll(), request.response()));
     }
+
+    @Override
+    public boolean isInternal() {
+        return true;
+    }
 }

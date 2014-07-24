@@ -49,11 +49,6 @@ public class LogMessage extends BaseApplicationEvent {
         return message;
     }
 
-    @Override
-    public boolean shouldRunOnEDT() {
-        return true;
-    }
-
     public String getContainerId() {
         return containerId;
     }

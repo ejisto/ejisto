@@ -64,6 +64,11 @@ public class DataCollectorHandler implements ContextHandler {
 
     }
 
+    @Override
+    public boolean isInternal() {
+        return true;
+    }
+
     private void initSession(HttpServerRequest request) {
         request.bodyHandler(buffer -> {
             String body = buffer.toString();

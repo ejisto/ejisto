@@ -48,4 +48,9 @@ public class CustomObjectFactoryHandler implements ContextHandler {
     private void loadCustomObjectFactories(HttpServerRequest req) {
         writeOutputAsJSON(customObjectFactoryRepository.getCustomObjectFactories(), req.response());
     }
+
+    @Override
+    public boolean isInternal() {
+        return true;
+    }
 }

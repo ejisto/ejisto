@@ -52,7 +52,4 @@ public abstract class BaseApplicationEvent extends EventObject {
         return getClass().getSimpleName();
     }
 
-    public boolean shouldRunOnEDT() {
-        return false;
-    }
 }

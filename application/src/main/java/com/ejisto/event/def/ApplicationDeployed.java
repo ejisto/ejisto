@@ -59,8 +59,4 @@ public class ApplicationDeployed extends BaseApplicationEvent {
         return containerId;
     }
 
-    @Override
-    public boolean shouldRunOnEDT() {
-        return true;
-    }
 }

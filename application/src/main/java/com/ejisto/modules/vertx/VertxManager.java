@@ -39,6 +39,7 @@ public final class VertxManager {
     private static final VertxManager INSTANCE = new VertxManager();
     private final Vertx vertx;
     private final AtomicReference<HttpServer> httpServer = new AtomicReference<>();
+    private final AtomicReference<HttpServer> internalServer = new AtomicReference<>();
     private final AtomicReference<SockJSServer> webSocketServer = new AtomicReference<>();
 
     private VertxManager() {
@@ -54,6 +55,15 @@ public final class VertxManager {
         return server;
     }
 
+    private HttpServer initInternalHttpServer() {
+        HttpServer server = internalServer.get();
+        if(server == null) {
+            internalServer.compareAndSet(null, vertx.createHttpServer());
+            return internalServer.get();
+        }
+        return server;
+    }
+
     private SockJSServer initWebSocketServer() {
         SockJSServer server = webSocketServer.get();
         if(server == null) {
@@ -65,6 +75,10 @@ public final class VertxManager {
 
     public static HttpServer getHttpServer() {
         return INSTANCE.initHttpServer();
+    }
+
+    public static HttpServer getInternalHttpServer() {
+        return INSTANCE.initInternalHttpServer();
     }
 
     public static SockJSServer getWebSocketServer() {

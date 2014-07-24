@@ -26,7 +26,6 @@ import com.ejisto.modules.executor.TaskManager;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.collections4.CollectionUtils;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -114,15 +113,9 @@ public class ApplicationEventDispatcher {
     @SuppressWarnings("unchecked")
     private void notifyListenersFor(Class<BaseApplicationEvent> eventClass, final BaseApplicationEvent applicationEvent) {
         List<ApplicationListener<? extends BaseApplicationEvent>> listeners = registeredListeners.get(eventClass);
-        if (CollectionUtils.isEmpty(listeners)) {
-            return;
-        }
-        for (final ApplicationListener listener : listeners) {
-            log.trace("forwarding event to listener " + listener);
-            if (applicationEvent.shouldRunOnEDT()) {
-                SwingUtilities.invokeLater(() -> listener.onApplicationEvent(applicationEvent));
-            } else {
-                //event that could be handled in a multi threaded context
+        if (!CollectionUtils.isEmpty(listeners)) {
+            for (final ApplicationListener listener : listeners) {
+                log.trace("forwarding event to listener " + listener);
                 listener.onApplicationEvent(applicationEvent);
             }
         }

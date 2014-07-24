@@ -21,6 +21,7 @@ package com.ejisto.event.def;
 
 import com.ejisto.util.WebAppContextStatusCommand;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Created by IntelliJ IDEA.
@@ -29,6 +30,7 @@ import lombok.Data;
  * Time: 7:45 PM
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class ChangeWebAppStatus extends BaseApplicationEvent {
 
     private final String containerId;

@@ -51,6 +51,11 @@ public class MockedFieldHandler implements ContextHandler {
                     .get(CTX_GET_MOCKED_FIELD.getValue(), this::getExistingField);
     }
 
+    @Override
+    public boolean isInternal() {
+        return true;
+    }
+
     private void getNewlyCreatedFields(HttpServerRequest request) {
         String result = MockedFieldsJSONUtil.encodeMockedFields(mockedFieldsRepository.getRecentlyCreatedFields());
         Boilerplate.writeOutput(result, request.response());

@@ -11,7 +11,10 @@ import org.vertx.java.core.json.JsonObject;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
+import static com.ejisto.constants.StringConstants.HTTP_LISTEN_PORT;
+import static com.ejisto.util.IOUtils.findFirstAvailablePort;
 import static java.net.InetAddress.getLoopbackAddress;
 
 /**
@@ -22,6 +25,8 @@ import static java.net.InetAddress.getLoopbackAddress;
  */
 @Log4j
 public class VertxInitializer extends BaseStartupService {
+
+    private final static Predicate<ContextHandler> IS_INTERNAL = ContextHandler::isInternal;
 
     private final Collection<ContextHandler> handlers;
 
@@ -34,9 +39,13 @@ public class VertxInitializer extends BaseStartupService {
         final HttpServer server = VertxManager.getHttpServer();
         configureHttpServer(server);
         configureWebSocketServer();
-        server.listen(6789, getLoopbackAddress().getHostAddress());
-        //int port = findFirstAvailablePort(1706);
-        //System.setProperty(StringConstants.HTTP_LISTEN_PORT.getValue(), String.valueOf(port));
+        final String hostAddress = getLoopbackAddress().getHostAddress();
+        server.listen(6789, hostAddress);
+        final HttpServer internalServer = VertxManager.getInternalHttpServer();
+        configureInternalHttpServer(internalServer);
+        int port = findFirstAvailablePort(1706);
+        internalServer.listen(port, hostAddress);
+        System.setProperty(HTTP_LISTEN_PORT.getValue(), String.valueOf(port));
     }
 
     private void configureWebSocketServer() {
@@ -47,8 +56,17 @@ public class VertxInitializer extends BaseStartupService {
     }
 
     private void configureHttpServer(HttpServer server) {
-        RouteMatcher routeMatcher = new SecurityEnforcer();
-        handlers.forEach(h -> h.addRoutes(routeMatcher));
+        fillWithRouteMatchers(server, new SecurityEnforcer(), IS_INTERNAL.negate());
+    }
+
+    private void configureInternalHttpServer(HttpServer server) {
+        fillWithRouteMatchers(server, new RouteMatcher(), IS_INTERNAL);
+    }
+
+    private void fillWithRouteMatchers(HttpServer server, RouteMatcher routeMatcher, Predicate<ContextHandler> filter) {
+        handlers.stream()
+                .filter(filter)
+                .forEach(h -> h.addRoutes(routeMatcher));
         server.setCompressionSupported(true)
                 .requestHandler(routeMatcher);
     }

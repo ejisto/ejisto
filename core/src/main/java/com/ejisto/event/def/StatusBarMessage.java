@@ -53,8 +53,4 @@ public class StatusBarMessage extends BaseApplicationEvent {
         return error;
     }
 
-    @Override
-    public boolean shouldRunOnEDT() {
-        return true;
-    }
 }
