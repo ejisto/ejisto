@@ -84,10 +84,13 @@ public final class Boilerplate {
 
 
     public static <T> void writeOutputAsJSON(T output, HttpServerResponse response) {
-        String result = JSONUtil.encode(output);
-        response.putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(result.length()))
+        writeOutput(JSONUtil.encode(output), response);
+    }
+
+    public static void writeOutput(String output, HttpServerResponse response) {
+        response.putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(output.length()))
                 .putHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-                .write(result)
+                .write(output)
                 .end();
     }
 

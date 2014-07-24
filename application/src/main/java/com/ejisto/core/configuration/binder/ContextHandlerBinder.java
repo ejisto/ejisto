@@ -20,6 +20,7 @@
 package com.ejisto.core.configuration.binder;
 
 import com.ejisto.modules.vertx.handler.*;
+import com.ejisto.modules.vertx.handler.internal.*;
 import com.ejisto.modules.vertx.handler.service.ContainerService;
 import com.ejisto.modules.vertx.handler.service.FieldService;
 import com.ejisto.modules.vertx.handler.service.InstalledWebApplicationService;
@@ -41,5 +42,10 @@ public class ContextHandlerBinder extends BinderModule {
         multibind(ContextHandler.class).to(InstalledWebApplicationService.class);
         multibind(ContextHandler.class).to(ContainerService.class);
         multibind(ContextHandler.class).to(ApplicationInstallerWizardHandler.class);
+        multibind(ContextHandler.class).to(CustomObjectFactoryHandler.class);
+        multibind(ContextHandler.class).to(DataCollectorHandler.class);
+        multibind(ContextHandler.class).to(MockedFieldHandler.class);
+        multibind(ContextHandler.class).to(ObjectFactoryHandler.class);
+        multibind(ContextHandler.class).to(SettingHandler.class);
     }
 }

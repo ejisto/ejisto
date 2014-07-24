@@ -43,7 +43,7 @@ import static java.util.stream.Collectors.toList;
  * Time: 7:51 PM
  */
 @Log4j
-public final class MockedFieldsRepository extends ExternalizableService<MockedFieldsDao> {
+public class MockedFieldsRepository extends ExternalizableService<MockedFieldsDao> {
 
     private static final Function<MockedField, MockedField> CONVERTER = (MockedFieldDecorator::from);
 

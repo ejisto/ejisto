@@ -17,22 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.vertx.handler;
+package com.ejisto.modules.factory.impl;
 
-import org.vertx.java.core.http.RouteMatcher;
+import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.modules.repository.ObjectFactoryRepository;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/21/14
- * Time: 7:54 AM
+ * Date: 7/23/14
  */
-public interface ContextHandler {
+public class FakeCollectionFactory<T> extends CollectionFactory<T> {
 
-    void addRoutes(RouteMatcher routeMatcher);
-
-    default boolean isInternal() {
-        return false;
+    public FakeCollectionFactory(Class<T> expectedResult,
+                                 MockedFieldsRepository mockedFieldsRepository,
+                                 ObjectFactoryRepository objectFactoryRepository) {
+        super(mockedFieldsRepository, objectFactoryRepository);
     }
 
 }

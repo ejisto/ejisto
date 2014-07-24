@@ -35,6 +35,8 @@ public class VertxInitializer extends BaseStartupService {
         configureHttpServer(server);
         configureWebSocketServer();
         server.listen(6789, getLoopbackAddress().getHostAddress());
+        //int port = findFirstAvailablePort(1706);
+        //System.setProperty(StringConstants.HTTP_LISTEN_PORT.getValue(), String.valueOf(port));
     }
 
     private void configureWebSocketServer() {

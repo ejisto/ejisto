@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.dao.remote;
 
+import com.ejisto.constants.StringConstants;
 import com.ejisto.modules.recorder.CollectedData;
 import lombok.extern.java.Log;
 
@@ -29,6 +30,7 @@ import java.util.logging.Level;
 
 import static com.ejisto.modules.recorder.CollectedData.buildKey;
 import static com.ejisto.modules.web.util.JSONUtil.decode;
+import static java.lang.String.format;
 
 /**
  * Created by IntelliJ IDEA.
@@ -46,17 +48,21 @@ public class RemoteCollectedDataDao extends BaseRemoteDao {
 
     public void sendCollectedData(CollectedData data, String contextPath) {
         if (!data.isEmpty()) {
-            remoteCall(encodeRequest(data), contextPath + "/record", "POST");
+            remoteCall(encodeRequest(data), composeDestinationContextPath(contextPath) + "/record", "POST");
         }
     }
 
     public CollectedData getCollectedDataFor(HttpServletRequest request) {
         Map<String, String[]> parameters = new TreeMap<String, String[]>(request.getParameterMap());
-        return decode(remoteCall(encodeRequest(buildKey(parameters, false)), request.getContextPath() + "/load",
+        return decode(remoteCall(encodeRequest(buildKey(parameters, false)), composeDestinationContextPath(request.getContextPath()) + "/load",
                                  "GET"), CollectedData.class);
     }
 
     public void registerSession(String id, String contextPath) {
-        remoteCall(id, contextPath, "PUT");
+        remoteCall(id, composeDestinationContextPath(contextPath) + "/init", "PUT");
+    }
+
+    public static String composeDestinationContextPath(String applicationContextPath) {
+        return format("%s/%s", StringConstants.CTX_SESSION_RECORDER, applicationContextPath);
     }
 }

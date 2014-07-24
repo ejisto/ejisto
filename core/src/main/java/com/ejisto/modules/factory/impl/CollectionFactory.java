@@ -26,6 +26,7 @@ import com.ejisto.modules.dao.entities.MockedFieldImpl;
 import com.ejisto.modules.factory.AbstractContainerFactory;
 import com.ejisto.modules.factory.ObjectFactory;
 import com.ejisto.modules.repository.MockedFieldsRepository;
+import com.ejisto.modules.repository.ObjectFactoryRepository;
 import com.ejisto.modules.web.util.ConfigurationManager;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,6 +53,12 @@ public class CollectionFactory<Y> extends AbstractContainerFactory<Collection<Y>
     public CollectionFactory() {
         super();
         this.mockedFieldsRepository = new MockedFieldsRepository(null);
+    }
+
+    protected CollectionFactory(MockedFieldsRepository mockedFieldsRepository,
+                                ObjectFactoryRepository objectFactoryRepository) {
+        super(objectFactoryRepository);
+        this.mockedFieldsRepository = mockedFieldsRepository;
     }
 
     @Override

@@ -35,13 +35,10 @@ public final class EjistoProxyFactory {
         this.mockedFieldsRepository = new MockedFieldsRepository(null);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T proxyClass(Class<T> target, String contextPath) {
-        Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(target);
-        enhancer.setCallback(new EjistoProxy(mockedFieldsRepository.load(contextPath, target.getName())));
-        return (T) enhancer.create();
+        return proxyClass(target, contextPath, mockedFieldsRepository);
     }
+
 
     @SuppressWarnings("unchecked")
     public <T> T proxyClass(String targetClassName, String contextPath) throws ClassNotFoundException {
@@ -50,5 +47,13 @@ public final class EjistoProxyFactory {
 
     public <T> T proxyClass(Class<T> target, MockedField mockedField) {
         return proxyClass(target, mockedField.getContextPath());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T proxyClass(Class<T> target, String contextPath, MockedFieldsRepository mockedFieldsRepository) {
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(target);
+        enhancer.setCallback(new EjistoProxy(mockedFieldsRepository.load(contextPath, target.getName())));
+        return (T) enhancer.create();
     }
 }

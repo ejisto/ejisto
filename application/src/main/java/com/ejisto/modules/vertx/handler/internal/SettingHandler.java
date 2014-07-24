@@ -17,22 +17,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.vertx.handler;
+package com.ejisto.modules.vertx.handler.internal;
 
+import com.ejisto.modules.dao.SettingsDao;
+import com.ejisto.modules.vertx.handler.ContextHandler;
 import org.vertx.java.core.http.RouteMatcher;
+
+import static com.ejisto.constants.StringConstants.CTX_GET_SETTINGS;
+import static com.ejisto.modules.vertx.handler.Boilerplate.writeOutputAsJSON;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/21/14
- * Time: 7:54 AM
+ * Date: 7/22/14
+ * Time: 8:10 AM
  */
-public interface ContextHandler {
+public class SettingHandler implements ContextHandler {
 
-    void addRoutes(RouteMatcher routeMatcher);
+    private final SettingsDao settingsDao;
 
-    default boolean isInternal() {
-        return false;
+    public SettingHandler(SettingsDao settingsDao) {
+        this.settingsDao = settingsDao;
     }
 
+    @Override
+    public void addRoutes(RouteMatcher routeMatcher) {
+        routeMatcher.get(CTX_GET_SETTINGS.getValue(),
+                         request -> writeOutputAsJSON(settingsDao.loadAll(), request.response()));
+    }
+
+    @Override
+    public boolean isInternal() {
+        return true;
+    }
 }

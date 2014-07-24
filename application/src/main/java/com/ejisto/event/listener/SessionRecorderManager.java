@@ -33,8 +33,6 @@ import com.ejisto.modules.gui.Application;
 import com.ejisto.modules.recorder.CollectedData;
 import com.ejisto.modules.repository.CollectedDataRepository;
 import com.ejisto.modules.repository.SettingsRepository;
-import com.ejisto.modules.web.HTTPServer;
-import com.ejisto.modules.web.handler.DataCollectorHandler;
 import com.ejisto.util.GuiUtils;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -82,7 +80,6 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     private final EventManager eventManager;
     private final Application application;
     private final LocalWebApplicationDescriptorDao webApplicationDescriptorDao;
-    private final HTTPServer httpServer;
     private final SettingsRepository settingsRepository;
     private final ApplicationEventDispatcher applicationEventDispatcher;
     private final CollectedDataRepository collectedDataRepository;
@@ -90,14 +87,12 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
     public SessionRecorderManager(EventManager eventManager,
                                   Application application,
                                   LocalWebApplicationDescriptorDao webApplicationDescriptorDao,
-                                  HTTPServer httpServer,
                                   SettingsRepository settingsRepository,
                                   ApplicationEventDispatcher applicationEventDispatcher,
                                   CollectedDataRepository collectedDataRepository) {
         this.eventManager = eventManager;
         this.application = application;
         this.webApplicationDescriptorDao = webApplicationDescriptorDao;
-        this.httpServer = httpServer;
         this.settingsRepository = settingsRepository;
         this.applicationEventDispatcher = applicationEventDispatcher;
         this.collectedDataRepository = collectedDataRepository;
@@ -147,11 +142,6 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
             final WebApplicationDescriptor descriptor = createTempWebApplicationDescriptor(webApplicationDescriptor);
             zipDirectory(new File(descriptor.getDeployablePath()),
                          FilenameUtils.normalize(outputDir.getAbsolutePath() + descriptor.getContextPath() + ".war"));
-            if (!httpServer.createContext(descriptor.getContextPath(), new DataCollectorHandler(eventManager))) {
-                log.warn("attempt to create httpHandler failed. An Handler has already been defined.");
-            }
-            log.debug("done.");
-
             applicationEventDispatcher.registerApplicationEventListener(
                     new ApplicationListener<CollectedDataReceived>() {
                         @Override
@@ -275,7 +265,6 @@ public class SessionRecorderManager implements ApplicationListener<SessionRecord
 
     private void stopRecording(String contextPath) {
         tryToSave(contextPath);
-        httpServer.removeContext(contextPath);
     }
 
     private void tryToSave(final String contextPath) {

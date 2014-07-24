@@ -17,22 +17,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ejisto.modules.vertx.handler;
+package com.ejisto.modules.vertx.handler.internal;
 
+import com.ejisto.modules.dao.ObjectFactoryDao;
+import com.ejisto.modules.vertx.handler.Boilerplate;
+import com.ejisto.modules.vertx.handler.ContextHandler;
 import org.vertx.java.core.http.RouteMatcher;
+
+import static com.ejisto.constants.StringConstants.CTX_GET_OBJECT_FACTORY;
 
 /**
  * Created by IntelliJ IDEA.
  * User: celestino
- * Date: 3/21/14
- * Time: 7:54 AM
+ * Date: 7/22/14
+ * Time: 8:03 AM
  */
-public interface ContextHandler {
+public class ObjectFactoryHandler implements ContextHandler {
 
-    void addRoutes(RouteMatcher routeMatcher);
+    private final ObjectFactoryDao objectFactoryDao;
 
-    default boolean isInternal() {
-        return false;
+    public ObjectFactoryHandler(ObjectFactoryDao objectFactoryDao) {
+        this.objectFactoryDao = objectFactoryDao;
     }
 
+    @Override
+    public void addRoutes(RouteMatcher routeMatcher) {
+        routeMatcher.get(CTX_GET_OBJECT_FACTORY.getValue(),
+                         request -> Boilerplate.writeOutputAsJSON(objectFactoryDao.loadAll(), request.response()));
+    }
 }

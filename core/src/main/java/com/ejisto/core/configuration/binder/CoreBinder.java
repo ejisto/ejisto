@@ -29,9 +29,6 @@ import com.ejisto.modules.cargo.logging.EventOutputStream;
 import com.ejisto.modules.conf.SettingsManager;
 import com.ejisto.modules.executor.TaskManager;
 import com.ejisto.modules.repository.*;
-import com.ejisto.modules.web.HTTPServer;
-import com.ejisto.modules.web.RemoteRequestHandler;
-import com.ejisto.modules.web.handler.*;
 import se.jbee.inject.bind.BinderModule;
 
 /**
@@ -47,12 +44,6 @@ public class CoreBinder extends BinderModule {
         bind(ContainerManager.class).to(CargoManager.class);
         construct(ApplicationEventDispatcher.class);
         construct(SharedClassLoader.class);
-        multibind(RemoteRequestHandler.class).to(DefaultHandler.class);
-        multibind(RemoteRequestHandler.class).to(ObjectFactoryHandler.class);
-        multibind(RemoteRequestHandler.class).to(MockedFieldRequestHandler.class);
-        multibind(RemoteRequestHandler.class).to(CustomObjectFactoryHandler.class);
-        multibind(RemoteRequestHandler.class).to(SettingsHandler.class);
-        construct(HTTPServer.class);
         construct(MockedFieldsRepository.class);
         construct(ClassPoolRepository.class);
         construct(ContainersRepository.class);
