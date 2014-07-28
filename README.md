@@ -36,3 +36,53 @@ After that, you can start the embedded Servlet Container instance; then ejisto r
 
 
 ![how it works](http://4.bp.blogspot.com/-WAjUeQOE5hA/T3OArUNqifI/AAAAAAAAADU/PM6r_YAVFAg/s1600/classloading-web.png)
+
+May I try it?
+-----------------
+Of course! You can either download the latest release or the source code from github.
+
+### Prerequisites
+The Java runtime environment (JRE) **version 8** or later is required to start the application. You can download it from [java.com](http://java.com).
+To check the version of your JRE, you can use the following command on your favourite shell:
+
+```
+$ java -version
+```
+
+Ejisto should run on all systems already supported by the JRE. However, at the moment it is developed and tested only on [Slackware Linux](http://www.slackware.com). 
+Should you have problems on other systems, please create an issue describing what actually happened (an attached log file would be really helpful)
+
+### Download and launch the latest release
+The latest release can be found on the [bintray](https://bintray.com/cbellone/generic/ejisto/_latestVersion) repository.
+After you downloaded and unzipped the application archive, launch the following command, depending on your platform:
+
+linux / mac (?):
+
+```
+$ /your-installation-path/ejisto/ejisto.sh
+```
+
+windows:
+
+```
+> C:\your-installation-path\ejisto\ejisto.bat
+```
+
+### Build from sources
+Please note that a JDK 8+ and [Apache Maven](http://maven.apache.org) are required in order to build and run the application.
+After cloning ejisto's repository, try to build the application:
+
+```
+$ mvn -am -pl application clean install
+```
+
+
+and then launch the application:
+
+```
+$ cd application
+$ mvn exec:java
+```
+____
+
+Of course, all registered names are Copyright of their respective owners. 
