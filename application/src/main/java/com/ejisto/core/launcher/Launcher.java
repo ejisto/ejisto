@@ -27,6 +27,7 @@ import se.jbee.inject.bootstrap.Bootstrap;
 
 import javax.swing.*;
 
+import static java.lang.String.format;
 import static se.jbee.inject.Dependency.dependency;
 
 /**
@@ -39,10 +40,8 @@ import static se.jbee.inject.Dependency.dependency;
 class Launcher {
     int launch() {
         try {
-            Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-                Launcher.log.error(String.format("Unexpected exception on thread %s", t.getName()), e);
-            });
-            System.getProperties().list(System.out);
+            Thread.setDefaultUncaughtExceptionHandler((t, e) -> log.error(format("Unexpected exception on thread %s", t.getName()), e));
+            System.getProperties().forEach((k,v) -> System.out.println(k +"="+v));
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             log.info("Starting Ejisto...");
             log.info("setting dynamic ClassLoader");

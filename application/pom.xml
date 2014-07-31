@@ -104,7 +104,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -116,11 +115,14 @@
                 <configuration>
                     <executable>java</executable>
                     <arguments>
+                        <argument>-Dejisto.dev.mode=true</argument>
+                        <argument>-Dejisto.agent.jar.path=${project.basedir}/../agent/target/ejisto-agent-${project.version}.jar</argument>
                         <argument>-classpath</argument>
                         <classpath />
                         <argument>com.ejisto.core.launcher.Main</argument>
                     </arguments>
-                    <workingDirectory>${java.io.tmpdir}</workingDirectory>
+                    <workingDirectory>${project.build.directory}</workingDirectory>
+                    <classpathScope>compile</classpathScope>
                 </configuration>
             </plugin>
             <plugin>
