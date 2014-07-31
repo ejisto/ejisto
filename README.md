@@ -77,12 +77,17 @@ $ mvn -am -pl application clean install
 ```
 
 
-and then launch the application:
+launch the application:
 
 ```
 $ cd application
-$ mvn exec:java
+$ mvn exec:exec
 ```
+
+and then open the following URL with your favourite browser
+
+[http://localhost:6789](http://localhost:6789)
+
 ____
 
 Of course, all registered names are Copyright of their respective owners. 
