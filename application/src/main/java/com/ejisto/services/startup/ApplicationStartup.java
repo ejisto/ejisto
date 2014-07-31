@@ -20,11 +20,9 @@
 package com.ejisto.services.startup;
 
 import com.ejisto.modules.gui.Application;
-import lombok.extern.log4j.Log4j;
 
 import static com.ejisto.util.GuiUtils.centerOnScreen;
 
-@Log4j
 public class ApplicationStartup extends BaseStartupService {
 
     private final Application application;
@@ -35,7 +33,6 @@ public class ApplicationStartup extends BaseStartupService {
 
     @Override
     public void execute() {
-        log.info("executing ApplicationStartup");
         application.init();
         centerOnScreen(application);
         application.setVisible(true);

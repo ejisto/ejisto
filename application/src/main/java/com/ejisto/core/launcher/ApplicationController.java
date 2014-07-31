@@ -47,10 +47,11 @@ public class ApplicationController implements ApplicationListener<ShutdownReques
         eventDispatcher.registerApplicationEventListener(this);
         log.debug("invoking startup services...");
         startupServices.stream().forEach(Service::execute);
+
     }
 
     private void shutdown() {
-        log.debug("invoking startup services...");
+        log.debug("invoking shutdown services...");
         shutdownServices.stream().forEach(Service::execute);
         log.info("Application shutdown successfully completed. Invoking shutdown hooks via System.exit(0)");
         System.exit(0);

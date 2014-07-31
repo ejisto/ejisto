@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 
 import static com.ejisto.constants.StringConstants.HTTP_LISTEN_PORT;
 import static com.ejisto.util.IOUtils.findFirstAvailablePort;
+import static java.lang.String.format;
 import static java.net.InetAddress.getLoopbackAddress;
 
 /**
@@ -27,6 +28,7 @@ import static java.net.InetAddress.getLoopbackAddress;
 public class VertxInitializer extends BaseStartupService {
 
     private final static Predicate<ContextHandler> IS_INTERNAL = ContextHandler::isInternal;
+    private static final int APPLICATION_PORT = 6789;
 
     private final Collection<ContextHandler> handlers;
 
@@ -40,12 +42,13 @@ public class VertxInitializer extends BaseStartupService {
         configureHttpServer(server);
         configureWebSocketServer();
         final String hostAddress = getLoopbackAddress().getHostAddress();
-        server.listen(6789, hostAddress);
+        server.listen(APPLICATION_PORT, hostAddress);
         final HttpServer internalServer = VertxManager.getInternalHttpServer();
         configureInternalHttpServer(internalServer);
         int port = findFirstAvailablePort(1706);
         internalServer.listen(port, hostAddress);
         System.setProperty(HTTP_LISTEN_PORT.getValue(), String.valueOf(port));
+        log.info(format("The application has been successfully started and is available on http://%s:%s/", hostAddress, String.valueOf(APPLICATION_PORT)));
     }
 
     private void configureWebSocketServer() {
