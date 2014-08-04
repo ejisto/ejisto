@@ -16,8 +16,8 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<div>
-    <span class="action" data-ng-click="expandCollapseChildren(node)" data-tooltip="{{getCurrentTooltipText(node) | translate}}" data-tooltip-trigger="mouseenter"><i class="fa half-opacity" data-ng-class="getExpandCollapseIconClass(node)"></i><span class="sr-only">{{getCurrentTooltipText(node) | translate}}</span></span>
-    <span data-ng-if="addExistingFieldEnabled" class="action" data-ng-click="addExistingField(node)" data-tooltip="{{'propertieseditor.popup.add' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-plus fa-2x half-opacity"></i> <span class="sr-only">{{'propertieseditor.popup.add' | translate}}</span></span>
-    <span data-ng-if="createNewFieldEnabled" class="action" data-ng-click="createNewField(node)" data-tooltip="{{'propertieseditor.popup.create' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-file fa-2x half-opacity"></i> <span class="sr-only">{{'propertieseditor.popup.create' | translate}}</span></span>
-</div>
+<ul class="ctrl-buttons">
+    <li class="action" data-ng-click="expandCollapseChildren(node)" data-tooltip="{{getCurrentTooltipText(node) | translate}}" data-tooltip-trigger="mouseenter"><i class="fa half-opacity" data-ng-class="getExpandCollapseIconClass(node)"></i><span class="sr-only">{{getCurrentTooltipText(node) | translate}}</span></li>
+    <li data-ng-if="addExistingFieldEnabled" class="action" data-ng-click="addExistingField(node)" data-tooltip="{{'propertieseditor.popup.add' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-plus fa-2x half-opacity"></i> <span class="sr-only">{{'propertieseditor.popup.add' | translate}}</span></li>
+    <li data-ng-if="createNewFieldEnabled" class="action" data-ng-click="createNewField(node)" data-tooltip="{{'propertieseditor.popup.create' | translate}}" data-tooltip-trigger="mouseenter"><i class="fa fa-file fa-2x half-opacity"></i> <span class="sr-only">{{'propertieseditor.popup.create' | translate}}</span></li>
+</ul>

@@ -22,3 +22,8 @@
 .hide-ctrl-buttons {
     display: none;
 }
+
+ul.ctrl-buttons > li {
+    display:inline-block;
+    padding-left: 10px;
+}

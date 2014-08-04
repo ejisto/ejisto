@@ -48,3 +48,7 @@ li.package > span.hasChildren:hover, li.package > span.hasChildren:focus {
     color:dodgerblue;
     cursor: pointer;
 }
+
+ul.ctrl-buttons, li.action {
+    list-style: none;
+}

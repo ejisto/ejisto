@@ -125,3 +125,8 @@ div.centered {
 .fa-2x {
     font-size: inherit;
 }
+
+ul.ctrl-buttons {
+    margin-left: 10px;
+    padding: 0;
+}
