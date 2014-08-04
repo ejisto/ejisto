@@ -88,7 +88,7 @@
                     }
                 };
                 scope.getExpandCollapseIconClass = function(node) {
-                    return node && node.expanded ? 'fa-level-up' : 'fa-level-down';
+                    return (node && node.expanded ? 'fa-level-up' : 'fa-level-down') + ' fa-2x';
                 };
                 var flattenParentNodes = function(node) {
                     var elements = [];

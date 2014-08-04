@@ -28,41 +28,8 @@ body {
     padding-left:40px !important;
 }
 
-ul.root {
-    padding:5px;
-    margin-left: 5px;
-    list-style: none url("/resources/images/editor/folder.png");
-}
-
-ul.node {
-    padding-left:20px;
-    margin: 0;
-}
-
-ul.root > li {
-    padding:0;
-    margin: 0;
-}
-
-li.package {
-    list-style: none url("/resources/images/editor/folder.png");
-}
-
-li.class {
-    list-style: none url("/resources/images/editor/folder_brick.png");
-}
-
-li.field {
-    list-style: none url("/resources/images/editor/brick.png");
-}
-
 .expand-collapse {
     display: none;
-}
-
-li.package > span.hasChildren:hover {
-    color:dodgerblue;
-    cursor: pointer;
 }
 
 li.package > span.hasChildren:hover > .expand-collapse {
@@ -153,4 +120,8 @@ div.centered {
 
 .margin-20-left {
     margin-left: 20px;
+}
+
+.fa-2x {
+    font-size: inherit;
 }
