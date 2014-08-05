@@ -70,6 +70,10 @@
                     }
                     return undefined;
                 };
+
+                scope.displayTree = function(root) {
+                    return root && hasChildren(root);
+                };
                 scope.isExpanded = function(node) {
                     return node.expanded;
                 };

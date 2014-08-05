@@ -38,6 +38,11 @@ public final class ClassPoolRepository {
         return INSTANCE.getValue(context);
     }
 
+    public static void replaceClassPool(String context, ClassPool classPool) {
+        final ClassPool existing = INSTANCE.getValue(context);
+        INSTANCE.classPoolContainer.replace(context, existing, classPool);
+    }
+
     public static ClassPoolRepository getInstance() {
         return INSTANCE;
     }

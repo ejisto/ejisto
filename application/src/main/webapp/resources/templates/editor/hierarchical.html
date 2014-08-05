@@ -16,8 +16,8 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<div data-ng-show="!fields || fields.length == 0" data-translate>main.propertieseditor.tree.novalues.text</div>
-<ul class="root">
+<div data-ng-if="!displayTree(fields)" data-translate>main.propertieseditor.tree.novalues.text</div>
+<ul class="root" data-ng-if="displayTree(fields)">
     <li data-ng-class="{'package': !node.element, 'field': node.element}" data-sf-treepeat="node in children of fields">
         <span data-ng-if="node.root">{{node.label | translate}}</span>
         <span data-ng-if="!node.root" data-ng-class="{'hasChildren': hasChildren(node)}"><span data-ng-click="toggleExpandCollapse(node)">{{node.label}}</span> <ctrl-buttons data-profile="{{profile}}" class="expand-collapse" data-ng-class="{'hide-ctrl-buttons':node.expanded}"></ctrl-buttons></span>
