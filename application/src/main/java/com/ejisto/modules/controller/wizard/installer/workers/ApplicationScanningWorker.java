@@ -19,6 +19,7 @@
 
 package com.ejisto.modules.controller.wizard.installer.workers;
 
+import com.ejisto.modules.dao.entities.TemporaryWebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.executor.ErrorDescriptor;
 import com.ejisto.modules.executor.GuiTask;
@@ -96,14 +97,22 @@ public class ApplicationScanningWorker extends GuiTask<Void> implements Progress
     }
 
     private void processWebApplication() throws IOException, JDOMException, InvocationTargetException, InterruptedException {
-        Objects.requireNonNull(getSession().getInstallationPath());
-        String basePath = getSession().getInstallationPath();
-        getSession().setContextPath(getContextPath(basePath));
-        mockedFieldsRepository.createContext(getSession().getContextPath());
-        getSession().setClassPathElements(getClasspathEntries(basePath));
-        loadAllClasses(findAllWebApplicationClasses(basePath, getSession()), getSession());
-        processWebXmlDescriptor(getSession());
-        createDeployable(getSession());
+        final WebApplicationDescriptor descriptor = getSession();
+        Objects.requireNonNull(descriptor.getInstallationPath());
+        String basePath = descriptor.getInstallationPath();
+        String contextPath = getContextPath(basePath);
+        if(TemporaryWebApplicationDescriptor.class.isInstance(descriptor)) {
+            final TemporaryWebApplicationDescriptor s = (TemporaryWebApplicationDescriptor) descriptor;
+            s.setOriginalContextPath(contextPath);
+            descriptor.setContextPath(TemporaryWebApplicationDescriptor.generateId(s));
+        } else {
+            descriptor.setContextPath(contextPath);
+        }
+        mockedFieldsRepository.createContext(descriptor.getContextPath());
+        descriptor.setClassPathElements(getClasspathEntries(basePath));
+        loadAllClasses(findAllWebApplicationClasses(basePath, descriptor), descriptor);
+        processWebXmlDescriptor(descriptor);
+        createDeployable(descriptor);
         notifyJobCompleted(COMPLETED, getMessage("progress.scan.end"));
     }
 

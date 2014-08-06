@@ -39,8 +39,7 @@ public final class ClassPoolRepository {
     }
 
     public static void replaceClassPool(String context, ClassPool classPool) {
-        final ClassPool existing = INSTANCE.getValue(context);
-        INSTANCE.classPoolContainer.replace(context, existing, classPool);
+        INSTANCE.classPoolContainer.compute(context, (k,v) -> classPool);
     }
 
     public static ClassPoolRepository getInstance() {

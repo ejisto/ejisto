@@ -27,15 +27,19 @@ import com.ejisto.modules.cargo.NotInstalledException;
 import com.ejisto.modules.controller.wizard.installer.workers.ApplicationScanningWorker;
 import com.ejisto.modules.controller.wizard.installer.workers.FileExtractionWorker;
 import com.ejisto.modules.dao.entities.MockedField;
+import com.ejisto.modules.dao.entities.TemporaryWebApplicationDescriptor;
 import com.ejisto.modules.dao.entities.WebApplicationDescriptor;
 import com.ejisto.modules.dao.local.LocalWebApplicationDescriptorDao;
+import com.ejisto.modules.repository.ClassPoolRepository;
 import com.ejisto.modules.repository.ContainersRepository;
 import com.ejisto.modules.repository.CustomObjectFactoryRepository;
 import com.ejisto.modules.repository.MockedFieldsRepository;
 import com.ejisto.modules.vertx.handler.service.ApplicationInstallerRegistry;
 import com.ejisto.modules.web.util.JSONUtil;
+import com.ejisto.util.IOUtils;
 import com.ejisto.util.collector.MockedFieldCollector;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import javassist.ClassPool;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.vertx.java.core.Handler;
@@ -45,6 +49,7 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.RouteMatcher;
 
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -75,10 +80,12 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
         req.expectMultiPart(true);
         req.uploadHandler(fileHandler -> {
             String key = StringUtils.defaultString(req.params().get(SESSION_ID), UUID.randomUUID().toString());
-            ApplicationInstallerRegistry.putDescriptorIfAbsent(key, new WebApplicationDescriptor());
-            WebApplicationDescriptor session = ApplicationInstallerRegistry.getDescriptor(key).orElseThrow(IllegalStateException::new);
+            ApplicationInstallerRegistry.putDescriptorIfAbsent(key, new TemporaryWebApplicationDescriptor());
+            TemporaryWebApplicationDescriptor session = ApplicationInstallerRegistry.getDescriptor(key).map(
+                    TemporaryWebApplicationDescriptor.class::cast).orElseThrow(IllegalStateException::new);
             String fileName = fileHandler.filename();
-            Path war = Paths.get(System.getProperty("java.io.tmpdir"), fileName);
+            Path war = Paths.get(System.getProperty("java.io.tmpdir"), key, fileName);
+            initDirectory(war.getParent());
             fileHandler.streamToFileSystem(war.toString());
             fileHandler.exceptionHandler(event -> writeError(req, event));
             fileHandler.endHandler(end -> {
@@ -146,13 +153,14 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
     private void handleApplicationPublish(HttpServerRequest req, MultiMap params, Buffer buffer) throws NotInstalledException {
         List<MockedField> newFields = JSONUtil.decode(buffer.toString(), Boilerplate.MF_LIST_TYPE_REFERENCE);
         String sessionID = params.get(SESSION_ID);
-        final Optional<WebApplicationDescriptor> optional = ApplicationInstallerRegistry.getDescriptor(sessionID);
+        final Optional<TemporaryWebApplicationDescriptor> optional = ApplicationInstallerRegistry.getDescriptor(sessionID)
+                .map(TemporaryWebApplicationDescriptor.class::cast);
         if (!optional.isPresent()) {
             writeError(req, HttpResponseStatus.BAD_REQUEST.code(), "invalid sessionID");
             return;
         }
-        WebApplicationDescriptor descriptor = optional.get();
-        final Collection<MockedField> descriptorFields = descriptor.getFields();
+        TemporaryWebApplicationDescriptor temporaryDescriptor = optional.get();
+        final Collection<MockedField> descriptorFields = temporaryDescriptor.getFields();
         newFields.forEach(field -> descriptorFields.stream()
                 .filter(f -> f.getComparisonKey().equals(field.getComparisonKey()))
                 .findFirst()
@@ -161,10 +169,13 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
                     f.setFieldValue(field.getFieldValue());
                     f.setExpression(field.getExpression());
                 }));
-        descriptor.getFields().stream().forEach(f -> f.setContextPath(descriptor.getContextPath()));
+        final WebApplicationDescriptor descriptor = WebApplicationDescriptor.copyOf(temporaryDescriptor);
+        descriptorFields.stream().forEach(f -> f.setContextPath(descriptor.getContextPath()));
         mockedFieldsRepository.deleteContext(descriptor.getContextPath());
         mockedFieldsRepository.insert(descriptorFields);
         webApplicationDescriptorDao.insert(descriptor);
+        ClassPool classPool = ClassPoolRepository.getRegisteredClassPool(temporaryDescriptor.getContextPath());
+        ClassPoolRepository.replaceClassPool(descriptor.getContextPath(), classPool);
         String containerID = Optional.ofNullable(descriptor.getContainerId()).orElse(
                 StringConstants.DEFAULT_CONTAINER_ID.getValue());
         eventManager.publishEvent(
@@ -173,7 +184,9 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
     }
 
     private void scanApplication(HttpServerRequest req, String sessionId) {
-        final WebApplicationDescriptor descriptor = ApplicationInstallerRegistry.getDescriptor(sessionId).orElseThrow(IllegalStateException::new);
+        final TemporaryWebApplicationDescriptor descriptor = ApplicationInstallerRegistry.getDescriptor(sessionId)
+                .map(TemporaryWebApplicationDescriptor.class::cast)
+                .orElseThrow(IllegalStateException::new);
         Optional.ofNullable(req.params().get("resources"))
                 .map(s -> s.split(","))
                 .ifPresent(a -> descriptor.setWhiteList(Arrays.asList(a)));
@@ -184,6 +197,7 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
                     writeError(req, (Throwable)e.getNewValue());
                 }
             };
+            descriptor.setId(sessionId);
             ApplicationScanningWorker worker = new ApplicationScanningWorker(listener,
                                                                              descriptor,
                                                                              mockedFieldsRepository,
@@ -210,6 +224,14 @@ public class ApplicationInstallerWizardHandler implements ContextHandler {
         } catch (Exception e) {
             writeError(req, e);
             log.error("error during application scanning", e);
+        }
+    }
+
+    private void initDirectory(Path dir) {
+        try {
+            IOUtils.initPath(dir);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
         }
     }
 }

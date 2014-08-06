@@ -30,16 +30,13 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.UUID;
 
 import static com.ejisto.modules.executor.ProgressDescriptor.ProgressState.COMPLETED;
 import static com.ejisto.modules.executor.ProgressDescriptor.ProgressState.RUNNING;
 import static com.ejisto.util.GuiUtils.getMessage;
-import static com.ejisto.util.GuiUtils.showWarning;
 import static com.ejisto.util.IOUtils.getFilenameWithoutExt;
 
 /**
@@ -69,13 +66,9 @@ public class FileExtractionWorker extends GuiTask<Void> {
     }
 
     private String openWar(File file) throws IOException {
-        String newPath = System.getProperty("java.io.tmpdir") + File.separator + getFilenameWithoutExt(
-                file) + File.separator;
-        File baseDir = new File(newPath);
-        if (!overwriteDir(baseDir)) {
-            return null;
-        }
-        initTempDir(baseDir);
+        Path newPath = Paths.get(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString(),
+                                 getFilenameWithoutExt(file));
+        initTempDir(newPath);
         getSession().clearElements();
         IOUtils.unzipFile(file, newPath, new SimpleFileVisitor<Path>() {
             @Override
@@ -92,18 +85,11 @@ public class FileExtractionWorker extends GuiTask<Void> {
                 return FileVisitResult.CONTINUE;
             }
         });
-        return newPath;
+        return newPath.toString();
     }
 
-    private boolean overwriteDir(File dir) {
-        if (dir.exists() && showWarning(null, "wizard.overwrite.dir.message", dir.getAbsolutePath())) {
-            return IOUtils.emptyDir(dir);
-        }
-        return !dir.exists();
-    }
-
-    private void initTempDir(File dir) throws IOException {
-        Files.createDirectory(dir.toPath());
+    private void initTempDir(Path dir) throws IOException {
+        Files.createDirectories(dir);
     }
 
     private WebApplicationDescriptor getSession() {

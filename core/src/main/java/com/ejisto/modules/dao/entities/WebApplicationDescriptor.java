@@ -21,6 +21,7 @@ package com.ejisto.modules.dao.entities;
 
 import com.ejisto.modules.dao.entities.helper.WebApplicationDescriptorHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 import lombok.extern.log4j.Log4j;
 
 import java.io.File;
@@ -34,9 +35,10 @@ import static com.ejisto.modules.dao.entities.WebApplicationDescriptorElement.Ki
 import static java.util.stream.Collectors.toList;
 
 @Log4j
+@Data
 public class WebApplicationDescriptor implements Serializable, Entity<String> {
     private static final long serialVersionUID = 7454195671017831484L;
-    private List<WebApplicationDescriptorElement> elements = new ArrayList<>();
+    private final List<WebApplicationDescriptorElement> elements = new ArrayList<>();
     private String installationPath;
     private String containerId;
     private String contextPath;
@@ -57,26 +59,6 @@ public class WebApplicationDescriptor implements Serializable, Entity<String> {
 
     public void deleteAllFields() {
         this.fields.clear();
-    }
-
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
-    }
-
-    public String getContextPath() {
-        return contextPath;
-    }
-
-    public void setInstallationPath(String installationPath) {
-        this.installationPath = installationPath;
-    }
-
-    public String getInstallationPath() {
-        return installationPath;
-    }
-
-    public Collection<MockedField> getFields() {
-        return fields;
     }
 
     public void setBlacklist(List<String> blacklist) {
@@ -107,14 +89,6 @@ public class WebApplicationDescriptor implements Serializable, Entity<String> {
         return warFile;
     }
 
-    public void setWarFile(File warFile) {
-        this.warFile = warFile;
-    }
-
-    public List<WebApplicationDescriptorElement> getElements() {
-        return elements;
-    }
-
     public void addElement(WebApplicationDescriptorElement element) {
         this.elements.add(element);
     }
@@ -139,28 +113,12 @@ public class WebApplicationDescriptor implements Serializable, Entity<String> {
         return elements.stream().filter(x -> x.isOfKind(CLASSPATH)).collect(toList());
     }
 
-    public String getDeployablePath() {
-        return deployablePath;
-    }
-
-    public void setDeployablePath(String deployablePath) {
-        this.deployablePath = deployablePath;
-    }
-
-    public String getContainerId() {
-        return containerId;
-    }
-
-    public void setContainerId(String containerId) {
-        this.containerId = containerId;
-    }
-
     public static WebApplicationDescriptor copyOf(WebApplicationDescriptor src) {
         WebApplicationDescriptor target = new WebApplicationDescriptor();
         target.elements.addAll(src.elements);
         target.installationPath = src.installationPath;
         target.containerId = src.containerId;
-        target.contextPath = src.contextPath;
+        target.contextPath = src.getKey();
         target.fields.addAll(src.fields);
         target.deployablePath = src.deployablePath;
         target.warFile = src.warFile;
@@ -168,9 +126,23 @@ public class WebApplicationDescriptor implements Serializable, Entity<String> {
         return target;
     }
 
+    @JsonIgnore
+    public Collection<MockedField> getFields() {
+        return fields;
+    }
+
+    @JsonIgnore
+    public WebApplicationDescriptorHelper getHelper() {
+        return helper;
+    }
+
+    @JsonIgnore
+    public List<WebApplicationDescriptorElement> getClasspathEntries() {
+        return classpathEntries;
+    }
+
     @Override
     public String getKey() {
         return contextPath;
     }
-
 }

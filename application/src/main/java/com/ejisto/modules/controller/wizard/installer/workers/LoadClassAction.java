@@ -130,7 +130,7 @@ class LoadClassAction extends RecursiveTask<List<MockedField>> {
                                 descriptor.getContextPath(), clazz.getName(), declaredField.getName())
                                 .orElse(new MockedFieldDecorator());
                         MockedField mockedField = MockedFieldDecorator.copyOf(existing);
-                        mockedField.setContextPath(descriptor.getContextPath());
+                        mockedField.setContextPath(descriptor.getKey());
                         mockedField.setClassName(clazz.getName());
                         mockedField.setFieldName(declaredField.getName());
                         mockedField.setFieldType(getFieldTypeAsString(declaredField));
