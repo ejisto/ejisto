@@ -57,6 +57,9 @@ class LoadClassAction extends RecursiveTask<List<MockedField>> {
     private final ProgressListener listener;
     private final MockedFieldsRepository mockedFieldsRepository;
 
+    private int from;
+    private int to;
+
     public LoadClassAction(List<String> classes, ClassLoader classLoader, WebApplicationDescriptor webApplicationDescriptor, ProgressListener listener, MockedFieldsRepository mockedFieldsRepository) {
         this.classes = classes;
         this.classLoader = classLoader;
@@ -64,38 +67,44 @@ class LoadClassAction extends RecursiveTask<List<MockedField>> {
         this.listener = listener;
         this.mockedFieldsRepository = mockedFieldsRepository;
     }
-
+    
+    public LoadClassAction(List<String> classes, ClassLoader classLoader, WebApplicationDescriptor webApplicationDescriptor, ProgressListener listener, MockedFieldsRepository mockedFieldsRepository, int from, int to) {
+        this(classes, classLoader, webApplicationDescriptor, listener, mockedFieldsRepository);
+        this.from = from;
+        this.to = to;
+    }
     @Override
     protected List<MockedField> compute() {
-        if (CollectionUtils.isEmpty(classes)) {
+        if (to-from==0) {
             return emptyList();
         }
-        if (classes.size() > THRESHOLD) {
+        if (to-from > THRESHOLD) {
             return doParallelWork();
         } else {
             log.debug("attempting to load " + classes.size() + " classes.");
             List<MockedField> results = new ArrayList<>();
             ClassPool classPool = new ClassPool();
             classPool.appendClassPath(new LoaderClassPath(classLoader));
-            classes.forEach(className -> {
+            for (int i = from; i < to; i++){
+                String className = classes.get(i);
                 listener.progressChanged(1, className);
                 results.addAll(loadClassFields(className, classPool, webApplicationDescriptor));
-            });
+            }
             log.debug("returning results.");
             return results;
         }
     }
 
     private List<MockedField> doParallelWork() {
-        int collectionSize = classes.size();
+        int collectionSize = to-from;
         int jobs = collectionSize / THRESHOLD + (collectionSize % THRESHOLD == 0 ? 0 : 1);
         log.debug("about to fork " + jobs + " tasks");
         List<LoadClassAction> forkedTasks = new ArrayList<>(jobs);
         List<MockedField> results = new ArrayList<>();
-        for (int i = 0; i < jobs; i++) {
+        for (int i = from; i < jobs; i++) {
             int start = THRESHOLD * i;
-            int end = Math.min(collectionSize, start + THRESHOLD);
-            LoadClassAction task = new LoadClassAction(classes.subList(start, end), classLoader,
+            int end = Math.min(to, start + THRESHOLD);
+            LoadClassAction task = new LoadClassAction(classes, start, end, classLoader,
                                                        webApplicationDescriptor, listener, mockedFieldsRepository);
             task.fork();
             forkedTasks.add(task);
