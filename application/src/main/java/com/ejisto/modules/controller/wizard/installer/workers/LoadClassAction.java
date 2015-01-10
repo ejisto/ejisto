@@ -57,8 +57,8 @@ class LoadClassAction extends RecursiveTask<List<MockedField>> {
     private final ProgressListener listener;
     private final MockedFieldsRepository mockedFieldsRepository;
 
-    private int from;
-    private int to;
+    private final int from;
+    private final int to;
 
     public LoadClassAction(List<String> classes, ClassLoader classLoader, WebApplicationDescriptor webApplicationDescriptor, ProgressListener listener, MockedFieldsRepository mockedFieldsRepository) {
         this.classes = classes;
@@ -68,14 +68,15 @@ class LoadClassAction extends RecursiveTask<List<MockedField>> {
         this.mockedFieldsRepository = mockedFieldsRepository;
     }
     
-    public LoadClassAction(List<String> classes, ClassLoader classLoader, WebApplicationDescriptor webApplicationDescriptor, ProgressListener listener, MockedFieldsRepository mockedFieldsRepository, int from, int to) {
+    private LoadClassAction(List<String> classes, ClassLoader classLoader, WebApplicationDescriptor webApplicationDescriptor, ProgressListener listener, MockedFieldsRepository mockedFieldsRepository, int from, int to) {
         this(classes, classLoader, webApplicationDescriptor, listener, mockedFieldsRepository);
         this.from = from;
         this.to = to;
     }
+    
     @Override
     protected List<MockedField> compute() {
-        if (to-from==0) {
+        if (to-from <= 0) {
             return emptyList();
         }
         if (to-from > THRESHOLD) {
