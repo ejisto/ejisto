@@ -29,13 +29,13 @@ There are two possible ways:
 
 ejisto is (or will be) a sandbox for your application. It moves the focus on the front-end side cutting all the links between your pages and the rest of the world.
 
-How it works?
+How does it work?
 -------------
 No magic here: ejisto makes a full scan of your web application classes during configuration process, registering all the relevant classes and their fields (no source/binary files are modified during the scan)
 After that, you can start the embedded Servlet Container instance; then ejisto registers itself as instrumentation agent and dynamically modifies registered java classes at load time, giving you a fully featured application without worries about configuration, integration issues and so on.
 
 
-![how it works](http://4.bp.blogspot.com/-WAjUeQOE5hA/T3OArUNqifI/AAAAAAAAADU/PM6r_YAVFAg/s1600/classloading-web.png)
+![how does it work](http://4.bp.blogspot.com/-WAjUeQOE5hA/T3OArUNqifI/AAAAAAAAADU/PM6r_YAVFAg/s1600/classloading-web.png)
 
 May I try it?
 -----------------
