@@ -61,15 +61,15 @@ class LoadClassAction extends RecursiveTask<List<MockedField>> {
     private final int to;
 
     public LoadClassAction(List<String> classes, ClassLoader classLoader, WebApplicationDescriptor webApplicationDescriptor, ProgressListener listener, MockedFieldsRepository mockedFieldsRepository) {
+        this(classes, classLoader, webApplicationDescriptor, listener, mockedFieldsRepository, 0, classes.size());
+    }
+    
+    private LoadClassAction(List<String> classes, ClassLoader classLoader, WebApplicationDescriptor webApplicationDescriptor, ProgressListener listener, MockedFieldsRepository mockedFieldsRepository, int from, int to) {
         this.classes = classes;
         this.classLoader = classLoader;
         this.webApplicationDescriptor = webApplicationDescriptor;
         this.listener = listener;
         this.mockedFieldsRepository = mockedFieldsRepository;
-    }
-    
-    private LoadClassAction(List<String> classes, ClassLoader classLoader, WebApplicationDescriptor webApplicationDescriptor, ProgressListener listener, MockedFieldsRepository mockedFieldsRepository, int from, int to) {
-        this(classes, classLoader, webApplicationDescriptor, listener, mockedFieldsRepository);
         this.from = from;
         this.to = to;
     }
